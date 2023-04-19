@@ -17,7 +17,7 @@ impl ProtoDescriptor {
     /// Instantiates a descriptor from a ProtoConfig
     pub fn from_config(cfg: ProtoConfig) -> Result<Self> {
         let files = cfg.files.clone();
-        let includes = vec![cfg.workspace.clone()];
+        let includes = vec![cfg.workspace];
         Self::from_files(files, includes)
     }
 

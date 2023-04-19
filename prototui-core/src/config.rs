@@ -8,7 +8,7 @@ use std::fs::read_to_string;
 pub static CMD_GRPC: &str = "grpcurl";
 
 /// The top level config.
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct ProtoConfig {
     /// The top level workspace
     pub workspace: String,

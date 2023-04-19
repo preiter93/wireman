@@ -7,28 +7,33 @@ use std::rc::Rc;
 use super::core_client::CoreClient;
 
 #[derive(Clone)]
-pub struct SelectionModel<T> {
-    analyzer: Rc<RefCell<CoreClient>>,
+pub struct SelectionModel {
+    /// Core client retrieves proto descriptors
+    core_client: Rc<RefCell<CoreClient>>,
+    /// The state of the services and methods list. Holds info about currently
+    /// selected service and method and whether a service should be expanded.
     pub state: ListWithChildrenState,
-    pub items: Vec<ItemWithChildren<T>>,
+    /// A list of proto services. Each service can hold a list of methods.
+    pub items: Vec<ServiceWithMethods>,
 }
 
+/// Each service can hold a list of methods
 #[derive(Clone)]
-pub struct ItemWithChildren<T> {
-    pub parent: T,
-    pub children: Vec<T>,
+pub struct ServiceWithMethods {
+    pub service: String,
+    pub methods: Vec<String>,
 }
 
-impl SelectionModel<String> {
+impl SelectionModel {
     /// Returns a selection model. Requires the core client
     /// which retrieves the proto services and methods.
-    pub fn new(analyzer: Rc<RefCell<CoreClient>>) -> Self {
-        let services = analyzer.borrow_mut().get_services();
+    pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
+        let services = core_client.borrow_mut().get_services();
         let items = services
             .iter()
-            .map(|service| ItemWithChildren::<String> {
-                parent: service.full_name().to_string(),
-                children: analyzer
+            .map(|service| ServiceWithMethods {
+                service: service.full_name().to_string(),
+                methods: core_client
                     .borrow_mut()
                     .get_methods(service)
                     .iter()
@@ -40,11 +45,11 @@ impl SelectionModel<String> {
         // Preselect first service
         let mut state = ListWithChildrenState::default();
         if !services.is_empty() {
-            state.select(Some(0));
+            state.select_parent(Some(0));
         }
 
         Self {
-            analyzer,
+            core_client,
             state,
             items,
         }
@@ -68,11 +73,12 @@ impl SelectionModel<String> {
         }
     }
 
-    pub fn next_service(&mut self) {
+    /// Select the next service.
+    fn next_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let i = match self.state.selected() {
+        let i = match self.state.selected_parent() {
             Some(i) => {
                 if i >= self.items.len() - 1 {
                     0
@@ -82,14 +88,15 @@ impl SelectionModel<String> {
             }
             None => 0,
         };
-        self.state.select(Some(i));
+        self.state.select_parent(Some(i));
     }
 
-    pub fn previous_service(&mut self) {
+    /// Select the previous service.
+    fn previous_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let i = match self.state.selected() {
+        let i = match self.state.selected_parent() {
             Some(i) => {
                 if i == 0 {
                     self.items.len() - 1
@@ -99,17 +106,17 @@ impl SelectionModel<String> {
             }
             None => 0,
         };
-        self.state.select(Some(i));
+        self.state.select_parent(Some(i));
     }
 
-    pub fn next_method(&mut self) {
+    /// Select the next method.
+    fn next_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
-
-        let k = match (self.state.selected(), self.state.selected_sub()) {
+        let k = match (self.state.selected_parent(), self.state.selected_child()) {
             (Some(i), Some(j)) => {
-                let items = &self.items[i].children;
+                let items = &self.items[i].methods;
                 if j >= items.len() - 1 {
                     0
                 } else {
@@ -118,17 +125,17 @@ impl SelectionModel<String> {
             }
             _ => 0,
         };
-        self.state.select_sub(Some(k));
+        self.state.select_child(Some(k));
     }
 
-    pub fn previous_method(&mut self) {
+    /// Select the previous method.
+    fn previous_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
-
-        let k = match (self.state.selected(), self.state.selected_sub()) {
+        let k = match (self.state.selected_parent(), self.state.selected_child()) {
             (Some(i), Some(j)) => {
-                let items = &self.items[i].children;
+                let items = &self.items[i].methods;
                 if items.is_empty() {
                     0
                 } else if j == 0 {
@@ -139,23 +146,25 @@ impl SelectionModel<String> {
             }
             _ => 0,
         };
-
-        self.state.select_sub(Some(k));
+        self.state.select_child(Some(k));
     }
 
     /// Return the description of the currently selected service
     fn get_selected_service(&self) -> Option<ServiceDescriptor> {
-        if let Some(i) = self.state.selected() {
-            Some(self.analyzer.borrow().get_services()[i].clone())
-        } else {
-            None
-        }
+        self.state
+            .selected_parent()
+            .map(|i| self.core_client.borrow().get_services()[i].clone())
     }
 
     /// Return the descrption of the currently selected method
     pub fn get_selected_method(&self) -> Option<MethodDescriptor> {
-        if let (Some(service), Some(i)) = (self.get_selected_service(), self.state.selected_sub()) {
-            self.analyzer.borrow().get_methods(&service).get(i).cloned()
+        if let (Some(service), Some(i)) = (self.get_selected_service(), self.state.selected_child())
+        {
+            self.core_client
+                .borrow()
+                .get_methods(&service)
+                .get(i)
+                .cloned()
         } else {
             None
         }
@@ -166,15 +175,15 @@ impl SelectionModel<String> {
     pub fn expand_service(&mut self) {
         if let Some(service) = self.get_selected_service() {
             // do not expand if the service has no methods
-            if self.analyzer.borrow().get_methods(&service).is_empty() {
+            if self.core_client.borrow().get_methods(&service).is_empty() {
                 return;
             }
-            self.state.expand_selected();
+            self.state.expand_parent();
             self.next_method();
         }
     }
 
     pub fn collapse_methods(&mut self) {
-        self.state.collapse();
+        self.state.collapse_children();
     }
 }

@@ -15,10 +15,13 @@ use std::{cell::RefCell, io, rc::Rc};
 pub struct App<'a> {
     // The controller for the services and methods list
     pub selection_controller: SelectionController,
+
     // The controller for the request editor
     pub request_controller: RequestController<'a>,
+
     /// The currently active window
     active_window: ActiveWindow,
+
     // Whether to display the help tile
     show_help: bool,
 }
@@ -27,12 +30,15 @@ impl<'a> App<'a> {
     pub fn new(desc: ProtoDescriptor) -> App<'a> {
         // The core client communicates with the prototui core pkg
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(desc)));
+
         // Construct the selection controller
         let list_model = SelectionModel::new(Rc::clone(&core_client_rc));
         let list_controller = SelectionController::new(list_model);
+
         // Construct the request controller
         let editor_model = RequestModel::new(core_client_rc);
         let editor_controller = RequestController::new(editor_model);
+
         App {
             active_window: ActiveWindow::Selection,
             request_controller: editor_controller,
@@ -85,7 +91,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
                 // Load the currently selected method. This should only
                 // be called if the method actually has changed
                 if let Some(method) = &load_method {
-                    app.request_controller.model.load_method(method);
+                    app.request_controller.load_method(method);
                     // Once we loaded the method we set it to None to
                     // avoid to load it multiple times
                     load_method = None;

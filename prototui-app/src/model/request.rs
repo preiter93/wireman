@@ -1,13 +1,14 @@
+use super::core_client::CoreClient;
 use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use tui_textarea::TextArea;
 
-use super::core_client::CoreClient;
-
 type EditorMethodMap<'a> = HashMap<String, TextArea<'a>>;
 #[derive(Clone)]
 pub struct RequestModel<'a> {
-    analyzer: Rc<RefCell<CoreClient>>,
+    /// The core client retrieves default proto messages
+    /// and acts as the gRPC client.
+    core_client: Rc<RefCell<CoreClient>>,
 
     // The currently active editor
     pub editor: TextArea<'a>,
@@ -35,9 +36,9 @@ impl<'a> RequestModel<'a> {
     /// Returns a request model. Requires the core client
     /// which retrieves the proto message and calls the
     /// gRPC client.
-    pub fn new(analyzer: Rc<RefCell<CoreClient>>) -> Self {
+    pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
         Self {
-            analyzer,
+            core_client,
             selected_method: None,
             editor: TextArea::new(Vec::new()),
             editor_map: HashMap::new(),
@@ -76,7 +77,7 @@ impl<'a> RequestModel<'a> {
 
     /// Loads a new request message template
     fn load_request_template(&mut self, method: &MethodDescriptor) {
-        let req = self.analyzer.borrow_mut().get_request(method);
+        let req = self.core_client.borrow_mut().get_request(method);
         // Load message in editor
         self.set_text_raw(try_pretty_format_json(&req.to_json()));
     }
@@ -99,36 +100,34 @@ impl<'a> RequestModel<'a> {
         self.editor = self.editor_map[id].clone();
     }
 
-    /// Tries to pretty format the current text assuming it is in json format
+    /// Pretty format the current editor text. Fails if the text
+    /// is not a proper json string.
     pub fn format_json(&mut self) {
-        if let Ok(parsed_json) = serde_json::from_str::<serde_json::Value>(&self.get_text_raw()) {
-            if let Ok(pretty_json) = serde_json::to_string_pretty(&parsed_json) {
-                self.set_text_raw(pretty_json);
+        match pretty_format_json(&self.get_text_raw()) {
+            Ok(pretty) => {
+                self.set_text_raw(pretty);
                 self.error = None;
-            } else if let Err(err) = serde_json::to_string_pretty(&parsed_json) {
-                self.error = Some(ErrorKind::format_error(err.to_string()));
             }
-        } else if let Err(err) = serde_json::from_str::<serde_json::Value>(&self.get_text_raw()) {
-            self.error = Some(ErrorKind::format_error(err.to_string()));
+            Err(err) => self.error = Some(err),
         }
     }
 
     /// Make a grpc call and set response or error
     pub fn call_grpc(&mut self) {
         if let Some(method) = &self.selected_method {
-            let mut req = self.analyzer.borrow().get_request(method);
+            let mut req = self.core_client.borrow().get_request(method);
             if let Err(err) = req.from_json(&self.get_text_raw()) {
                 self.error = Some(ErrorKind::default_error(err.to_string()));
                 self.response = None;
                 return;
             }
-            match self.analyzer.borrow_mut().call_unary(&req) {
+            match self.core_client.borrow_mut().call_unary(&req) {
                 Ok(resp) => {
                     self.response = Some(try_pretty_format_json(&resp));
                     self.error = None;
                 }
                 Err(err) => {
-                    self.error = Some(ErrorKind::default_error(err.to_string()));
+                    self.error = Some(ErrorKind::default_error(err));
                     self.response = None;
                 }
             }
@@ -168,14 +167,20 @@ impl ErrorKind {
     }
 }
 
-/// Pretty formats a json string. Does return the input string if
-/// formatting fails.
-fn try_pretty_format_json(input: &str) -> String {
-    let mut out = input.to_owned();
-    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&out) {
-        if let Ok(pretty) = serde_json::to_string_pretty(&parsed) {
-            out = pretty;
-        }
+/// Pretty formats a string assuming it is in json format.
+/// Returns an error if formatting fails.
+fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
+    match serde_json::from_str::<serde_json::Value>(input) {
+        Ok(parsed) => match serde_json::to_string_pretty(&parsed) {
+            Ok(pretty) => Ok(pretty),
+            Err(err) => Err(ErrorKind::format_error(err.to_string())),
+        },
+        Err(err) => Err(ErrorKind::format_error(err.to_string())),
     }
-    out
+}
+
+/// Convenienve method to retty format a json string and just return
+/// the input if formatting fails.
+fn try_pretty_format_json(input: &str) -> String {
+    pretty_format_json(input).unwrap_or_else(|_| input.to_string())
 }

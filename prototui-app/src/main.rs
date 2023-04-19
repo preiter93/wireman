@@ -18,7 +18,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
-    let desc = init_analyzer();
+    let desc = init_core_client();
 
     let app = App::new(desc);
     let _ = run_app(&mut terminal, app);
@@ -29,8 +29,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// Initiate the proto analyzer from the core pkg
-fn init_analyzer() -> ProtoDescriptor {
+/// Initiate the core client.
+fn init_core_client() -> ProtoDescriptor {
     let cfg = init_from_file("./config.json").unwrap();
 
     ProtoDescriptor::from_config(cfg).unwrap()

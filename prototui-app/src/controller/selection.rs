@@ -1,4 +1,4 @@
-use crate::model::selection::ItemWithChildren;
+use crate::model::selection::ServiceWithMethods;
 use crate::{
     commons::HelpActions,
     model::selection::SelectionModel,
@@ -7,15 +7,19 @@ use crate::{
 use core::MethodDescriptor;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 
+/// Selection controller manipulates the services and methods
+/// list state on user input.
 pub struct SelectionController {
-    pub model: SelectionModel<String>,
+    model: SelectionModel,
 }
 
 impl SelectionController {
-    pub fn new(model: SelectionModel<String>) -> Self {
+    /// Instantiate a Controller from the model.
+    pub fn new(model: SelectionModel) -> Self {
         Self { model }
     }
 
+    /// Handle user input.
     pub fn on_key(&mut self, key: KeyEvent) -> Option<MethodDescriptor> {
         let mut load_method = None;
         if key.kind == KeyEventKind::Press {
@@ -30,7 +34,9 @@ impl SelectionController {
                 }
                 _ => {}
             }
-            if self.is_focus_services() {
+            // Handle key input depending if services or methods
+            // are currently in the selection focus.
+            if self.services_selected() {
                 self.on_key_services_focused(key, &mut load_method);
             } else {
                 self.on_key_methods_focused(key, &mut load_method);
@@ -45,12 +51,9 @@ impl SelectionController {
         key: KeyEvent,
         load_method: &mut Option<MethodDescriptor>,
     ) {
-        match key.code {
-            KeyCode::Enter => {
-                self.model.expand_service();
-                *load_method = self.model.get_selected_method();
-            }
-            _ => {}
+        if key.code == KeyCode::Enter {
+            self.model.expand_service();
+            *load_method = self.model.get_selected_method();
         }
     }
 
@@ -60,14 +63,13 @@ impl SelectionController {
         key: KeyEvent,
         _load_method: &mut Option<MethodDescriptor>,
     ) {
-        match key.code {
-            KeyCode::Enter => self.model.collapse_methods(),
-            _ => {}
+        if key.code == KeyCode::Enter {
+            self.model.collapse_methods();
         }
     }
 
     /// Returns whether the current selection focus are the Services
-    fn is_focus_services(&self) -> bool {
+    fn services_selected(&self) -> bool {
         self.model.state.selection_level() == SelectionLevel::Parent
     }
 
@@ -86,7 +88,7 @@ impl SelectionController {
     }
 
     /// Return the istems of the services list
-    pub fn items(&self) -> &Vec<ItemWithChildren<String>> {
+    pub fn items(&self) -> &Vec<ServiceWithMethods> {
         &self.model.items
     }
 

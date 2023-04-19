@@ -8,15 +8,21 @@ use ratatui::{
 };
 use unicode_width::UnicodeWidthStr;
 
+/// The local state for the list with children widget.
+/// Holds the index of selected parent and child. And
+/// whether the child list of a service should be
+/// expanded.
 #[derive(Debug, Clone, Default)]
 pub struct ListWithChildrenState {
     offset: usize,
-    selected: Option<usize>,
-    selected_sub: Option<usize>,
-    expanded: Option<usize>,
+    selected_parent: Option<usize>,
+    selected_child: Option<usize>,
+    expanded_parent: Option<usize>,
     selection_level: SelectionLevel,
 }
 
+/// Whether we are currently selecting in the parent
+/// list or in the children list.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum SelectionLevel {
     #[default]
@@ -25,33 +31,33 @@ pub enum SelectionLevel {
 }
 
 impl ListWithChildrenState {
-    pub fn selected(&self) -> Option<usize> {
-        self.selected
+    pub fn selected_parent(&self) -> Option<usize> {
+        self.selected_parent
     }
 
-    pub fn selected_sub(&self) -> Option<usize> {
-        self.selected_sub
+    pub fn selected_child(&self) -> Option<usize> {
+        self.selected_child
     }
 
-    pub fn select(&mut self, index: Option<usize>) {
-        self.selected = index;
+    pub fn select_parent(&mut self, index: Option<usize>) {
+        self.selected_parent = index;
         if index.is_none() {
             self.offset = 0;
         }
     }
 
-    pub fn select_sub(&mut self, index: Option<usize>) {
-        self.selected_sub = index;
+    pub fn select_child(&mut self, index: Option<usize>) {
+        self.selected_child = index;
     }
 
-    pub fn expand_selected(&mut self) {
-        self.expanded = self.selected();
+    pub fn expand_parent(&mut self) {
+        self.expanded_parent = self.selected_parent();
         self.selection_level = SelectionLevel::Children;
     }
 
-    pub fn collapse(&mut self) {
-        self.expanded = None;
-        self.selected_sub = None;
+    pub fn collapse_children(&mut self) {
+        self.expanded_parent = None;
+        self.selected_child = None;
         self.selection_level = SelectionLevel::Parent;
     }
 
@@ -218,7 +224,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
         let blank_symbol = " ".repeat(highlight_symbol.width());
 
         let mut current_height = 0;
-        let has_selection = state.selected.is_some();
+        let has_selection = state.selected_parent.is_some();
         for (i, item) in self.items.iter_mut().enumerate()
         // .skip(state.offset)
         // .take(end - start)
@@ -243,7 +249,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
             let item_style = self.style.patch(item.parent.style);
             buf.set_style(area, item_style);
 
-            let is_selected = state.selected.map(|s| s == i).unwrap_or(false);
+            let is_selected = state.selected_parent.map(|s| s == i).unwrap_or(false);
             for (j, line) in item.parent.content.lines.iter().enumerate() {
                 // if the item is selected, we need to display the highlight symbol:
                 // - either for the first line of the item only,
@@ -267,7 +273,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
                 };
                 buf.set_spans(elem_x, y + j as u16, line, max_element_width);
 
-                let is_expanded = state.expanded.map(|s| s == i).unwrap_or(false);
+                let is_expanded = state.expanded_parent.map(|s| s == i).unwrap_or(false);
 
                 if is_expanded {
                     for (k, child) in item.children.iter_mut().enumerate() {
@@ -291,7 +297,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
                         let item_style = self.style.patch(item.parent.style);
                         buf.set_style(area, item_style);
 
-                        let is_sub_selected = state.selected_sub.map(|s| s == k).unwrap_or(false);
+                        let is_sub_selected = state.selected_child.map(|s| s == k).unwrap_or(false);
                         for (m, sub_line) in child.content.lines.iter().enumerate() {
                             // if the item is selected, we need to display the highlight symbol:
                             // - either for the first line of the item only,
