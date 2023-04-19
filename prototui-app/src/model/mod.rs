@@ -1,5 +1,7 @@
-pub mod analyzer;
-pub mod editor;
-pub mod list_with_children;
-pub use editor::EditorModel;
-pub use list_with_children::ListWithChildrenModel;
+pub mod core_client;
+pub mod request;
+pub mod selection;
+
+pub use core_client::CoreClient;
+pub use request::RequestModel;
+pub use selection::SelectionModel;

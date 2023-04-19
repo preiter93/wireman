@@ -2,12 +2,12 @@ use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use tui_textarea::TextArea;
 
-use super::analyzer::ProtoAnalyzer;
+use super::core_client::CoreClient;
 
 type EditorMethodMap<'a> = HashMap<String, TextArea<'a>>;
 #[derive(Clone)]
-pub struct EditorModel<'a> {
-    analyzer: Rc<RefCell<ProtoAnalyzer>>,
+pub struct RequestModel<'a> {
+    analyzer: Rc<RefCell<CoreClient>>,
 
     // The currently active editor
     pub editor: TextArea<'a>,
@@ -19,7 +19,7 @@ pub struct EditorModel<'a> {
     active_editor: String,
 
     // The editor mode
-    pub mode: Mode,
+    pub mode: EditorMode,
 
     // The currently selected method
     pub selected_method: Option<MethodDescriptor>,
@@ -31,23 +31,21 @@ pub struct EditorModel<'a> {
     pub response: Option<String>,
 }
 
-impl<'a> EditorModel<'a> {
-    pub fn new(analyzer: Rc<RefCell<ProtoAnalyzer>>) -> Self {
+impl<'a> RequestModel<'a> {
+    /// Returns a request model. Requires the core client
+    /// which retrieves the proto message and calls the
+    /// gRPC client.
+    pub fn new(analyzer: Rc<RefCell<CoreClient>>) -> Self {
         Self {
             analyzer,
             selected_method: None,
             editor: TextArea::new(Vec::new()),
             editor_map: HashMap::new(),
             active_editor: String::new(),
-            mode: Mode::Normal,
+            mode: EditorMode::Normal,
             error: None,
             response: None,
         }
-    }
-
-    /// Returns whether the editor is currently in the insert mode
-    pub fn is_insert_mode(&self) -> bool {
-        self.mode == Mode::Insert
     }
 
     /// Gets the editors content as raw text
@@ -80,7 +78,7 @@ impl<'a> EditorModel<'a> {
     fn load_request_template(&mut self, method: &MethodDescriptor) {
         let req = self.analyzer.borrow_mut().get_request(method);
         // Load message in editor
-        self.set_text_raw(try_pretty_format(&req.to_json()));
+        self.set_text_raw(try_pretty_format_json(&req.to_json()));
     }
 
     /// Change the editor
@@ -126,7 +124,7 @@ impl<'a> EditorModel<'a> {
             }
             match self.analyzer.borrow_mut().call_unary(&req) {
                 Ok(resp) => {
-                    self.response = Some(try_pretty_format(&resp));
+                    self.response = Some(try_pretty_format_json(&resp));
                     self.error = None;
                 }
                 Err(err) => {
@@ -138,13 +136,16 @@ impl<'a> EditorModel<'a> {
     }
 }
 
+/// The editor mode, i.e. Normal or Insert.
 #[derive(Clone, PartialEq, Eq, Default)]
-pub enum Mode {
+pub enum EditorMode {
     #[default]
     Normal,
     Insert,
 }
 
+/// The error of the request. Can hold a kind value
+/// to distinguish between format and gRPC errors.
 #[derive(Clone)]
 pub struct ErrorKind {
     pub kind: String,
@@ -152,14 +153,14 @@ pub struct ErrorKind {
 }
 
 impl ErrorKind {
-    pub fn format_error(msg: String) -> Self {
+    fn format_error(msg: String) -> Self {
         Self {
             kind: "Format Error".to_owned(),
             msg,
         }
     }
 
-    pub fn default_error(msg: String) -> Self {
+    fn default_error(msg: String) -> Self {
         Self {
             kind: "Error".to_owned(),
             msg,
@@ -167,11 +168,13 @@ impl ErrorKind {
     }
 }
 
-fn try_pretty_format(json: &str) -> String {
-    let mut out = json.to_owned();
-    if let Ok(parsed_json) = serde_json::from_str::<serde_json::Value>(&out) {
-        if let Ok(pretty_json) = serde_json::to_string_pretty(&parsed_json) {
-            out = pretty_json;
+/// Pretty formats a json string. Does return the input string if
+/// formatting fails.
+fn try_pretty_format_json(input: &str) -> String {
+    let mut out = input.to_owned();
+    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&out) {
+        if let Ok(pretty) = serde_json::to_string_pretty(&parsed) {
+            out = pretty;
         }
     }
     out

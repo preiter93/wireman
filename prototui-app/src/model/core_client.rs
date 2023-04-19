@@ -2,15 +2,15 @@ use core::{
     descriptor::message::ProtoMessage, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 
+/// The [CoreClient] calls the proto descriptor and gRPC client of the 
+/// core package.  
 #[derive(Debug, Clone)]
-pub struct ProtoAnalyzer {
-    /// The proto descriptor which holds info of the proto services, methods and messages
+pub struct CoreClient {
+    /// The proto descriptor retrievs info of the services, methods and messages
     desc: ProtoDescriptor,
-    // The request header
-    // header: Option<String>,
 }
 
-impl ProtoAnalyzer {
+impl CoreClient {
     pub fn new(desc: ProtoDescriptor) -> Self {
         Self { desc }
     }

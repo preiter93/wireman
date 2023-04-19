@@ -1,9 +1,6 @@
-#![allow(clippy::module_name_repetitions)]
-use std::cmp::max;
-
 use crate::commons::window_border;
 use crate::commons::HelpActions;
-use crate::model::ListWithChildrenModel;
+use crate::controller::SelectionController;
 use crate::theme;
 use crate::widgets::list_with_children::ListItem;
 use crate::widgets::list_with_children::ListWithChildren;
@@ -19,15 +16,16 @@ use ratatui::widgets::Cell;
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::Frame;
+use std::cmp::max;
 
 const MIN_HELP_SIZE: usize = 15;
 
 /// Draw the services and methods list and draw the helper widget
 /// below is `help_actions` has values.
-pub fn draw_list_and_help<B>(
+pub fn draw_selection_and_help<B>(
     f: &mut Frame<B>,
     area: Rect,
-    model: &mut ListWithChildrenModel<String>,
+    controller: &mut SelectionController,
     block: Block,
     help_actions: Option<HelpActions>,
 ) where
@@ -43,8 +41,9 @@ pub fn draw_list_and_help<B>(
         .split(area);
 
     // Render the list message
-    let list = draw_list_with_children(model, block);
-    f.render_stateful_widget(list, chunks[0], &mut model.state);
+    let list = draw_list_with_children(controller, block);
+    f.render_stateful_widget(list, chunks[0], controller.list_state());
+
     // Render the help widget
     if let Some(actions) = &help_actions {
         let help = draw_help(actions);
@@ -53,11 +52,11 @@ pub fn draw_list_and_help<B>(
 }
 
 fn draw_list_with_children<'a>(
-    model: &mut ListWithChildrenModel<String>,
+    controller: &mut SelectionController,
     block: Block<'a>,
 ) -> ListWithChildren<'a> {
-    let widget = model
-        .items
+    let widget = controller
+        .items()
         .iter()
         .map(|item| {
             ListWithChildrenItem::new(

@@ -1,22 +1,23 @@
 use crate::{
     commons::HelpActions,
-    model::{editor::Mode, EditorModel},
+    model::request::{EditorMode, ErrorKind, RequestModel},
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
+use ratatui::{style::Style, widgets::Block};
 use tui_textarea::{CursorMove, Input};
 
-pub struct EditorController<'a> {
-    pub model: EditorModel<'a>,
+pub struct RequestController<'a> {
+    pub model: RequestModel<'a>,
 }
 
-impl<'a> EditorController<'a> {
-    pub fn new(model: EditorModel<'a>) -> Self {
+impl<'a> RequestController<'a> {
+    pub fn new(model: RequestModel<'a>) -> Self {
         Self { model }
     }
 
     pub fn on_key(&mut self, key: KeyEvent) {
         if key.kind == KeyEventKind::Press {
-            if self.model.mode == Mode::Normal {
+            if self.model.mode == EditorMode::Normal {
                 self.on_key_normal_mode(key);
             } else {
                 self.on_key_insert_mode(key);
@@ -27,9 +28,9 @@ impl<'a> EditorController<'a> {
     /// Key bindings in normal mode
     fn on_key_normal_mode(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Char('i') => self.model.mode = Mode::Insert,
+            KeyCode::Char('i') => self.model.mode = EditorMode::Insert,
             KeyCode::Char('a') => {
-                self.model.mode = Mode::Insert;
+                self.model.mode = EditorMode::Insert;
                 self.model.editor.move_cursor(CursorMove::Forward);
             }
             KeyCode::Enter => self.model.call_grpc(),
@@ -65,7 +66,7 @@ impl<'a> EditorController<'a> {
     /// Key bindings in insert mode
     fn on_key_insert_mode(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Esc => self.model.mode = Mode::Normal,
+            KeyCode::Esc => self.model.mode = EditorMode::Normal,
             KeyCode::Down => self.model.editor.move_cursor(CursorMove::Down),
             KeyCode::Up => self.model.editor.move_cursor(CursorMove::Up),
             KeyCode::Right => self.model.editor.move_cursor(CursorMove::Forward),
@@ -81,29 +82,53 @@ impl<'a> EditorController<'a> {
     /// helper wndow.
     pub fn help(&self) -> HelpActions {
         match self.model.mode {
-            Mode::Normal => {
+            EditorMode::Normal => {
                 let mut actions = HelpActions::default();
                 actions.insert("Tab", "Go to Selection");
-                // actions.insert("j", "Down");
-                // actions.insert("k", "Up");
-                // actions.insert("h", "Left");
-                // actions.insert("l", "Right");
-                // actions.insert("w", "Next word");
-                // actions.insert("b", "Previous word");
-                // actions.insert("x", "Delete char");
-                // actions.insert("d", "Delete line");
-                // actions.insert("k", "Up");
-                // actions.insert("u", "Undo");
-                // actions.insert("r", "Redo");
                 actions.insert("i", "Insert mode");
                 actions.insert("Enter", "gRPC request");
                 actions
             }
-            Mode::Insert => {
+            EditorMode::Insert => {
                 let mut actions = HelpActions::new();
                 actions.insert("Esc", "Normal mode");
                 actions
             }
         }
+    }
+
+    /// Returns the error to be displayed.
+    pub fn error(&'a self) -> &'a Option<ErrorKind> {
+        &self.model.error
+    }
+
+    /// Returns the response message to be displayed.
+    pub fn response(&'a self) -> &'a Option<String> {
+        &self.model.response
+    }
+
+    /// Returns the request editor widget
+    pub fn request(&self) -> &'a tui_textarea::TextArea {
+        &self.model.editor
+    }
+
+    /// Returns wether the editor is in insert mode
+    pub fn insert_mode(&self) -> bool {
+        self.model.mode == EditorMode::Insert
+    }
+
+    // Unfortunately the editor style is stored in the text area widget in the
+    // model, so the model has some presentation logic responsibilities.
+    pub fn set_cursor_style(
+        &mut self,
+        cursor_line_style: Style,
+        block: Block<'a>,
+        cursor_style: Style,
+    ) {
+        // Set the cursor line style
+        self.model.editor.set_cursor_line_style(cursor_line_style);
+        self.model.editor.set_block(block);
+        // Set the cursor style depending on the mode
+        self.model.editor.set_cursor_style(cursor_style);
     }
 }

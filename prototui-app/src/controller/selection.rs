@@ -1,14 +1,18 @@
-use crate::model::ListWithChildrenModel;
-use crate::{commons::HelpActions, widgets::list_with_children::SelectionLevel};
+use crate::model::selection::ItemWithChildren;
+use crate::{
+    commons::HelpActions,
+    model::selection::SelectionModel,
+    widgets::list_with_children::{ListWithChildrenState, SelectionLevel},
+};
 use core::MethodDescriptor;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 
-pub struct ListWithChildrenController {
-    pub model: ListWithChildrenModel<String>,
+pub struct SelectionController {
+    pub model: SelectionModel<String>,
 }
 
-impl ListWithChildrenController {
-    pub fn new(model: ListWithChildrenModel<String>) -> Self {
+impl SelectionController {
+    pub fn new(model: SelectionModel<String>) -> Self {
         Self { model }
     }
 
@@ -43,7 +47,7 @@ impl ListWithChildrenController {
     ) {
         match key.code {
             KeyCode::Enter => {
-                self.model.expand_services();
+                self.model.expand_service();
                 *load_method = self.model.get_selected_method();
             }
             _ => {}
@@ -79,5 +83,15 @@ impl ListWithChildrenController {
         actions.insert("j/↓", "down");
         actions.insert("k/↑", "up");
         actions
+    }
+
+    /// Return the istems of the services list
+    pub fn items(&self) -> &Vec<ItemWithChildren<String>> {
+        &self.model.items
+    }
+
+    /// Return the state of the services list
+    pub fn list_state(&mut self) -> &mut ListWithChildrenState {
+        &mut self.model.state
     }
 }

@@ -1,55 +1,44 @@
-use crate::commons::window_border;
-use crate::commons::HelpActions;
-use crate::controller::EditorController;
-use crate::controller::ListWithChildrenController;
-use crate::model::analyzer::ProtoAnalyzer;
-use crate::model::EditorModel;
-use crate::model::ListWithChildrenModel;
-use crate::view::editor::draw_text_editor;
-use crate::view::list_with_children::draw_list_and_help;
+use crate::commons::{window_border, HelpActions};
+use crate::controller::{RequestController, SelectionController};
+use crate::model::{CoreClient, RequestModel, SelectionModel};
+use crate::view::{draw_request, draw_selection_and_help};
 use core::ProtoDescriptor;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
+    Frame, Terminal,
 };
-use ratatui::{Frame, Terminal};
-use std::cell::RefCell;
-use std::io;
-use std::rc::Rc;
+use std::{cell::RefCell, io, rc::Rc};
 
 /// This struct holds the current state of the app.
 pub struct App<'a> {
+    // The controller for the services and methods list
+    pub selection_controller: SelectionController,
+    // The controller for the request editor
+    pub request_controller: RequestController<'a>,
     /// The currently active window
     active_window: ActiveWindow,
-    // The controller for the services and methods list
-    pub list_controller: ListWithChildrenController,
-    // The controller for the request editor
-    pub editor_controller: EditorController<'a>,
     // Whether to display the help tile
     show_help: bool,
 }
 
 impl<'a> App<'a> {
     pub fn new(desc: ProtoDescriptor) -> App<'a> {
-        let analyzer = ProtoAnalyzer::new(desc);
-        let analyzer_rc = Rc::new(RefCell::new(analyzer));
-        let list_model = ListWithChildrenModel::new(Rc::clone(&analyzer_rc));
-        let list_controller = ListWithChildrenController::new(list_model);
-        let editor_model = EditorModel::new(analyzer_rc);
-        let editor_controller = EditorController::new(editor_model);
+        // The core client communicates with the prototui core pkg
+        let core_client_rc = Rc::new(RefCell::new(CoreClient::new(desc)));
+        // Construct the selection controller
+        let list_model = SelectionModel::new(Rc::clone(&core_client_rc));
+        let list_controller = SelectionController::new(list_model);
+        // Construct the request controller
+        let editor_model = RequestModel::new(core_client_rc);
+        let editor_controller = RequestController::new(editor_model);
         App {
-            active_window: ActiveWindow::List,
-            editor_controller,
-            list_controller,
+            active_window: ActiveWindow::Selection,
+            request_controller: editor_controller,
+            selection_controller: list_controller,
             show_help: true,
         }
-    }
-
-    /// Whether the editor is currently in insert mode
-    /// In insert mode we dont want to quit the app with 'q' or switch windows with tab
-    fn is_insert_mode(&self) -> bool {
-        self.editor_controller.model.is_insert_mode()
     }
 
     /// Return the help actions of the current window
@@ -58,8 +47,8 @@ impl<'a> App<'a> {
             return None;
         }
         match &self.active_window {
-            ActiveWindow::List => Some(self.list_controller.help()),
-            ActiveWindow::Editor => Some(self.editor_controller.help()),
+            ActiveWindow::Selection => Some(self.selection_controller.help()),
+            ActiveWindow::Request => Some(self.request_controller.help()),
         }
     }
 
@@ -79,7 +68,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
 
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
-                if !app.is_insert_mode() {
+                if !app.request_controller.insert_mode() {
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Tab => app.active_window = app.active_window.next(),
@@ -88,15 +77,15 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
                     }
                 }
                 match app.active_window {
-                    ActiveWindow::List => {
-                        load_method = app.list_controller.on_key(key);
+                    ActiveWindow::Selection => {
+                        load_method = app.selection_controller.on_key(key);
                     }
-                    ActiveWindow::Editor => app.editor_controller.on_key(key),
+                    ActiveWindow::Request => app.request_controller.on_key(key),
                 }
                 // Load the currently selected method. This should only
                 // be called if the method actually has changed
                 if let Some(method) = &load_method {
-                    app.editor_controller.model.load_method(method);
+                    app.request_controller.model.load_method(method);
                     // Once we loaded the method we set it to None to
                     // avoid to load it multiple times
                     load_method = None;
@@ -115,33 +104,33 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let help_actions = app.help();
 
-    draw_list_and_help(
+    draw_selection_and_help(
         f,
         chunks[0],
-        &mut app.list_controller.model,
-        window_border("Selection", app.active_window == ActiveWindow::List),
+        &mut app.selection_controller,
+        window_border("Selection", app.active_window == ActiveWindow::Selection),
         help_actions,
     );
 
-    draw_text_editor(
+    draw_request(
         f,
         chunks[1],
-        &mut app.editor_controller.model,
-        window_border("Request", app.active_window == ActiveWindow::Editor),
+        &mut app.request_controller,
+        window_border("Request", app.active_window == ActiveWindow::Request),
     );
 }
 
 #[derive(PartialEq, Eq)]
 enum ActiveWindow {
-    List,
-    Editor,
+    Selection,
+    Request,
 }
 
 impl ActiveWindow {
     pub fn next(&self) -> Self {
         match &self {
-            Self::List => Self::Editor,
-            Self::Editor => Self::List,
+            Self::Selection => Self::Request,
+            Self::Request => Self::Selection,
         }
     }
 }

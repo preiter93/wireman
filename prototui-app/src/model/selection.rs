@@ -4,11 +4,11 @@ use crate::widgets::list_with_children::{ListWithChildrenState, SelectionLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::analyzer::ProtoAnalyzer;
+use super::core_client::CoreClient;
 
 #[derive(Clone)]
-pub struct ListWithChildrenModel<T> {
-    analyzer: Rc<RefCell<ProtoAnalyzer>>,
+pub struct SelectionModel<T> {
+    analyzer: Rc<RefCell<CoreClient>>,
     pub state: ListWithChildrenState,
     pub items: Vec<ItemWithChildren<T>>,
 }
@@ -19,8 +19,10 @@ pub struct ItemWithChildren<T> {
     pub children: Vec<T>,
 }
 
-impl ListWithChildrenModel<String> {
-    pub fn new(analyzer: Rc<RefCell<ProtoAnalyzer>>) -> Self {
+impl SelectionModel<String> {
+    /// Returns a selection model. Requires the core client
+    /// which retrieves the proto services and methods.
+    pub fn new(analyzer: Rc<RefCell<CoreClient>>) -> Self {
         let services = analyzer.borrow_mut().get_services();
         let items = services
             .iter()
@@ -48,21 +50,25 @@ impl ListWithChildrenModel<String> {
         }
     }
 
+    /// Select the next service or method, depending on the current
+    /// selection level.
     pub fn next(&mut self) {
         match self.state.selection_level() {
-            SelectionLevel::Parent => self.next_parent(),
-            SelectionLevel::Children => self.next_children(),
+            SelectionLevel::Parent => self.next_service(),
+            SelectionLevel::Children => self.next_method(),
         }
     }
 
+    /// Select the previous service or method, depending on the current
+    /// selection level.
     pub fn previous(&mut self) {
         match self.state.selection_level() {
-            SelectionLevel::Parent => self.previous_parent(),
-            SelectionLevel::Children => self.previous_children(),
+            SelectionLevel::Parent => self.previous_service(),
+            SelectionLevel::Children => self.previous_method(),
         }
     }
 
-    pub fn next_parent(&mut self) {
+    pub fn next_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
@@ -79,7 +85,7 @@ impl ListWithChildrenModel<String> {
         self.state.select(Some(i));
     }
 
-    pub fn previous_parent(&mut self) {
+    pub fn previous_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
@@ -96,7 +102,7 @@ impl ListWithChildrenModel<String> {
         self.state.select(Some(i));
     }
 
-    pub fn next_children(&mut self) {
+    pub fn next_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
@@ -115,7 +121,7 @@ impl ListWithChildrenModel<String> {
         self.state.select_sub(Some(k));
     }
 
-    pub fn previous_children(&mut self) {
+    pub fn previous_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
@@ -137,7 +143,8 @@ impl ListWithChildrenModel<String> {
         self.state.select_sub(Some(k));
     }
 
-    pub fn get_selected_service(&self) -> Option<ServiceDescriptor> {
+    /// Return the description of the currently selected service
+    fn get_selected_service(&self) -> Option<ServiceDescriptor> {
         if let Some(i) = self.state.selected() {
             Some(self.analyzer.borrow().get_services()[i].clone())
         } else {
@@ -145,6 +152,7 @@ impl ListWithChildrenModel<String> {
         }
     }
 
+    /// Return the descrption of the currently selected method
     pub fn get_selected_method(&self) -> Option<MethodDescriptor> {
         if let (Some(service), Some(i)) = (self.get_selected_service(), self.state.selected_sub()) {
             self.analyzer.borrow().get_methods(&service).get(i).cloned()
@@ -153,14 +161,16 @@ impl ListWithChildrenModel<String> {
         }
     }
 
-    pub fn expand_services(&mut self) {
+    /// Expands a service to show its methods. This is handled in the lists
+    /// local state.
+    pub fn expand_service(&mut self) {
         if let Some(service) = self.get_selected_service() {
             // do not expand if the service has no methods
             if self.analyzer.borrow().get_methods(&service).is_empty() {
                 return;
             }
             self.state.expand_selected();
-            self.next_children();
+            self.next_method();
         }
     }
 
