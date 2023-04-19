@@ -1,7 +1,6 @@
 //! Module for all grpc related stuff
-
-use crate::descriptor::message::ProtoMessage;
-use crate::error::Grp3Error as Error;
+use crate::descriptor::message::MethodMessage;
+use crate::error::Error;
 use crate::Result;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
@@ -24,7 +23,7 @@ impl Client {
         })
     }
 
-    pub async fn unary(&mut self, req: &ProtoMessage) -> Result<ProtoMessage> {
+    pub async fn unary(&mut self, req: &MethodMessage) -> Result<MethodMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
         let codec = codec::DynamicCodec::new(req.get_method_descriptor());
         let path = req.get_path();
@@ -37,7 +36,7 @@ impl Client {
     }
 }
 
-pub fn call_unary(req: &ProtoMessage) -> Result<String> {
+pub fn call_unary(req: &MethodMessage) -> Result<String> {
     let rt = Runtime::new().unwrap();
     let future = async_call(req);
     let result = rt.block_on(future);
@@ -48,9 +47,8 @@ pub fn call_unary(req: &ProtoMessage) -> Result<String> {
     // Ok(resp)
 }
 
-async fn async_call(req: &ProtoMessage) -> Result<ProtoMessage> {
+async fn async_call(req: &MethodMessage) -> Result<MethodMessage> {
     let mut client = Client::new(Uri::from_static("http://localhost:50051"))?;
     let resp = client.unary(req).await?;
     Ok(resp)
 }
-

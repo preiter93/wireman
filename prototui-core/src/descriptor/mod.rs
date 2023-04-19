@@ -1,12 +1,10 @@
-use crate::error::Grp3Error as Error;
+use crate::error::Error;
 use std::path::Path;
 pub mod message;
-
+use self::message::MethodMessage;
 use crate::ProtoConfig;
 use crate::Result;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
-
-use self::message::ProtoMessage;
 
 #[derive(Default, Debug, Clone)]
 pub struct ProtoDescriptor {
@@ -75,12 +73,12 @@ impl ProtoDescriptor {
     }
 
     // Returns the request Message of a given Method
-    pub fn get_request(&self, method: &MethodDescriptor) -> ProtoMessage {
-        ProtoMessage::from_descriptor(self.get_request_descriptor(method), method.clone())
+    pub fn get_request(&self, method: &MethodDescriptor) -> MethodMessage {
+        MethodMessage::from_descriptor(self.get_request_descriptor(method), method.clone())
     }
 
     // Returns the response Message of a given Method
-    pub fn get_response(&self, method: &MethodDescriptor) -> ProtoMessage {
-        ProtoMessage::from_descriptor(self.get_response_descriptor(method), method.clone())
+    pub fn get_response(&self, method: &MethodDescriptor) -> MethodMessage {
+        MethodMessage::from_descriptor(self.get_response_descriptor(method), method.clone())
     }
 }

@@ -1,8 +1,10 @@
 use core::{
-    descriptor::message::ProtoMessage, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
+    descriptor::message::MethodMessage, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 
-/// The [CoreClient] calls the proto descriptor and gRPC client of the 
+use super::request::ErrorKind;
+
+/// The [CoreClient] calls the proto descriptor and gRPC client of the
 /// core package.  
 #[derive(Debug, Clone)]
 pub struct CoreClient {
@@ -26,13 +28,23 @@ impl CoreClient {
     }
 
     /// Returns the proto request of a given method
-    pub fn get_request(&self, method: &MethodDescriptor) -> ProtoMessage {
+    pub fn get_request(&self, method: &MethodDescriptor) -> MethodMessage {
         self.desc.get_request(method)
     }
 
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in ProtoMessage
-    pub fn call_unary(&self, req: &ProtoMessage) -> Result<String, String> {
-        core::call_unary(req).map_err(|err| err.to_string())
+    pub fn call_unary(
+        &self,
+        method: &MethodDescriptor,
+        message: &str,
+    ) -> Result<String, ErrorKind> {
+        // Parse message to json
+        let mut req = self.get_request(method);
+        req.from_json(message)?;
+
+        // Call gRPC client
+        let resp = core::call_unary(&req)?;
+        Ok(resp)
     }
 }

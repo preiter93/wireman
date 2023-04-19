@@ -1,12 +1,11 @@
 //! This file is taken from `https://github.com/andrewhickman/grpc-client`
+use crate::descriptor::message::MethodMessage;
 use prost_reflect::prost::Message;
 use prost_reflect::{DynamicMessage, MethodDescriptor};
 use tonic::{
     codec::{Codec, DecodeBuf, Decoder, EncodeBuf, Encoder},
     Status,
 };
-
-use crate::descriptor::message::ProtoMessage;
 
 #[derive(Debug, Clone)]
 pub struct DynamicCodec(MethodDescriptor);
@@ -18,8 +17,8 @@ impl DynamicCodec {
 }
 
 impl Codec for DynamicCodec {
-    type Encode = ProtoMessage;
-    type Decode = ProtoMessage;
+    type Encode = MethodMessage;
+    type Decode = MethodMessage;
 
     type Encoder = DynamicCodec;
     type Decoder = DynamicCodec;
@@ -34,7 +33,7 @@ impl Codec for DynamicCodec {
 }
 
 impl Encoder for DynamicCodec {
-    type Item = ProtoMessage;
+    type Item = MethodMessage;
     type Error = Status;
 
     fn encode(&mut self, request: Self::Item, dst: &mut EncodeBuf<'_>) -> Result<(), Self::Error> {
@@ -48,7 +47,7 @@ impl Encoder for DynamicCodec {
 }
 
 impl Decoder for DynamicCodec {
-    type Item = ProtoMessage;
+    type Item = MethodMessage;
     type Error = Status;
 
     fn decode(&mut self, src: &mut DecodeBuf<'_>) -> Result<Option<Self::Item>, Self::Error> {
@@ -56,7 +55,7 @@ impl Decoder for DynamicCodec {
         message
             .merge(src)
             .map_err(|err| Status::internal(err.to_string()))?;
-        let mut response = ProtoMessage::from_descriptor(self.0.output(), self.0.clone());
+        let mut response = MethodMessage::from_descriptor(self.0.output(), self.0.clone());
         response.set_message(message);
         Ok(Some(response))
     }
