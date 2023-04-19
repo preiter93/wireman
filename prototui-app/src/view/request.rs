@@ -81,7 +81,7 @@ pub fn draw_request<'a, B>(
 }
 
 /// Renders the gRPC response
-fn response_widget<'a>(text: &'a str) -> Paragraph<'a> {
+fn response_widget(text: &str) -> Paragraph {
     Paragraph::new(Text::from(text))
         .block(window_border("Response", false))
         .wrap(Wrap { trim: false })

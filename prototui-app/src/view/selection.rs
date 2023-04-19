@@ -60,8 +60,8 @@ fn draw_list_with_children<'a>(
         .iter()
         .map(|item| {
             ListWithChildrenItem::new(
-                item.parent.clone(),
-                item.children
+                item.service.clone(),
+                item.methods
                     .iter()
                     .map(|child| ListItem::new(child.clone()))
                     .collect::<Vec<_>>(),

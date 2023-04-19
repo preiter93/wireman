@@ -1,3 +1,5 @@
+use core::MethodDescriptor;
+
 use crate::{
     commons::HelpActions,
     model::request::{EditorMode, ErrorKind, RequestModel},
@@ -6,15 +8,18 @@ use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{style::Style, widgets::Block};
 use tui_textarea::{CursorMove, Input};
 
+/// Request controller manages the request and response messages.
 pub struct RequestController<'a> {
-    pub model: RequestModel<'a>,
+    model: RequestModel<'a>,
 }
 
 impl<'a> RequestController<'a> {
+    /// Instantiate a Controller from the model.
     pub fn new(model: RequestModel<'a>) -> Self {
         Self { model }
     }
 
+    /// Handle user input.
     pub fn on_key(&mut self, key: KeyEvent) {
         if key.kind == KeyEventKind::Press {
             if self.model.mode == EditorMode::Normal {
@@ -63,6 +68,7 @@ impl<'a> RequestController<'a> {
             _ => {}
         }
     }
+
     /// Key bindings in insert mode
     fn on_key_insert_mode(&mut self, key: KeyEvent) {
         match key.code {
@@ -95,6 +101,11 @@ impl<'a> RequestController<'a> {
                 actions
             }
         }
+    }
+
+    /// Load a method in the request model
+    pub fn load_method(&mut self, method: &MethodDescriptor) {
+        self.model.load_method(method)
     }
 
     /// Returns the error to be displayed.
