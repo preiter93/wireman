@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+    "prototui-core",
+    "prototui-app",
+]
+
+default-members = ["prototui-app"]

@@ -1,0 +1,26 @@
+[package]
+name = "prototui_core"
+version = "0.1.0"
+edition = "2021"
+authors = ["preiter <phil.reiter93@gmail.com>"]
+description = "Core library for prototui-app"
+repository = "https://github.com/preiter93/prototui"
+keywords = ["gRPC", "proto", "TUI"]
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tonic = "0.9"
+prost = "0.11"
+prost-reflect = { version = "0.11", features = ["serde", "text-format"] }
+prost-build = "0.11"
+prost-types = "0.11"
+protox = "0.3"
+http = "0.2"
+
+[dependencies.tokio]
+version = "1.27"
+features = ["rt-multi-thread", "sync", "fs"]

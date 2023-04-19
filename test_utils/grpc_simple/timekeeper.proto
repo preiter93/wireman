@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+import "google/protobuf/timestamp.proto";
+
+service Timekeeper {
+  rpc GetDate (GetDateReq) returns (GetDateResp) {}
+  rpc GetNameOfMonth (GetNameOfMonthReq) returns (GetNameOfMonthResp) {}
+}
+  
+message GetDateReq {
+}
+  
+message GetDateResp {
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetNameOfMonthReq {
+  int32 number = 1;
+}
+  
+message GetNameOfMonthResp {
+  string name = 1;
+}
