@@ -1,0 +1,7 @@
+{
+    "workspace": "/Users/philippreiter/Rust/prototui/test_utils",
+    "files": [
+        "grpc_simple/greeter.proto",
+        "grpc_simple/timekeeper.proto"
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "workspace": "/Users/philippreiter/Rust/grp3/playground",
+    "files": [
+        "grpc_simple/greeter.proto",
+        "grpc_simple/timekeeper.proto"
+    ]
+}
