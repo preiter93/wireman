@@ -1,4 +1,4 @@
-use crate::error::Grp3Error as Error;
+use crate::error::Error;
 use crate::Result;
 use http::uri::PathAndQuery;
 use prost_reflect::DeserializeOptions;
@@ -9,13 +9,13 @@ use std::str::FromStr;
 
 /// Wrapper around `MessageDescriptor` and `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct ProtoMessage {
+pub struct MethodMessage {
     message_desc: MessageDescriptor,
     method_desc: MethodDescriptor,
     message: DynamicMessage,
 }
 
-impl ProtoMessage {
+impl MethodMessage {
     /// Construct `ProtoMessage` from a `MessageDescriptor`
     pub fn from_descriptor(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc.clone());
@@ -97,7 +97,7 @@ mod test {
 
     use super::*;
 
-    fn load_test_request() -> ProtoMessage {
+    fn load_test_request() -> MethodMessage {
         // The test files
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
@@ -110,7 +110,7 @@ mod test {
             .get_method_by_name("proto.TestService", "GetNameOfMonth")
             .unwrap();
         let request = method.input();
-        ProtoMessage::from_descriptor(request, method)
+        MethodMessage::from_descriptor(request, method)
     }
 
     #[test]

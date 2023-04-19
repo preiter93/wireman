@@ -1,39 +1,8 @@
-// use prototui_core::get_args;
-// use prototui_core::init;
-// use prototui_core::list_messages;
-// use prototui_core::list_methods;
-// use prototui_core::list_services;
-// use prototui_core::ProtoRegistry;
-// use prototui_core::Result;
-//
-// fn main() -> Result<()> {
-//     let cfg = init()?;
-//     let args = get_args();
-//
-//     let mut registry = ProtoRegistry::new(&cfg);
-//
-//     match args.command.as_str() {
-//         "list" => match (args.service, args.method) {
-//             // if the arguments contain a Service, list Methods
-//             (Some(svc), None) => list_methods(&mut registry, &svc)?,
-//
-//             // if the arguments contin a Service and a Method, list Messages
-//             (Some(svc), Some(mth)) => list_messages(&mut registry, &svc, &mth)?,
-//
-//             // otherwise list Services
-//             _ => list_services(&mut registry)?,
-//         },
-//         &_ => panic!("command {} not supported", args.command),
-//     }
-//
-//     Ok(())
-// }
-//
+use http::Uri;
 use prototui_core::client::Client;
-use prototui_core::descriptor::message::ProtoMessage;
+use prototui_core::descriptor::message::MethodMessage;
 use prototui_core::Result;
 use prototui_core::{init, ProtoDescriptor};
-use http::Uri;
 use tokio::runtime::Runtime;
 
 fn main() -> Result<()> {
@@ -65,7 +34,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-async fn async_call(req: ProtoMessage) -> Result<ProtoMessage> {
+async fn async_call(req: MethodMessage) -> Result<MethodMessage> {
     let mut client = Client::new(Uri::from_static("http://localhost:50051"))?;
     let resp = client.unary(&req).await?;
     Ok(resp)

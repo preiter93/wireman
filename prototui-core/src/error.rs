@@ -1,12 +1,13 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
 use thiserror::Error;
+pub use PTError as Error;
 
 /// The result type for this library
-pub type Result<T> = std::result::Result<T, Grp3Error>;
+pub type Result<T> = std::result::Result<T, PTError>;
 
 /// The error type
 #[derive(Error, Debug)]
-pub enum Grp3Error {
+pub enum PTError {
     /// Internal error
     #[error("internal error {0}")]
     InternalError(String),
@@ -40,7 +41,7 @@ pub enum Grp3Error {
     GrpcError(GrpcStatus),
 }
 
-impl From<tonic::Status> for Grp3Error {
+impl From<tonic::Status> for PTError {
     fn from(status: tonic::Status) -> Self {
         Self::GrpcError(status.into())
     }

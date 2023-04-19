@@ -1,5 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::error::Grp3Error as Error;
+use crate::error::PTError as Error;
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
