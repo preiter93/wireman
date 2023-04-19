@@ -167,16 +167,18 @@ impl ErrorKind {
     }
 }
 
+impl From<serde_json::Error> for ErrorKind {
+    fn from(err: serde_json::Error) -> Self {
+        Self::format_error(err.to_string())
+    }
+}
+
 /// Pretty formats a string assuming it is in json format.
 /// Returns an error if formatting fails.
 fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
-    match serde_json::from_str::<serde_json::Value>(input) {
-        Ok(parsed) => match serde_json::to_string_pretty(&parsed) {
-            Ok(pretty) => Ok(pretty),
-            Err(err) => Err(ErrorKind::format_error(err.to_string())),
-        },
-        Err(err) => Err(ErrorKind::format_error(err.to_string())),
-    }
+    let parsed = serde_json::from_str::<serde_json::Value>(input)?;
+    let pretty = serde_json::to_string_pretty(&parsed)?;
+    Ok(pretty)
 }
 
 /// Convenienve method to retty format a json string and just return
