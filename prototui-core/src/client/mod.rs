@@ -1,28 +1,77 @@
 //! Module for all grpc related stuff
 use crate::descriptor::message::MethodMessage;
 use crate::error::Error;
+use crate::ProtoTuiConfig;
 use crate::Result;
+use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::IntoRequest;
 use tonic::{client::Grpc, transport::Channel};
 
 mod codec;
+pub mod tls;
+
+/// Creates a new gRPC client and sends a message to a gRPC server.
+/// This method is blocking.
+pub fn call_unary_blocking<T: Into<Uri>>(
+    cfg: &ProtoTuiConfig,
+    uri: T,
+    req: &MethodMessage,
+) -> Result<MethodMessage> {
+    let rt = Runtime::new().unwrap();
+    let future = async_call_unary(cfg, uri, req);
+    let result = rt.block_on(future);
+    match result {
+        Ok(response) => Ok(response),
+        Err(err) => Err(Error::InternalError(err.to_string())),
+    }
+}
+
+async fn async_call_unary<T: Into<Uri>>(
+    cfg: &ProtoTuiConfig,
+    uri: T,
+    req: &MethodMessage,
+) -> Result<MethodMessage> {
+    let mut client = GrpcClient::from_config(cfg, uri)?;
+    let resp = client.unary(req).await?;
+    Ok(resp)
+}
 
 #[derive(Clone, Debug)]
-pub struct Client {
+pub struct GrpcClient {
     grpc: Grpc<Channel>,
 }
 
-impl Client {
-    pub fn new<T: Into<Uri>>(uri: T) -> Result<Self> {
-        let uri = uri.into();
-        let channel = Channel::builder(uri).connect_lazy();
-        Ok(Client {
+impl GrpcClient {
+    /// Returns a new Grpc Client. if no tls is given, the standard tonic
+    /// client is used.
+    pub fn new<T: Into<Uri>>(uri: T, tls: Option<TlsConfig>) -> Result<Self> {
+        let builder = Channel::builder(uri.into());
+        let channel = if let Some(tls) = tls {
+            // Build a channel with custom tls settings
+            let connector = tls.get_connector_from_tls();
+            builder.connect_with_connector_lazy(connector)
+        } else {
+            // The standard tonic channel
+            builder.connect_lazy()
+        };
+
+        Ok(GrpcClient {
             grpc: Grpc::new(channel),
         })
     }
 
+    /// Instantiates a client from a ProtoConfig
+    pub fn from_config<T: Into<Uri>>(cfg: &ProtoTuiConfig, uri: T) -> Result<Self> {
+        Self::new(uri, Some(cfg.tls.clone()))
+    }
+
+    /// Make a unary gRPC call from the client
+    ///
+    /// # Error
+    /// - grpc client is not ready
+    /// - server call failed
     pub async fn unary(&mut self, req: &MethodMessage) -> Result<MethodMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
         let codec = codec::DynamicCodec::new(req.get_method_descriptor());
@@ -34,21 +83,20 @@ impl Client {
             .into_inner();
         Ok(resp)
     }
-}
 
-pub fn call_unary(req: &MethodMessage) -> Result<String> {
-    let rt = Runtime::new().unwrap();
-    let future = async_call(req);
-    let result = rt.block_on(future);
-    match result {
-        Ok(response) => Ok(response.to_json()),
-        Err(err) => Err(Error::InternalError(err.to_string())),
+    /// Make a unary gRPC call from the client. The call is
+    /// wrapped in a tokio runtime to run asynchronous asks.
+    ///
+    /// # Error
+    /// - grpc client is not ready
+    /// - server call failed
+    pub fn unary_with_runtime(&mut self, req: &MethodMessage) -> Result<String> {
+        let rt = Runtime::new().unwrap();
+        let future = self.unary(req);
+        let result = rt.block_on(future);
+        match result {
+            Ok(response) => Ok(response.to_json()),
+            Err(err) => Err(Error::InternalError(err.to_string())),
+        }
     }
-    // Ok(resp)
-}
-
-async fn async_call(req: &MethodMessage) -> Result<MethodMessage> {
-    let mut client = Client::new(Uri::from_static("http://localhost:50051"))?;
-    let resp = client.unary(req).await?;
-    Ok(resp)
 }

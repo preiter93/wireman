@@ -2,7 +2,7 @@ use crate::error::Error;
 use std::path::Path;
 pub mod message;
 use self::message::MethodMessage;
-use crate::ProtoConfig;
+use crate::ProtoTuiConfig;
 use crate::Result;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
 
@@ -13,9 +13,9 @@ pub struct ProtoDescriptor {
 
 impl ProtoDescriptor {
     /// Instantiates a descriptor from a ProtoConfig
-    pub fn from_config(cfg: ProtoConfig) -> Result<Self> {
+    pub fn from_config(cfg: &ProtoTuiConfig) -> Result<Self> {
         let files = cfg.files.clone();
-        let includes = vec![cfg.workspace];
+        let includes = vec![cfg.workspace.clone()];
         Self::from_files(files, includes)
     }
 

@@ -39,6 +39,10 @@ pub enum PTError {
     /// Failed to make a unary grpc call
     #[error("grpc: {0}")]
     GrpcError(GrpcStatus),
+
+    /// Failed to load the custom TLS certificate
+    #[error("failed to load custom TLS certificate")]
+    LoadTLSCertificateError(#[source] std::io::Error),
 }
 
 impl From<tonic::Status> for PTError {

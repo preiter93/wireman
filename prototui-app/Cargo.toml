@@ -17,3 +17,5 @@ ratatui = "0.20"
 tui-textarea = {git = "https://github.com/rhysd/tui-textarea", branch = "main", default-features = false, features = ["search", "ratatui-your-backend", "ratatui-crossterm"] }
 serde_json = "1.0"
 unicode-width = "0.1"
+http = "0.2"
+

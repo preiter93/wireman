@@ -7,7 +7,7 @@ mod config;
 pub mod descriptor;
 pub mod error;
 
-pub use crate::config::ProtoConfig;
+pub use crate::config::ProtoTuiConfig;
 pub use crate::descriptor::ProtoDescriptor;
 pub use crate::error::Result;
 
@@ -15,13 +15,13 @@ pub use prost_reflect::MessageDescriptor;
 pub use prost_reflect::MethodDescriptor;
 pub use prost_reflect::ServiceDescriptor;
 
-pub use crate::client::call_unary;
+pub use crate::client::call_unary_blocking;
 
 /// Checks if all requirements are met and initializes the config.
 ///
 /// # Errors
 /// - config.json can not be loaded
-pub fn init() -> error::Result<config::ProtoConfig> {
+pub fn init() -> error::Result<config::ProtoTuiConfig> {
     init_from_file("./config.json")
 }
 
@@ -29,8 +29,8 @@ pub fn init() -> error::Result<config::ProtoConfig> {
 ///
 /// # Errors
 /// - config.json can not be loaded
-pub fn init_from_file(config_file: &str) -> error::Result<config::ProtoConfig> {
-    let cfg = config::ProtoConfig::load(config_file)?;
+pub fn init_from_file(config_file: &str) -> error::Result<config::ProtoTuiConfig> {
+    let cfg = config::ProtoTuiConfig::load(config_file)?;
 
     Ok(cfg)
 }

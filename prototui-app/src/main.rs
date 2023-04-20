@@ -6,11 +6,12 @@ mod theme;
 mod view;
 mod widgets;
 use crate::app::{run_app, App};
-use core::{init_from_file, ProtoDescriptor};
+use core::init_from_file;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use model::CoreClient;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{error::Error, io};
 
@@ -18,9 +19,13 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
-    let desc = init_core_client();
+    let core_client = init_core_client().map_err(|err| {
+        // gracefully shutdown if the config cant be parsed
+        reset_terminal().unwrap();
+        err
+    })?;
 
-    let app = App::new(desc);
+    let app = App::new(core_client);
     let _ = run_app(&mut terminal, app);
 
     reset_terminal()?;
@@ -30,10 +35,10 @@ fn main() -> Result<()> {
 }
 
 /// Initiate the core client.
-fn init_core_client() -> ProtoDescriptor {
-    let cfg = init_from_file("./config.json").unwrap();
+fn init_core_client() -> Result<CoreClient> {
+    let cfg = init_from_file("./config.json")?;
 
-    ProtoDescriptor::from_config(cfg).unwrap()
+    Ok(CoreClient::new(cfg)?)
 }
 
 /// Initializes the terminal.
