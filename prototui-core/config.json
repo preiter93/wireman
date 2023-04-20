@@ -1,7 +1,8 @@
 {
-    "workspace": "/Users/philippreiter/Rust/grp3/playground",
+    "workspace": "/Users/philippreiter/Rust/prototui/test_utils",
     "files": [
         "grpc_simple/greeter.proto",
-        "grpc_simple/timekeeper.proto"
+        "grpc_simple/timekeeper.proto",
+        "grpc_simple/productfinder.proto"
     ]
 }
