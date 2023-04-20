@@ -1,5 +1,5 @@
-pub mod request;
+pub mod messages;
 pub mod selection;
 
-pub use request::RequestController;
+pub use messages::MessagesController;
 pub use selection::SelectionController;

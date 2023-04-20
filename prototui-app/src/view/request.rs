@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
+use crate::commons::editor::ErrorKind;
 use crate::commons::window_border;
-use crate::controller::RequestController;
-use crate::model::request::ErrorKind;
+use crate::controller::MessagesController;
 use crate::theme;
 use ratatui::backend::Backend;
 use ratatui::layout::Alignment;
@@ -22,7 +22,7 @@ use ratatui::Frame;
 pub fn draw_request<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
-    controller: &mut RequestController<'a>,
+    controller: &mut MessagesController<'a>,
     block: Block<'a>,
 ) where
     B: Backend,
@@ -31,7 +31,7 @@ pub fn draw_request<'a, B>(
     let cursor_line_style = Style::default();
 
     // Set the cursor style depending on the mode
-    let cursor_style = if controller.insert_mode() {
+    let cursor_style = if controller.request_insert_mode() {
         Style::default()
             .fg(theme::COL_CURSOR_INSERT_MODE)
             .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
@@ -48,12 +48,14 @@ pub fn draw_request<'a, B>(
     let error = controller.error();
 
     // Get response text from model
-    let response = controller.response();
+    let response = controller.response_string();
 
     // Determine size of error and response widget
-    let resp_length = response
-        .as_ref()
-        .map_or(0, |r| r.lines().count() as u16 + 2);
+    let resp_length = if response.is_empty() {
+        0
+    } else {
+        response.lines().count() as u16 + 2
+    };
     let err_length = error.as_ref().map_or(0, |_| 3);
     let chunks = Layout::default()
         .constraints(
@@ -67,7 +69,7 @@ pub fn draw_request<'a, B>(
         .split(area);
 
     // Render request window
-    f.render_widget(controller.request().widget(), chunks[0]);
+    f.render_widget(controller.request_editor().widget(), chunks[0]);
 
     // Render error window
     if let Some(error) = &error {
@@ -75,8 +77,8 @@ pub fn draw_request<'a, B>(
     }
 
     // Render response window
-    if let Some(response) = &response {
-        f.render_widget(response_widget(&response.to_owned()), chunks[2]);
+    if resp_length > 0 {
+        f.render_widget(response_widget(&response), chunks[2]);
     }
 }
 

@@ -18,126 +18,126 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// TimekeeperClient is the client API for Timekeeper service.
+// TimeKeeperClient is the client API for TimeKeeper service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TimekeeperClient interface {
+type TimeKeeperClient interface {
 	// Get the current date.
 	GetDate(ctx context.Context, in *GetDateReq, opts ...grpc.CallOption) (*GetDateResp, error)
 	// Return the name of the month in plain text.
 	GetNameOfMonth(ctx context.Context, in *GetNameOfMonthReq, opts ...grpc.CallOption) (*GetNameOfMonthResp, error)
 }
 
-type timekeeperClient struct {
+type timeKeeperClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTimekeeperClient(cc grpc.ClientConnInterface) TimekeeperClient {
-	return &timekeeperClient{cc}
+func NewTimeKeeperClient(cc grpc.ClientConnInterface) TimeKeeperClient {
+	return &timeKeeperClient{cc}
 }
 
-func (c *timekeeperClient) GetDate(ctx context.Context, in *GetDateReq, opts ...grpc.CallOption) (*GetDateResp, error) {
+func (c *timeKeeperClient) GetDate(ctx context.Context, in *GetDateReq, opts ...grpc.CallOption) (*GetDateResp, error) {
 	out := new(GetDateResp)
-	err := c.cc.Invoke(ctx, "/proto.Timekeeper/GetDate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.TimeKeeper/GetDate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *timekeeperClient) GetNameOfMonth(ctx context.Context, in *GetNameOfMonthReq, opts ...grpc.CallOption) (*GetNameOfMonthResp, error) {
+func (c *timeKeeperClient) GetNameOfMonth(ctx context.Context, in *GetNameOfMonthReq, opts ...grpc.CallOption) (*GetNameOfMonthResp, error) {
 	out := new(GetNameOfMonthResp)
-	err := c.cc.Invoke(ctx, "/proto.Timekeeper/GetNameOfMonth", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.TimeKeeper/GetNameOfMonth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TimekeeperServer is the server API for Timekeeper service.
-// All implementations must embed UnimplementedTimekeeperServer
+// TimeKeeperServer is the server API for TimeKeeper service.
+// All implementations must embed UnimplementedTimeKeeperServer
 // for forward compatibility
-type TimekeeperServer interface {
+type TimeKeeperServer interface {
 	// Get the current date.
 	GetDate(context.Context, *GetDateReq) (*GetDateResp, error)
 	// Return the name of the month in plain text.
 	GetNameOfMonth(context.Context, *GetNameOfMonthReq) (*GetNameOfMonthResp, error)
-	mustEmbedUnimplementedTimekeeperServer()
+	mustEmbedUnimplementedTimeKeeperServer()
 }
 
-// UnimplementedTimekeeperServer must be embedded to have forward compatible implementations.
-type UnimplementedTimekeeperServer struct {
+// UnimplementedTimeKeeperServer must be embedded to have forward compatible implementations.
+type UnimplementedTimeKeeperServer struct {
 }
 
-func (UnimplementedTimekeeperServer) GetDate(context.Context, *GetDateReq) (*GetDateResp, error) {
+func (UnimplementedTimeKeeperServer) GetDate(context.Context, *GetDateReq) (*GetDateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDate not implemented")
 }
-func (UnimplementedTimekeeperServer) GetNameOfMonth(context.Context, *GetNameOfMonthReq) (*GetNameOfMonthResp, error) {
+func (UnimplementedTimeKeeperServer) GetNameOfMonth(context.Context, *GetNameOfMonthReq) (*GetNameOfMonthResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNameOfMonth not implemented")
 }
-func (UnimplementedTimekeeperServer) mustEmbedUnimplementedTimekeeperServer() {}
+func (UnimplementedTimeKeeperServer) mustEmbedUnimplementedTimeKeeperServer() {}
 
-// UnsafeTimekeeperServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TimekeeperServer will
+// UnsafeTimeKeeperServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TimeKeeperServer will
 // result in compilation errors.
-type UnsafeTimekeeperServer interface {
-	mustEmbedUnimplementedTimekeeperServer()
+type UnsafeTimeKeeperServer interface {
+	mustEmbedUnimplementedTimeKeeperServer()
 }
 
-func RegisterTimekeeperServer(s grpc.ServiceRegistrar, srv TimekeeperServer) {
-	s.RegisterService(&Timekeeper_ServiceDesc, srv)
+func RegisterTimeKeeperServer(s grpc.ServiceRegistrar, srv TimeKeeperServer) {
+	s.RegisterService(&TimeKeeper_ServiceDesc, srv)
 }
 
-func _Timekeeper_GetDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TimeKeeper_GetDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetDateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TimekeeperServer).GetDate(ctx, in)
+		return srv.(TimeKeeperServer).GetDate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Timekeeper/GetDate",
+		FullMethod: "/proto.TimeKeeper/GetDate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TimekeeperServer).GetDate(ctx, req.(*GetDateReq))
+		return srv.(TimeKeeperServer).GetDate(ctx, req.(*GetDateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Timekeeper_GetNameOfMonth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TimeKeeper_GetNameOfMonth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetNameOfMonthReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TimekeeperServer).GetNameOfMonth(ctx, in)
+		return srv.(TimeKeeperServer).GetNameOfMonth(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Timekeeper/GetNameOfMonth",
+		FullMethod: "/proto.TimeKeeper/GetNameOfMonth",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TimekeeperServer).GetNameOfMonth(ctx, req.(*GetNameOfMonthReq))
+		return srv.(TimeKeeperServer).GetNameOfMonth(ctx, req.(*GetNameOfMonthReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Timekeeper_ServiceDesc is the grpc.ServiceDesc for Timekeeper service.
+// TimeKeeper_ServiceDesc is the grpc.ServiceDesc for TimeKeeper service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Timekeeper_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Timekeeper",
-	HandlerType: (*TimekeeperServer)(nil),
+var TimeKeeper_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.TimeKeeper",
+	HandlerType: (*TimeKeeperServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetDate",
-			Handler:    _Timekeeper_GetDate_Handler,
+			Handler:    _TimeKeeper_GetDate_Handler,
 		},
 		{
 			MethodName: "GetNameOfMonth",
-			Handler:    _Timekeeper_GetNameOfMonth_Handler,
+			Handler:    _TimeKeeper_GetNameOfMonth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
