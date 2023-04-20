@@ -2,7 +2,6 @@ use crate::commons::{window_border, HelpActions};
 use crate::controller::{RequestController, SelectionController};
 use crate::model::{CoreClient, RequestModel, SelectionModel};
 use crate::view::{draw_request, draw_selection_and_help};
-use core::ProtoDescriptor;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
     backend::Backend,
@@ -27,9 +26,9 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
-    pub fn new(desc: ProtoDescriptor) -> App<'a> {
+    pub fn new(core_client: CoreClient) -> App<'a> {
         // The core client communicates with the prototui core pkg
-        let core_client_rc = Rc::new(RefCell::new(CoreClient::new(desc)));
+        let core_client_rc = Rc::new(RefCell::new(core_client));
 
         // Construct the selection controller
         let list_model = SelectionModel::new(Rc::clone(&core_client_rc));

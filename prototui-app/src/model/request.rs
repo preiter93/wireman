@@ -50,12 +50,12 @@ impl<'a> RequestModel<'a> {
     }
 
     /// Gets the editors content as raw text
-    fn get_content(&self) -> String {
+    fn get_text_raw(&self) -> String {
         self.editor.clone().into_lines().join("\n")
     }
 
     /// Set the editors content from raw text
-    fn set_content(&mut self, text: String) {
+    fn set_text_raw(&mut self, text: String) {
         self.editor = TextArea::new(text.lines().map(ToOwned::to_owned).collect());
     }
 
@@ -79,7 +79,7 @@ impl<'a> RequestModel<'a> {
     fn load_request_template(&mut self, method: &MethodDescriptor) {
         let req = self.core_client.borrow_mut().get_request(method);
         // Load message in editor
-        self.set_content(try_pretty_format_json(&req.to_json()));
+        self.set_text_raw(try_pretty_format_json(&req.to_json()));
     }
 
     /// Change the editor
@@ -103,9 +103,9 @@ impl<'a> RequestModel<'a> {
     /// Pretty format the current editor text. Fails if the text
     /// is not a proper json string.
     pub fn format_json(&mut self) {
-        match pretty_format_json(&self.get_content()) {
+        match pretty_format_json(&self.get_text_raw()) {
             Ok(pretty) => {
-                self.set_content(pretty);
+                self.set_text_raw(pretty);
                 self.error = None;
             }
             Err(err) => self.error = Some(err),
@@ -115,13 +115,15 @@ impl<'a> RequestModel<'a> {
     /// Make a grpc call and set response or error
     pub fn call_grpc(&mut self) {
         if let Some(method) = &self.selected_method {
-            match self
-                .core_client
-                .borrow_mut()
-                .call_unary(method, &self.get_content())
-            {
+            let mut req = self.core_client.borrow().get_request(method);
+            if let Err(err) = req.from_json(&self.get_text_raw()) {
+                self.error = Some(ErrorKind::default_error(err.to_string()));
+                self.response = None;
+                return;
+            }
+            match self.core_client.borrow_mut().call_unary(&req) {
                 Ok(resp) => {
-                    self.response = Some(try_pretty_format_json(&resp));
+                    self.response = Some(try_pretty_format_json(&resp.to_json()));
                     self.error = None;
                 }
                 Err(err) => {
@@ -157,7 +159,7 @@ impl ErrorKind {
         }
     }
 
-    fn default_error(msg: String) -> Self {
+    pub fn default_error(msg: String) -> Self {
         Self {
             kind: "Error".to_owned(),
             msg,
@@ -171,12 +173,11 @@ impl From<serde_json::Error> for ErrorKind {
     }
 }
 
-impl From<core::error::Error> for ErrorKind {
-    fn from(err: core::error::Error) -> Self {
+impl From<core::error::PTError> for ErrorKind {
+    fn from(err: core::error::PTError) -> Self {
         Self::default_error(err.to_string())
     }
 }
-
 /// Pretty formats a string assuming it is in json format.
 /// Returns an error if formatting fails.
 fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
