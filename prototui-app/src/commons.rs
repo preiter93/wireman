@@ -1,4 +1,4 @@
-use std::slice::Iter;
+use std::collections::{btree_map::Iter, BTreeMap};
 
 use ratatui::{
     style::Style,
@@ -46,22 +46,24 @@ pub fn window_border(title: &str, highlighted: bool) -> Block {
 
 /// A list of help actions. Only used for displaying.
 pub struct HelpActions {
-    items: Vec<(&'static str, &'static str)>,
+    items: BTreeMap<&'static str, &'static str>,
 }
 
 impl HelpActions {
     /// Returns empty map
     pub fn new() -> Self {
-        Self { items: Vec::new() }
+        Self {
+            items: BTreeMap::new(),
+        }
     }
 
     /// Insert a action
     pub fn insert(&mut self, key: &'static str, action: &'static str) {
-        self.items.push((key, action));
+        self.items.insert(key, action);
     }
 
     /// Iterate over the actions
-    pub fn iter(&self) -> Iter<'_, (&str, &str)> {
+    pub fn iter(&self) -> Iter<'_, &str, &str> {
         self.items.iter()
     }
 
