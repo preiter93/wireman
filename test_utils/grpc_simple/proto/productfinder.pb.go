@@ -20,14 +20,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type GetProductsReq struct {
+type GetProductReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	// The id of the product.
+	ProductId string `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 }
 
-func (x *GetProductsReq) Reset() {
-	*x = GetProductsReq{}
+func (x *GetProductReq) Reset() {
+	*x = GetProductReq{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_productfinder_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -35,13 +38,13 @@ func (x *GetProductsReq) Reset() {
 	}
 }
 
-func (x *GetProductsReq) String() string {
+func (x *GetProductReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetProductsReq) ProtoMessage() {}
+func (*GetProductReq) ProtoMessage() {}
 
-func (x *GetProductsReq) ProtoReflect() protoreflect.Message {
+func (x *GetProductReq) ProtoReflect() protoreflect.Message {
 	mi := &file_productfinder_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,22 +56,29 @@ func (x *GetProductsReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetProductsReq.ProtoReflect.Descriptor instead.
-func (*GetProductsReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetProductReq.ProtoReflect.Descriptor instead.
+func (*GetProductReq) Descriptor() ([]byte, []int) {
 	return file_productfinder_proto_rawDescGZIP(), []int{0}
 }
 
-type GetProductsResp struct {
+func (x *GetProductReq) GetProductId() string {
+	if x != nil {
+		return x.ProductId
+	}
+	return ""
+}
+
+type GetProductResp struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// All available products.
-	Products []*Product `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	// The product matching the product_id.
+	Product *Product `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
 }
 
-func (x *GetProductsResp) Reset() {
-	*x = GetProductsResp{}
+func (x *GetProductResp) Reset() {
+	*x = GetProductResp{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_productfinder_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -76,13 +86,13 @@ func (x *GetProductsResp) Reset() {
 	}
 }
 
-func (x *GetProductsResp) String() string {
+func (x *GetProductResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetProductsResp) ProtoMessage() {}
+func (*GetProductResp) ProtoMessage() {}
 
-func (x *GetProductsResp) ProtoReflect() protoreflect.Message {
+func (x *GetProductResp) ProtoReflect() protoreflect.Message {
 	mi := &file_productfinder_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -94,12 +104,98 @@ func (x *GetProductsResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetProductsResp.ProtoReflect.Descriptor instead.
-func (*GetProductsResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetProductResp.ProtoReflect.Descriptor instead.
+func (*GetProductResp) Descriptor() ([]byte, []int) {
 	return file_productfinder_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetProductsResp) GetProducts() []*Product {
+func (x *GetProductResp) GetProduct() *Product {
+	if x != nil {
+		return x.Product
+	}
+	return nil
+}
+
+type ListProductsReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ListProductsReq) Reset() {
+	*x = ListProductsReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_productfinder_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListProductsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProductsReq) ProtoMessage() {}
+
+func (x *ListProductsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_productfinder_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProductsReq.ProtoReflect.Descriptor instead.
+func (*ListProductsReq) Descriptor() ([]byte, []int) {
+	return file_productfinder_proto_rawDescGZIP(), []int{2}
+}
+
+type ListProductsResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// All available products.
+	Products []*Product `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+}
+
+func (x *ListProductsResp) Reset() {
+	*x = ListProductsResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_productfinder_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListProductsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProductsResp) ProtoMessage() {}
+
+func (x *ListProductsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_productfinder_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProductsResp.ProtoReflect.Descriptor instead.
+func (*ListProductsResp) Descriptor() ([]byte, []int) {
+	return file_productfinder_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListProductsResp) GetProducts() []*Product {
 	if x != nil {
 		return x.Products
 	}
@@ -118,7 +214,7 @@ type GetPriceOfProductReq struct {
 func (x *GetPriceOfProductReq) Reset() {
 	*x = GetPriceOfProductReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_productfinder_proto_msgTypes[2]
+		mi := &file_productfinder_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -131,7 +227,7 @@ func (x *GetPriceOfProductReq) String() string {
 func (*GetPriceOfProductReq) ProtoMessage() {}
 
 func (x *GetPriceOfProductReq) ProtoReflect() protoreflect.Message {
-	mi := &file_productfinder_proto_msgTypes[2]
+	mi := &file_productfinder_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -144,7 +240,7 @@ func (x *GetPriceOfProductReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPriceOfProductReq.ProtoReflect.Descriptor instead.
 func (*GetPriceOfProductReq) Descriptor() ([]byte, []int) {
-	return file_productfinder_proto_rawDescGZIP(), []int{2}
+	return file_productfinder_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetPriceOfProductReq) GetProductId() string {
@@ -159,14 +255,14 @@ type GetPriceOfProductResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The price of the product in cents
+	// The price of the product
 	Price int32 `protobuf:"varint,1,opt,name=price,proto3" json:"price,omitempty"`
 }
 
 func (x *GetPriceOfProductResp) Reset() {
 	*x = GetPriceOfProductResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_productfinder_proto_msgTypes[3]
+		mi := &file_productfinder_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -179,7 +275,7 @@ func (x *GetPriceOfProductResp) String() string {
 func (*GetPriceOfProductResp) ProtoMessage() {}
 
 func (x *GetPriceOfProductResp) ProtoReflect() protoreflect.Message {
-	mi := &file_productfinder_proto_msgTypes[3]
+	mi := &file_productfinder_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +288,7 @@ func (x *GetPriceOfProductResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPriceOfProductResp.ProtoReflect.Descriptor instead.
 func (*GetPriceOfProductResp) Descriptor() ([]byte, []int) {
-	return file_productfinder_proto_rawDescGZIP(), []int{3}
+	return file_productfinder_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetPriceOfProductResp) GetPrice() int32 {
@@ -200,6 +296,102 @@ func (x *GetPriceOfProductResp) GetPrice() int32 {
 		return x.Price
 	}
 	return 0
+}
+
+type BatchGetPriceOfProductReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The list of product ids.
+	ProductIds []string `protobuf:"bytes,1,rep,name=product_ids,json=productIds,proto3" json:"product_ids,omitempty"`
+}
+
+func (x *BatchGetPriceOfProductReq) Reset() {
+	*x = BatchGetPriceOfProductReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_productfinder_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BatchGetPriceOfProductReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetPriceOfProductReq) ProtoMessage() {}
+
+func (x *BatchGetPriceOfProductReq) ProtoReflect() protoreflect.Message {
+	mi := &file_productfinder_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetPriceOfProductReq.ProtoReflect.Descriptor instead.
+func (*BatchGetPriceOfProductReq) Descriptor() ([]byte, []int) {
+	return file_productfinder_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *BatchGetPriceOfProductReq) GetProductIds() []string {
+	if x != nil {
+		return x.ProductIds
+	}
+	return nil
+}
+
+type BatchGetPriceOfProductResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The prices of the products
+	Prices []int32 `protobuf:"varint,1,rep,packed,name=prices,proto3" json:"prices,omitempty"`
+}
+
+func (x *BatchGetPriceOfProductResp) Reset() {
+	*x = BatchGetPriceOfProductResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_productfinder_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BatchGetPriceOfProductResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchGetPriceOfProductResp) ProtoMessage() {}
+
+func (x *BatchGetPriceOfProductResp) ProtoReflect() protoreflect.Message {
+	mi := &file_productfinder_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchGetPriceOfProductResp.ProtoReflect.Descriptor instead.
+func (*BatchGetPriceOfProductResp) Descriptor() ([]byte, []int) {
+	return file_productfinder_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BatchGetPriceOfProductResp) GetPrices() []int32 {
+	if x != nil {
+		return x.Prices
+	}
+	return nil
 }
 
 type Product struct {
@@ -216,7 +408,7 @@ type Product struct {
 func (x *Product) Reset() {
 	*x = Product{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_productfinder_proto_msgTypes[4]
+		mi := &file_productfinder_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -229,7 +421,7 @@ func (x *Product) String() string {
 func (*Product) ProtoMessage() {}
 
 func (x *Product) ProtoReflect() protoreflect.Message {
-	mi := &file_productfinder_proto_msgTypes[4]
+	mi := &file_productfinder_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -242,7 +434,7 @@ func (x *Product) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Product.ProtoReflect.Descriptor instead.
 func (*Product) Descriptor() ([]byte, []int) {
-	return file_productfinder_proto_rawDescGZIP(), []int{4}
+	return file_productfinder_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Product) GetId() string {
@@ -263,33 +455,57 @@ var File_productfinder_proto protoreflect.FileDescriptor
 
 var file_productfinder_proto_rawDesc = []byte{
 	0x0a, 0x13, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x66, 0x69, 0x6e, 0x64, 0x65, 0x72, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x10, 0x0a, 0x0e,
-	0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x71, 0x22, 0x3d,
-	0x0a, 0x0f, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x73,
-	0x70, 0x12, 0x2a, 0x0a, 0x08, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x18, 0x01, 0x20,
-	0x03, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x72, 0x6f, 0x64,
-	0x75, 0x63, 0x74, 0x52, 0x08, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x22, 0x35, 0x0a,
-	0x14, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75,
-	0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
-	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x64, 0x75,
-	0x63, 0x74, 0x49, 0x64, 0x22, 0x2d, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65,
-	0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x14, 0x0a,
-	0x05, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x70, 0x72,
-	0x69, 0x63, 0x65, 0x22, 0x2d, 0x0a, 0x07, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x12, 0x0e,
-	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12,
-	0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61,
-	0x6d, 0x65, 0x32, 0xa1, 0x01, 0x0a, 0x0d, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x46, 0x69,
-	0x6e, 0x64, 0x65, 0x72, 0x12, 0x3e, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75,
-	0x63, 0x74, 0x73, 0x12, 0x15, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x50,
-	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x22, 0x00, 0x12, 0x50, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65,
-	0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x12, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64,
-	0x75, 0x63, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x47,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x2e, 0x0a, 0x0d,
+	0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a,
+	0x0a, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x49, 0x64, 0x22, 0x3a, 0x0a, 0x0e,
+	0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x28,
+	0x0a, 0x07, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x0e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52,
+	0x07, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x22, 0x11, 0x0a, 0x0f, 0x4c, 0x69, 0x73, 0x74,
+	0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x71, 0x22, 0x3e, 0x0a, 0x10, 0x4c,
+	0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x12,
+	0x2a, 0x0a, 0x08, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
+	0x74, 0x52, 0x08, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x22, 0x35, 0x0a, 0x14, 0x47,
 	0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
+	0x49, 0x64, 0x22, 0x2d, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66,
+	0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x14, 0x0a, 0x05, 0x70,
+	0x72, 0x69, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x70, 0x72, 0x69, 0x63,
+	0x65, 0x22, 0x3c, 0x0a, 0x19, 0x42, 0x61, 0x74, 0x63, 0x68, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69,
+	0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1f,
+	0x0a, 0x0b, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x49, 0x64, 0x73, 0x22,
+	0x34, 0x0a, 0x1a, 0x42, 0x61, 0x74, 0x63, 0x68, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65,
+	0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x16, 0x0a,
+	0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x05, 0x52, 0x06, 0x70,
+	0x72, 0x69, 0x63, 0x65, 0x73, 0x22, 0x2d, 0x0a, 0x07, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64,
+	0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x32, 0xc2, 0x02, 0x0a, 0x0d, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
+	0x46, 0x69, 0x6e, 0x64, 0x65, 0x72, 0x12, 0x3b, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f,
+	0x64, 0x75, 0x63, 0x74, 0x12, 0x14, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74,
+	0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x15, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x22, 0x00, 0x12, 0x41, 0x0a, 0x0c, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75,
+	0x63, 0x74, 0x73, 0x12, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x4c, 0x69, 0x73, 0x74,
+	0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x52, 0x65, 0x71, 0x1a, 0x17, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x50, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69,
+	0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x12, 0x1b, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72,
+	0x6f, 0x64, 0x75, 0x63, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75,
+	0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x5f, 0x0a, 0x16, 0x42, 0x61, 0x74, 0x63,
+	0x68, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75,
+	0x63, 0x74, 0x12, 0x20, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x42, 0x61, 0x74, 0x63, 0x68,
+	0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
+	0x74, 0x52, 0x65, 0x71, 0x1a, 0x21, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x42, 0x61, 0x74,
+	0x63, 0x68, 0x47, 0x65, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x4f, 0x66, 0x50, 0x72, 0x6f, 0x64,
+	0x75, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -304,25 +520,34 @@ func file_productfinder_proto_rawDescGZIP() []byte {
 	return file_productfinder_proto_rawDescData
 }
 
-var file_productfinder_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_productfinder_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_productfinder_proto_goTypes = []interface{}{
-	(*GetProductsReq)(nil),        // 0: proto.GetProductsReq
-	(*GetProductsResp)(nil),       // 1: proto.GetProductsResp
-	(*GetPriceOfProductReq)(nil),  // 2: proto.GetPriceOfProductReq
-	(*GetPriceOfProductResp)(nil), // 3: proto.GetPriceOfProductResp
-	(*Product)(nil),               // 4: proto.Product
+	(*GetProductReq)(nil),              // 0: proto.GetProductReq
+	(*GetProductResp)(nil),             // 1: proto.GetProductResp
+	(*ListProductsReq)(nil),            // 2: proto.ListProductsReq
+	(*ListProductsResp)(nil),           // 3: proto.ListProductsResp
+	(*GetPriceOfProductReq)(nil),       // 4: proto.GetPriceOfProductReq
+	(*GetPriceOfProductResp)(nil),      // 5: proto.GetPriceOfProductResp
+	(*BatchGetPriceOfProductReq)(nil),  // 6: proto.BatchGetPriceOfProductReq
+	(*BatchGetPriceOfProductResp)(nil), // 7: proto.BatchGetPriceOfProductResp
+	(*Product)(nil),                    // 8: proto.Product
 }
 var file_productfinder_proto_depIdxs = []int32{
-	4, // 0: proto.GetProductsResp.products:type_name -> proto.Product
-	0, // 1: proto.ProductFinder.GetProducts:input_type -> proto.GetProductsReq
-	2, // 2: proto.ProductFinder.GetPriceOfProduct:input_type -> proto.GetPriceOfProductReq
-	1, // 3: proto.ProductFinder.GetProducts:output_type -> proto.GetProductsResp
-	3, // 4: proto.ProductFinder.GetPriceOfProduct:output_type -> proto.GetPriceOfProductResp
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 0: proto.GetProductResp.product:type_name -> proto.Product
+	8, // 1: proto.ListProductsResp.products:type_name -> proto.Product
+	0, // 2: proto.ProductFinder.GetProduct:input_type -> proto.GetProductReq
+	2, // 3: proto.ProductFinder.ListProducts:input_type -> proto.ListProductsReq
+	4, // 4: proto.ProductFinder.GetPriceOfProduct:input_type -> proto.GetPriceOfProductReq
+	6, // 5: proto.ProductFinder.BatchGetPriceOfProduct:input_type -> proto.BatchGetPriceOfProductReq
+	1, // 6: proto.ProductFinder.GetProduct:output_type -> proto.GetProductResp
+	3, // 7: proto.ProductFinder.ListProducts:output_type -> proto.ListProductsResp
+	5, // 8: proto.ProductFinder.GetPriceOfProduct:output_type -> proto.GetPriceOfProductResp
+	7, // 9: proto.ProductFinder.BatchGetPriceOfProduct:output_type -> proto.BatchGetPriceOfProductResp
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_productfinder_proto_init() }
@@ -332,7 +557,7 @@ func file_productfinder_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_productfinder_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetProductsReq); i {
+			switch v := v.(*GetProductReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -344,7 +569,7 @@ func file_productfinder_proto_init() {
 			}
 		}
 		file_productfinder_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetProductsResp); i {
+			switch v := v.(*GetProductResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -356,7 +581,7 @@ func file_productfinder_proto_init() {
 			}
 		}
 		file_productfinder_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetPriceOfProductReq); i {
+			switch v := v.(*ListProductsReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -368,7 +593,7 @@ func file_productfinder_proto_init() {
 			}
 		}
 		file_productfinder_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetPriceOfProductResp); i {
+			switch v := v.(*ListProductsResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -380,6 +605,54 @@ func file_productfinder_proto_init() {
 			}
 		}
 		file_productfinder_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetPriceOfProductReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_productfinder_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetPriceOfProductResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_productfinder_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BatchGetPriceOfProductReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_productfinder_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BatchGetPriceOfProductResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_productfinder_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Product); i {
 			case 0:
 				return &v.state
@@ -398,7 +671,7 @@ func file_productfinder_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_productfinder_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

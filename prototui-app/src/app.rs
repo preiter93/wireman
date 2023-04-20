@@ -1,6 +1,7 @@
 use crate::commons::{window_border, HelpActions};
-use crate::controller::{RequestController, SelectionController};
-use crate::model::{CoreClient, RequestModel, SelectionModel};
+use crate::controller::{MessagesController, SelectionController};
+use crate::model::messages::MessagesModel;
+use crate::model::{CoreClient, SelectionModel};
 use crate::view::{draw_request, draw_selection_and_help};
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
@@ -15,8 +16,8 @@ pub struct App<'a> {
     // The controller for the services and methods list
     pub selection_controller: SelectionController,
 
-    // The controller for the request editor
-    pub request_controller: RequestController<'a>,
+    // The controller for the request and response messages
+    pub messages_controller: MessagesController<'a>,
 
     /// The currently active window
     active_window: ActiveWindow,
@@ -35,12 +36,12 @@ impl<'a> App<'a> {
         let list_controller = SelectionController::new(list_model);
 
         // Construct the request controller
-        let editor_model = RequestModel::new(core_client_rc);
-        let editor_controller = RequestController::new(editor_model);
+        let messages_model = MessagesModel::new(core_client_rc);
+        let messages_controller = MessagesController::new(messages_model);
 
         App {
             active_window: ActiveWindow::Selection,
-            request_controller: editor_controller,
+            messages_controller,
             selection_controller: list_controller,
             show_help: true,
         }
@@ -53,7 +54,7 @@ impl<'a> App<'a> {
         }
         match &self.active_window {
             ActiveWindow::Selection => Some(self.selection_controller.help()),
-            ActiveWindow::Request => Some(self.request_controller.help()),
+            ActiveWindow::Request => Some(self.messages_controller.help()),
         }
     }
 
@@ -73,7 +74,7 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
 
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
-                if !app.request_controller.insert_mode() {
+                if !app.messages_controller.request_insert_mode() {
                     match key.code {
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Tab => app.active_window = app.active_window.next(),
@@ -85,12 +86,12 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Resu
                     ActiveWindow::Selection => {
                         load_method = app.selection_controller.on_key(key);
                     }
-                    ActiveWindow::Request => app.request_controller.on_key(key),
+                    ActiveWindow::Request => app.messages_controller.on_key(key),
                 }
                 // Load the currently selected method. This should only
                 // be called if the method actually has changed
                 if let Some(method) = &load_method {
-                    app.request_controller.load_method(method);
+                    app.messages_controller.load_method(method);
                     // Once we loaded the method we set it to None to
                     // avoid to load it multiple times
                     load_method = None;
@@ -120,7 +121,7 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     draw_request(
         f,
         chunks[1],
-        &mut app.request_controller,
+        &mut app.messages_controller,
         window_border("Request", app.active_window == ActiveWindow::Request),
     );
 }

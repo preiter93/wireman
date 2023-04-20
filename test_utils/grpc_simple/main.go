@@ -19,7 +19,7 @@ var (
 
 type Server struct {
 	pb.UnimplementedGreeterServer
-	pb.UnimplementedTimekeeperServer
+	pb.UnimplementedTimeKeeperServer
 }
 
 func (s *Server) SayHello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp, error) {
@@ -70,7 +70,7 @@ func main() {
 
 	s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &Server{})
-	pb.RegisterTimekeeperServer(s, &Server{})
+	pb.RegisterTimeKeeperServer(s, &Server{})
 
 	fmt.Println("Listening on", lis.Addr())
 	if err := s.Serve(lis); err != nil {

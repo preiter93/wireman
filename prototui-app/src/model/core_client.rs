@@ -1,10 +1,9 @@
-use http::Uri;
-
-use super::request::ErrorKind;
+use crate::commons::editor::ErrorKind;
 use core::{
     descriptor::message::MethodMessage, MethodDescriptor, ProtoDescriptor, ProtoTuiConfig,
     ServiceDescriptor,
 };
+use http::Uri;
 use std::error::Error;
 
 const DEFAULT_ADDRESS: &str = "http://localhost:50051";

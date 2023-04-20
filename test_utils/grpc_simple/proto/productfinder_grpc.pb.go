@@ -22,10 +22,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductFinderClient interface {
+	// Get a product by its id
+	GetProduct(ctx context.Context, in *GetProductReq, opts ...grpc.CallOption) (*GetProductResp, error)
 	// Return all available products
-	GetProducts(ctx context.Context, in *GetProductsReq, opts ...grpc.CallOption) (*GetProductsResp, error)
+	ListProducts(ctx context.Context, in *ListProductsReq, opts ...grpc.CallOption) (*ListProductsResp, error)
 	// Return the price of a given product
 	GetPriceOfProduct(ctx context.Context, in *GetPriceOfProductReq, opts ...grpc.CallOption) (*GetPriceOfProductResp, error)
+	// Return the price of multiple given products
+	BatchGetPriceOfProduct(ctx context.Context, in *BatchGetPriceOfProductReq, opts ...grpc.CallOption) (*BatchGetPriceOfProductResp, error)
 }
 
 type productFinderClient struct {
@@ -36,9 +40,18 @@ func NewProductFinderClient(cc grpc.ClientConnInterface) ProductFinderClient {
 	return &productFinderClient{cc}
 }
 
-func (c *productFinderClient) GetProducts(ctx context.Context, in *GetProductsReq, opts ...grpc.CallOption) (*GetProductsResp, error) {
-	out := new(GetProductsResp)
-	err := c.cc.Invoke(ctx, "/proto.ProductFinder/GetProducts", in, out, opts...)
+func (c *productFinderClient) GetProduct(ctx context.Context, in *GetProductReq, opts ...grpc.CallOption) (*GetProductResp, error) {
+	out := new(GetProductResp)
+	err := c.cc.Invoke(ctx, "/proto.ProductFinder/GetProduct", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productFinderClient) ListProducts(ctx context.Context, in *ListProductsReq, opts ...grpc.CallOption) (*ListProductsResp, error) {
+	out := new(ListProductsResp)
+	err := c.cc.Invoke(ctx, "/proto.ProductFinder/ListProducts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,14 +67,27 @@ func (c *productFinderClient) GetPriceOfProduct(ctx context.Context, in *GetPric
 	return out, nil
 }
 
+func (c *productFinderClient) BatchGetPriceOfProduct(ctx context.Context, in *BatchGetPriceOfProductReq, opts ...grpc.CallOption) (*BatchGetPriceOfProductResp, error) {
+	out := new(BatchGetPriceOfProductResp)
+	err := c.cc.Invoke(ctx, "/proto.ProductFinder/BatchGetPriceOfProduct", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductFinderServer is the server API for ProductFinder service.
 // All implementations must embed UnimplementedProductFinderServer
 // for forward compatibility
 type ProductFinderServer interface {
+	// Get a product by its id
+	GetProduct(context.Context, *GetProductReq) (*GetProductResp, error)
 	// Return all available products
-	GetProducts(context.Context, *GetProductsReq) (*GetProductsResp, error)
+	ListProducts(context.Context, *ListProductsReq) (*ListProductsResp, error)
 	// Return the price of a given product
 	GetPriceOfProduct(context.Context, *GetPriceOfProductReq) (*GetPriceOfProductResp, error)
+	// Return the price of multiple given products
+	BatchGetPriceOfProduct(context.Context, *BatchGetPriceOfProductReq) (*BatchGetPriceOfProductResp, error)
 	mustEmbedUnimplementedProductFinderServer()
 }
 
@@ -69,11 +95,17 @@ type ProductFinderServer interface {
 type UnimplementedProductFinderServer struct {
 }
 
-func (UnimplementedProductFinderServer) GetProducts(context.Context, *GetProductsReq) (*GetProductsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetProducts not implemented")
+func (UnimplementedProductFinderServer) GetProduct(context.Context, *GetProductReq) (*GetProductResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
+}
+func (UnimplementedProductFinderServer) ListProducts(context.Context, *ListProductsReq) (*ListProductsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
 }
 func (UnimplementedProductFinderServer) GetPriceOfProduct(context.Context, *GetPriceOfProductReq) (*GetPriceOfProductResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPriceOfProduct not implemented")
+}
+func (UnimplementedProductFinderServer) BatchGetPriceOfProduct(context.Context, *BatchGetPriceOfProductReq) (*BatchGetPriceOfProductResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchGetPriceOfProduct not implemented")
 }
 func (UnimplementedProductFinderServer) mustEmbedUnimplementedProductFinderServer() {}
 
@@ -88,20 +120,38 @@ func RegisterProductFinderServer(s grpc.ServiceRegistrar, srv ProductFinderServe
 	s.RegisterService(&ProductFinder_ServiceDesc, srv)
 }
 
-func _ProductFinder_GetProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetProductsReq)
+func _ProductFinder_GetProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProductReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProductFinderServer).GetProducts(ctx, in)
+		return srv.(ProductFinderServer).GetProduct(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.ProductFinder/GetProducts",
+		FullMethod: "/proto.ProductFinder/GetProduct",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductFinderServer).GetProducts(ctx, req.(*GetProductsReq))
+		return srv.(ProductFinderServer).GetProduct(ctx, req.(*GetProductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductFinder_ListProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListProductsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductFinderServer).ListProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ProductFinder/ListProducts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductFinderServer).ListProducts(ctx, req.(*ListProductsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -124,6 +174,24 @@ func _ProductFinder_GetPriceOfProduct_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductFinder_BatchGetPriceOfProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchGetPriceOfProductReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductFinderServer).BatchGetPriceOfProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ProductFinder/BatchGetPriceOfProduct",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductFinderServer).BatchGetPriceOfProduct(ctx, req.(*BatchGetPriceOfProductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProductFinder_ServiceDesc is the grpc.ServiceDesc for ProductFinder service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,12 +200,20 @@ var ProductFinder_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProductFinderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetProducts",
-			Handler:    _ProductFinder_GetProducts_Handler,
+			MethodName: "GetProduct",
+			Handler:    _ProductFinder_GetProduct_Handler,
+		},
+		{
+			MethodName: "ListProducts",
+			Handler:    _ProductFinder_ListProducts_Handler,
 		},
 		{
 			MethodName: "GetPriceOfProduct",
 			Handler:    _ProductFinder_GetPriceOfProduct_Handler,
+		},
+		{
+			MethodName: "BatchGetPriceOfProduct",
+			Handler:    _ProductFinder_BatchGetPriceOfProduct_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
