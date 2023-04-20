@@ -48,7 +48,7 @@ impl CoreClient {
     /// defined in ProtoMessage
     pub fn call_unary(&self, req: &MethodMessage) -> Result<MethodMessage, ErrorKind> {
         let uri = Uri::from_static(DEFAULT_ADDRESS);
-        let resp = core::call_unary_blocking(&self.grpc.0, uri, &req)?;
+        let resp = core::call_unary_blocking(&self.grpc.0, uri, req)?;
         Ok(resp)
     }
 }

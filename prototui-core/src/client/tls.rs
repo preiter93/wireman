@@ -104,12 +104,11 @@ fn get_client_config_with_custom_certs(ca_cert: &str) -> Result<Arc<rustls::Clie
 // Load public certificate from file.
 fn load_certs(filename: &str) -> Result<Vec<Vec<u8>>> {
     // Open certificate file.
-    let certfile =
-        std::fs::File::open(filename).map_err(|err| Error::LoadTLSCertificateError(err))?;
+    let certfile = std::fs::File::open(filename).map_err(Error::LoadTLSCertificateError)?;
     let mut reader = std::io::BufReader::new(certfile);
 
     // Load and return certificate.
-    Ok(rustls_pemfile::certs(&mut reader).map_err(|err| Error::LoadTLSCertificateError(err))?)
+    rustls_pemfile::certs(&mut reader).map_err(Error::LoadTLSCertificateError)
 }
 
 /// Implementation of `ServerCertVerifier` that verifies everything as trustworthy.
