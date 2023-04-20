@@ -38,7 +38,7 @@ fn main() -> Result<()> {
 fn init_core_client() -> Result<CoreClient> {
     let cfg = init_from_file("./config.json")?;
 
-    Ok(CoreClient::new(cfg)?)
+    CoreClient::new(cfg)
 }
 
 /// Initializes the terminal.
