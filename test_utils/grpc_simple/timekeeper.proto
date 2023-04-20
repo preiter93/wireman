@@ -6,8 +6,10 @@ package proto;
 
 import "google/protobuf/timestamp.proto";
 
-service Timekeeper {
+service TimeKeeper {
+  // Get the current date.
   rpc GetDate (GetDateReq) returns (GetDateResp) {}
+  // Return the name of the month in plain text.
   rpc GetNameOfMonth (GetNameOfMonthReq) returns (GetNameOfMonthResp) {}
 }
   
@@ -15,13 +17,16 @@ message GetDateReq {
 }
   
 message GetDateResp {
+  // The current date.:
   google.protobuf.Timestamp date = 1;
 }
 
 message GetNameOfMonthReq {
+  // The number of the month. Must be 1-12.
   int32 number = 1;
 }
   
 message GetNameOfMonthResp {
+  // The name of the month in english.
   string name = 1;
 }

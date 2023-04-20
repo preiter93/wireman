@@ -64,6 +64,7 @@ type GetDateResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The current date.:
 	Date *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
 }
 
@@ -111,6 +112,7 @@ type GetNameOfMonthReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The number of the month. Must be 1-12.
 	Number int32 `protobuf:"varint,1,opt,name=number,proto3" json:"number,omitempty"`
 }
 
@@ -158,6 +160,7 @@ type GetNameOfMonthResp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The name of the month in english.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 }
 

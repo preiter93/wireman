@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TimekeeperClient interface {
+	// Get the current date.
 	GetDate(ctx context.Context, in *GetDateReq, opts ...grpc.CallOption) (*GetDateResp, error)
+	// Return the name of the month in plain text.
 	GetNameOfMonth(ctx context.Context, in *GetNameOfMonthReq, opts ...grpc.CallOption) (*GetNameOfMonthResp, error)
 }
 
@@ -56,7 +58,9 @@ func (c *timekeeperClient) GetNameOfMonth(ctx context.Context, in *GetNameOfMont
 // All implementations must embed UnimplementedTimekeeperServer
 // for forward compatibility
 type TimekeeperServer interface {
+	// Get the current date.
 	GetDate(context.Context, *GetDateReq) (*GetDateResp, error)
+	// Return the name of the month in plain text.
 	GetNameOfMonth(context.Context, *GetNameOfMonthReq) (*GetNameOfMonthResp, error)
 	mustEmbedUnimplementedTimekeeperServer()
 }

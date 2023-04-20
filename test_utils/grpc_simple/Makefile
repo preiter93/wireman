@@ -13,7 +13,7 @@ out = "."
 all: clean build run
 
 build:
-	$(PROTOC) $(PROTOC_GEN_GO) greeter.proto timekeeper.proto 
+	$(PROTOC) $(PROTOC_GEN_GO) greeter.proto timekeeper.proto productfinder.proto
 	$(GOBUILD) -o $(BINARY_NAME) -v ./main.go
 
 clean:
@@ -23,6 +23,8 @@ clean:
 	rm -f proto/greeter_grpc.pb.go
 	rm -f proto/timekeeper.pb.go
 	rm -f proto/timekeeper_grpc.pb.go
+	rm -f proto/productfinder.pb.go
+	rm -f proto/productfinder_grpc.pb.go
 
 run: build
 	./$(BINARY_NAME)
