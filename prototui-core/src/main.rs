@@ -11,7 +11,7 @@ fn main() -> Result<()> {
         println!("{:?}", service.name());
     }
     let service = &services[1];
-    let methods = desc.get_methods(&service);
+    let methods = desc.get_methods(service);
     let method = methods.last().unwrap();
     let req = desc.get_request(method);
     println!("{:?}", method.name());

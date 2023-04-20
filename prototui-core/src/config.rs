@@ -67,14 +67,14 @@ mod test {
                 "luke.proto"
             ],
             "tls": {
-                "skip_verification": true
+                "custom_cert": "cert.pem"
             }
         }"#;
         let cfg = ProtoTuiConfig::parse_from_str(&data).unwrap();
         let expected = ProtoTuiConfig {
             workspace: "/Users/myworkspace".to_string(),
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
-            tls: TlsConfig::new(true, None),
+            tls: TlsConfig::new(Some("cert.pem".to_string())),
         };
         assert_eq!(cfg, expected);
     }
