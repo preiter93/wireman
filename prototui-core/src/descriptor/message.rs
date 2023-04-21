@@ -5,7 +5,7 @@ use prost_reflect::{
 };
 use std::str::FromStr;
 use tonic::{
-    metadata::{Ascii, MetadataMap, MetadataValue},
+    metadata::{Ascii, MetadataKey, MetadataMap, MetadataValue},
     Request,
 };
 
@@ -56,9 +56,10 @@ impl MethodMessage {
     }
 
     /// Insert metadata
-    pub fn insert_metadata(&mut self, key: &'static str, val: &str) {
+    pub fn insert_metadata(&mut self, key: &str, val: &str) {
         let val: MetadataValue<Ascii> = val.parse().unwrap();
         let map = self.metadata.get_or_insert(MetadataMap::new());
+        let key: MetadataKey<Ascii> = key.parse().unwrap();
         map.insert(key, val);
     }
 

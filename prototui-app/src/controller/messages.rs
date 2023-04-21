@@ -91,9 +91,13 @@ impl<'a> MessagesController<'a> {
         self.model.request.editor.mode() == EditorMode::Insert
     }
 
+    /// Set the metadadata
+    pub fn set_metadata(&mut self, metadata: String) {
+        self.model.request.set_metadata(metadata);
+    }
     // Unfortunately the editor style is stored in the text area widget in the
     // model, so the model has some presentation logic responsibilities.
-    pub fn set_cursor_style(
+    pub fn set_request_widget_style(
         &mut self,
         cursor_line_style: Style,
         block: Block<'a>,

@@ -2,6 +2,7 @@ mod app;
 mod commons;
 mod controller;
 mod model;
+mod pages;
 mod theme;
 mod view;
 mod widgets;
