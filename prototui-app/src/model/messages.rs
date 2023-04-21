@@ -92,6 +92,16 @@ impl MessagesModel<'_> {
                 self.response.clear();
                 return;
             }
+            // Metadata
+            // Try do deserialize. If this fails, we will send no metadata
+            let map: Result<HashMap<String, String>, serde_json::Error> =
+                serde_json::from_str(&self.request.metadata.clone());
+            if let Ok(map) = map {
+                for (key, val) in map.clone().into_iter() {
+                    req.insert_metadata(&key, &val);
+                }
+            }
+            // req.insert_metadata(&map.keys(), &self.request.metadata);
             match self.request.core_client.borrow_mut().call_unary(&req) {
                 // Call was successful
                 Ok(resp) => {
@@ -114,8 +124,11 @@ pub struct RequestModel<'a> {
     /// The core client retrieves default proto message and making gRPC calls.
     core_client: Rc<RefCell<CoreClient>>,
 
-    // The currently active editor
+    /// The currently active editor
     pub editor: TextEditor<'a>,
+
+    /// The metadata
+    pub metadata: String,
 }
 
 impl<'a> RequestModel<'a> {
@@ -126,6 +139,7 @@ impl<'a> RequestModel<'a> {
         Self {
             core_client,
             editor: TextEditor::new(),
+            metadata: String::new(),
         }
     }
 
@@ -135,6 +149,11 @@ impl<'a> RequestModel<'a> {
         // Load message in editor
         self.editor
             .set_text_raw(try_pretty_format_json(&req.to_json()));
+    }
+
+    /// Set the metadata
+    pub fn set_metadata(&mut self, metadata: String) {
+        self.metadata = metadata;
     }
 }
 
