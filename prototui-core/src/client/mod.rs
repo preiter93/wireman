@@ -6,7 +6,6 @@ use crate::Result;
 use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
-use tonic::IntoRequest;
 use tonic::{client::Grpc, transport::Channel};
 
 mod codec;
@@ -75,13 +74,12 @@ impl GrpcClient {
     pub async fn unary(&mut self, req: &MethodMessage) -> Result<MethodMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
         let codec = codec::DynamicCodec::new(req.get_method_descriptor());
+        // path
         let path = req.get_path();
-        let resp = self
-            .grpc
-            .unary(req.clone().into_request(), path, codec)
-            .await?
-            .into_inner();
-        Ok(resp)
+        // make call
+        let req = req.clone().into_request();
+        let response = self.grpc.unary(req, path, codec).await?.into_inner();
+        Ok(response)
     }
 
     /// Make a unary gRPC call from the client. The call is

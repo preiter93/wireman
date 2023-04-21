@@ -1,11 +1,13 @@
-use crate::error::Error;
-use crate::Result;
+use crate::{error::Error, Result};
 use http::uri::PathAndQuery;
-use prost_reflect::DeserializeOptions;
-use prost_reflect::MethodDescriptor;
-use prost_reflect::SerializeOptions;
-use prost_reflect::{DynamicMessage, MessageDescriptor};
+use prost_reflect::{
+    DeserializeOptions, DynamicMessage, MessageDescriptor, MethodDescriptor, SerializeOptions,
+};
 use std::str::FromStr;
+use tonic::{
+    metadata::{Ascii, MetadataMap, MetadataValue},
+    Request,
+};
 
 /// Wrapper around `MessageDescriptor` and `DynamicMessage`
 #[derive(Debug, Clone)]
@@ -13,6 +15,7 @@ pub struct MethodMessage {
     message_desc: MessageDescriptor,
     method_desc: MethodDescriptor,
     message: DynamicMessage,
+    metadata: Option<MetadataMap>,
 }
 
 impl MethodMessage {
@@ -23,6 +26,7 @@ impl MethodMessage {
             message_desc,
             method_desc,
             message,
+            metadata: None,
         }
     }
 
@@ -49,6 +53,18 @@ impl MethodMessage {
     /// Set a new message
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
+    }
+
+    /// Insert metadata
+    pub fn insert_metadata(&mut self, key: &'static str, val: &str) {
+        let val: MetadataValue<Ascii> = val.parse().unwrap();
+        let map = self.metadata.get_or_insert(MetadataMap::new());
+        map.insert(key, val);
+    }
+
+    /// Get the metadata
+    pub fn get_metadata(&self) -> &Option<MetadataMap> {
+        &self.metadata
     }
 
     /// Deserialize a ProtoMessage from a json string
@@ -89,6 +105,16 @@ impl MethodMessage {
         );
         PathAndQuery::from_str(&path).unwrap()
     }
+
+    /// Wrap the message in a `tonic::Request`
+    pub fn into_request(self) -> Request<MethodMessage> {
+        let mut req = Request::new(self.clone());
+        // add metadata
+        if let Some(meta) = self.get_metadata() {
+            *req.metadata_mut() = meta.clone();
+        }
+        req
+    }
 }
 
 #[cfg(test)]
@@ -116,10 +142,10 @@ mod test {
     #[test]
     fn test_to_json() {
         // given
-        let proto_message = load_test_request();
+        let given_message = load_test_request();
 
         // when
-        let json = proto_message.to_json();
+        let json = given_message.to_json();
 
         // then
         let expected_json = "{\"number\":0}";
@@ -129,15 +155,42 @@ mod test {
     #[test]
     fn test_from_json() {
         // given
-        let mut proto_message = load_test_request();
+        let mut given_message = load_test_request();
         let given_json = "{\"number\":1}";
-        proto_message.from_json(given_json).unwrap();
+        given_message.from_json(given_json).unwrap();
 
         // when
-        let json = proto_message.to_json();
+        let json = given_message.to_json();
 
         // then
         let expected_json = "{\"number\":1}";
         assert_eq!(json, expected_json);
+    }
+
+    #[test]
+    fn test_into_requeset() {
+        // given
+        let mut given_message = load_test_request();
+        given_message.insert_metadata("metadata-key", "metadata-value");
+
+        // when
+        let given_req = given_message.clone().into_request();
+
+        // then
+        let metadata = given_req.metadata();
+        assert!(metadata.contains_key("metadata-key"));
+        assert_eq!(
+            metadata.get("metadata-key").unwrap().as_bytes(),
+            "metadata-value".as_bytes()
+        );
+        let message = given_req.get_ref().clone();
+        assert_eq!(
+            message.get_method_descriptor(),
+            given_message.get_method_descriptor()
+        );
+        assert_eq!(
+            message.get_message_descriptor(),
+            given_message.get_message_descriptor()
+        );
     }
 }

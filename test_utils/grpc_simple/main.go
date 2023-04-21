@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 	pb "grpc_simple/proto"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -20,6 +22,7 @@ var (
 type Server struct {
 	pb.UnimplementedGreeterServer
 	pb.UnimplementedTimeKeeperServer
+	pb.UnimplementedDebuggerServer
 }
 
 func (s *Server) SayHello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp, error) {
@@ -62,6 +65,27 @@ func (s *Server) GetNameOfMonth(ctx context.Context, req *pb.GetNameOfMonthReq) 
 	}
 }
 
+func (s *Server) GetMetadata(ctx context.Context, req *pb.GetMetadataReq) (*pb.GetMetadataResp, error) {
+	// Get metadata from the incoming context
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("failed to get metadata from context")
+	}
+
+	// Convert metadata map to JSON string
+	mdJson, err := json.Marshal(md)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal metadata to JSON: %v", err)
+	}
+
+	// Create the response message
+	resp := &pb.GetMetadataResp{
+		Metadata: string(mdJson),
+	}
+
+	return resp, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
@@ -71,6 +95,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &Server{})
 	pb.RegisterTimeKeeperServer(s, &Server{})
+	pb.RegisterDebuggerServer(s, &Server{})
 
 	fmt.Println("Listening on", lis.Addr())
 	if err := s.Serve(lis); err != nil {
