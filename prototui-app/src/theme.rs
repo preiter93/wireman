@@ -30,9 +30,9 @@ pub const COL_LIST_HIGHLIGHTED_METHOD_BG: Color = COLOR_TERTIARY;
 
 // Editor
 pub const MOD_CURSOR_NORMAL_MODE: Modifier = Modifier::REVERSED;
-pub const MOD_CURSOR_INSERT_MODE: Modifier = Modifier::UNDERLINED;
+pub const MOD_CURSOR_INSERT_MODE: Modifier = Modifier::REVERSED;
 pub const COL_CURSOR_NORMAL_MODE: Color = COLOR_PRIMARY;
-pub const COL_CURSOR_INSERT_MODE: Color = COLOR_PRIMARY;
+pub const COL_CURSOR_INSERT_MODE: Color = COLOR_TERTIARY;
 
 // Help window
 pub const COL_HELP_KEY_FG: Color = COLOR_TERTIARY;

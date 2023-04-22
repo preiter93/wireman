@@ -77,8 +77,8 @@ impl MessagesModel<'_> {
         // set the active editor
         self.loaded_cache_id = id.to_string();
         let (req, resp) = self.cache[id].clone();
-        self.request.editor.set_text_raw(req);
-        self.response.text.set_text_raw(resp);
+        self.request.editor.set_text_raw(&req);
+        self.response.text.set_text_raw(&resp);
     }
 
     /// Make a grpc call and set response or error.
@@ -92,12 +92,22 @@ impl MessagesModel<'_> {
                 self.response.clear();
                 return;
             }
+            // Metadata
+            // Try do deserialize. If this fails, we will send no metadata
+            let map: Result<HashMap<String, String>, serde_json::Error> =
+                serde_json::from_str(&self.request.metadata.clone());
+            if let Ok(map) = map {
+                for (key, val) in map.into_iter() {
+                    req.insert_metadata(&key, &val);
+                }
+            }
+            // req.insert_metadata(&map.keys(), &self.request.metadata);
             match self.request.core_client.borrow_mut().call_unary(&req) {
                 // Call was successful
                 Ok(resp) => {
                     let resp = try_pretty_format_json(&resp.to_json());
                     self.request.editor.set_error(None);
-                    self.response.text.set_text_raw(resp);
+                    self.response.text.set_text_raw(&resp);
                 }
                 // gRPC call returned with an error
                 Err(err) => {
@@ -114,8 +124,11 @@ pub struct RequestModel<'a> {
     /// The core client retrieves default proto message and making gRPC calls.
     core_client: Rc<RefCell<CoreClient>>,
 
-    // The currently active editor
+    /// The currently active editor
     pub editor: TextEditor<'a>,
+
+    /// The metadata
+    pub metadata: String,
 }
 
 impl<'a> RequestModel<'a> {
@@ -126,6 +139,7 @@ impl<'a> RequestModel<'a> {
         Self {
             core_client,
             editor: TextEditor::new(),
+            metadata: String::new(),
         }
     }
 
@@ -134,7 +148,12 @@ impl<'a> RequestModel<'a> {
         let req = self.core_client.borrow_mut().get_request(method);
         // Load message in editor
         self.editor
-            .set_text_raw(try_pretty_format_json(&req.to_json()));
+            .set_text_raw(&try_pretty_format_json(&req.to_json()));
+    }
+
+    /// Set the metadata
+    pub fn set_metadata(&mut self, metadata: String) {
+        self.metadata = metadata;
     }
 }
 
