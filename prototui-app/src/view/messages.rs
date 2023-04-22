@@ -2,6 +2,7 @@
 use crate::commons::editor::ErrorKind;
 use crate::commons::window_border;
 use crate::controller::MessagesController;
+use crate::controller::MetadataController;
 use crate::theme;
 use ratatui::backend::Backend;
 use ratatui::layout::Alignment;
@@ -27,25 +28,13 @@ pub fn draw_request<'a, B>(
 ) where
     B: Backend,
 {
-    // Set the cursor line style
-    let cursor_line_style = Style::default();
-
-    // Set the cursor style depending on the mode
-    let cursor_style = if controller.request_insert_mode() {
-        Style::default()
-            .fg(theme::COL_CURSOR_INSERT_MODE)
-            .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
-    } else {
-        Style::default()
-            .fg(theme::COL_CURSOR_NORMAL_MODE)
-            .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
-    };
-
-    // Update the editor style
-    controller.set_request_widget_style(cursor_line_style, block, cursor_style);
+    // Set the request editors ui
+    let mut request = controller.get_editor_request().clone();
+    request.set_style_default();
+    request.set_block(block);
 
     // Get the error text from the model
-    let error = controller.error();
+    let error = controller.get_error();
 
     // Get response text from model
     let response = controller.response_string();
@@ -69,7 +58,7 @@ pub fn draw_request<'a, B>(
         .split(area);
 
     // Render request window
-    f.render_widget(controller.request_editor().widget(), chunks[0]);
+    f.render_widget(request.widget(), chunks[0]);
 
     // Render error window
     if let Some(error) = &error {
@@ -105,4 +94,34 @@ fn error_widget<'a>(err: ErrorKind) -> Paragraph<'a> {
         .block(Block::default().title(title).borders(Borders::ALL))
         .alignment(Alignment::Center)
         .wrap(Wrap { trim: true })
+}
+
+/// Draw the widget that lets the user input metadata
+pub fn draw_metadata<'a, B>(
+    f: &mut Frame<B>,
+    area: Rect,
+    controller: &mut MetadataController<'a>,
+    block: Block<'a>,
+) where
+    B: Backend,
+{
+    let mut editor = controller.get_editor().clone();
+    editor.set_style_default();
+    editor.set_block(block);
+
+    // Get the error text
+    let err = controller.get_error();
+    let err_length = err.as_ref().map_or(0, |_| 3);
+    // Determine the widget size
+    let chunks = Layout::default()
+        .constraints([Constraint::Min(0), Constraint::Length(err_length)].as_ref())
+        .split(area);
+
+    // Render metadata
+    f.render_widget(editor.widget(), chunks[0]);
+
+    // Render error
+    if let Some(err) = err {
+        f.render_widget(error_widget(err), chunks[1]);
+    }
 }
