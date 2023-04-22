@@ -1,6 +1,6 @@
 use crate::{
     model::CoreClient,
-    pages::{config::ConfigPage, home::HomePage},
+    pages::{GrpcConfigPage, HomePage},
 };
 use crossterm::event::{self, Event, KeyCode};
 use ratatui::{backend::Backend, Frame, Terminal};
@@ -11,7 +11,7 @@ pub struct App<'a> {
     pub home: HomePage<'a>,
 
     /// The config page displaying metadata and server address
-    pub config: ConfigPage<'a>,
+    pub config: GrpcConfigPage<'a>,
 
     /// The active page
     page: Page,
@@ -21,7 +21,7 @@ impl<'a> App<'a> {
     pub fn new(core_client: CoreClient) -> App<'a> {
         App {
             home: HomePage::new(core_client),
-            config: ConfigPage::new(),
+            config: GrpcConfigPage::new(),
             page: Page::Home,
         }
     }
@@ -45,10 +45,13 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> std::io:
                 }
                 Page::Settings => {
                     if key.code == KeyCode::Char('S') {
-                        // Switch page
-                        app.page = Page::Home;
-                        // Pass the config data to the homepage
-                        app.home.process_global(app.config.metadata());
+                        // Switch page. But first we validate if there are any errors.
+                        let result = app.config.finish();
+                        if result.is_ok() {
+                            app.page = Page::Home;
+                            // Pass the config data to the homepage
+                            app.home.process_route_data(app.config.get_metadata());
+                        }
                     } else {
                         // Use keybindings of page
                         quit = app.config.on_key(key);

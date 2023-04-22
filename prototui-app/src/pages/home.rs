@@ -54,7 +54,7 @@ impl<'a> HomePage<'a> {
         // from the list selection and passed to the request window which
         // loads the proto message in the correct format.
         let mut load_method = None;
-        if !self.messages_controller.request_insert_mode() {
+        if !self.messages_controller.in_insert_mode() {
             match key.code {
                 KeyCode::Char('q') => return true,
                 KeyCode::Tab => self.window = self.window.next(),
@@ -72,11 +72,8 @@ impl<'a> HomePage<'a> {
         // be called if the method actually has changed
         if let Some(method) = &load_method {
             self.messages_controller.load_method(method);
-            // // Once we loaded the method we set it to None to
-            // // avoid to load it multiple times
-            // load_method = None;
         }
-        return false;
+        false
     }
 
     /// render the widgets of this page
@@ -122,7 +119,7 @@ impl<'a> HomePage<'a> {
     }
 
     /// Processes data from other pages
-    pub fn process_global(&mut self, data: String) {
+    pub fn process_route_data(&mut self, data: String) {
         self.messages_controller.set_metadata(data);
     }
 }

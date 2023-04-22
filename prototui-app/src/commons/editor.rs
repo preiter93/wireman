@@ -1,6 +1,8 @@
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::widgets::Widget;
+use ratatui::{style::Style, widgets::Widget};
 use tui_textarea::{CursorMove, Input, TextArea};
+
+use crate::theme;
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -32,12 +34,12 @@ impl<'a> TextEditor<'a> {
     }
 
     /// Set the editors content from raw text
-    pub fn set_text_raw(&mut self, text: String) {
+    pub fn set_text_raw(&mut self, text: &str) {
         self.editor = TextArea::new(text.lines().map(ToOwned::to_owned).collect());
     }
 
     /// Return the error
-    pub fn error(&self) -> Option<ErrorKind> {
+    pub fn get_error(&self) -> Option<ErrorKind> {
         self.error.clone()
     }
 
@@ -46,12 +48,29 @@ impl<'a> TextEditor<'a> {
         self.error = error;
     }
 
+    /// Set the default style
+    pub fn set_style_default(&mut self) {
+        // Set the cursor style depending on the mode
+        let cursor_style = if self.mode == EditorMode::Insert {
+            Style::default()
+                .fg(theme::COL_CURSOR_INSERT_MODE)
+                .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
+        } else {
+            Style::default()
+                .fg(theme::COL_CURSOR_NORMAL_MODE)
+                .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
+        };
+
+        self.set_cursor_style(cursor_style);
+        self.set_cursor_line_style(Style::default());
+    }
+
     /// Pretty formats the editors text. The error is stored
     /// internall in the error buffer.
     pub fn format_json(&mut self) {
         match pretty_format_json(&self.get_text_raw()) {
             Ok(pretty) => {
-                self.set_text_raw(pretty);
+                self.set_text_raw(&pretty);
                 self.error = None;
             }
             Err(err) => self.error = Some(err),

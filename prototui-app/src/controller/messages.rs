@@ -1,5 +1,3 @@
-use core::MethodDescriptor;
-
 use crate::{
     commons::{
         editor::ErrorKind,
@@ -8,8 +6,8 @@ use crate::{
     },
     model::messages::MessagesModel,
 };
+use core::MethodDescriptor;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
-use ratatui::{style::Style, widgets::Block};
 
 /// Manages the request and response messages.
 pub struct MessagesController<'a> {
@@ -38,7 +36,7 @@ impl<'a> MessagesController<'a> {
     fn on_key_normal_mode(&mut self, key: KeyEvent) {
         self.model.request.editor.on_key_normal_mode(key);
         if key.code == KeyCode::Enter {
-            self.model.call_grpc()
+            self.model.call_grpc();
         }
     }
 
@@ -72,12 +70,12 @@ impl<'a> MessagesController<'a> {
     }
 
     /// Returns the error to be displayed.
-    pub fn error(&'a self) -> Option<ErrorKind> {
-        self.model.request.editor.error()
+    pub fn get_error(&'a self) -> Option<ErrorKind> {
+        self.model.request.editor.get_error()
     }
 
     /// Returns the request editor widget
-    pub fn request_editor(&self) -> &'a TextEditor {
+    pub fn get_editor_request(&self) -> &'a TextEditor {
         &self.model.request.editor
     }
 
@@ -87,7 +85,7 @@ impl<'a> MessagesController<'a> {
     }
 
     /// Returns wether the editor is in insert mode
-    pub fn request_insert_mode(&self) -> bool {
+    pub fn in_insert_mode(&self) -> bool {
         self.model.request.editor.mode() == EditorMode::Insert
     }
 
@@ -95,21 +93,21 @@ impl<'a> MessagesController<'a> {
     pub fn set_metadata(&mut self, metadata: String) {
         self.model.request.set_metadata(metadata);
     }
-    // Unfortunately the editor style is stored in the text area widget in the
-    // model, so the model has some presentation logic responsibilities.
-    pub fn set_request_widget_style(
-        &mut self,
-        cursor_line_style: Style,
-        block: Block<'a>,
-        cursor_style: Style,
-    ) {
-        // Set the cursor line style
-        self.model
-            .request
-            .editor
-            .set_cursor_line_style(cursor_line_style);
-        self.model.request.editor.set_block(block);
-        // Set the cursor style depending on the mode
-        self.model.request.editor.set_cursor_style(cursor_style);
-    }
+    // // Unfortunately the editor style is stored in the text area widget in the
+    // // model, so the model has some presentation logic responsibilities.
+    // pub fn set_request_widget_style(
+    //     &mut self,
+    //     cursor_line_style: Style,
+    //     block: Block<'a>,
+    //     cursor_style: Style,
+    // ) {
+    //     // Set the cursor line style
+    //     self.model
+    //         .request
+    //         .editor
+    //         .set_cursor_line_style(cursor_line_style);
+    //     self.model.request.editor.set_block(block);
+    //     // Set the cursor style depending on the mode
+    //     self.model.request.editor.set_cursor_style(cursor_style);
+    // }
 }
