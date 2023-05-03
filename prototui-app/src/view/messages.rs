@@ -1,8 +1,7 @@
-#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::commons::editor::ErrorKind;
 use crate::commons::window_border;
 use crate::controller::MessagesController;
-use crate::controller::MetadataController;
 use crate::theme;
 use ratatui::backend::Backend;
 use ratatui::layout::Alignment;
@@ -62,7 +61,7 @@ pub fn draw_request<'a, B>(
 
     // Render error window
     if let Some(error) = &error {
-        f.render_widget(error_widget(error.to_owned()), chunks[1]);
+        f.render_widget(error_widget(error.clone()), chunks[1]);
     }
 
     // Render response window
@@ -71,7 +70,7 @@ pub fn draw_request<'a, B>(
     }
 }
 
-/// Renders the gRPC response
+/// Renders the grpc response
 fn response_widget(text: &str) -> Paragraph {
     Paragraph::new(Text::from(text))
         .block(window_border("Response", false))
@@ -94,34 +93,4 @@ fn error_widget<'a>(err: ErrorKind) -> Paragraph<'a> {
         .block(Block::default().title(title).borders(Borders::ALL))
         .alignment(Alignment::Center)
         .wrap(Wrap { trim: true })
-}
-
-/// Draw the widget that lets the user input metadata
-pub fn draw_metadata<'a, B>(
-    f: &mut Frame<B>,
-    area: Rect,
-    controller: &mut MetadataController<'a>,
-    block: Block<'a>,
-) where
-    B: Backend,
-{
-    let mut editor = controller.get_editor().clone();
-    editor.set_style_default();
-    editor.set_block(block);
-
-    // Get the error text
-    let err = controller.get_error();
-    let err_length = err.as_ref().map_or(0, |_| 3);
-    // Determine the widget size
-    let chunks = Layout::default()
-        .constraints([Constraint::Min(0), Constraint::Length(err_length)].as_ref())
-        .split(area);
-
-    // Render metadata
-    f.render_widget(editor.widget(), chunks[0]);
-
-    // Render error
-    if let Some(err) = err {
-        f.render_widget(error_widget(err), chunks[1]);
-    }
 }

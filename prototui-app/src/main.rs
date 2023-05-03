@@ -27,7 +27,7 @@ fn main() -> Result<()> {
     })?;
 
     let app = App::new(core_client);
-    let _ = run_app(&mut terminal, app);
+    run_app(&mut terminal, app).unwrap();
 
     reset_terminal()?;
     terminal.show_cursor()?;

@@ -33,9 +33,10 @@ fn main() -> Result<()> {
     //         println!("VALUE {:?}", value);
     //     }
     // }
-    // send message to gRPC server
+    // send message to grpc server
     let uri = Uri::from_static("http://localhost:50051");
-    req.insert_metadata("metadata-key", "metadata-value");
+    req.insert_metadata("metadata-key", "metadata-value")
+        .unwrap();
     let resp = call_unary_blocking(&cfg, uri, &req)?;
     println!("{:?}", resp.to_json());
 

@@ -1,5 +1,6 @@
 pub mod editor;
-use std::collections::{btree_map::Iter, BTreeMap};
+
+use std::slice::Iter;
 
 use ratatui::{
     style::Style,
@@ -47,24 +48,22 @@ pub fn window_border(title: &str, highlighted: bool) -> Block {
 
 /// A list of help actions. Only used for displaying.
 pub struct HelpActions {
-    items: BTreeMap<&'static str, &'static str>,
+    items: Vec<(&'static str, &'static str)>,
 }
 
 impl HelpActions {
     /// Returns empty map
     pub fn new() -> Self {
-        Self {
-            items: BTreeMap::new(),
-        }
+        Self { items: Vec::new() }
     }
 
     /// Insert a action
     pub fn insert(&mut self, key: &'static str, action: &'static str) {
-        self.items.insert(key, action);
+        self.items.push((key, action));
     }
 
     /// Iterate over the actions
-    pub fn iter(&self) -> Iter<'_, &str, &str> {
+    pub fn iter(&self) -> Iter<'_, (&str, &str)> {
         self.items.iter()
     }
 
@@ -81,6 +80,8 @@ impl Default for HelpActions {
         let mut actions = Self::new();
         actions.insert("q", "Quit");
         actions.insert("H", "Toggle help");
+        actions.insert("A", "Toggle address");
+        actions.insert("M", "Toggle metadata");
         actions
     }
 }

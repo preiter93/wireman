@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
+use prost_reflect::DescriptorError;
 use thiserror::Error;
 pub use PTError as Error;
 
@@ -28,6 +29,10 @@ pub enum PTError {
     #[error("error compiling proto files")]
     ProtoxCompileError(#[source] protox::Error),
 
+    /// Protox failed to compile the proto files
+    #[error("error generating the descriptor pool")]
+    DescriptorError(#[source] DescriptorError),
+
     /// Failed to create a grpc channel
     #[error("error creating grpc channel")]
     GrpcChannelCreateError(#[source] protox::Error),
@@ -43,6 +48,14 @@ pub enum PTError {
     /// Failed to load the custom TLS certificate
     #[error("failed to load custom TLS certificate")]
     LoadTLSCertificateError(#[source] std::io::Error),
+
+    /// Failed to serialize proto messages
+    #[error("failed to serialize proto message")]
+    SerializeProtoMessage(#[source] serde_json::Error),
+
+    /// Failed to parse to ascii
+    #[error("error parsing to ascii")]
+    ParseToAsciiError,
 }
 
 impl From<tonic::Status> for PTError {
@@ -51,10 +64,10 @@ impl From<tonic::Status> for PTError {
     }
 }
 
-/// A status describing the result of a gRPC call
+/// A status describing the result of a grpc call
 #[derive(Debug)]
 pub struct GrpcStatus {
-    /// The gRPC status code
+    /// The grpc status code
     pub code: tonic::Code,
     /// The error message
     pub message: String,

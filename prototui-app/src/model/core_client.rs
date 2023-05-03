@@ -6,15 +6,13 @@ use core::{
 use http::Uri;
 use std::error::Error;
 
-const DEFAULT_ADDRESS: &str = "http://localhost:50051";
-
-/// The [CoreClient] calls the proto descriptor and gRPC client of the
+/// The [`CoreClient`] calls the proto descriptor and grpc client of the
 /// core package.  
 #[derive(Debug, Clone)]
 pub struct CoreClient {
     /// The proto descriptor
     desc: ProtoDescriptor,
-    /// Config to create a new gRPC client
+    /// Config to create a new grpc client
     grpc: GrpcClientConfig,
 }
 
@@ -43,10 +41,22 @@ impl CoreClient {
         self.desc.get_request(method)
     }
 
+    /// Returns the default address as defined in the config.json
+    pub fn get_default_address(&self) -> String {
+        self.grpc.0.address.clone()
+    }
+
     /// Makes a unary grpc call with a given Message and Method which is
-    /// defined in ProtoMessage
-    pub fn call_unary(&self, req: &MethodMessage) -> Result<MethodMessage, ErrorKind> {
-        let uri = Uri::from_static(DEFAULT_ADDRESS);
+    /// defined in [`ProtoMessage`]
+    pub fn call_unary(
+        &self,
+        req: &MethodMessage,
+        address: &str,
+    ) -> Result<MethodMessage, ErrorKind> {
+        let uri = Uri::try_from(address).map_err(|_| ErrorKind {
+            kind: "ParseAddressError".to_string(),
+            msg: String::new(),
+        })?;
         let resp = core::call_unary_blocking(&self.grpc.0, uri, req)?;
         Ok(resp)
     }
