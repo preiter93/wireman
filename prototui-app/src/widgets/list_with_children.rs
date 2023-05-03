@@ -1,4 +1,9 @@
-#![allow(dead_code)]
+#![allow(
+    dead_code,
+    clippy::cast_possible_truncation,
+    clippy::too_many_lines,
+    clippy::module_name_repetitions
+)]
 use ratatui::{
     buffer::Buffer,
     layout::{Corner, Rect},
@@ -184,16 +189,13 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
         let mut current_height = 0;
         let has_selection = state.selected_parent.is_some();
         for (i, item) in self.items.iter_mut().enumerate() {
-            let (x, y) = match self.start_corner {
-                Corner::BottomLeft => {
-                    current_height += item.parent.height() as u16;
-                    (list_area.left(), list_area.bottom() - current_height)
-                }
-                _ => {
-                    let pos = (list_area.left(), list_area.top() + current_height);
-                    current_height += item.parent.height() as u16;
-                    pos
-                }
+            let (x, y) = if self.start_corner == Corner::BottomLeft {
+                current_height += item.parent.height() as u16;
+                (list_area.left(), list_area.bottom() - current_height)
+            } else {
+                let pos = (list_area.left(), list_area.top() + current_height);
+                current_height += item.parent.height() as u16;
+                pos
             };
             let area = Rect {
                 x,
@@ -228,20 +230,17 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
                 };
                 buf.set_spans(elem_x, y + j as u16, line, max_element_width);
 
-                let is_expanded = state.expanded_parent.map(|s| s == i).unwrap_or(false);
+                let is_expanded = state.expanded_parent.map_or(false, |s| s == i);
 
                 if is_expanded {
                     for (k, child) in item.children.iter_mut().enumerate() {
-                        let (x, y) = match self.start_corner {
-                            Corner::BottomLeft => {
-                                current_height += child.height() as u16;
-                                (list_area.left(), list_area.bottom() - current_height)
-                            }
-                            _ => {
-                                let pos = (list_area.left(), list_area.top() + current_height);
-                                current_height += child.height() as u16;
-                                pos
-                            }
+                        let (x, y) = if self.start_corner == Corner::BottomLeft {
+                            current_height += child.height() as u16;
+                            (list_area.left(), list_area.bottom() - current_height)
+                        } else {
+                            let pos = (list_area.left(), list_area.top() + current_height);
+                            current_height += child.height() as u16;
+                            pos
                         };
                         let area = Rect {
                             x,
@@ -252,7 +251,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
                         let item_style = self.style.patch(item.parent.style);
                         buf.set_style(area, item_style);
 
-                        let is_sub_selected = state.selected_child.map(|s| s == k).unwrap_or(false);
+                        let is_sub_selected = state.selected_child.map_or(false, |s| s == k);
                         for (m, sub_line) in child.content.lines.iter().enumerate() {
                             // if the item is selected, we need to display the highlight symbol:
                             // - either for the first line of the item only,

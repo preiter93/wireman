@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::commons::HelpActions;
 use crate::{commons::editor::EditorMode, model::MetadataModel};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
@@ -17,7 +18,9 @@ impl<'a> MetadataController<'a> {
     /// Handle user input.
     pub fn on_key(&mut self, key: KeyEvent) {
         if key.kind == KeyEventKind::Press {
-            if !self.in_insert_mode() {
+            if self.in_insert_mode() {
+                self.on_key_insert_mode(key);
+            } else {
                 match key.code {
                     KeyCode::Tab => {
                         if self.is_key_selected() {
@@ -28,8 +31,6 @@ impl<'a> MetadataController<'a> {
                     }
                     _ => self.on_key_normal_mode(key),
                 }
-            } else {
-                self.on_key_insert_mode(key);
             }
         }
     }
@@ -64,7 +65,11 @@ impl<'a> MetadataController<'a> {
     /// Return a map of help actions. This is displayed in the
     /// helper wndow.
     pub fn help(&self) -> HelpActions {
-        if !self.in_insert_mode() {
+        if self.in_insert_mode() {
+            let mut actions = HelpActions::new();
+            actions.insert("Esc", "Normal mode");
+            actions
+        } else {
             let mut actions = HelpActions::new();
             actions.insert("q", "Quit");
             actions.insert("M/Esc", "Untoggle metadata");
@@ -74,10 +79,6 @@ impl<'a> MetadataController<'a> {
             } else {
                 actions.insert("Tab", "Select Key");
             }
-            actions
-        } else {
-            let mut actions = HelpActions::new();
-            actions.insert("Esc", "Normal mode");
             actions
         }
     }

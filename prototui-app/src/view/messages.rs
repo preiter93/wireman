@@ -1,4 +1,4 @@
-#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::commons::editor::ErrorKind;
 use crate::commons::window_border;
 use crate::controller::MessagesController;
@@ -22,7 +22,7 @@ use ratatui::Frame;
 pub fn draw_request<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
-    controller: &mut MessagesController<'_>,
+    controller: &mut MessagesController<'a>,
     block: Block<'a>,
 ) where
     B: Backend,
@@ -61,7 +61,7 @@ pub fn draw_request<'a, B>(
 
     // Render error window
     if let Some(error) = &error {
-        f.render_widget(error_widget(error.to_owned()), chunks[1]);
+        f.render_widget(error_widget(error.clone()), chunks[1]);
     }
 
     // Render response window
@@ -70,7 +70,7 @@ pub fn draw_request<'a, B>(
     }
 }
 
-/// Renders the gRPC response
+/// Renders the grpc response
 fn response_widget(text: &str) -> Paragraph {
     Paragraph::new(Text::from(text))
         .block(window_border("Response", false))

@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::{model::CoreClient, pages::HomePage};
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Frame, Terminal};

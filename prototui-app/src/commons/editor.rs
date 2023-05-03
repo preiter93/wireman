@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     style::Style,
@@ -189,7 +190,7 @@ pub enum EditorMode {
 }
 
 /// The error of the request. Can hold a kind value
-/// to distinguish between format and gRPC errors.
+/// to distinguish between format and grpc errors.
 #[derive(Clone)]
 pub struct ErrorKind {
     pub kind: String,
@@ -197,7 +198,7 @@ pub struct ErrorKind {
 }
 
 impl ErrorKind {
-    fn format_error(msg: String) -> Self {
+    pub fn format_error(msg: String) -> Self {
         Self {
             kind: "Format Error".to_owned(),
             msg,

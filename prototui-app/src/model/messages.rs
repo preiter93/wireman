@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, AddressModel, MetadataModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::MethodDescriptor;
@@ -50,7 +51,7 @@ impl<'a> MessagesModel<'a> {
         }
     }
 
-    /// Calls [load_request_template]. Does not load the proto message
+    /// Calls [`load_request_template`]. Does not load the proto message
     /// if the editor has already text in it
     pub fn load_method(&mut self, method: &MethodDescriptor) {
         // Change editor
@@ -108,33 +109,38 @@ impl<'a> MessagesModel<'a> {
 
             // Metadata
             let metadata_map = self.metadata_model.borrow().collect();
-            // // Try do deserialize. If this fails, we will send no metadata
-            // let metadata = self.metadata_model.borrow().editor.get_text_raw();
-            // let metadata_map: Result<HashMap<String, String>, serde_json::Error> =
-            //     serde_json::from_str(&metadata);
-            // if let Ok(map) = metadata_map {
-            for (key, val) in metadata_map.into_iter() {
-                req.insert_metadata(&key, &val);
+            for (key, val) in metadata_map {
+                let result = req.insert_metadata(&key, &val);
+                if result.is_err() {
+                    let err = ErrorKind::format_error("failed to insert metadata".to_string());
+                    self.request.editor.set_error(Some(err));
+                    self.response.clear();
+                    return;
+                }
             }
-            // }
 
             // Address
             let address = self.address_model.borrow().editor.get_text_raw();
 
             // Request
-            match self
+            let resp = self
                 .request
                 .core_client
                 .borrow_mut()
-                .call_unary(&req, &address)
-            {
-                // Call was successful
+                .call_unary(&req, &address);
+
+            match resp {
                 Ok(resp) => {
-                    let resp = try_pretty_format_json(&resp.to_json());
-                    self.request.editor.set_error(None);
-                    self.response.text.set_text_raw(&resp);
+                    if let Ok(resp) = resp.to_json() {
+                        let resp = try_pretty_format_json(&resp);
+                        self.request.editor.set_error(None);
+                        self.response.text.set_text_raw(&resp);
+                    } else {
+                        let err = ErrorKind::format_error("failed to parse json".to_string());
+                        self.request.editor.set_error(Some(err));
+                        self.response.clear();
+                    }
                 }
-                // gRPC call returned with an error
                 Err(err) => {
                     self.request.editor.set_error(Some(err));
                     self.response.clear();
@@ -146,7 +152,7 @@ impl<'a> MessagesModel<'a> {
 
 #[derive(Clone)]
 pub struct RequestModel<'a> {
-    /// The core client retrieves default proto message and making gRPC calls.
+    /// The core client retrieves default proto message and making grpc calls.
     core_client: Rc<RefCell<CoreClient>>,
 
     /// The currently active editor
@@ -157,9 +163,8 @@ pub struct RequestModel<'a> {
 }
 
 impl<'a> RequestModel<'a> {
-    /// Returns a request model. Requires the core client
-    /// which retrieves the proto message and calls the
-    /// gRPC client.
+    /// Returns a request model. Requires the core client which retrieves the
+    /// proto message and calls the grpc client.
     pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
         Self {
             core_client,
@@ -168,12 +173,13 @@ impl<'a> RequestModel<'a> {
         }
     }
 
-    /// Loads a new request message template
+    /// Loads a new request message template into the editor.
     fn load_request_template(&mut self, method: &MethodDescriptor) {
         let req = self.core_client.borrow_mut().get_request(method);
-        // Load message in editor
-        self.editor
-            .set_text_raw(&try_pretty_format_json(&req.to_json()));
+        let req = req
+            .to_json()
+            .map_or("{}".to_string(), |r| try_pretty_format_json(&r));
+        self.editor.set_text_raw(&req);
     }
 }
 

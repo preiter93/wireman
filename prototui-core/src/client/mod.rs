@@ -11,14 +11,17 @@ use tonic::{client::Grpc, transport::Channel};
 mod codec;
 pub mod tls;
 
-/// Creates a new gRPC client and sends a message to a gRPC server.
+/// Creates a new grpc client and sends a message to a grpc server.
 /// This method is blocking.
+///
+/// # Errors
+/// - Internal error calling the grpc server
 pub fn call_unary_blocking<T: Into<Uri>>(
     cfg: &ProtoTuiConfig,
     uri: T,
     req: &MethodMessage,
 ) -> Result<MethodMessage> {
-    let rt = Runtime::new().unwrap();
+    let rt = create_runtime()?;
     let future = async_call_unary(cfg, uri, req);
     let result = rt.block_on(future);
     match result {
@@ -32,7 +35,7 @@ async fn async_call_unary<T: Into<Uri>>(
     uri: T,
     req: &MethodMessage,
 ) -> Result<MethodMessage> {
-    let mut client = GrpcClient::from_config(cfg, uri)?;
+    let mut client = GrpcClient::from_config(cfg, uri);
     let resp = client.unary(req).await?;
     Ok(resp)
 }
@@ -45,7 +48,7 @@ pub struct GrpcClient {
 impl GrpcClient {
     /// Returns a new Grpc Client. if no tls is given, the standard tonic
     /// client is used.
-    pub fn new<T: Into<Uri>>(uri: T, tls: Option<TlsConfig>) -> Result<Self> {
+    pub fn new<T: Into<Uri>>(uri: T, tls: Option<TlsConfig>) -> Self {
         let builder = Channel::builder(uri.into());
         let channel = if let Some(tls) = tls {
             // Build a channel with custom tls settings
@@ -56,19 +59,19 @@ impl GrpcClient {
             builder.connect_lazy()
         };
 
-        Ok(GrpcClient {
+        GrpcClient {
             grpc: Grpc::new(channel),
-        })
+        }
     }
 
-    /// Instantiates a client from a ProtoConfig
-    pub fn from_config<T: Into<Uri>>(cfg: &ProtoTuiConfig, uri: T) -> Result<Self> {
+    /// Instantiates a client from a `ProtoConfig`
+    pub fn from_config<T: Into<Uri>>(cfg: &ProtoTuiConfig, uri: T) -> Self {
         Self::new(uri, Some(cfg.tls.clone()))
     }
 
-    /// Make a unary gRPC call from the client
+    /// Make a unary grpc call from the client
     ///
-    /// # Error
+    /// # Errors
     /// - grpc client is not ready
     /// - server call failed
     pub async fn unary(&mut self, req: &MethodMessage) -> Result<MethodMessage> {
@@ -82,19 +85,23 @@ impl GrpcClient {
         Ok(response)
     }
 
-    /// Make a unary gRPC call from the client. The call is
+    /// Make a unary grpc call from the client. The call is
     /// wrapped in a tokio runtime to run asynchronous asks.
     ///
-    /// # Error
+    /// # Errors
     /// - grpc client is not ready
     /// - server call failed
     pub fn unary_with_runtime(&mut self, req: &MethodMessage) -> Result<String> {
-        let rt = Runtime::new().unwrap();
+        let rt = create_runtime()?;
         let future = self.unary(req);
         let result = rt.block_on(future);
         match result {
-            Ok(response) => Ok(response.to_json()),
+            Ok(response) => Ok(response.to_json()?),
             Err(err) => Err(Error::InternalError(err.to_string())),
         }
     }
+}
+
+fn create_runtime() -> Result<Runtime> {
+    Runtime::new().map_err(|_| Error::InternalError("Failed to create runtime".to_string()))
 }

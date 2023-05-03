@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::commons::editor::TextEditor;
 
 pub struct AddressModel<'a> {
