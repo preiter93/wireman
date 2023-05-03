@@ -795,6 +795,7 @@ dependencies = [
  "ratatui",
  "serde_json",
  "tui-textarea",
+ "tui-widget-list",
  "unicode-width",
 ]
 
@@ -1398,6 +1399,16 @@ dependencies = [
  "crossterm",
  "ratatui",
  "regex",
+]
+
+[[package]]
+name = "tui-widget-list"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e06dbcd876f84929a9d00589c71d43e097ecdd5f775bdb5c843ce71cfc441a7"
+dependencies = [
+ "crossterm",
+ "ratatui",
 ]
 
 [[package]]
