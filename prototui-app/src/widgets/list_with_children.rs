@@ -154,44 +154,6 @@ impl<'a> ListWithChildren<'a> {
         self.start_corner = corner;
         self
     }
-
-    // fn get_items_bounds(
-    //     &self,
-    //     selected: Option<usize>,
-    //     offset: usize,
-    //     max_height: usize,
-    // ) -> (usize, usize) {
-    //     let offset = offset.min(self.items.len().saturating_sub(1));
-    //     let mut start = offset;
-    //     let mut end = offset;
-    //     let mut height = 0;
-    //     for item in self.items.iter().skip(offset) {
-    //         if height + item.height() > max_height {
-    //             break;
-    //         }
-    //         height += item.height();
-    //         end += 1;
-    //     }
-    //
-    //     let selected = selected.unwrap_or(0).min(self.items.len() - 1);
-    //     while selected >= end {
-    //         height = height.saturating_add(self.items[end].height());
-    //         end += 1;
-    //         while height > max_height {
-    //             height = height.saturating_sub(self.items[start].height());
-    //             start += 1;
-    //         }
-    //     }
-    //     while selected < start {
-    //         start -= 1;
-    //         height = height.saturating_add(self.items[start].height());
-    //         while height > max_height {
-    //             end -= 1;
-    //             height = height.saturating_sub(self.items[end].height());
-    //         }
-    //     }
-    //     (start, end)
-    // }
 }
 
 impl<'a> StatefulWidget for ListWithChildren<'a> {
@@ -215,20 +177,13 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
         if self.items.is_empty() {
             return;
         }
-        // let list_height = list_area.height as usize;
-        //
-        // let (start, end) = self.get_items_bounds(state.selected, state.offset, list_height);
-        // state.offset = start;
 
         let highlight_symbol = self.highlight_symbol.unwrap_or("");
         let blank_symbol = " ".repeat(highlight_symbol.width());
 
         let mut current_height = 0;
         let has_selection = state.selected_parent.is_some();
-        for (i, item) in self.items.iter_mut().enumerate()
-        // .skip(state.offset)
-        // .take(end - start)
-        {
+        for (i, item) in self.items.iter_mut().enumerate() {
             let (x, y) = match self.start_corner {
                 Corner::BottomLeft => {
                     current_height += item.parent.height() as u16;
@@ -249,7 +204,7 @@ impl<'a> StatefulWidget for ListWithChildren<'a> {
             let item_style = self.style.patch(item.parent.style);
             buf.set_style(area, item_style);
 
-            let is_selected = state.selected_parent.map(|s| s == i).unwrap_or(false);
+            let is_selected = state.selected_parent.map_or(false, |s| s == i);
             for (j, line) in item.parent.content.lines.iter().enumerate() {
                 // if the item is selected, we need to display the highlight symbol:
                 // - either for the first line of the item only,

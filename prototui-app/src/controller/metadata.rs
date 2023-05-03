@@ -1,49 +1,84 @@
-use crate::commons::editor::ErrorKind;
-use crossterm::event::{KeyCode, KeyEvent};
+use crate::commons::HelpActions;
+use crate::{commons::editor::EditorMode, model::MetadataModel};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::{
-    commons::editor::{EditorMode, TextEditor},
-    model::MetadataModel,
-};
+type RcMetadataModel<'a> = Rc<RefCell<MetadataModel<'a>>>;
 
 pub struct MetadataController<'a> {
-    model: MetadataModel<'a>,
+    pub model: RcMetadataModel<'a>,
 }
 
 impl<'a> MetadataController<'a> {
-    /// Instantiate the settings page
-    pub fn new() -> Self {
-        let model = MetadataModel::new();
+    pub fn new(model: RcMetadataModel<'a>) -> Self {
         Self { model }
     }
 
-    /// The key bindings. Returns with true to indicate
-    /// the app to exit.
-    pub fn on_key(&mut self, key: KeyEvent) -> bool {
-        if self.model.editor.mode() == EditorMode::Normal {
-            // handle exit event
-            if let KeyCode::Char('q') = key.code {
-                return true;
+    /// Handle user input.
+    pub fn on_key(&mut self, key: KeyEvent) {
+        if key.kind == KeyEventKind::Press {
+            if !self.in_insert_mode() {
+                match key.code {
+                    KeyCode::Tab => {
+                        if self.is_key_selected() {
+                            self.model.borrow_mut().select_val();
+                        } else {
+                            self.model.borrow_mut().select_key();
+                        }
+                    }
+                    _ => self.on_key_normal_mode(key),
+                }
+            } else {
+                self.on_key_insert_mode(key);
             }
-            self.model.editor.on_key_normal_mode(key);
-        } else {
-            // auto-format
-            if let KeyCode::Esc = key.code {
-                self.model.editor.format_json();
-            }
-            self.model.editor.on_key_insert_mode(key);
         }
+    }
 
+    /// Key bindings in normal mode
+    fn on_key_normal_mode(&mut self, key: KeyEvent) {
+        if let Some(editor) = self.model.borrow_mut().get_selected_mut() {
+            editor.on_key_normal_mode(key);
+        }
+    }
+
+    /// Key bindings in insert mode
+    fn on_key_insert_mode(&mut self, key: KeyEvent) {
+        if let Some(editor) = self.model.borrow_mut().get_selected_mut() {
+            editor.on_key_insert_mode(key);
+        }
+    }
+
+    /// Returns wether the editor is in insert mode
+    pub fn in_insert_mode(&self) -> bool {
+        if let Some(editor) = self.model.borrow().get_selected() {
+            return editor.mode() == EditorMode::Insert;
+        }
         false
     }
 
-    /// Returns a reference to the metadata editor
-    pub fn get_editor(&'a self) -> &'a TextEditor {
-        &self.model.editor
+    /// Wheter a key is selected
+    fn is_key_selected(&self) -> bool {
+        self.model.borrow().is_key_selected()
     }
 
-    /// Returns the error to be displayed.
-    pub fn get_error(&'a self) -> Option<ErrorKind> {
-        self.model.editor.get_error()
+    /// Return a map of help actions. This is displayed in the
+    /// helper wndow.
+    pub fn help(&self) -> HelpActions {
+        if !self.in_insert_mode() {
+            let mut actions = HelpActions::new();
+            actions.insert("q", "Quit");
+            actions.insert("M/Esc", "Untoggle metadata");
+            actions.insert("i", "Insert mode");
+            if self.is_key_selected() {
+                actions.insert("Tab", "Select Value");
+            } else {
+                actions.insert("Tab", "Select Key");
+            }
+            actions
+        } else {
+            let mut actions = HelpActions::new();
+            actions.insert("Esc", "Normal mode");
+            actions
+        }
     }
 }
