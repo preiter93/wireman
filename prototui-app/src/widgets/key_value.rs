@@ -1,3 +1,8 @@
+#![allow(
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation,
+    clippy::module_name_repetitions
+)]
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -203,7 +208,7 @@ impl<'a> Widget for KeyValueWidget<'a> {
 
         // Render key
         let (x, y) = (area.left(), area.top());
-        let width = ((area.width - 2_u16) as f64 * 0.5) as u16;
+        let width = (f64::from(area.width - 2_u16) * 0.5) as u16;
         let height = area.height;
         let area = Rect::new(x, y, width, height);
         self.key.into_editor().widget().render(area, buf);

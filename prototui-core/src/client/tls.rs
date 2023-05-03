@@ -4,7 +4,7 @@ use hyper_rustls::HttpsConnectorBuilder;
 use hyper_rustls::{ConfigBuilderExt, HttpsConnector};
 use serde::{Deserialize, Serialize};
 
-/// The TLS config of the gRPC client.
+/// The TLS config of the grpc client.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct TlsConfig {
     /// Custom certificates
@@ -13,11 +13,13 @@ pub struct TlsConfig {
 
 impl TlsConfig {
     /// Instantiate a `TlsConfig`
+    #[must_use]
     pub fn new(custom_cert: Option<String>) -> Self {
         Self { custom_cert }
     }
 
     /// Returns the https connector matching the tls config
+    #[must_use]
     pub fn get_connector_from_tls(&self) -> HttpsConnector<HttpConnector> {
         let tls = self.get_client_config();
 

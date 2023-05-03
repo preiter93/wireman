@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::{commons::editor::TextEditor, widgets::key_value::KeyValueWidget};
 use std::collections::HashMap;
 use tui_widget_list::SelectableWidgetList;

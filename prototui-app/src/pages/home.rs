@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::{
     commons::{window_border, HelpActions},
     controller::{AddressController, MessagesController, MetadataController, SelectionController},
@@ -139,7 +140,7 @@ impl<'a> HomePage<'a> {
             chunks[0],
             &mut self.selection_controller,
             window_border("Selection", self.window == Window::Selection),
-            help_actions,
+            &help_actions,
         );
 
         let address_length = if self.show_address { 3 } else { 0 };
@@ -192,7 +193,7 @@ impl<'a> HomePage<'a> {
 
     /// Toggle the help window on or off
     pub fn toggle_help(&mut self) {
-        self.show_help = !self.show_help
+        self.show_help = !self.show_help;
     }
 
     /// Toggle the address window on or off

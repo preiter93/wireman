@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::{
     commons::{
         editor::ErrorKind,
@@ -66,7 +67,7 @@ impl<'a> MessagesController<'a> {
 
     /// Load a method in the request model
     pub fn load_method(&mut self, method: &MethodDescriptor) {
-        self.model.load_method(method)
+        self.model.load_method(method);
     }
 
     /// Returns the error to be displayed.
@@ -88,9 +89,4 @@ impl<'a> MessagesController<'a> {
     pub fn in_insert_mode(&self) -> bool {
         self.model.request.editor.mode() == EditorMode::Insert
     }
-
-    // /// Set the metadadata
-    // pub fn set_metadata(&mut self, metadata: String) {
-    //     self.model.request.set_metadata(metadata);
-    // }
 }
