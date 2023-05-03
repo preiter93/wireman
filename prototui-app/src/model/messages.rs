@@ -1,4 +1,4 @@
-use super::core_client::CoreClient;
+use super::{core_client::CoreClient, AddressModel, MetadataModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
@@ -21,12 +21,22 @@ pub struct MessagesModel<'a> {
 
     /// The currently selected method
     selected_method: Option<MethodDescriptor>,
+
+    /// A reference to the address model
+    address_model: Rc<RefCell<AddressModel<'a>>>,
+
+    /// A reference to the address model
+    metadata_model: Rc<RefCell<MetadataModel<'a>>>,
 }
 
-impl MessagesModel<'_> {
+impl<'a> MessagesModel<'a> {
     /// Instantiates a request and response model and returns
     /// the common messages model.
-    pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
+    pub fn new(
+        core_client: Rc<RefCell<CoreClient>>,
+        address_model: Rc<RefCell<AddressModel<'a>>>,
+        metadata_model: Rc<RefCell<MetadataModel<'a>>>,
+    ) -> Self {
         let request = RequestModel::new(core_client);
         let response = ResponseModel::new();
         Self {
@@ -35,6 +45,8 @@ impl MessagesModel<'_> {
             cache: HashMap::new(),
             loaded_cache_id: String::new(),
             selected_method: None,
+            address_model,
+            metadata_model,
         }
     }
 
@@ -84,6 +96,7 @@ impl MessagesModel<'_> {
     /// Make a grpc call and set response or error.
     pub fn call_grpc(&mut self) {
         if let Some(method) = &self.selected_method {
+            // Message
             let mut req = self.request.core_client.borrow().get_request(method);
             if let Err(err) = req.from_json(&self.request.editor.get_text_raw()) {
                 // Acquiring the request message failed
@@ -92,17 +105,29 @@ impl MessagesModel<'_> {
                 self.response.clear();
                 return;
             }
+
             // Metadata
-            // Try do deserialize. If this fails, we will send no metadata
-            let map: Result<HashMap<String, String>, serde_json::Error> =
-                serde_json::from_str(&self.request.metadata.clone());
-            if let Ok(map) = map {
-                for (key, val) in map.into_iter() {
-                    req.insert_metadata(&key, &val);
-                }
+            let metadata_map = self.metadata_model.borrow().collect();
+            // // Try do deserialize. If this fails, we will send no metadata
+            // let metadata = self.metadata_model.borrow().editor.get_text_raw();
+            // let metadata_map: Result<HashMap<String, String>, serde_json::Error> =
+            //     serde_json::from_str(&metadata);
+            // if let Ok(map) = metadata_map {
+            for (key, val) in metadata_map.into_iter() {
+                req.insert_metadata(&key, &val);
             }
-            // req.insert_metadata(&map.keys(), &self.request.metadata);
-            match self.request.core_client.borrow_mut().call_unary(&req) {
+            // }
+
+            // Address
+            let address = self.address_model.borrow().editor.get_text_raw();
+
+            // Request
+            match self
+                .request
+                .core_client
+                .borrow_mut()
+                .call_unary(&req, &address)
+            {
                 // Call was successful
                 Ok(resp) => {
                     let resp = try_pretty_format_json(&resp.to_json());
@@ -149,11 +174,6 @@ impl<'a> RequestModel<'a> {
         // Load message in editor
         self.editor
             .set_text_raw(&try_pretty_format_json(&req.to_json()));
-    }
-
-    /// Set the metadata
-    pub fn set_metadata(&mut self, metadata: String) {
-        self.metadata = metadata;
     }
 }
 

@@ -18,7 +18,7 @@ use ratatui::widgets::Table;
 use ratatui::Frame;
 use std::cmp::max;
 
-const MIN_HELP_SIZE: usize = 15;
+const MIN_HELP_SIZE: usize = 18;
 
 /// Draw the services and methods list and draw the helper widget
 /// below is `help_actions` has values.
@@ -99,6 +99,6 @@ fn draw_help(actions: &HelpActions) -> Table {
 
     Table::new(rows)
         .block(window_border("Help", false))
-        .widths(&[Constraint::Length(5), Constraint::Min(15)])
+        .widths(&[Constraint::Length(5), Constraint::Min(MIN_HELP_SIZE as u16)])
         .column_spacing(1)
 }
