@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::{
     commons::{
         editor::ErrorKind,
@@ -66,16 +67,16 @@ impl<'a> MessagesController<'a> {
 
     /// Load a method in the request model
     pub fn load_method(&mut self, method: &MethodDescriptor) {
-        self.model.load_method(method)
+        self.model.load_method(method);
     }
 
     /// Returns the error to be displayed.
-    pub fn get_error(&'a self) -> Option<ErrorKind> {
+    pub fn get_error(&self) -> Option<ErrorKind> {
         self.model.request.editor.get_error()
     }
 
     /// Returns the request editor widget
-    pub fn get_editor_request(&self) -> &'a TextEditor {
+    pub fn get_editor_request(&self) -> &TextEditor {
         &self.model.request.editor
     }
 
@@ -88,26 +89,4 @@ impl<'a> MessagesController<'a> {
     pub fn in_insert_mode(&self) -> bool {
         self.model.request.editor.mode() == EditorMode::Insert
     }
-
-    /// Set the metadadata
-    pub fn set_metadata(&mut self, metadata: String) {
-        self.model.request.set_metadata(metadata);
-    }
-    // // Unfortunately the editor style is stored in the text area widget in the
-    // // model, so the model has some presentation logic responsibilities.
-    // pub fn set_request_widget_style(
-    //     &mut self,
-    //     cursor_line_style: Style,
-    //     block: Block<'a>,
-    //     cursor_style: Style,
-    // ) {
-    //     // Set the cursor line style
-    //     self.model
-    //         .request
-    //         .editor
-    //         .set_cursor_line_style(cursor_line_style);
-    //     self.model.request.editor.set_block(block);
-    //     // Set the cursor style depending on the mode
-    //     self.model.request.editor.set_cursor_style(cursor_style);
-    // }
 }

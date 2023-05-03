@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::model::selection::ServiceWithMethods;
 use crate::{
     commons::HelpActions,

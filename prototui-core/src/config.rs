@@ -18,6 +18,9 @@ pub struct ProtoTuiConfig {
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
+    /// The default server address
+    #[serde(default)]
+    pub address: String,
 }
 
 impl ProtoTuiConfig {
@@ -46,13 +49,15 @@ mod test {
             "files": [
                 "lucky.proto",
                 "luke.proto"
-            ]
+            ],
+            "address": "http://localhost:50051"
         }"#;
         let cfg = ProtoTuiConfig::parse_from_str(&data).unwrap();
         let expected = ProtoTuiConfig {
             workspace: "/Users/myworkspace".to_string(),
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::default(),
+            address: "http://localhost:50051".to_string(),
         };
         assert_eq!(cfg, expected);
     }
@@ -75,6 +80,7 @@ mod test {
             workspace: "/Users/myworkspace".to_string(),
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
+            address: String::new(),
         };
         assert_eq!(cfg, expected);
     }

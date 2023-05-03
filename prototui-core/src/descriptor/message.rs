@@ -20,6 +20,7 @@ pub struct MethodMessage {
 
 impl MethodMessage {
     /// Construct `ProtoMessage` from a `MessageDescriptor`
+    #[must_use]
     pub fn from_descriptor(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc.clone());
         Self {
@@ -31,21 +32,25 @@ impl MethodMessage {
     }
 
     /// Returns the Message name
+    #[must_use]
     pub fn message_name(&self) -> &str {
         self.message_desc.name()
     }
 
     /// Returns the message descriptor
+    #[must_use]
     pub fn get_message_descriptor(&self) -> MessageDescriptor {
         self.message_desc.clone()
     }
 
     /// Returns the method descriptor
+    #[must_use]
     pub fn get_method_descriptor(&self) -> MethodDescriptor {
         self.method_desc.clone()
     }
 
     /// Returns the dynamic message
+    #[must_use]
     pub fn get_message(&self) -> DynamicMessage {
         self.message.clone()
     }
@@ -56,19 +61,27 @@ impl MethodMessage {
     }
 
     /// Insert metadata
-    pub fn insert_metadata(&mut self, key: &str, val: &str) {
-        let val: MetadataValue<Ascii> = val.parse().unwrap();
+    ///
+    /// # Errors
+    /// - Failed to parse metadata value/key to ascii
+    pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
+        let val: MetadataValue<Ascii> = val.parse().map_err(|_| Error::ParseToAsciiError)?;
         let map = self.metadata.get_or_insert(MetadataMap::new());
-        let key: MetadataKey<Ascii> = key.parse().unwrap();
+        let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
         map.insert(key, val);
+        Ok(())
     }
 
     /// Get the metadata
+    #[must_use]
     pub fn get_metadata(&self) -> &Option<MetadataMap> {
         &self.metadata
     }
 
-    /// Deserialize a ProtoMessage from a json string
+    /// Deserialize a `ProtoMessage` from a json string
+    ///
+    /// # Errors
+    /// - Failed to deserialize message
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
         let msg = DynamicMessage::deserialize_with_options(
@@ -82,8 +95,12 @@ impl MethodMessage {
         Ok(())
     }
 
-    /// Serialize a ProtoMessage to a json string
-    pub fn to_json(&self) -> String {
+    /// Serialize a `ProtoMessage` to a json string
+    ///
+    /// # Errors
+    /// - Failed to convert utf8 to String
+    /// - Failed to serialize message
+    pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
         self.message
             .serialize_with_options(
@@ -92,12 +109,17 @@ impl MethodMessage {
                     .stringify_64_bit_integers(false)
                     .skip_default_fields(false),
             )
-            .unwrap();
+            .map_err(Error::SerializeProtoMessage)?;
 
-        String::from_utf8(s.into_inner()).unwrap()
+        String::from_utf8(s.into_inner())
+            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
 
     /// Returns the uri path for grpc calls
+    ///
+    /// # Panics
+    /// - Unwrapping path and query from str
+    #[must_use]
     pub fn get_path(&self) -> PathAndQuery {
         let path = format!(
             "/{}/{}",
@@ -108,6 +130,7 @@ impl MethodMessage {
     }
 
     /// Wrap the message in a `tonic::Request`
+    #[must_use]
     pub fn into_request(self) -> Request<MethodMessage> {
         let mut req = Request::new(self.clone());
         // add metadata
@@ -146,7 +169,7 @@ mod test {
         let given_message = load_test_request();
 
         // when
-        let json = given_message.to_json();
+        let json = given_message.to_json().unwrap();
 
         // then
         let expected_json = "{\"number\":0}";
@@ -161,7 +184,7 @@ mod test {
         given_message.from_json(given_json).unwrap();
 
         // when
-        let json = given_message.to_json();
+        let json = given_message.to_json().unwrap();
 
         // then
         let expected_json = "{\"number\":1}";
@@ -172,7 +195,9 @@ mod test {
     fn test_into_requeset() {
         // given
         let mut given_message = load_test_request();
-        given_message.insert_metadata("metadata-key", "metadata-value");
+        given_message
+            .insert_metadata("metadata-key", "metadata-value")
+            .unwrap();
 
         // when
         let given_req = given_message.clone().into_request();

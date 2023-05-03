@@ -1,3 +1,4 @@
+#![allow(clippy::cast_possible_truncation)]
 use crate::commons::window_border;
 use crate::commons::HelpActions;
 use crate::controller::SelectionController;
@@ -18,7 +19,7 @@ use ratatui::widgets::Table;
 use ratatui::Frame;
 use std::cmp::max;
 
-const MIN_HELP_SIZE: usize = 15;
+const MIN_HELP_SIZE: usize = 18;
 
 /// Draw the services and methods list and draw the helper widget
 /// below is `help_actions` has values.
@@ -27,15 +28,14 @@ pub fn draw_selection_and_help<B>(
     area: Rect,
     controller: &mut SelectionController,
     block: Block,
-    help_actions: Option<HelpActions>,
+    help_actions: &Option<HelpActions>,
 ) where
     B: Backend,
 {
     // Determine the size of the help widget
     let help_length = help_actions
         .as_ref()
-        .map(|action| max(MIN_HELP_SIZE, action.len()) as u16 + 2)
-        .unwrap_or(0);
+        .map_or(0, |action| max(MIN_HELP_SIZE, action.len()) as u16 + 2);
     let chunks = Layout::default()
         .constraints([Constraint::Min(0), Constraint::Length(help_length)].as_ref())
         .split(area);
@@ -91,14 +91,14 @@ fn draw_help(actions: &HelpActions) -> Table {
     let mut rows = vec![];
     for (key, msg) in actions.iter() {
         let row = Row::new(vec![
-            Cell::from(Span::styled(key.to_string(), key_style)),
-            Cell::from(Span::styled(msg.to_string(), msg_style)),
+            Cell::from(Span::styled((*key).to_string(), key_style)),
+            Cell::from(Span::styled((*msg).to_string(), msg_style)),
         ]);
         rows.push(row);
     }
 
     Table::new(rows)
         .block(window_border("Help", false))
-        .widths(&[Constraint::Length(5), Constraint::Min(15)])
+        .widths(&[Constraint::Length(5), Constraint::Min(MIN_HELP_SIZE as u16)])
         .column_spacing(1)
 }

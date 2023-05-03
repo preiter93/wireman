@@ -1,5 +1,6 @@
 {
     "workspace": "/Users/philippreiter/Rust/prototui/test_utils",
+    "address": "http://localhost:50051",
     "files": [
         "grpc_simple/greeter.proto",
         "grpc_simple/timekeeper.proto",

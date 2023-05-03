@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use core::{MethodDescriptor, ServiceDescriptor};
 
 use crate::widgets::list_with_children::{ListWithChildrenState, SelectionLevel};

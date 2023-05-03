@@ -1,5 +1,9 @@
+#![allow(clippy::module_name_repetitions)]
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{style::Style, widgets::Widget};
+use ratatui::{
+    style::Style,
+    widgets::{Block, Widget},
+};
 use tui_textarea::{CursorMove, Input, TextArea};
 
 use crate::theme;
@@ -18,6 +22,12 @@ pub struct TextEditor<'a> {
     mode: EditorMode,
 }
 
+impl<'a> Default for TextEditor<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> TextEditor<'a> {
     /// Returns an empty editor
     pub fn new() -> Self {
@@ -26,6 +36,13 @@ impl<'a> TextEditor<'a> {
             error: None,
             mode: EditorMode::Normal,
         }
+    }
+
+    /// Returns an empty editor
+    pub fn from_str(text: &str) -> Self {
+        let mut editor = Self::new();
+        editor.set_text_raw(text);
+        editor
     }
 
     /// Gets the editors content as raw text
@@ -63,6 +80,14 @@ impl<'a> TextEditor<'a> {
 
         self.set_cursor_style(cursor_style);
         self.set_cursor_line_style(Style::default());
+    }
+
+    pub(crate) fn set_style(&mut self, style: Style) {
+        self.editor.set_style(style);
+    }
+
+    pub(crate) fn set_block(&mut self, block: Block<'a>) {
+        self.editor.set_block(block);
     }
 
     /// Pretty formats the editors text. The error is stored
@@ -106,12 +131,16 @@ impl<'a> TextEditor<'a> {
             KeyCode::Right | KeyCode::Char('l') => self.editor.move_cursor(CursorMove::Forward),
             KeyCode::Char('w') => self.editor.move_cursor(CursorMove::WordForward),
             KeyCode::Char('b') => self.editor.move_cursor(CursorMove::WordBack),
+            KeyCode::Char('J') => self.editor.move_cursor(CursorMove::End),
+            KeyCode::Char('H') => self.editor.move_cursor(CursorMove::Head),
             // Delete
             KeyCode::Char('x') => {
                 let _ = self.editor.delete_next_char();
             }
             KeyCode::Char('d') => {
                 let _ = self.editor.delete_line_by_end();
+            }
+            KeyCode::Char('D') => {
                 let _ = self.editor.delete_line_by_head();
             }
             // Undo
@@ -141,11 +170,6 @@ impl<'a> TextEditor<'a> {
         }
     }
 
-    /// Set the editors block
-    pub(crate) fn set_block(&mut self, block: ratatui::widgets::Block<'a>) {
-        self.editor.set_block(block);
-    }
-
     /// Set the editors cursor line style
     pub(crate) fn set_cursor_line_style(&mut self, cursor_line_style: ratatui::style::Style) {
         self.editor.set_cursor_line_style(cursor_line_style);
@@ -166,7 +190,7 @@ pub enum EditorMode {
 }
 
 /// The error of the request. Can hold a kind value
-/// to distinguish between format and gRPC errors.
+/// to distinguish between format and grpc errors.
 #[derive(Clone)]
 pub struct ErrorKind {
     pub kind: String,
@@ -174,7 +198,7 @@ pub struct ErrorKind {
 }
 
 impl ErrorKind {
-    fn format_error(msg: String) -> Self {
+    pub fn format_error(msg: String) -> Self {
         Self {
             kind: "Format Error".to_owned(),
             msg,
