@@ -14,11 +14,14 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
 prost = "0.11"
-prost-reflect = { version = "0.11", features = ["serde", "text-format"] }
 prost-build = "0.11"
 prost-types = "0.11"
 protox = "0.3"
 http = "0.2"
+
+[dependencies.prost-reflect]
+version = "0.11"
+features = ["serde", "text-format"]
 
 [dependencies.tokio]
 version = "1.27"
@@ -30,11 +33,14 @@ version = "0.9"
 [dependencies.rustls]
 version = "0.20.6"
 features = ["dangerous_configuration"]
+
 [dependencies.rustls-pemfile]
 version = "1.0"
+
 [dependencies.hyper]
 version = "0.14.20"
 features = ["client", "http2"]
+
 [dependencies.hyper-rustls]
 version = "0.23.0"
 features = ["default", "http2"]

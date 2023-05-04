@@ -1,7 +1,7 @@
 use crate::commons::editor::ErrorKind;
 use core::{
-    descriptor::message::MethodMessage, MethodDescriptor, ProtoDescriptor, ProtoTuiConfig,
-    ServiceDescriptor,
+    descriptor::{RequestMessage, ResponseMessage},
+    MethodDescriptor, ProtoDescriptor, ProtoTuiConfig, ServiceDescriptor,
 };
 use http::Uri;
 use std::error::Error;
@@ -37,8 +37,10 @@ impl CoreClient {
     }
 
     /// Returns the proto request of a given method
-    pub fn get_request(&self, method: &MethodDescriptor) -> MethodMessage {
-        self.desc.get_request(method)
+    pub fn get_request(&self, method: &MethodDescriptor) -> RequestMessage {
+        let mut req = self.desc.get_request(method);
+        req.message.apply_template();
+        req
     }
 
     /// Returns the default address as defined in the config.json
@@ -50,9 +52,9 @@ impl CoreClient {
     /// defined in [`ProtoMessage`]
     pub fn call_unary(
         &self,
-        req: &MethodMessage,
+        req: &RequestMessage,
         address: &str,
-    ) -> Result<MethodMessage, ErrorKind> {
+    ) -> Result<ResponseMessage, ErrorKind> {
         let uri = Uri::try_from(address).map_err(|_| ErrorKind {
             kind: "ParseAddressError".to_string(),
             msg: String::new(),

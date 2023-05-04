@@ -51,7 +51,11 @@ pub enum PTError {
 
     /// Failed to serialize proto messages
     #[error("failed to serialize proto message")]
-    SerializeProtoMessage(#[source] serde_json::Error),
+    SerializeJsonError(#[source] serde_json::Error),
+
+    /// Failed to serialize proto messages
+    #[error("failed to serialize the message")]
+    SerializeMessageError(String),
 
     /// Failed to parse to ascii
     #[error("error parsing to ascii")]
