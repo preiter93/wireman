@@ -84,6 +84,7 @@ impl<'a> HomePage<'a> {
         // from the list selection and passed to the request window which
         // loads the proto message in the correct format.
         let mut load_method = None;
+        let mut clear_method = false;
         if !self.messages_controller.in_insert_mode()
             && !self.address_controller.in_insert_mode()
             && !self.metadata_controller.in_insert_mode()
@@ -99,7 +100,7 @@ impl<'a> HomePage<'a> {
         }
         match self.window {
             Window::Selection => {
-                load_method = self.selection_controller.on_key(key);
+                (load_method, clear_method) = self.selection_controller.on_key(key);
             }
             Window::Request => self.messages_controller.on_key(key),
             Window::Address => {
@@ -121,6 +122,9 @@ impl<'a> HomePage<'a> {
         // be called if the method actually has changed
         if let Some(method) = &load_method {
             self.messages_controller.load_method(method);
+        }
+        if clear_method {
+            self.messages_controller.clear_method();
         }
         false
     }
