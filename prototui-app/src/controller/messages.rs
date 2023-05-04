@@ -54,6 +54,9 @@ impl<'a> MessagesController<'a> {
                 let mut actions = HelpActions::default();
                 actions.insert("Tab", "Go to Selection");
                 actions.insert("i", "Insert mode");
+                actions.insert("y", "Yank");
+                actions.insert("p", "Paste");
+                actions.insert("u", "Undo");
                 actions.insert("Enter", "gRPC request");
                 actions
             }

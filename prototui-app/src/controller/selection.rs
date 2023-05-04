@@ -63,7 +63,7 @@ impl SelectionController {
     fn on_key_methods_focused(&mut self, key: KeyEvent, clear_method: &mut bool) {
         if key.code == KeyCode::Enter {
             self.model.collapse_methods();
-            self.model.unselect_method();
+            self.model.clear_method();
             *clear_method = true;
         }
     }
