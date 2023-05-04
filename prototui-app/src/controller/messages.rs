@@ -39,6 +39,9 @@ impl<'a> MessagesController<'a> {
         if key.code == KeyCode::Enter {
             self.model.call_grpc();
         }
+        if key.code == KeyCode::Char('Y') {
+            self.model.yank_grpcurl();
+        }
     }
 
     /// Key bindings in insert mode
@@ -58,6 +61,7 @@ impl<'a> MessagesController<'a> {
                 actions.insert("p", "Paste");
                 actions.insert("u", "Undo");
                 actions.insert("Enter", "gRPC request");
+                actions.insert("Y", "Yank as grpcurl");
                 actions
             }
             EditorMode::Insert => {

@@ -1,6 +1,6 @@
 use crate::commons::editor::ErrorKind;
 use core::{
-    descriptor::{RequestMessage, ResponseMessage},
+    descriptor::{message::grpcurl::request_as_grpcurl, RequestMessage, ResponseMessage},
     MethodDescriptor, ProtoDescriptor, ProtoTuiConfig, ServiceDescriptor,
 };
 use http::Uri;
@@ -61,5 +61,11 @@ impl CoreClient {
         })?;
         let resp = core::call_unary_blocking(&self.grpc.0, uri, req)?;
         Ok(resp)
+    }
+
+    /// Return a grpcurl request
+    pub fn grpcurl(&self, req: &RequestMessage, address: &str) -> Result<String, String> {
+        let uri = Uri::try_from(address).map_err(|_| "Failed to get uri from address")?;
+        request_as_grpcurl(&self.grpc.0, uri, req).map_err(|err| err.to_string())
     }
 }

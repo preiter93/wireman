@@ -160,6 +160,25 @@ impl<'a> MessagesModel<'a> {
                 .set_error(Some(ErrorKind::default_error("Select a method!")));
         }
     }
+
+    /// Yanks the request message in grpcurl format
+    pub fn yank_grpcurl(&mut self) {
+        if let Some(method) = &self.selected_method {
+            // Message
+            let mut req = self.request.core_client.borrow().get_request(method);
+            let result = req.message.from_json(&self.request.editor.get_text_raw());
+            if result.is_err() {
+                return;
+            }
+            // Address
+            let address = self.address_model.borrow().editor.get_text_raw();
+
+            // Yank
+            if let Ok(grpcurl) = self.request.core_client.borrow().grpcurl(&req, &address) {
+                TextEditor::yank_to_clipboard(&grpcurl);
+            }
+        }
+    }
 }
 
 #[derive(Clone)]
