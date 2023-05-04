@@ -99,7 +99,7 @@ impl<'a> MessagesModel<'a> {
         if let Some(method) = &self.selected_method {
             // Message
             let mut req = self.request.core_client.borrow().get_request(method);
-            if let Err(err) = req.from_json(&self.request.editor.get_text_raw()) {
+            if let Err(err) = req.message.from_json(&self.request.editor.get_text_raw()) {
                 // Acquiring the request message failed
                 let err = ErrorKind::default_error(err.to_string());
                 self.request.editor.set_error(Some(err));
@@ -175,8 +175,11 @@ impl<'a> RequestModel<'a> {
 
     /// Loads a new request message template into the editor.
     fn load_request_template(&mut self, method: &MethodDescriptor) {
-        let req = self.core_client.borrow_mut().get_request(method);
-        let req = req
+        let req = self
+            .core_client
+            .borrow_mut()
+            .get_request(method)
+            .message
             .to_json()
             .map_or("{}".to_string(), |r| try_pretty_format_json(&r));
         self.editor.set_text_raw(&req);

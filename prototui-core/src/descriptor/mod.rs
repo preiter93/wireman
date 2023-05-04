@@ -3,7 +3,7 @@ pub mod message;
 pub mod request;
 pub mod response;
 
-pub use message::Message;
+pub use message::DynMessage;
 pub use request::RequestMessage;
 pub use response::ResponseMessage;
 

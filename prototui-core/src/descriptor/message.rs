@@ -1,17 +1,20 @@
+mod ser;
+
 use std::ops::{Deref, DerefMut};
 
 use crate::{error::Error, Result};
 use prost_reflect::{
     DeserializeOptions, DynamicMessage, MessageDescriptor, ReflectMessage, SerializeOptions,
 };
+use serde::Serializer;
 
 /// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct Message {
+pub struct DynMessage {
     inner: DynamicMessage,
 }
 
-impl Deref for Message {
+impl Deref for DynMessage {
     type Target = DynamicMessage;
 
     fn deref(&self) -> &DynamicMessage {
@@ -19,13 +22,15 @@ impl Deref for Message {
     }
 }
 
-impl DerefMut for Message {
+impl DerefMut for DynMessage {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-impl Message {
+type JsonSerializer = serde_json::Serializer<Vec<u8>>;
+
+impl DynMessage {
     /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
@@ -62,6 +67,30 @@ impl Message {
         Ok(())
     }
 
+    pub fn serialize_with_options(
+        &self,
+        serializer: &mut JsonSerializer,
+        options: &ser::SerializeOptions,
+    ) -> Result<<&mut JsonSerializer as Serializer>::Ok> {
+        ser::serialize_message(self, serializer, options)
+            .map_err(|err| Error::SerializeMessageError(err.to_string()))
+    }
+    /// Serialize a `ProtoMessage` to a json string
+    ///
+    /// # Errors
+    /// - Failed to convert utf8 to String
+    /// - Failed to serialize message
+    pub fn to_json2(&self) -> Result<String> {
+        let mut s = serde_json::Serializer::new(Vec::new());
+        self.serialize_with_options(
+            &mut s,
+            &ser::SerializeOptions::new()
+                .stringify_64_bit_integers(false)
+                .skip_default_fields(false),
+        )?;
+        String::from_utf8(s.into_inner())
+            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+    }
     /// Serialize a `ProtoMessage` to a json string
     ///
     /// # Errors
@@ -76,7 +105,7 @@ impl Message {
                     .stringify_64_bit_integers(false)
                     .skip_default_fields(false),
             )
-            .map_err(Error::SerializeProtoMessage)?;
+            .map_err(Error::SerializeJsonError)?;
 
         String::from_utf8(s.into_inner())
             .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
@@ -89,28 +118,28 @@ mod test {
 
     use super::*;
 
-    // #[test]
-    // fn test_message() {
-    //     // given
-    //     let given_message = load_test_request("Repeated");
-    //
-    //     // when
-    //     // let message = given_message.get_message();
-    //     // println!("{:?}", message);
-    //     // println!("{:?}", message.to_text_format());
-    //     // println!("{:?}", given_message.to_json());
-    //     let desc = given_message.descriptor();
-    //     // println!("{:?}", desc.full_name());
-    //     for field in desc.fields() {
-    //         println!("{:?}", field);
-    //         let x = field.is_list();
-    //         println!("is list {:?}", x);
-    //     }
-    //
-    //     assert_eq!(1, 2);
-    // }
+    #[test]
+    fn test_message() {
+        // given
+        let given_message = load_test_message("Repeated");
 
-    fn load_test_message(method: &str) -> Message {
+        // when
+        // let message = given_message.get_message();
+        // println!("{:?}", message);
+        // println!("{:?}", message.to_text_format());
+        // println!("{:?}", given_message.to_json());
+        let desc = given_message.descriptor();
+        // println!("{:?}", desc.full_name());
+        for field in desc.fields() {
+            println!("{:?}", field);
+            let x = field.is_list();
+            println!("is list {:?}", x);
+        }
+
+        assert_eq!(1, 2);
+    }
+
+    fn load_test_message(method: &str) -> DynMessage {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
@@ -120,7 +149,7 @@ mod test {
             .get_method_by_name("proto.TestService", method)
             .unwrap();
         let request = method.input();
-        Message::new(request)
+        DynMessage::new(request)
     }
 
     #[test]
