@@ -7,7 +7,6 @@ use ratatui::{
     style::Style,
     widgets::{Block, Widget},
 };
-use std::ops::DerefMut;
 use std::sync::Mutex;
 use tui_textarea::{CursorMove, Input, TextArea};
 
@@ -80,7 +79,7 @@ impl<'a> TextEditor<'a> {
     /// Paste text from clipboard to editor
     pub fn paste_from_clipboard(&mut self) {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
-            if let Some(clipboard) = clipboard.deref_mut() {
+            if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
                     self.insert_str(&text);
                 }
@@ -94,10 +93,10 @@ impl<'a> TextEditor<'a> {
     }
 
     /// Yank text to clipboard
-    fn yank_to_clipboard(text: &str) {
+    pub fn yank_to_clipboard(text: &str) {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
-            if let Some(clipboard) = clipboard.deref_mut() {
-                let _ = clipboard.set_text(text);
+            if let Some(clipboard) = &mut *clipboard {
+                let _res = clipboard.set_text(text);
             }
         }
     }
@@ -107,7 +106,7 @@ impl<'a> TextEditor<'a> {
         let mut iter = s.lines().peekable();
         while let Some(line) = iter.next() {
             self.editor.insert_str(line);
-            if !iter.peek().is_none() {
+            if iter.peek().is_some() {
                 self.editor.insert_newline();
             }
         }
