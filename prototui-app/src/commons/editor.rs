@@ -1,12 +1,19 @@
 #![allow(clippy::module_name_repetitions)]
+use crate::theme;
+use arboard::Clipboard;
 use crossterm::event::{KeyCode, KeyEvent};
+use lazy_static::lazy_static;
 use ratatui::{
     style::Style,
     widgets::{Block, Widget},
 };
+use std::ops::DerefMut;
+use std::sync::Mutex;
 use tui_textarea::{CursorMove, Input, TextArea};
 
-use crate::theme;
+lazy_static! {
+    pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
+}
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -63,6 +70,47 @@ impl<'a> TextEditor<'a> {
     /// Set the error
     pub fn set_error(&mut self, error: Option<ErrorKind>) {
         self.error = error;
+    }
+
+    /// Clear all text
+    pub fn clear(&mut self) {
+        self.editor = TextArea::new(vec![]);
+    }
+
+    /// Paste text from clipboard to editor
+    pub fn paste_from_clipboard(&mut self) {
+        if let Ok(mut clipboard) = CLIPBOARD.lock() {
+            if let Some(clipboard) = clipboard.deref_mut() {
+                if let Ok(text) = clipboard.get_text() {
+                    self.insert_str(&text);
+                }
+            }
+        }
+    }
+
+    /// Yanks the full text
+    pub fn yank(&self) {
+        Self::yank_to_clipboard(&self.get_text_raw());
+    }
+
+    /// Yank text to clipboard
+    fn yank_to_clipboard(text: &str) {
+        if let Ok(mut clipboard) = CLIPBOARD.lock() {
+            if let Some(clipboard) = clipboard.deref_mut() {
+                let _ = clipboard.set_text(text);
+            }
+        }
+    }
+
+    /// Insert a str at the current cursor position. Handles newlines.
+    fn insert_str(&mut self, s: &str) {
+        let mut iter = s.lines().peekable();
+        while let Some(line) = iter.next() {
+            self.editor.insert_str(line);
+            if !iter.peek().is_none() {
+                self.editor.insert_newline();
+            }
+        }
     }
 
     /// Set the default style
@@ -135,13 +183,13 @@ impl<'a> TextEditor<'a> {
             KeyCode::Char('H') => self.editor.move_cursor(CursorMove::Head),
             // Delete
             KeyCode::Char('x') => {
-                let _ = self.editor.delete_next_char();
+                self.editor.delete_next_char();
             }
             KeyCode::Char('d') => {
-                let _ = self.editor.delete_line_by_end();
+                self.editor.delete_line_by_end();
             }
             KeyCode::Char('D') => {
-                let _ = self.editor.delete_line_by_head();
+                self.editor.delete_line_by_head();
             }
             // Undo
             KeyCode::Char('u') => {
@@ -150,6 +198,9 @@ impl<'a> TextEditor<'a> {
             KeyCode::Char('r') => {
                 self.editor.redo();
             }
+            // Yank & Paste
+            KeyCode::Char('p') => self.paste_from_clipboard(),
+            KeyCode::Char('y') => self.yank(),
             // Format json
             KeyCode::Char('f') => self.format_json(),
             _ => {}
@@ -205,10 +256,10 @@ impl ErrorKind {
         }
     }
 
-    pub fn default_error(msg: String) -> Self {
+    pub fn default_error<T: Into<String>>(msg: T) -> Self {
         Self {
-            kind: "Error".to_owned(),
-            msg,
+            kind: "Error".to_string(),
+            msg: msg.into(),
         }
     }
 }

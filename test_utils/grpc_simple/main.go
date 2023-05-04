@@ -66,7 +66,7 @@ func (s *Server) GetNameOfMonth(ctx context.Context, req *pb.GetNameOfMonthReq) 
 	}
 }
 
-func (s *Server) GetMetadata(ctx context.Context, req *pb.MetadataReq) (*pb.MetadataResp, error) {
+func (s *Server) Metadata(ctx context.Context, req *pb.MetadataReq) (*pb.MetadataResp, error) {
 	// Get metadata from the incoming context
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

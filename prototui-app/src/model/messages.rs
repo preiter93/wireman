@@ -69,6 +69,14 @@ impl<'a> MessagesModel<'a> {
         self.request.editor.set_error(None);
     }
 
+    /// Clear the loaded method
+    pub fn clear_method(&mut self) {
+        self.selected_method = None;
+        self.loaded_cache_id.clear();
+        self.request.editor.clear();
+        self.response.editor.clear();
+    }
+
     /// Change method. Check if the response and request are in cache.
     /// Generate a new cache entry if the method has not been visited.
     fn change_method(&mut self, id: &str) {
@@ -77,7 +85,7 @@ impl<'a> MessagesModel<'a> {
         if let Some(value) = self.cache.get_mut(&current_id) {
             *value = (
                 self.request.editor.get_text_raw(),
-                self.response.text.get_text_raw(),
+                self.response.editor.get_text_raw(),
             );
         }
 
@@ -91,7 +99,7 @@ impl<'a> MessagesModel<'a> {
         self.loaded_cache_id = id.to_string();
         let (req, resp) = self.cache[id].clone();
         self.request.editor.set_text_raw(&req);
-        self.response.text.set_text_raw(&resp);
+        self.response.editor.set_text_raw(&resp);
     }
 
     /// Make a grpc call and set response or error.
@@ -134,7 +142,7 @@ impl<'a> MessagesModel<'a> {
                     if let Ok(resp) = resp.message.to_json() {
                         let resp = try_pretty_format_json(&resp);
                         self.request.editor.set_error(None);
-                        self.response.text.set_text_raw(&resp);
+                        self.response.editor.set_text_raw(&resp);
                     } else {
                         let err = ErrorKind::format_error("failed to parse json".to_string());
                         self.request.editor.set_error(Some(err));
@@ -146,6 +154,10 @@ impl<'a> MessagesModel<'a> {
                     self.response.clear();
                 }
             }
+        } else {
+            self.request
+                .editor
+                .set_error(Some(ErrorKind::default_error("Select a method!")));
         }
     }
 }
@@ -189,20 +201,20 @@ impl<'a> RequestModel<'a> {
 #[derive(Clone)]
 pub struct ResponseModel<'a> {
     // The response text field
-    pub text: TextEditor<'a>,
+    pub editor: TextEditor<'a>,
 }
 
 impl<'a> ResponseModel<'a> {
     /// Returns a response model.
     pub fn new() -> Self {
         Self {
-            text: TextEditor::new(),
+            editor: TextEditor::new(),
         }
     }
 
     /// Clears the response
     pub fn clear(&mut self) {
-        self.text = TextEditor::new();
+        self.editor = TextEditor::new();
     }
 }
 

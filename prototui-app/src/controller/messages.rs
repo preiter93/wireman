@@ -70,6 +70,11 @@ impl<'a> MessagesController<'a> {
         self.model.load_method(method);
     }
 
+    /// Clear the loaded method
+    pub fn clear_method(&mut self) {
+        self.model.clear_method();
+    }
+
     /// Returns the error to be displayed.
     pub fn get_error(&self) -> Option<ErrorKind> {
         self.model.request.editor.get_error()
@@ -82,7 +87,7 @@ impl<'a> MessagesController<'a> {
 
     /// Returns the response editor widget
     pub fn response_string(&self) -> String {
-        self.model.response.text.get_text_raw()
+        self.model.response.editor.get_text_raw()
     }
 
     /// Returns wether the editor is in insert mode

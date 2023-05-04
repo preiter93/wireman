@@ -14,8 +14,16 @@ license = "MIT"
 core = { package = "prototui_core", path = "../prototui-core", version = "0.1.0" }
 crossterm = "0.26"
 ratatui = "0.20"
-tui-textarea = {git = "https://github.com/rhysd/tui-textarea", branch = "main", default-features = false, features = ["search", "ratatui-your-backend", "ratatui-crossterm"] }
 serde_json = "1.0"
 unicode-width = "0.1"
 http = "0.2"
 tui-widget-list = "0.2.2"
+lazy_static = "1.4.0"
+# Clipboard
+arboard = "3.2.0"
+
+[dependencies.tui-textarea]
+git = "https://github.com/rhysd/tui-textarea"
+branch = "main"
+default-features = false
+features = ["search", "ratatui-your-backend", "ratatui-crossterm"]
