@@ -7,10 +7,9 @@ package proto;
 import "google/protobuf/timestamp.proto";
 
 service TimeKeeper {
-  // Get the current date.
   rpc GetDate (GetDateReq) returns (GetDateResp) {}
-  // Return the name of the month in plain text.
   rpc GetNameOfMonth (GetNameOfMonthReq) returns (GetNameOfMonthResp) {}
+  rpc GetSeason (GetSeasonReq) returns (GetSeasonResp) {}
 }
   
 message GetDateReq {
@@ -29,4 +28,12 @@ message GetNameOfMonthReq {
 message GetNameOfMonthResp {
   // The name of the month in english.
   string name = 1;
+}
+
+message GetSeasonReq {
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetSeasonResp {
+  string season = 1;
 }

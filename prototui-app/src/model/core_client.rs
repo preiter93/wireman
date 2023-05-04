@@ -38,7 +38,9 @@ impl CoreClient {
 
     /// Returns the proto request of a given method
     pub fn get_request(&self, method: &MethodDescriptor) -> RequestMessage {
-        self.desc.get_request(method)
+        let mut req = self.desc.get_request(method);
+        req.message.apply_template();
+        req
     }
 
     /// Returns the default address as defined in the config.json
