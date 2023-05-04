@@ -15,3 +15,4 @@ ProtoTUI is a gRPC client that runs in the terminal. Simply load a bunch of prot
 - [ ] Request History
 - [ ] Extended message description
 - [x] Defaults of repeated/nested fields
+- [x] Yank/Paste from clipboard
