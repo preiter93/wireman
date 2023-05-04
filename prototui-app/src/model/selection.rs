@@ -187,4 +187,8 @@ impl SelectionModel {
     pub fn collapse_methods(&mut self) {
         self.state.collapse_children();
     }
+
+    pub fn clear_method(&mut self) {
+        self.state.select_child(None);
+    }
 }
