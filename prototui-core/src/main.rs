@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     println!("{:?}", method.name());
     // println!("{:?}", method);
     println!("{:?}", req.message_name());
-    println!("{:?}", req.to_json());
+    println!("{:?}", req.message.to_json());
     // println!("{:?}", req);
 
     // for field in req.get_message_descriptor().fields() {
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
     req.insert_metadata("metadata-key", "metadata-value")
         .unwrap();
     let resp = call_unary_blocking(&cfg, uri, &req)?;
-    println!("{:?}", resp.to_json());
+    println!("{:?}", resp.message.to_json());
 
     Ok(())
 }

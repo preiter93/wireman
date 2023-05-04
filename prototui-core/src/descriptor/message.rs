@@ -1,143 +1,94 @@
-use crate::{error::Error, Result};
-use http::uri::PathAndQuery;
-use prost_reflect::{
-    DeserializeOptions, DynamicMessage, MessageDescriptor, MethodDescriptor, SerializeOptions,
-};
-use std::str::FromStr;
-use tonic::{
-    metadata::{Ascii, MetadataKey, MetadataMap, MetadataValue},
-    Request,
-};
+mod template;
 
-/// Wrapper around `MessageDescriptor` and `DynamicMessage`
+use self::template::apply_template_for_message;
+use crate::{error::Error, Result};
+use prost_reflect::{
+    DeserializeOptions, DynamicMessage, MessageDescriptor, ReflectMessage, SerializeOptions,
+};
+use std::ops::{Deref, DerefMut};
+
+/// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct MethodMessage {
-    message_desc: MessageDescriptor,
-    method_desc: MethodDescriptor,
-    message: DynamicMessage,
-    metadata: Option<MetadataMap>,
+pub struct DynMessage {
+    inner: DynamicMessage,
 }
 
-impl MethodMessage {
-    /// Construct `ProtoMessage` from a `MessageDescriptor`
+impl Deref for DynMessage {
+    type Target = DynamicMessage;
+
+    fn deref(&self) -> &DynamicMessage {
+        &self.inner
+    }
+}
+
+impl DerefMut for DynMessage {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+type JsonSerializer = serde_json::Serializer<Vec<u8>>;
+
+impl DynMessage {
+    /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
-    pub fn from_descriptor(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
-        let message = DynamicMessage::new(message_desc.clone());
-        Self {
-            message_desc,
-            method_desc,
-            message,
-            metadata: None,
-        }
+    pub fn new(message_desc: MessageDescriptor) -> Self {
+        let message = DynamicMessage::new(message_desc);
+        Self { inner: message }
     }
 
     /// Returns the Message name
     #[must_use]
-    pub fn message_name(&self) -> &str {
-        self.message_desc.name()
+    pub fn message_name(&self) -> String {
+        self.descriptor().name().to_string()
     }
 
     /// Returns the message descriptor
     #[must_use]
-    pub fn get_message_descriptor(&self) -> MessageDescriptor {
-        self.message_desc.clone()
+    pub fn descriptor(&self) -> MessageDescriptor {
+        self.inner.descriptor()
     }
 
-    /// Returns the method descriptor
-    #[must_use]
-    pub fn get_method_descriptor(&self) -> MethodDescriptor {
-        self.method_desc.clone()
-    }
-
-    /// Returns the dynamic message
-    #[must_use]
-    pub fn get_message(&self) -> DynamicMessage {
-        self.message.clone()
-    }
-
-    /// Set a new message
-    pub fn set_message(&mut self, message: DynamicMessage) {
-        self.message = message;
-    }
-
-    /// Insert metadata
-    ///
-    /// # Errors
-    /// - Failed to parse metadata value/key to ascii
-    pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
-        let val: MetadataValue<Ascii> = val.parse().map_err(|_| Error::ParseToAsciiError)?;
-        let map = self.metadata.get_or_insert(MetadataMap::new());
-        let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
-        map.insert(key, val);
-        Ok(())
-    }
-
-    /// Get the metadata
-    #[must_use]
-    pub fn get_metadata(&self) -> &Option<MetadataMap> {
-        &self.metadata
-    }
-
-    /// Deserialize a `ProtoMessage` from a json string
+    /// Deserialize a `DynMessage` from a json string
     ///
     /// # Errors
     /// - Failed to deserialize message
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
         let msg = DynamicMessage::deserialize_with_options(
-            self.message_desc.clone(),
+            self.descriptor(),
             &mut de,
             &DeserializeOptions::new(),
         )
         .map_err(Error::DeserializeMessage)?;
         de.end().map_err(Error::DeserializeMessage)?;
-        self.message = msg;
+        self.inner = msg;
         Ok(())
     }
 
-    /// Serialize a `ProtoMessage` to a json string
+    /// Serialize a `DynMessage` to json.
     ///
     /// # Errors
     /// - Failed to convert utf8 to String
     /// - Failed to serialize message
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
-        self.message
+        self.inner
             .serialize_with_options(
                 &mut s,
                 &SerializeOptions::new()
                     .stringify_64_bit_integers(false)
                     .skip_default_fields(false),
             )
-            .map_err(Error::SerializeProtoMessage)?;
+            .map_err(Error::SerializeJsonError)?;
 
         String::from_utf8(s.into_inner())
             .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
 
-    /// Returns the uri path for grpc calls
-    ///
-    /// # Panics
-    /// - Unwrapping path and query from str
-    #[must_use]
-    pub fn get_path(&self) -> PathAndQuery {
-        let path = format!(
-            "/{}/{}",
-            self.method_desc.parent_service().full_name(),
-            self.method_desc.name()
-        );
-        PathAndQuery::from_str(&path).unwrap()
-    }
-
-    /// Wrap the message in a `tonic::Request`
-    #[must_use]
-    pub fn into_request(self) -> Request<MethodMessage> {
-        let mut req = Request::new(self.clone());
-        // add metadata
-        if let Some(meta) = self.get_metadata() {
-            *req.metadata_mut() = meta.clone();
-        }
-        req
+    /// Applies default values to a `DynMessage`.
+    pub fn apply_template(&mut self) {
+        apply_template_for_message(self);
     }
 }
 
@@ -147,26 +98,65 @@ mod test {
 
     use super::*;
 
-    fn load_test_request() -> MethodMessage {
-        // The test files
+    #[test]
+    fn test_template_nested() {
+        // given
+        let mut given_message = load_test_message("Nested");
+        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"Hello\"}]}";
+
+        // when
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
+
+        // then
+        assert_eq!(json, expected_json);
+    }
+
+    #[test]
+    fn test_template_repeated() {
+        // given
+        let mut given_message = load_test_message("Repeated");
+        let expected_json = "{\"number\":[0]}";
+
+        // when
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
+
+        // then
+        assert_eq!(json, expected_json);
+    }
+
+    #[test]
+    fn test_template_enum() {
+        // given
+        let mut given_message = load_test_message("Enum");
+        let expected_json = "{\"color\":\"NONE\"}";
+
+        // when
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
+
+        // then
+        assert_eq!(json, expected_json);
+    }
+
+    fn load_test_message(method: &str) -> DynMessage {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
-        // Generate the descriptor
         let desc = ProtoDescriptor::from_files(files, includes).unwrap();
 
-        // Get the method and message
         let method = desc
-            .get_method_by_name("proto.TestService", "GetNameOfMonth")
+            .get_method_by_name("proto.TestService", method)
             .unwrap();
         let request = method.input();
-        MethodMessage::from_descriptor(request, method)
+        DynMessage::new(request)
     }
 
     #[test]
     fn test_to_json() {
         // given
-        let given_message = load_test_request();
+        let given_message = load_test_message("Simple");
 
         // when
         let json = given_message.to_json().unwrap();
@@ -179,7 +169,7 @@ mod test {
     #[test]
     fn test_from_json() {
         // given
-        let mut given_message = load_test_request();
+        let mut given_message = load_test_message("Simple");
         let given_json = "{\"number\":1}";
         given_message.from_json(given_json).unwrap();
 
@@ -189,34 +179,5 @@ mod test {
         // then
         let expected_json = "{\"number\":1}";
         assert_eq!(json, expected_json);
-    }
-
-    #[test]
-    fn test_into_requeset() {
-        // given
-        let mut given_message = load_test_request();
-        given_message
-            .insert_metadata("metadata-key", "metadata-value")
-            .unwrap();
-
-        // when
-        let given_req = given_message.clone().into_request();
-
-        // then
-        let metadata = given_req.metadata();
-        assert!(metadata.contains_key("metadata-key"));
-        assert_eq!(
-            metadata.get("metadata-key").unwrap().as_bytes(),
-            "metadata-value".as_bytes()
-        );
-        let message = given_req.get_ref().clone();
-        assert_eq!(
-            message.get_method_descriptor(),
-            given_message.get_method_descriptor()
-        );
-        assert_eq!(
-            message.get_message_descriptor(),
-            given_message.get_message_descriptor()
-        );
     }
 }

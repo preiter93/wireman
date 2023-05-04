@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	pb "grpc_simple/proto"
 
@@ -65,7 +66,7 @@ func (s *Server) GetNameOfMonth(ctx context.Context, req *pb.GetNameOfMonthReq) 
 	}
 }
 
-func (s *Server) GetMetadata(ctx context.Context, req *pb.GetMetadataReq) (*pb.GetMetadataResp, error) {
+func (s *Server) GetMetadata(ctx context.Context, req *pb.MetadataReq) (*pb.MetadataResp, error) {
 	// Get metadata from the incoming context
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -79,11 +80,50 @@ func (s *Server) GetMetadata(ctx context.Context, req *pb.GetMetadataReq) (*pb.G
 	}
 
 	// Create the response message
-	resp := &pb.GetMetadataResp{
+	resp := &pb.MetadataResp{
 		Metadata: string(mdJson),
 	}
 
 	return resp, nil
+}
+
+func (s *Server) GetSeason(ctx context.Context, req *pb.GetSeasonReq) (*pb.GetSeasonResp, error) {
+	season := getSeason(req.GetDate().AsTime())
+	return &pb.GetSeasonResp{Season: season}, nil
+}
+
+func getSeason(date time.Time) string {
+	day := date.Day()
+	switch month := date.Month(); month {
+	case time.December, time.January, time.February:
+		return "Winter"
+	case time.March:
+		if day >= 20 {
+			return "Spring"
+		} else {
+			return "Winter"
+		}
+	case time.April, time.May:
+		return "Spring"
+	case time.June:
+		if day >= 21 {
+			return "Summer"
+		} else {
+			return "Spring"
+		}
+	case time.July, time.August:
+		return "Summer"
+	case time.September:
+		if day >= 22 {
+			return "Autumn"
+		} else {
+			return "Summer"
+		}
+	case time.October, time.November:
+		return "Autumn"
+	default:
+		return "Undefined"
+	}
 }
 
 func main() {
