@@ -21,8 +21,9 @@ impl SelectionController {
     }
 
     /// Handle user input.
-    pub fn on_key(&mut self, key: KeyEvent) -> Option<MethodDescriptor> {
+    pub fn on_key(&mut self, key: KeyEvent) -> (Option<MethodDescriptor>, bool) {
         let mut load_method = None;
+        let mut clear_method = false;
         if key.kind == KeyEventKind::Press {
             match key.code {
                 KeyCode::Down | KeyCode::Char('j') => {
@@ -40,10 +41,10 @@ impl SelectionController {
             if self.services_selected() {
                 self.on_key_services_focused(key, &mut load_method);
             } else {
-                self.on_key_methods_focused(key, &mut load_method);
+                self.on_key_methods_focused(key, &mut clear_method);
             }
         }
-        load_method
+        (load_method, clear_method)
     }
 
     /// Key bindings if services are focused
@@ -59,13 +60,11 @@ impl SelectionController {
     }
 
     /// Key bindings if services are focused
-    fn on_key_methods_focused(
-        &mut self,
-        key: KeyEvent,
-        _load_method: &mut Option<MethodDescriptor>,
-    ) {
+    fn on_key_methods_focused(&mut self, key: KeyEvent, clear_method: &mut bool) {
         if key.code == KeyCode::Enter {
             self.model.collapse_methods();
+            self.model.unselect_method();
+            *clear_method = true;
         }
     }
 

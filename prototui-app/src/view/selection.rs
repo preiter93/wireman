@@ -19,7 +19,7 @@ use ratatui::widgets::Table;
 use ratatui::Frame;
 use std::cmp::max;
 
-const MIN_HELP_SIZE: usize = 18;
+const MIN_HELP_SIZE: usize = 16;
 
 /// Draw the services and methods list and draw the helper widget
 /// below is `help_actions` has values.
