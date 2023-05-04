@@ -12,10 +12,10 @@ impl ResponseMessage {
     /// Construct `ResponseMessage` from the Descriptors.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
-        let message = DynMessage::new(message_desc.clone());
+        let message = DynMessage::new(message_desc);
         Self {
-            method_desc,
             message,
+            method_desc,
         }
     }
 

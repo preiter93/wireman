@@ -21,7 +21,7 @@ impl RequestMessage {
     /// Construct `RequestMessage` from the Descriptors.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
-        let message = DynMessage::new(message_desc.clone());
+        let message = DynMessage::new(message_desc);
         Self {
             method_desc,
             message,
@@ -32,18 +32,18 @@ impl RequestMessage {
     /// Returns the Message name
     #[must_use]
     pub fn message_name(&self) -> String {
-        self.get_message_descriptor().name().to_string()
+        self.message_descriptor().name().to_string()
     }
 
     /// Returns the message descriptor
     #[must_use]
-    pub fn get_message_descriptor(&self) -> MessageDescriptor {
-        self.message.descriptor().clone()
+    pub fn message_descriptor(&self) -> MessageDescriptor {
+        self.message.descriptor()
     }
 
     /// Returns the method descriptor
     #[must_use]
-    pub fn get_method_descriptor(&self) -> MethodDescriptor {
+    pub fn method_descriptor(&self) -> MethodDescriptor {
         self.method_desc.clone()
     }
 
@@ -127,7 +127,7 @@ impl RequestMessage {
         let metadata = self.get_metadata().clone();
         let mut req = Request::new(self);
         if let Some(meta) = metadata {
-            *req.metadata_mut() = meta.clone();
+            *req.metadata_mut() = meta;
         }
         req
     }
@@ -175,12 +175,12 @@ mod test {
         );
         let message = given_req.get_ref().clone();
         assert_eq!(
-            message.get_method_descriptor(),
-            given_message.get_method_descriptor()
+            message.method_descriptor(),
+            given_message.method_descriptor()
         );
         assert_eq!(
-            message.get_message_descriptor(),
-            given_message.get_message_descriptor()
+            message.message_descriptor(),
+            given_message.message_descriptor()
         );
     }
 }

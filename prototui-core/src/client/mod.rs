@@ -77,7 +77,7 @@ impl GrpcClient {
     /// - server call failed
     pub async fn unary(&mut self, req: &RequestMessage) -> Result<ResponseMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
-        let codec = codec::DynamicCodec::new(req.get_method_descriptor());
+        let codec = codec::DynamicCodec::new(req.method_descriptor());
         // path
         let path = req.get_path();
         // make call

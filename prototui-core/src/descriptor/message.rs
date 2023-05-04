@@ -1,12 +1,11 @@
-mod ser;
+mod template;
 
-use std::ops::{Deref, DerefMut};
-
+use self::template::apply_template_for_message;
 use crate::{error::Error, Result};
 use prost_reflect::{
     DeserializeOptions, DynamicMessage, MessageDescriptor, ReflectMessage, SerializeOptions,
 };
-use serde::Serializer;
+use std::ops::{Deref, DerefMut};
 
 /// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
@@ -34,7 +33,7 @@ impl DynMessage {
     /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
-        let message = DynamicMessage::new(message_desc.clone());
+        let message = DynamicMessage::new(message_desc);
         Self { inner: message }
     }
 
@@ -47,10 +46,10 @@ impl DynMessage {
     /// Returns the message descriptor
     #[must_use]
     pub fn descriptor(&self) -> MessageDescriptor {
-        self.inner.descriptor().clone()
+        self.inner.descriptor()
     }
 
-    /// Deserialize a `ProtoMessage` from a json string
+    /// Deserialize a `DynMessage` from a json string
     ///
     /// # Errors
     /// - Failed to deserialize message
@@ -67,31 +66,7 @@ impl DynMessage {
         Ok(())
     }
 
-    pub fn serialize_with_options(
-        &self,
-        serializer: &mut JsonSerializer,
-        options: &ser::SerializeOptions,
-    ) -> Result<<&mut JsonSerializer as Serializer>::Ok> {
-        ser::serialize_message(self, serializer, options)
-            .map_err(|err| Error::SerializeMessageError(err.to_string()))
-    }
-    /// Serialize a `ProtoMessage` to a json string
-    ///
-    /// # Errors
-    /// - Failed to convert utf8 to String
-    /// - Failed to serialize message
-    pub fn to_json2(&self) -> Result<String> {
-        let mut s = serde_json::Serializer::new(Vec::new());
-        self.serialize_with_options(
-            &mut s,
-            &ser::SerializeOptions::new()
-                .stringify_64_bit_integers(false)
-                .skip_default_fields(false),
-        )?;
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
-    }
-    /// Serialize a `ProtoMessage` to a json string
+    /// Serialize a `DynMessage` to json.
     ///
     /// # Errors
     /// - Failed to convert utf8 to String
@@ -110,6 +85,11 @@ impl DynMessage {
         String::from_utf8(s.into_inner())
             .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
+
+    /// Applies default values to a `DynMessage`.
+    pub fn apply_template(&mut self) {
+        apply_template_for_message(self);
+    }
 }
 
 #[cfg(test)]
@@ -119,24 +99,45 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_message() {
+    fn test_template_nested() {
         // given
-        let given_message = load_test_message("Repeated");
+        let mut given_message = load_test_message("Nested");
+        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"Hello\"}]}";
 
         // when
-        // let message = given_message.get_message();
-        // println!("{:?}", message);
-        // println!("{:?}", message.to_text_format());
-        // println!("{:?}", given_message.to_json());
-        let desc = given_message.descriptor();
-        // println!("{:?}", desc.full_name());
-        for field in desc.fields() {
-            println!("{:?}", field);
-            let x = field.is_list();
-            println!("is list {:?}", x);
-        }
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
 
-        assert_eq!(1, 2);
+        // then
+        assert_eq!(json, expected_json);
+    }
+
+    #[test]
+    fn test_template_repeated() {
+        // given
+        let mut given_message = load_test_message("Repeated");
+        let expected_json = "{\"number\":[0]}";
+
+        // when
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
+
+        // then
+        assert_eq!(json, expected_json);
+    }
+
+    #[test]
+    fn test_template_enum() {
+        // given
+        let mut given_message = load_test_message("Enum");
+        let expected_json = "{\"color\":\"NONE\"}";
+
+        // when
+        given_message.apply_template();
+        let json = given_message.to_json().unwrap();
+
+        // then
+        assert_eq!(json, expected_json);
     }
 
     fn load_test_message(method: &str) -> DynMessage {

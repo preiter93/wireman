@@ -37,7 +37,7 @@ impl Encoder for DynamicCodec {
     type Error = Status;
 
     fn encode(&mut self, request: Self::Item, dst: &mut EncodeBuf<'_>) -> Result<(), Self::Error> {
-        debug_assert_eq!(request.get_message_descriptor(), self.0.input());
+        debug_assert_eq!(request.message_descriptor(), self.0.input());
         request
             .message
             .encode(dst)
