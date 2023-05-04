@@ -10,8 +10,8 @@ ProtoTUI is a gRPC client that runs in the terminal. Simply load a bunch of prot
 - [x] TLS support
 - [x] Unary gRPC client calls
 - [ ] Streaming gRPC client calls
-- [ ] Metadata specification
-- [ ] Server address specification
+- [x] Metadata specification
+- [x] Server address specification
 - [ ] Request History
-- [ ] Message Field description
-- [ ] Defaults of repeated/nested fields
+- [ ] Extended message description
+- [x] Defaults of repeated/nested fields
