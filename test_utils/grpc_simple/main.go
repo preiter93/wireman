@@ -24,6 +24,12 @@ type Server struct {
 	pb.UnimplementedGreeterServer
 	pb.UnimplementedTimeKeeperServer
 	pb.UnimplementedDebuggerServer
+	pb.UnimplementedTestServiceServer
+}
+
+func (s *Server) Simple(ctx context.Context, req *pb.SimpleReq) (*pb.SimpleResp, error) {
+	response := fmt.Sprintf("Received: %v", req.GetNumber())
+	return &pb.SimpleResp{Response: response}, nil
 }
 
 func (s *Server) SayHello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp, error) {
@@ -136,6 +142,7 @@ func main() {
 	pb.RegisterGreeterServer(s, &Server{})
 	pb.RegisterTimeKeeperServer(s, &Server{})
 	pb.RegisterDebuggerServer(s, &Server{})
+	pb.RegisterTestServiceServer(s, &Server{})
 
 	fmt.Println("Listening on", lis.Addr())
 	if err := s.Serve(lis); err != nil {
