@@ -38,7 +38,7 @@ fn main() -> Result<()> {
     req.insert_metadata("metadata-key", "metadata-value")
         .unwrap();
     let resp = call_unary_blocking(&cfg, uri, &req)?;
-    println!("{:?}", resp.to_json());
+    println!("{:?}", resp.message.to_json());
 
     Ok(())
 }

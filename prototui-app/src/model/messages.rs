@@ -131,7 +131,7 @@ impl<'a> MessagesModel<'a> {
 
             match resp {
                 Ok(resp) => {
-                    if let Ok(resp) = resp.to_json() {
+                    if let Ok(resp) = resp.message.to_json() {
                         let resp = try_pretty_format_json(&resp);
                         self.request.editor.set_error(None);
                         self.response.text.set_text_raw(&resp);
