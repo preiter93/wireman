@@ -1,3 +1,4 @@
+pub mod grpcurl;
 mod template;
 
 use self::template::apply_template_for_message;
