@@ -74,6 +74,8 @@ impl<'a> MetadataController<'a> {
             actions.insert("q", "Quit");
             actions.insert("M/Esc", "Untoggle metadata");
             actions.insert("i", "Insert mode");
+            actions.insert("y", "Yank");
+            actions.insert("p", "Paste");
             if self.is_key_selected() {
                 actions.insert("Tab", "Select Value");
             } else {
