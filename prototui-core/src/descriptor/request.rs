@@ -1,20 +1,18 @@
 use crate::{error::Error, Result};
 use http::uri::PathAndQuery;
-use prost_reflect::{
-    DeserializeOptions, DynamicMessage, MessageDescriptor, MethodDescriptor, SerializeOptions,
-};
+use prost_reflect::{MessageDescriptor, MethodDescriptor};
 use std::str::FromStr;
 use tonic::{
     metadata::{Ascii, MetadataKey, MetadataMap, MetadataValue},
     Request,
 };
 
-use super::Message;
+use super::DynMessage;
 
 /// Holds all the necessary data for a grpc request
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
-    pub message: Message,
+    pub message: DynMessage,
     method_desc: MethodDescriptor,
     metadata: Option<MetadataMap>,
 }
@@ -23,7 +21,7 @@ impl RequestMessage {
     /// Construct `RequestMessage` from the Descriptors.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
-        let message = Message::new(message_desc.clone());
+        let message = DynMessage::new(message_desc.clone());
         Self {
             method_desc,
             message,
@@ -50,7 +48,7 @@ impl RequestMessage {
     }
 
     /// Set a new message
-    pub fn set_message(&mut self, message: Message) {
+    pub fn set_message(&mut self, message: DynMessage) {
         self.message = message;
     }
 
@@ -72,42 +70,42 @@ impl RequestMessage {
         &self.metadata
     }
 
-    /// Deserialize a `ProtoMessage` from a json string
-    ///
-    /// # Errors
-    /// - Failed to deserialize message
-    pub fn from_json(&mut self, json: &str) -> Result<()> {
-        let mut de = serde_json::Deserializer::from_str(json);
-        let msg = DynamicMessage::deserialize_with_options(
-            self.get_message_descriptor(),
-            &mut de,
-            &DeserializeOptions::new(),
-        )
-        .map_err(Error::DeserializeMessage)?;
-        de.end().map_err(Error::DeserializeMessage)?;
-        *self.message = msg;
-        Ok(())
-    }
-
-    /// Serialize a `ProtoMessage` to a json string
-    ///
-    /// # Errors
-    /// - Failed to convert utf8 to String
-    /// - Failed to serialize message
-    pub fn to_json(&self) -> Result<String> {
-        let mut s = serde_json::Serializer::new(Vec::new());
-        self.message
-            .serialize_with_options(
-                &mut s,
-                &SerializeOptions::new()
-                    .stringify_64_bit_integers(false)
-                    .skip_default_fields(false),
-            )
-            .map_err(Error::SerializeProtoMessage)?;
-
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
-    }
+    // /// Deserialize a `ProtoMessage` from a json string
+    // ///
+    // /// # Errors
+    // /// - Failed to deserialize message
+    // pub fn from_json(&mut self, json: &str) -> Result<()> {
+    //     let mut de = serde_json::Deserializer::from_str(json);
+    //     let msg = DynamicMessage::deserialize_with_options(
+    //         self.get_message_descriptor(),
+    //         &mut de,
+    //         &DeserializeOptions::new(),
+    //     )
+    //     .map_err(Error::DeserializeMessage)?;
+    //     de.end().map_err(Error::DeserializeMessage)?;
+    //     *self.message = msg;
+    //     Ok(())
+    // }
+    //
+    // /// Serialize a `ProtoMessage` to a json string
+    // ///
+    // /// # Errors
+    // /// - Failed to convert utf8 to String
+    // /// - Failed to serialize message
+    // pub fn to_json(&self) -> Result<String> {
+    //     let mut s = serde_json::Serializer::new(Vec::new());
+    //     self.message
+    //         .serialize_with_options(
+    //             &mut s,
+    //             &SerializeOptions::new()
+    //                 .stringify_64_bit_integers(false)
+    //                 .skip_default_fields(false),
+    //         )
+    //         .map_err(Error::SerializeProtoMessage)?;
+    //
+    //     String::from_utf8(s.into_inner())
+    //         .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+    // }
 
     /// Returns the uri path for grpc calls
     ///

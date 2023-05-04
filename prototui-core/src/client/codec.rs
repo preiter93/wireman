@@ -1,6 +1,5 @@
 //! This file is taken from `https://github.com/andrewhickman/grpc-client`
-use crate::descriptor::message::Message as DynMessage;
-use crate::descriptor::{RequestMessage, ResponseMessage};
+use crate::descriptor::{DynMessage, RequestMessage, ResponseMessage};
 use prost_reflect::prost::Message;
 use prost_reflect::MethodDescriptor;
 use tonic::{
