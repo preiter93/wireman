@@ -1,11 +1,17 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::error::Error;
-use std::path::Path;
 pub mod message;
-use self::message::MethodMessage;
+pub mod request;
+pub mod response;
+
+pub use message::Message;
+pub use request::RequestMessage;
+pub use response::ResponseMessage;
+
+use crate::error::Error;
 use crate::ProtoTuiConfig;
 use crate::Result;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
+use std::path::Path;
 
 #[derive(Default, Debug, Clone)]
 pub struct ProtoDescriptor {
@@ -90,13 +96,13 @@ impl ProtoDescriptor {
 
     // Returns the request Message of a given Method
     #[must_use]
-    pub fn get_request(&self, method: &MethodDescriptor) -> MethodMessage {
-        MethodMessage::from_descriptor(self.get_request_descriptor(method), method.clone())
+    pub fn get_request(&self, method: &MethodDescriptor) -> RequestMessage {
+        RequestMessage::new(self.get_request_descriptor(method), method.clone())
     }
 
     // Returns the response Message of a given Method
     #[must_use]
-    pub fn get_response(&self, method: &MethodDescriptor) -> MethodMessage {
-        MethodMessage::from_descriptor(self.get_response_descriptor(method), method.clone())
+    pub fn get_response(&self, method: &MethodDescriptor) -> ResponseMessage {
+        ResponseMessage::new(self.get_response_descriptor(method), method.clone())
     }
 }

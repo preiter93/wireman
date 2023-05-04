@@ -1,5 +1,6 @@
 //! Module for all grpc related stuff
-use crate::descriptor::message::MethodMessage;
+use crate::descriptor::RequestMessage;
+use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::ProtoTuiConfig;
 use crate::Result;
@@ -19,8 +20,8 @@ pub mod tls;
 pub fn call_unary_blocking<T: Into<Uri>>(
     cfg: &ProtoTuiConfig,
     uri: T,
-    req: &MethodMessage,
-) -> Result<MethodMessage> {
+    req: &RequestMessage,
+) -> Result<ResponseMessage> {
     let rt = create_runtime()?;
     let future = async_call_unary(cfg, uri, req);
     let result = rt.block_on(future);
@@ -33,8 +34,8 @@ pub fn call_unary_blocking<T: Into<Uri>>(
 async fn async_call_unary<T: Into<Uri>>(
     cfg: &ProtoTuiConfig,
     uri: T,
-    req: &MethodMessage,
-) -> Result<MethodMessage> {
+    req: &RequestMessage,
+) -> Result<ResponseMessage> {
     let mut client = GrpcClient::from_config(cfg, uri);
     let resp = client.unary(req).await?;
     Ok(resp)
@@ -74,7 +75,7 @@ impl GrpcClient {
     /// # Errors
     /// - grpc client is not ready
     /// - server call failed
-    pub async fn unary(&mut self, req: &MethodMessage) -> Result<MethodMessage> {
+    pub async fn unary(&mut self, req: &RequestMessage) -> Result<ResponseMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
         let codec = codec::DynamicCodec::new(req.get_method_descriptor());
         // path
@@ -91,12 +92,12 @@ impl GrpcClient {
     /// # Errors
     /// - grpc client is not ready
     /// - server call failed
-    pub fn unary_with_runtime(&mut self, req: &MethodMessage) -> Result<String> {
+    pub fn unary_with_runtime(&mut self, req: &RequestMessage) -> Result<String> {
         let rt = create_runtime()?;
         let future = self.unary(req);
         let result = rt.block_on(future);
         match result {
-            Ok(response) => Ok(response.to_json()?),
+            Ok(response) => Ok(response.message.to_json()?),
             Err(err) => Err(Error::InternalError(err.to_string())),
         }
     }

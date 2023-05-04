@@ -1,81 +1,48 @@
+use std::ops::{Deref, DerefMut};
+
 use crate::{error::Error, Result};
-use http::uri::PathAndQuery;
 use prost_reflect::{
-    DeserializeOptions, DynamicMessage, MessageDescriptor, MethodDescriptor, SerializeOptions,
-};
-use std::str::FromStr;
-use tonic::{
-    metadata::{Ascii, MetadataKey, MetadataMap, MetadataValue},
-    Request,
+    DeserializeOptions, DynamicMessage, MessageDescriptor, ReflectMessage, SerializeOptions,
 };
 
-/// Wrapper around `MessageDescriptor` and `DynamicMessage`
+/// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct MethodMessage {
-    message_desc: MessageDescriptor,
-    method_desc: MethodDescriptor,
-    message: DynamicMessage,
-    metadata: Option<MetadataMap>,
+pub struct Message {
+    inner: DynamicMessage,
 }
 
-impl MethodMessage {
-    /// Construct `ProtoMessage` from a `MessageDescriptor`
+impl Deref for Message {
+    type Target = DynamicMessage;
+
+    fn deref(&self) -> &DynamicMessage {
+        &self.inner
+    }
+}
+
+impl DerefMut for Message {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl Message {
+    /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
-    pub fn from_descriptor(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
+    pub fn new(message_desc: MessageDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc.clone());
-        Self {
-            message_desc,
-            method_desc,
-            message,
-            metadata: None,
-        }
+        Self { inner: message }
     }
 
     /// Returns the Message name
     #[must_use]
-    pub fn message_name(&self) -> &str {
-        self.message_desc.name()
+    pub fn message_name(&self) -> String {
+        self.descriptor().name().to_string()
     }
 
     /// Returns the message descriptor
     #[must_use]
-    pub fn get_message_descriptor(&self) -> MessageDescriptor {
-        self.message_desc.clone()
-    }
-
-    /// Returns the method descriptor
-    #[must_use]
-    pub fn get_method_descriptor(&self) -> MethodDescriptor {
-        self.method_desc.clone()
-    }
-
-    /// Returns the dynamic message
-    #[must_use]
-    pub fn get_message(&self) -> DynamicMessage {
-        self.message.clone()
-    }
-
-    /// Set a new message
-    pub fn set_message(&mut self, message: DynamicMessage) {
-        self.message = message;
-    }
-
-    /// Insert metadata
-    ///
-    /// # Errors
-    /// - Failed to parse metadata value/key to ascii
-    pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
-        let val: MetadataValue<Ascii> = val.parse().map_err(|_| Error::ParseToAsciiError)?;
-        let map = self.metadata.get_or_insert(MetadataMap::new());
-        let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
-        map.insert(key, val);
-        Ok(())
-    }
-
-    /// Get the metadata
-    #[must_use]
-    pub fn get_metadata(&self) -> &Option<MetadataMap> {
-        &self.metadata
+    pub fn descriptor(&self) -> MessageDescriptor {
+        self.inner.descriptor().clone()
     }
 
     /// Deserialize a `ProtoMessage` from a json string
@@ -85,13 +52,13 @@ impl MethodMessage {
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
         let msg = DynamicMessage::deserialize_with_options(
-            self.message_desc.clone(),
+            self.descriptor(),
             &mut de,
             &DeserializeOptions::new(),
         )
         .map_err(Error::DeserializeMessage)?;
         de.end().map_err(Error::DeserializeMessage)?;
-        self.message = msg;
+        self.inner = msg;
         Ok(())
     }
 
@@ -102,7 +69,7 @@ impl MethodMessage {
     /// - Failed to serialize message
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
-        self.message
+        self.inner
             .serialize_with_options(
                 &mut s,
                 &SerializeOptions::new()
@@ -114,31 +81,6 @@ impl MethodMessage {
         String::from_utf8(s.into_inner())
             .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
-
-    /// Returns the uri path for grpc calls
-    ///
-    /// # Panics
-    /// - Unwrapping path and query from str
-    #[must_use]
-    pub fn get_path(&self) -> PathAndQuery {
-        let path = format!(
-            "/{}/{}",
-            self.method_desc.parent_service().full_name(),
-            self.method_desc.name()
-        );
-        PathAndQuery::from_str(&path).unwrap()
-    }
-
-    /// Wrap the message in a `tonic::Request`
-    #[must_use]
-    pub fn into_request(self) -> Request<MethodMessage> {
-        let mut req = Request::new(self.clone());
-        // add metadata
-        if let Some(meta) = self.get_metadata() {
-            *req.metadata_mut() = meta.clone();
-        }
-        req
-    }
 }
 
 #[cfg(test)]
@@ -147,26 +89,44 @@ mod test {
 
     use super::*;
 
-    fn load_test_request() -> MethodMessage {
-        // The test files
+    // #[test]
+    // fn test_message() {
+    //     // given
+    //     let given_message = load_test_request("Repeated");
+    //
+    //     // when
+    //     // let message = given_message.get_message();
+    //     // println!("{:?}", message);
+    //     // println!("{:?}", message.to_text_format());
+    //     // println!("{:?}", given_message.to_json());
+    //     let desc = given_message.descriptor();
+    //     // println!("{:?}", desc.full_name());
+    //     for field in desc.fields() {
+    //         println!("{:?}", field);
+    //         let x = field.is_list();
+    //         println!("is list {:?}", x);
+    //     }
+    //
+    //     assert_eq!(1, 2);
+    // }
+
+    fn load_test_message(method: &str) -> Message {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
-        // Generate the descriptor
         let desc = ProtoDescriptor::from_files(files, includes).unwrap();
 
-        // Get the method and message
         let method = desc
-            .get_method_by_name("proto.TestService", "GetNameOfMonth")
+            .get_method_by_name("proto.TestService", method)
             .unwrap();
         let request = method.input();
-        MethodMessage::from_descriptor(request, method)
+        Message::new(request)
     }
 
     #[test]
     fn test_to_json() {
         // given
-        let given_message = load_test_request();
+        let given_message = load_test_message("Simple");
 
         // when
         let json = given_message.to_json().unwrap();
@@ -179,7 +139,7 @@ mod test {
     #[test]
     fn test_from_json() {
         // given
-        let mut given_message = load_test_request();
+        let mut given_message = load_test_message("Simple");
         let given_json = "{\"number\":1}";
         given_message.from_json(given_json).unwrap();
 
@@ -189,34 +149,5 @@ mod test {
         // then
         let expected_json = "{\"number\":1}";
         assert_eq!(json, expected_json);
-    }
-
-    #[test]
-    fn test_into_requeset() {
-        // given
-        let mut given_message = load_test_request();
-        given_message
-            .insert_metadata("metadata-key", "metadata-value")
-            .unwrap();
-
-        // when
-        let given_req = given_message.clone().into_request();
-
-        // then
-        let metadata = given_req.metadata();
-        assert!(metadata.contains_key("metadata-key"));
-        assert_eq!(
-            metadata.get("metadata-key").unwrap().as_bytes(),
-            "metadata-value".as_bytes()
-        );
-        let message = given_req.get_ref().clone();
-        assert_eq!(
-            message.get_method_descriptor(),
-            given_message.get_method_descriptor()
-        );
-        assert_eq!(
-            message.get_message_descriptor(),
-            given_message.get_message_descriptor()
-        );
     }
 }

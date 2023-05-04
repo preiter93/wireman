@@ -7,21 +7,16 @@ package proto;
 import "google/protobuf/timestamp.proto";
 
 service TestService {
-  rpc GetDate (GetDateReq) returns (GetDateResp) {}
-  rpc GetNameOfMonth (GetNameOfMonthReq) returns (GetNameOfMonthResp) {}
-}
-  
-message GetDateReq {
-}
-  
-message GetDateResp {
-  google.protobuf.Timestamp date = 1;
+  rpc Simple (SimpleReq) returns (EmptyResp) {}
+  rpc Repeated (RepeatedReq) returns (EmptyResp) {}
 }
 
-message GetNameOfMonthReq {
+message SimpleReq {
   int32 number = 1;
 }
-  
-message GetNameOfMonthResp {
-  string name = 1;
+
+message RepeatedReq {
+  repeated int32 number = 1;
 }
+
+message EmptyResp {}
