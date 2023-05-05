@@ -38,7 +38,7 @@ impl<'a> MessagesController<'a> {
         match key.code {
             KeyCode::Enter => self.model.call_grpc(),
             KeyCode::Char('y') if key.modifiers == KeyModifiers::CONTROL => {
-                self.model.yank_grpcurl()
+                self.model.yank_grpcurl();
             }
             _ => self.model.request.editor.on_key_normal_mode(key),
         }
