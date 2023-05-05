@@ -12,7 +12,7 @@ StellaRPC is a gRPC client that runs in the terminal! Simply put your proto file
 
 ## Features
 
-### Yank as `grpcurl` request
+#### Yank as `grpcurl` request
 
 stellaRPC supports copying the request data as a `grpcurl` command. This makes collaborating with peers a breeze :) 
 Just go to the request page and copy it ctrl+y.
