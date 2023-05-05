@@ -1,10 +1,10 @@
 [package]
-name = "prototui_core"
+name = "stellarpc_core"
 version = "0.1.0"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
-description = "Core library for prototui-app"
-repository = "https://github.com/preiter93/prototui"
+description = "Core library for stellarpc-app"
+repository = "https://github.com/preiter93/stellarpc"
 keywords = ["gRPC", "proto", "TUI"]
 readme = "README.md"
 license = "MIT"

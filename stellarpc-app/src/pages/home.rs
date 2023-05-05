@@ -43,7 +43,7 @@ pub struct HomePage<'a> {
 impl<'a> HomePage<'a> {
     /// Instantiate the homepage
     pub fn new(core_client: CoreClient) -> HomePage<'a> {
-        // The core client communicates with the prototui core pkg
+        // The core client is shared among controllers
         let core_client_rc = Rc::new(RefCell::new(core_client));
 
         // Construct the selection controller

@@ -8,7 +8,7 @@ pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
 use crate::error::Error;
-use crate::ProtoTuiConfig;
+use crate::Config;
 use crate::Result;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
 use std::path::Path;
@@ -24,7 +24,7 @@ impl ProtoDescriptor {
     /// # Errors
     /// - Failed to compile proto `ProtoxCompileError`
     /// - Failed to generate descriptor `DescriptorError`
-    pub fn from_config(cfg: &ProtoTuiConfig) -> Result<Self> {
+    pub fn from_config(cfg: &Config) -> Result<Self> {
         let files = cfg.files.clone();
         let includes = vec![cfg.workspace.clone()];
         Self::from_files(files, includes)

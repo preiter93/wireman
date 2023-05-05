@@ -1,14 +1,13 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
 use prost_reflect::DescriptorError;
-use thiserror::Error;
-pub use PTError as Error;
+use thiserror::Error as ThisError;
 
 /// The result type for this library
-pub type Result<T> = std::result::Result<T, PTError>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// The error type
-#[derive(Error, Debug)]
-pub enum PTError {
+#[derive(ThisError, Debug)]
+pub enum Error {
     /// Internal error
     #[error("internal error {0}")]
     InternalError(String),
@@ -62,7 +61,7 @@ pub enum PTError {
     ParseToAsciiError,
 }
 
-impl From<tonic::Status> for PTError {
+impl From<tonic::Status> for Error {
     fn from(status: tonic::Status) -> Self {
         Self::GrpcError(status.into())
     }
