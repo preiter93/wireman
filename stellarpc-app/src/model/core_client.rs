@@ -1,7 +1,7 @@
 use crate::commons::editor::ErrorKind;
 use core::{
     descriptor::{message::grpcurl::request_as_grpcurl, RequestMessage, ResponseMessage},
-    MethodDescriptor, ProtoDescriptor, ProtoTuiConfig, ServiceDescriptor,
+    Config, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 use http::Uri;
 use std::error::Error;
@@ -17,10 +17,10 @@ pub struct CoreClient {
 }
 
 #[derive(Debug, Clone)]
-struct GrpcClientConfig(ProtoTuiConfig);
+struct GrpcClientConfig(Config);
 
 impl CoreClient {
-    pub fn new(cfg: ProtoTuiConfig) -> Result<Self, Box<dyn Error>> {
+    pub fn new(cfg: Config) -> Result<Self, Box<dyn Error>> {
         let desc = ProtoDescriptor::from_config(&cfg)?;
         let grpc = GrpcClientConfig(cfg);
         Ok(Self { desc, grpc })

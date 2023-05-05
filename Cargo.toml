@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-    "prototui-core",
-    "prototui-app",
+    "stellarpc-core",
+    "stellarpc-app",
 ]
 
-default-members = ["prototui-app"]
+default-members = ["stellarpc-app"]

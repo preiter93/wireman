@@ -1059,43 +1059,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "prototui_app"
-version = "0.1.0"
-dependencies = [
- "arboard",
- "crossterm",
- "http",
- "lazy_static",
- "prototui_core",
- "ratatui",
- "serde_json",
- "tui-textarea",
- "tui-widget-list",
- "unicode-width",
-]
-
-[[package]]
-name = "prototui_core"
-version = "0.1.0"
-dependencies = [
- "http",
- "hyper",
- "hyper-rustls",
- "prost",
- "prost-build",
- "prost-reflect",
- "prost-types",
- "protox",
- "rustls",
- "rustls-pemfile",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tonic",
-]
-
-[[package]]
 name = "protox"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1438,6 +1401,43 @@ name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+
+[[package]]
+name = "stellarpc_app"
+version = "0.1.0"
+dependencies = [
+ "arboard",
+ "crossterm",
+ "http",
+ "lazy_static",
+ "ratatui",
+ "serde_json",
+ "stellarpc_core",
+ "tui-textarea",
+ "tui-widget-list",
+ "unicode-width",
+]
+
+[[package]]
+name = "stellarpc_core"
+version = "0.1.0"
+dependencies = [
+ "http",
+ "hyper",
+ "hyper-rustls",
+ "prost",
+ "prost-build",
+ "prost-reflect",
+ "prost-types",
+ "protox",
+ "rustls",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tonic",
+]
 
 [[package]]
 name = "str-buf"

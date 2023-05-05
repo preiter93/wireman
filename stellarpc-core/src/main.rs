@@ -1,6 +1,6 @@
 use http::Uri;
-use prototui_core::{call_unary_blocking, Result};
-use prototui_core::{init, ProtoDescriptor};
+use stellarpc_core::{call_unary_blocking, Result};
+use stellarpc_core::{init, ProtoDescriptor};
 
 fn main() -> Result<()> {
     let cfg = init()?;

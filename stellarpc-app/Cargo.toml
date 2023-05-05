@@ -1,17 +1,17 @@
 [package]
-name = "prototui_app"
+name = "stellarpc_app"
 version = "0.1.0"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
-repository = "https://github.com/preiter93/prototui"
+repository = "https://github.com/preiter93/stellarpc"
 keywords = ["gRPC", "proto", "TUI"]
 readme = "README.md"
 license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-core = { package = "prototui_core", path = "../prototui-core", version = "0.1.0" }
+core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
 crossterm = "0.26"
 ratatui = "0.20"
 serde_json = "1.0"

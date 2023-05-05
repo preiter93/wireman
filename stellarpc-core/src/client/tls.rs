@@ -1,4 +1,4 @@
-use crate::error::{PTError as Error, Result};
+use crate::error::{Error, Result};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnectorBuilder;
 use hyper_rustls::{ConfigBuilderExt, HttpsConnector};

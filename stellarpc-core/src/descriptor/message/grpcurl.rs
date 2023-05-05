@@ -1,14 +1,14 @@
 use http::Uri;
 
-use crate::error::{PTError as Error, Result};
-use crate::{descriptor::RequestMessage, ProtoTuiConfig};
+use crate::error::{Error, Result};
+use crate::{descriptor::RequestMessage, Config};
 
 /// Returns the grpc request as `grpcurl` command
 ///
 /// # Errors
 /// - Serialize message to json
 pub fn request_as_grpcurl<T: Into<Uri>>(
-    cfg: &ProtoTuiConfig,
+    cfg: &Config,
     uri: T,
     req: &RequestMessage,
 ) -> Result<String> {
@@ -51,7 +51,7 @@ mod test {
     #[test]
     fn test_request_as_grpcurl() {
         // given
-        let given_cfg = ProtoTuiConfig {
+        let given_cfg = Config {
             workspace: "/Users/myworkspace".to_string(),
             files: vec!["test_files/test.proto".to_string()],
             tls: TlsConfig::default(),

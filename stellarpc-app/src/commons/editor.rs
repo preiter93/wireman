@@ -269,8 +269,8 @@ impl From<serde_json::Error> for ErrorKind {
     }
 }
 
-impl From<core::error::PTError> for ErrorKind {
-    fn from(err: core::error::PTError) -> Self {
+impl From<core::error::Error> for ErrorKind {
+    fn from(err: core::error::Error) -> Self {
         Self::default_error(err.to_string())
     }
 }
