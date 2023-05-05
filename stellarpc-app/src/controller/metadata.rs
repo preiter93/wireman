@@ -72,7 +72,7 @@ impl<'a> MetadataController<'a> {
         } else {
             let mut actions = HelpActions::new();
             actions.insert("q", "Quit");
-            actions.insert("M/Esc", "Untoggle metadata");
+            actions.insert("M", "Untoggle metadata");
             actions.insert("i", "Insert mode");
             actions.insert("y", "Yank");
             actions.insert("p", "Paste");

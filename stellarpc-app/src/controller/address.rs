@@ -50,7 +50,7 @@ impl<'a> AddressController<'a> {
             EditorMode::Normal => {
                 let mut actions = HelpActions::new();
                 actions.insert("q", "Quit");
-                actions.insert("A/Esc", "Untoggle address");
+                actions.insert("A", "Untoggle address");
                 actions.insert("i", "Insert mode");
                 actions
             }

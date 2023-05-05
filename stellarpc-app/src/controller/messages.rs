@@ -8,7 +8,7 @@ use crate::{
     model::messages::MessagesModel,
 };
 use core::MethodDescriptor;
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 
 /// Manages the request and response messages.
 pub struct MessagesController<'a> {
@@ -35,12 +35,12 @@ impl<'a> MessagesController<'a> {
 
     /// Key bindings in normal mode
     fn on_key_normal_mode(&mut self, key: KeyEvent) {
-        self.model.request.editor.on_key_normal_mode(key);
-        if key.code == KeyCode::Enter {
-            self.model.call_grpc();
-        }
-        if key.code == KeyCode::Char('Y') {
-            self.model.yank_grpcurl();
+        match key.code {
+            KeyCode::Enter => self.model.call_grpc(),
+            KeyCode::Char('y') if key.modifiers == KeyModifiers::CONTROL => {
+                self.model.yank_grpcurl()
+            }
+            _ => self.model.request.editor.on_key_normal_mode(key),
         }
     }
 
@@ -57,11 +57,11 @@ impl<'a> MessagesController<'a> {
                 let mut actions = HelpActions::default();
                 actions.insert("Tab", "Go to Selection");
                 actions.insert("i", "Insert mode");
-                actions.insert("y", "Yank");
                 actions.insert("p", "Paste");
                 actions.insert("u", "Undo");
+                actions.insert("y", "Yank");
+                actions.insert("<C-y>", "Yank as grpcurl");
                 actions.insert("Enter", "gRPC request");
-                actions.insert("Y", "Yank as grpcurl");
                 actions
             }
             EditorMode::Insert => {
