@@ -1,3 +1,5 @@
+![](img/logo.jpg)
+
 ![](img/screen.png)
 
 ## What is StellaRPC?
