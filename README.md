@@ -1,10 +1,14 @@
 ![](img/logo.jpg)
 
-![](img/screen.png)
+
 
 ## What is StellaRPC?
 
 StellaRPC is a gRPC client that runs in the terminal! Simply put your proto files in a config and be ready to make gRPC request
+
+## Demo
+
+![](img/screen.png)
 
 ## Features:
 - [x] List Services & Methods
