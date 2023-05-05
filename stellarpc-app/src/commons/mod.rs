@@ -1,14 +1,20 @@
+pub mod debug;
 pub mod editor;
 
-use std::slice::Iter;
-
+use crate::theme;
 use ratatui::{
     style::Style,
     text::Span,
     widgets::{Block, Borders},
 };
+use std::slice::Iter;
 
-use crate::theme;
+#[macro_export]
+macro_rules! control_with_key {
+    ($code:expr) => {
+        (KeyModifiers::CONTROL, KeyCode::Char($code))
+    };
+}
 
 /// Default border window. Highlighted borders can have
 /// a different style.

@@ -37,7 +37,7 @@ impl SelectionController {
                 _ => {}
             }
             // Handle key input depending if services or methods
-            // are currently in the selection focus.
+            // are in the selection focus.
             if self.services_selected() {
                 self.on_key_services_focused(key, &mut load_method);
             } else {
@@ -61,7 +61,7 @@ impl SelectionController {
 
     /// Key bindings if services are focused
     fn on_key_methods_focused(&mut self, key: KeyEvent, clear_method: &mut bool) {
-        if key.code == KeyCode::Enter {
+        if key.code == KeyCode::Esc {
             self.model.collapse_methods();
             self.model.clear_method();
             *clear_method = true;
@@ -80,7 +80,7 @@ impl SelectionController {
         actions.insert("Tab", "Go to Request");
         match self.model.state.selection_level() {
             SelectionLevel::Parent => actions.insert("Enter", "Select service"),
-            SelectionLevel::Children => actions.insert("Enter", "Collapse"),
+            SelectionLevel::Children => actions.insert("Esc", "Collapse"),
         }
         actions.insert("j/↓", "down");
         actions.insert("k/↑", "up");

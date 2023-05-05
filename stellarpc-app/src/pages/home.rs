@@ -78,13 +78,9 @@ impl<'a> HomePage<'a> {
             show_metadata: false,
         }
     }
-    /// the key bindings on this page
+    /// the key bingings
     pub fn on_key(&mut self, key: KeyEvent) -> bool {
-        // The currently selected proto method. This state is lifted up
-        // from the list selection and passed to the request window which
-        // loads the proto message in the correct format.
-        let mut load_method = None;
-        let mut clear_method = false;
+        // Window independent key mappings, except if we are in insert mode
         if !self.messages_controller.in_insert_mode()
             && !self.address_controller.in_insert_mode()
             && !self.metadata_controller.in_insert_mode()
@@ -92,39 +88,29 @@ impl<'a> HomePage<'a> {
             match key.code {
                 KeyCode::Char('q') => return true,
                 KeyCode::Tab => self.window = self.window.next(),
-                KeyCode::Char('H') => self.toggle_help(),
-                KeyCode::Char('A') => self.toggle_address(),
-                KeyCode::Char('M') => self.toggle_metadata(),
+                KeyCode::Char('H') => return self.toggle_help(),
+                KeyCode::Char('A') => return self.toggle_address(),
+                KeyCode::Char('M') => return self.toggle_metadata(),
                 _ => {}
             }
         }
+
+        // Window specific key mappings
         match self.window {
             Window::Selection => {
-                (load_method, clear_method) = self.selection_controller.on_key(key);
+                let (load_method, clear_method) = self.selection_controller.on_key(key);
+                // Load the currently selected method. This should only
+                // be called if the method actually has changed
+                if let Some(method) = &load_method {
+                    self.messages_controller.load_method(method);
+                }
+                if clear_method {
+                    self.messages_controller.clear_method();
+                }
             }
             Window::Request => self.messages_controller.on_key(key),
-            Window::Address => {
-                if !self.address_controller.in_insert_mode() && key.code == KeyCode::Esc {
-                    self.toggle_address();
-                } else {
-                    self.address_controller.on_key(key);
-                }
-            }
-            Window::Metadata => {
-                if !self.metadata_controller.in_insert_mode() && key.code == KeyCode::Esc {
-                    self.toggle_metadata();
-                } else {
-                    self.metadata_controller.on_key(key);
-                }
-            }
-        }
-        // Load the currently selected method. This should only
-        // be called if the method actually has changed
-        if let Some(method) = &load_method {
-            self.messages_controller.load_method(method);
-        }
-        if clear_method {
-            self.messages_controller.clear_method();
+            Window::Address => self.address_controller.on_key(key),
+            Window::Metadata => self.metadata_controller.on_key(key),
         }
         false
     }
@@ -196,28 +182,31 @@ impl<'a> HomePage<'a> {
     }
 
     /// Toggle the help window on or off
-    pub fn toggle_help(&mut self) {
+    pub fn toggle_help(&mut self) -> bool {
         self.show_help = !self.show_help;
+        false
     }
 
     /// Toggle the address window on or off
-    pub fn toggle_address(&mut self) {
+    pub fn toggle_address(&mut self) -> bool {
         self.show_address = !self.show_address;
         if self.show_address {
             self.window = Window::Address;
         } else {
             self.window = Window::Request;
         }
+        false
     }
 
     /// Toggle the meetadata window on or off
-    pub fn toggle_metadata(&mut self) {
+    pub fn toggle_metadata(&mut self) -> bool {
         self.show_metadata = !self.show_metadata;
         if self.show_metadata {
             self.window = Window::Metadata;
         } else {
             self.window = Window::Request;
         }
+        false
     }
 }
 
