@@ -10,8 +10,9 @@ StellaRPC is a gRPC client that runs in the terminal! Simply put your proto file
 
 ![](img/screen2.png)
 
+## Features
 
-## Yank as `grpcurl` request
+### Yank as `grpcurl` request
 
 stellaRPC supports copying the the request data as a `grpcurl` command. This makes collaborating with peers a breeze.
 Just type ctrl+y on the Request tab and the request is saved to the clipboard.
@@ -23,7 +24,7 @@ grpcurl -d @ -import-path /User/stellarpc/test_utils -proto grpc_simple/timekeep
 EOM
 ```
 
-## Features:
+
 - [x] List Services & Methods
 - [x] Request can be edited
 - [x] TLS support
