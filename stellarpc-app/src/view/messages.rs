@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::commons::editor::ErrorKind;
 use crate::commons::window_border;
-use crate::controller::MessagesController;
+use crate::controller::Controller;
 use crate::theme;
 use ratatui::backend::Backend;
 use ratatui::layout::Alignment;
@@ -18,25 +18,27 @@ use ratatui::widgets::Paragraph;
 use ratatui::widgets::Wrap;
 use ratatui::Frame;
 
-// Draw a text editor widget
-pub fn draw_request<'a, B>(
+/// TODO: Split into request/error/response
+pub fn render_messages<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
-    controller: &mut MessagesController<'a>,
+    controller: &mut Controller<'a>,
     block: Block<'a>,
 ) where
     B: Backend,
 {
-    // Set the request editors ui
-    let mut request = controller.get_editor_request().clone();
+    let model = &controller.messages.request;
+
+    // Get the request text
+    let mut request = model.editor.clone();
     request.set_style_default();
     request.set_block(block);
 
     // Get the error text from the model
-    let error = controller.get_error();
+    let error = model.editor.get_error();
 
     // Get response text from model
-    let response = controller.response_string();
+    let response = controller.messages.response.editor.get_text_raw();
 
     // Determine size of error and response widget
     let resp_length = if response.is_empty() {
