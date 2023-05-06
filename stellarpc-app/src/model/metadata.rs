@@ -1,26 +1,28 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::{commons::editor::TextEditor, widgets::key_value::KeyValueWidget};
+use crate::{commons::editor::TextEditor, widgets::key_value::KeyValue};
 use std::collections::HashMap;
 use tui_widget_list::SelectableWidgetList;
 
 /// The metadata model
 pub struct MetadataModel<'a> {
-    /// Holds the key value editors and the selection state
-    pub content: SelectableWidgetList<'a, KeyValueWidget<'a>>,
+    /// The key value pairs
+    items: Vec<KeyValue<'a>>,
+
+    /// The currently selected key-value pair
+    selected: Option<usize>,
 }
 
 impl<'a> MetadataModel<'a> {
     pub fn new() -> Self {
-        let items = vec![KeyValueWidget::new()];
-
-        let mut content = SelectableWidgetList::new(items);
-        content.state.select(Some(0));
-        Self { content }
+        Self {
+            items: vec![KeyValue::default()],
+            selected: Some(0),
+        }
     }
 
     pub fn collect(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();
-        for item in &self.content.items {
+        for item in &self.items {
             let key = item.get_key().get_text_raw();
             let val = item.get_val().get_text_raw();
             if !key.is_empty() {
@@ -30,36 +32,41 @@ impl<'a> MetadataModel<'a> {
         map
     }
 
+    /// Returns the metadata as a scrollable widget list
+    pub fn as_widget(&self) -> SelectableWidgetList<'a, KeyValue<'a>> {
+        let mut widget = SelectableWidgetList::new(self.items.clone());
+        widget.state.select(self.selected);
+        widget
+    }
+
     pub fn select_key(&mut self) {
-        self.content
-            .items
-            .iter_mut()
-            .for_each(KeyValueWidget::select_key);
+        if let Some(item) = self.selected.and_then(|index| self.items.get_mut(index)) {
+            item.select_key();
+        }
     }
 
     pub fn select_val(&mut self) {
-        self.content
-            .items
-            .iter_mut()
-            .for_each(KeyValueWidget::select_val);
+        if let Some(item) = self.selected.and_then(|index| self.items.get_mut(index)) {
+            item.select_val();
+        }
     }
 
     pub fn is_key_selected(&self) -> bool {
-        self.content
-            .get_selected()
-            .map_or(false, KeyValueWidget::is_key_selected)
+        self.selected
+            .and_then(|index| self.items.get(index))
+            .map_or(false, KeyValue::is_key_selected)
     }
 
     pub fn get_selected(&self) -> Option<&'_ TextEditor<'a>> {
-        self.content
-            .get_selected()
-            .map(KeyValueWidget::get_selected)
+        self.selected
+            .and_then(|index| self.items.get(index))
+            .map(KeyValue::get_selected)
     }
 
     pub fn get_selected_mut(&mut self) -> Option<&'_ mut TextEditor<'a>> {
-        self.content
-            .get_selected_mut()
-            .map(KeyValueWidget::get_selected_mut)
+        self.selected
+            .and_then(|index| self.items.get_mut(index))
+            .map(KeyValue::get_selected_mut)
     }
 }
 

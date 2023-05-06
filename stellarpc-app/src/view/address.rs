@@ -17,7 +17,7 @@ pub fn render_address<'a, B>(
     B: Backend,
 {
     let editor = &mut controller.address.borrow_mut().editor;
-    editor.set_style_default();
+    editor.update_style();
     editor.set_block(block);
 
     // Determine the widget size

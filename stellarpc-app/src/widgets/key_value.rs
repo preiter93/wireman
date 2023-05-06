@@ -21,9 +21,9 @@ pub struct Tile<'a> {
 }
 
 impl<'a> Tile<'a> {
-    pub fn new() -> Self {
+    pub fn new(text: &str) -> Self {
         Self {
-            editor: TextEditor::new(),
+            editor: TextEditor::from_str(text),
             style: Style::default(),
             block: Block::default(),
         }
@@ -44,7 +44,7 @@ impl<'a> Tile<'a> {
     }
 
     pub fn into_editor(mut self) -> TextEditor<'a> {
-        self.editor.set_style_default();
+        self.editor.update_style();
         self.editor.set_block(self.block);
         self.editor.set_style(self.style);
         self.editor
@@ -52,7 +52,7 @@ impl<'a> Tile<'a> {
 }
 
 #[derive(Clone)]
-pub struct KeyValueWidget<'a> {
+pub struct KeyValue<'a> {
     key: Tile<'a>,
     val: Tile<'a>,
     style: Style,
@@ -60,17 +60,17 @@ pub struct KeyValueWidget<'a> {
     selected: usize,
 }
 
-impl<'a> Default for KeyValueWidget<'a> {
+impl<'a> Default for KeyValue<'a> {
     fn default() -> Self {
-        Self::new()
+        Self::new("", "")
     }
 }
 
-impl<'a> KeyValueWidget<'a> {
-    pub fn new() -> Self {
+impl<'a> KeyValue<'a> {
+    pub fn new(key: &str, val: &str) -> Self {
         Self {
-            key: Tile::new(),
-            val: Tile::new(),
+            key: Tile::new(key),
+            val: Tile::new(val),
             style: Style::default(),
             block: None,
             selected: 0,
@@ -182,18 +182,21 @@ impl<'a> KeyValueWidget<'a> {
                 }
             }
         }
+        // Makes sure that the editor changes in insert mode
+        item.content.key.editor.update_style();
+        item.content.val.editor.update_style();
         item
     }
 }
 
-impl<'a> From<KeyValueWidget<'a>> for WidgetListItem<KeyValueWidget<'a>> {
-    fn from(val: KeyValueWidget<'a>) -> Self {
+impl<'a> From<KeyValue<'a>> for WidgetListItem<KeyValue<'a>> {
+    fn from(val: KeyValue<'a>) -> Self {
         let height = if val.block.is_some() { 5_u16 } else { 3_u16 };
-        Self::new(val, height).modify_fn(KeyValueWidget::modify_fn)
+        Self::new(val, height).modify_fn(KeyValue::modify_fn)
     }
 }
 
-impl<'a> Widget for KeyValueWidget<'a> {
+impl<'a> Widget for KeyValue<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // Set the base style
         let area = match self.block {

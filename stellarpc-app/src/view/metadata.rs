@@ -11,7 +11,7 @@ pub fn render_metadata<'a, B>(
 ) where
     B: Backend,
 {
-    let mut widget = controller.metadata.borrow_mut().content.clone();
+    let mut widget = controller.metadata.borrow_mut().as_widget();
     widget = widget.block(block);
     f.render_widget(&mut widget, area);
 }

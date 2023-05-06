@@ -31,7 +31,7 @@ pub fn render_messages<'a, B>(
 
     // Get the request text
     let mut request = model.editor.clone();
-    request.set_style_default();
+    request.update_style();
     request.set_block(block);
 
     // Get the error text from the model
