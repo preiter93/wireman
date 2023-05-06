@@ -44,6 +44,11 @@ impl<'a> TextEditor<'a> {
         }
     }
 
+    /// Whether we are in insert mode
+    pub fn insert_mode(&self) -> bool {
+        self.mode == EditorMode::Insert
+    }
+
     /// Returns an empty editor
     pub fn from_str(text: &str) -> Self {
         let mut editor = Self::new();
