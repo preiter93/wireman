@@ -117,8 +117,8 @@ impl<'a> TextEditor<'a> {
         }
     }
 
-    /// Set the default style
-    pub fn set_style_default(&mut self) {
+    /// Updates the style depending on the editor mode
+    pub fn update_style(&mut self) {
         // Set the cursor style depending on the mode
         let cursor_style = if self.mode == EditorMode::Insert {
             Style::default()
