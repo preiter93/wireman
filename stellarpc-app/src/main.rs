@@ -1,9 +1,11 @@
+#![allow(dead_code)]
 mod app;
 mod commons;
 mod controller;
 mod model;
 mod pages;
 mod theme;
+mod ui;
 mod view;
 mod widgets;
 use crate::app::{run_app, App};

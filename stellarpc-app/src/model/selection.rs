@@ -56,6 +56,11 @@ impl SelectionModel {
         }
     }
 
+    /// Whether the parent level is selected
+    pub fn is_parent_selected(&self) -> bool {
+        self.state.selection_level() == SelectionLevel::Parent
+    }
+
     /// Select the next service or method, depending on the current
     /// selection level.
     pub fn next(&mut self) {
@@ -158,7 +163,7 @@ impl SelectionModel {
     }
 
     /// Return the descrption of the currently selected method
-    pub fn get_selected_method(&self) -> Option<MethodDescriptor> {
+    pub fn selected_method(&self) -> Option<MethodDescriptor> {
         if let (Some(service), Some(i)) = (self.get_selected_service(), self.state.selected_child())
         {
             self.core_client
@@ -173,7 +178,7 @@ impl SelectionModel {
 
     /// Expands a service to show its methods. This is handled in the lists
     /// local state.
-    pub fn expand_service(&mut self) {
+    pub fn expand(&mut self) {
         if let Some(service) = self.get_selected_service() {
             // do not expand if the service has no methods
             if self.core_client.borrow().get_methods(&service).is_empty() {
@@ -184,7 +189,7 @@ impl SelectionModel {
         }
     }
 
-    pub fn collapse_methods(&mut self) {
+    pub fn collapse(&mut self) {
         self.state.collapse_children();
     }
 

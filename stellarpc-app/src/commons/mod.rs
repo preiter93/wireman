@@ -52,6 +52,8 @@ pub fn window_border(title: &str, highlighted: bool) -> Block {
         .border_style(border_style)
 }
 
+type HelpAction = (&'static str, &'static str);
+
 /// A list of help actions. Only used for displaying.
 pub struct HelpActions {
     items: Vec<(&'static str, &'static str)>,
@@ -61,6 +63,11 @@ impl HelpActions {
     /// Returns empty map
     pub fn new() -> Self {
         Self { items: Vec::new() }
+    }
+
+    /// Returns actions from items
+    pub fn from_items(items: Vec<HelpAction>) -> Self {
+        Self { items }
     }
 
     /// Insert a action
