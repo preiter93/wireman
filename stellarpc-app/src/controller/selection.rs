@@ -28,11 +28,11 @@ impl SelectionController {
             match key.code {
                 KeyCode::Down | KeyCode::Char('j') => {
                     self.model.next();
-                    load_method = self.model.get_selected_method();
+                    load_method = self.model.selected_method();
                 }
                 KeyCode::Up | KeyCode::Char('k') => {
                     self.model.previous();
-                    load_method = self.model.get_selected_method();
+                    load_method = self.model.selected_method();
                 }
                 _ => {}
             }
@@ -54,15 +54,15 @@ impl SelectionController {
         load_method: &mut Option<MethodDescriptor>,
     ) {
         if key.code == KeyCode::Enter {
-            self.model.expand_service();
-            *load_method = self.model.get_selected_method();
+            self.model.expand();
+            *load_method = self.model.selected_method();
         }
     }
 
     /// Key bindings if services are focused
     fn on_key_methods_focused(&mut self, key: KeyEvent, clear_method: &mut bool) {
         if key.code == KeyCode::Esc {
-            self.model.collapse_methods();
+            self.model.collapse();
             self.model.clear_method();
             *clear_method = true;
         }
