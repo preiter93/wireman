@@ -3,7 +3,8 @@ pub mod messages;
 pub mod metadata;
 pub mod selection;
 
-pub use address::draw_address;
-pub use messages::draw_request;
-pub use metadata::draw_metadata;
-pub use selection::draw_selection_and_help;
+pub use address::render_address;
+pub use messages::render_messages;
+pub use metadata::render_metadata;
+pub use selection::render_help;
+pub use selection::render_selection;
