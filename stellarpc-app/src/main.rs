@@ -1,9 +1,8 @@
-#![allow(dead_code)]
+#![allow(clippy::cast_possible_truncation)]
 mod app;
 mod commons;
 mod controller;
 mod model;
-mod pages;
 mod theme;
 mod ui;
 mod view;

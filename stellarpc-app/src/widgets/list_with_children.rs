@@ -1,9 +1,4 @@
-#![allow(
-    dead_code,
-    clippy::cast_possible_truncation,
-    clippy::too_many_lines,
-    clippy::module_name_repetitions
-)]
+#![allow(dead_code, clippy::too_many_lines, clippy::module_name_repetitions)]
 use ratatui::{
     buffer::Buffer,
     layout::{Corner, Rect},

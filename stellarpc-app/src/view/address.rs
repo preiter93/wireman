@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+use crate::controller::Controller;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -6,18 +7,16 @@ use ratatui::{
     Frame,
 };
 
-use crate::controller::AddressController;
-
 /// Draw the widget that lets the user input metadata
-pub fn draw_address<'a, B>(
+pub fn render_address<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
-    controller: &mut AddressController<'a>,
+    controller: &mut Controller<'a>,
     block: Block<'a>,
 ) where
     B: Backend,
 {
-    let editor = &mut controller.model.borrow_mut().editor;
+    let editor = &mut controller.address.borrow_mut().editor;
     editor.set_style_default();
     editor.set_block(block);
 
