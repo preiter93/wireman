@@ -35,9 +35,23 @@ pub fn request_as_grpcurl<T: Into<Uri>>(
     let json_data = serde_json::to_string_pretty(&parsed)
         .map_err(|_| Error::InternalError("failed to pretty format json".to_string()))?;
 
+    // The metadata if available
+    let metadata = req
+        .get_metadata()
+        .as_ref()
+        .map(|map| {
+            map.clone()
+                .into_headers()
+                .iter()
+                .map(|(key, val)| format!(" -H \"{}: {}\"", key, val.to_str().unwrap()))
+                .collect::<Vec<_>>()
+                .join("")
+        })
+        .unwrap_or_default();
+
     let cmd = format!(
-        "grpcurl -d @ -import-path {} -proto {} -plaintext {}:{} {} <<EOM\n{}\nEOM",
-        import, proto, host, port, method, json_data
+        "grpcurl -d @ -import-path {} -proto {}{} -plaintext {}:{} {} <<EOM\n{}\nEOM",
+        import, proto, metadata, host, port, method, json_data
     );
     Ok(cmd)
 }

@@ -5,9 +5,6 @@ use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 
-/// The shell command of grpcurl.
-pub static CMD_GRPC: &str = "grpcurl";
-
 /// The top level config.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct Config {
