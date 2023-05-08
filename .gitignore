@@ -1,3 +1,4 @@
 /target
 /test_utils/grpc_simple/proto
 /stellarpc-app/debug.log
+/stellarpc-app/cfg.json
