@@ -8,6 +8,7 @@ mod ui;
 mod view;
 mod widgets;
 use crate::app::{run_app, App};
+use commons::debug::log_to_file;
 use core::init_from_file;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -15,7 +16,7 @@ use crossterm::{
 };
 use model::CoreClient;
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{error::Error, io};
+use std::{env, error::Error, io};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -38,9 +39,20 @@ fn main() -> Result<()> {
 
 /// Initiate the core client.
 fn init_core_client() -> Result<CoreClient> {
-    let cfg = init_from_file("./config.json")?;
+    let cfg_file = get_env();
+    log_to_file(cfg_file.clone());
+    let cfg = init_from_file(&cfg_file)?;
 
     CoreClient::new(cfg)
+}
+
+fn get_env() -> String {
+    let args: Vec<String> = env::args().collect();
+    log_to_file(args.clone());
+    if let Some(config) = args.get(1) {
+        return config.to_string();
+    }
+    "config.json".to_string()
 }
 
 /// Initializes the terminal.
