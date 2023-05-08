@@ -173,6 +173,18 @@ impl<'a> MessagesModel<'a> {
             // Address
             let address = self.address_model.borrow().editor.get_text_raw();
 
+            // Metadata
+            let metadata_map = self.metadata_model.borrow().collect();
+            for (key, val) in metadata_map {
+                let result = req.insert_metadata(&key, &val);
+                if result.is_err() {
+                    let err = ErrorKind::format_error("failed to insert metadata".to_string());
+                    self.request.editor.set_error(Some(err));
+                    self.response.clear();
+                    return;
+                }
+            }
+
             // Yank
             if let Ok(grpcurl) = self.request.core_client.borrow().grpcurl(&req, &address) {
                 TextEditor::yank_to_clipboard(&grpcurl);
