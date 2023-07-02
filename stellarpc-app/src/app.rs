@@ -1,4 +1,4 @@
-use crate::{controller::Controller, model::CoreClient, ui::render};
+use crate::{controller::Controller, model::CoreClient, view::render};
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Terminal};
 
