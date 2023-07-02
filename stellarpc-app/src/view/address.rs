@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+use super::util::centered_rect_length;
 use crate::controller::Controller;
 use ratatui::{
     backend::Backend,
@@ -7,9 +8,6 @@ use ratatui::{
     Frame,
 };
 
-use super::util::centered_rect_length;
-
-/// Draw the widget that lets the user input metadata
 pub fn render_address_popup<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
@@ -22,10 +20,8 @@ pub fn render_address_popup<'a, B>(
     editor.update_style();
     editor.set_block(block);
 
-    // Determine the widget size
     let popup_area = centered_rect_length(90, 4, area);
 
-    // Render metadata
     f.render_widget(Clear, popup_area);
     f.render_widget(editor.widget(), popup_area);
 }
