@@ -1,12 +1,17 @@
+pub mod address;
+pub mod help;
+pub mod messages;
+pub mod metadata;
+pub mod selection;
+
 use crate::commons::window_border;
 use crate::controller::Controller;
 use crate::controller::Window;
-use crate::view::render_address;
-use crate::view::render_help;
-use crate::view::render_messages;
-use crate::view::render_metadata;
-use crate::view::render_selection;
-
+use crate::view::address::render_address;
+use crate::view::help::render_help;
+use crate::view::messages::render_messages;
+use crate::view::metadata::render_metadata;
+use crate::view::selection::render_selection;
 use ratatui::backend::Backend;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
