@@ -3,15 +3,12 @@ pub mod help;
 pub mod messages;
 pub mod metadata;
 pub mod selection;
+pub(super) mod util;
 
 use crate::commons::window_border;
 use crate::controller::Controller;
 use crate::controller::Window;
-use crate::view::address::render_address;
 use crate::view::help::render_help;
-use crate::view::messages::render_messages;
-use crate::view::metadata::render_metadata;
-use crate::view::selection::render_selection;
 use ratatui::backend::Backend;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -19,6 +16,11 @@ use ratatui::layout::Rect;
 use ratatui::Frame;
 use std::cmp::max;
 use std::rc::Rc;
+
+use self::address::render_address_popup;
+use self::messages::render_messages;
+use self::metadata::render_metadata_popup;
+use self::selection::render_selection;
 
 /// render the widgets of this page
 pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
@@ -40,29 +42,30 @@ pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
 
     render_help(f, chunks_l[1], controller, &window_border("Help", false));
 
-    // Right column
-    let chunks_r = split_right_column(chunks[1], controller);
-
-    render_address(
-        f,
-        chunks_r[0],
-        controller,
-        window_border("Address", controller.window == Window::Address),
-    );
-
-    render_metadata(
-        f,
-        chunks_r[1],
-        controller,
-        window_border("Metadata", controller.window == Window::Metadata),
-    );
-
     render_messages(
         f,
-        chunks_r[2],
+        chunks[1],
         controller,
         window_border("Request", controller.window == Window::Request),
     );
+
+    if controller.show_address {
+        render_address_popup(
+            f,
+            f.size(),
+            controller,
+            window_border("Address", controller.window == Window::Address),
+        );
+    }
+
+    if controller.show_metadata {
+        render_metadata_popup(
+            f,
+            f.size(),
+            controller,
+            window_border("Metadata", controller.window == Window::Metadata),
+        );
+    }
 }
 
 /// Split left column into selection and help
@@ -74,20 +77,5 @@ fn split_left_column(area: Rect, controller: &Controller) -> Rc<[Rect]> {
         .map_or(0, |action| max(14, action.len()) as u16 + 2);
     Layout::default()
         .constraints([Constraint::Min(0), Constraint::Length(help_height)].as_ref())
-        .split(area)
-}
-
-fn split_right_column(area: Rect, controller: &Controller) -> Rc<[Rect]> {
-    let address_length = if controller.show_address { 3 } else { 0 };
-    let metadata_length = if controller.show_metadata { 5 } else { 0 };
-    Layout::default()
-        .constraints(
-            [
-                Constraint::Length(address_length),
-                Constraint::Length(metadata_length),
-                Constraint::Min(0),
-            ]
-            .as_ref(),
-        )
         .split(area)
 }

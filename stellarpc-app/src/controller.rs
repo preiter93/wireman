@@ -192,7 +192,7 @@ impl<'a> Controller<'a> {
                 }
             }
             KeyCode::Char('H') => self.toggle_help(),
-            KeyCode::Char('M') => self.toggle_metadata(),
+            KeyCode::Char('M') | KeyCode::Esc => self.toggle_metadata(),
             _ => {
                 if let Some(editor) = model.borrow_mut().get_selected_mut() {
                     editor.on_key_normal_mode(key);
@@ -206,7 +206,7 @@ impl<'a> Controller<'a> {
         let model = &mut self.address;
         match key.code {
             KeyCode::Char('H') => self.toggle_help(),
-            KeyCode::Char('A') => self.toggle_address(),
+            KeyCode::Char('A') | KeyCode::Esc => self.toggle_address(),
             _ => {
                 model.borrow_mut().editor.on_key_normal_mode(key);
             }
