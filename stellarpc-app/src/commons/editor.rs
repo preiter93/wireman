@@ -81,6 +81,16 @@ impl<'a> TextEditor<'a> {
         self.editor = TextArea::new(vec![]);
     }
 
+    /// Go into normal mode
+    pub fn set_normal_mode(&mut self) {
+        self.mode = EditorMode::Normal;
+    }
+
+    /// Go into insert mode
+    pub fn set_insert_mode(&mut self) {
+        self.mode = EditorMode::Insert;
+    }
+
     /// Paste text from clipboard to editor
     pub fn paste_from_clipboard(&mut self) {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
