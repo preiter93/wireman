@@ -104,8 +104,19 @@ impl<'a> Controller<'a> {
             Window::Selection => (),
             Window::Request => self.messages.request.editor.on_key_insert_mode(key),
             Window::Metadata => {
-                if let Some(editor) = self.metadata.borrow_mut().get_selected_mut() {
-                    editor.on_key_insert_mode(key);
+                let mut model = self.metadata.borrow_mut();
+                if let Some(editor) = model.get_selected_mut() {
+                    // change between key and value on tab
+                    if key.code == KeyCode::Tab {
+                        editor.set_normal_mode();
+                        if model.is_key_selected() {
+                            model.select_val();
+                        } else {
+                            model.select_key();
+                        }
+                    } else {
+                        editor.on_key_insert_mode(key);
+                    }
                 }
             }
             Window::Address => self.address.borrow_mut().editor.on_key_insert_mode(key),
@@ -159,7 +170,9 @@ impl<'a> Controller<'a> {
             KeyCode::Char('y') if key.modifiers == KeyModifiers::CONTROL => {
                 model.yank_grpcurl();
             }
-            KeyCode::Enter => model.call_grpc(),
+            KeyCode::Enter => {
+                model.call_grpc();
+            }
             KeyCode::Char('H') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),
