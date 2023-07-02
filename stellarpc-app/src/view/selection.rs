@@ -1,14 +1,12 @@
 #![allow(clippy::cast_possible_truncation)]
 use crate::controller::Controller;
-use crate::theme;
-use crate::widgets::list_with_children::ListItem;
-use crate::widgets::list_with_children::ListWithChildren;
-use crate::widgets::list_with_children::ListWithChildrenItem;
+use crate::widgets::list::ListItem as ListItem2;
+use crate::widgets::list_with_children::ItemWithChildren;
 use ratatui::backend::Backend;
 use ratatui::layout::Rect;
-use ratatui::style::Style;
 use ratatui::widgets::Block;
 use ratatui::Frame;
+use tui_widget_list::SelectableWidgetList;
 
 /// Draws the service/method selection tile.
 pub fn render_selection<B>(f: &mut Frame<B>, area: Rect, controller: &mut Controller, block: Block)
@@ -16,33 +14,30 @@ where
     B: Backend,
 {
     let model = &mut controller.selection;
-    let widget = model
+    let items: Vec<_> = model
         .items
         .iter()
-        .map(|item| {
-            ListWithChildrenItem::new(
-                item.service.clone(),
-                item.methods
+        .enumerate()
+        .map(|(i, item)| {
+            let service = item.service.clone();
+            let is_expanded = model.state.expanded_parent();
+            let methods = match is_expanded {
+                Some(expanded) if expanded == i => item
+                    .methods
                     .iter()
-                    .map(|child| ListItem::new(child.clone()))
-                    .collect::<Vec<_>>(),
-            )
+                    .map(|x| ListItem2::new(x.clone()))
+                    .collect(),
+                _ => Vec::new(),
+            };
+            let mut methods_list = SelectableWidgetList::new(methods);
+            methods_list.state.select(model.state.selected_child());
+            ItemWithChildren::new(service, methods_list)
         })
-        .collect::<Vec<_>>();
+        .collect();
 
-    let list = ListWithChildren::new(widget)
-        .block(block)
-        .highlight_style(
-            Style::default()
-                .bg(theme::COL_LIST_HIGHLIGHTED_SERVICE_BG)
-                .fg(theme::COL_LIST_HIGHLIGHTED_SERVICE_FG),
-        )
-        .highlight_sub_style(
-            Style::default()
-                .bg(theme::COL_LIST_HIGHLIGHTED_METHOD_BG)
-                .fg(theme::COL_LIST_HIGHLIGHTED_METHOD_FG),
-        )
-        .highlight_symbol(">>");
+    let mut widget = SelectableWidgetList::new(items);
+    widget.state.select(model.state.selected_parent());
+    widget = widget.block(block);
 
-    f.render_stateful_widget(list, area, &mut model.state);
+    f.render_widget(&mut widget, area);
 }
