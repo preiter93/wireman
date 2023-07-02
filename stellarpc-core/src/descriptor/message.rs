@@ -10,11 +10,11 @@ use std::ops::{Deref, DerefMut};
 
 /// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct DynMessage {
+pub struct DynamicMessageWrapper {
     inner: DynamicMessage,
 }
 
-impl Deref for DynMessage {
+impl Deref for DynamicMessageWrapper {
     type Target = DynamicMessage;
 
     fn deref(&self) -> &DynamicMessage {
@@ -22,7 +22,7 @@ impl Deref for DynMessage {
     }
 }
 
-impl DerefMut for DynMessage {
+impl DerefMut for DynamicMessageWrapper {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
@@ -30,7 +30,7 @@ impl DerefMut for DynMessage {
 
 type JsonSerializer = serde_json::Serializer<Vec<u8>>;
 
-impl DynMessage {
+impl DynamicMessageWrapper {
     /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
@@ -141,7 +141,7 @@ mod test {
         assert_eq!(json, expected_json);
     }
 
-    fn load_test_message(method: &str) -> DynMessage {
+    fn load_test_message(method: &str) -> DynamicMessageWrapper {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
@@ -151,7 +151,7 @@ mod test {
             .get_method_by_name("proto.TestService", method)
             .unwrap();
         let request = method.input();
-        DynMessage::new(request)
+        DynamicMessageWrapper::new(request)
     }
 
     #[test]
