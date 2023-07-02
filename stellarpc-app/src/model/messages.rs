@@ -164,16 +164,14 @@ impl<'a> MessagesModel<'a> {
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
-            // Message
+            let address = self.address_model.borrow().editor.get_text_raw();
+
             let mut req = self.request.core_client.borrow().get_request(method);
             let result = req.message.from_json(&self.request.editor.get_text_raw());
             if result.is_err() {
                 return;
             }
-            // Address
-            let address = self.address_model.borrow().editor.get_text_raw();
 
-            // Metadata
             let metadata_map = self.metadata_model.borrow().collect();
             for (key, val) in metadata_map {
                 let result = req.insert_metadata(&key, &val);
@@ -185,7 +183,6 @@ impl<'a> MessagesModel<'a> {
                 }
             }
 
-            // Yank
             if let Ok(grpcurl) = self.request.core_client.borrow().grpcurl(&req, &address) {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }

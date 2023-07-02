@@ -1,11 +1,5 @@
 #![allow(dead_code, clippy::too_many_lines, clippy::module_name_repetitions)]
-use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Style,
-    text::Spans,
-    widgets::{Block, Widget},
-};
+use ratatui::{buffer::Buffer, layout::Rect, style::Style, text::Spans, widgets::Widget};
 use tui_widget_list::{SelectableWidgetList, WidgetListItem};
 
 use super::list::ListItem;
@@ -76,8 +70,6 @@ impl ListWithChildrenState {
 pub struct ItemWithChildren<'a> {
     element: ListItem<'a>,
     list: SelectableWidgetList<'a, ListItem<'a>>,
-    block: Option<Block<'a>>,
-    style: Style,
 }
 
 impl<'a> ItemWithChildren<'a> {
@@ -89,19 +81,7 @@ impl<'a> ItemWithChildren<'a> {
         ItemWithChildren {
             element: ListItem::new(element),
             list: list.into(),
-            block: None,
-            style: Style::default(),
         }
-    }
-
-    pub fn block(mut self, block: Block<'a>) -> Self {
-        self.block = Some(block);
-        self
-    }
-
-    pub fn style(mut self, style: Style) -> Self {
-        self.style = style;
-        self
     }
 
     fn modify_selected(
@@ -132,16 +112,9 @@ impl<'a> From<ItemWithChildren<'a>> for WidgetListItem<ItemWithChildren<'a>> {
 
 impl Widget for ItemWithChildren<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let area = match self.block {
-            Some(b) => {
-                let inner_area = b.inner(area);
-                b.render(area, buf);
-                inner_area
-            }
-            None => area,
-        };
-        buf.set_style(area, self.style);
-
+        if area.width < 1 || area.height < 1 {
+            return;
+        }
         // Render element
         let (x, y) = (area.left(), area.top());
         let element = self.element.as_widget();

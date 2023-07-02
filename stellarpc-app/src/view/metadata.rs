@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+use super::util::centered_rect_percentage;
 use crate::controller::Controller;
 use ratatui::{
     backend::Backend,
@@ -7,9 +8,6 @@ use ratatui::{
     Frame,
 };
 
-use super::util::centered_rect_percentage;
-
-/// Draw the widget that lets the user input metadata
 pub fn render_metadata_popup<'a, B>(
     f: &mut Frame<B>,
     area: Rect,
@@ -20,7 +18,9 @@ pub fn render_metadata_popup<'a, B>(
 {
     let mut widget = controller.metadata.borrow_mut().as_widget();
     widget = widget.block(block);
+
     let popup_area = centered_rect_percentage(90, 20, area);
+
     f.render_widget(Clear, popup_area);
     f.render_widget(&mut widget, popup_area);
 }
