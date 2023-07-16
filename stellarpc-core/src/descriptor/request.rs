@@ -1,10 +1,10 @@
-use super::DynamicMessage;
+use super::{metadata::Metadata, DynamicMessage};
 use crate::{error::Error, Result};
 use http::uri::PathAndQuery;
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
 use std::str::FromStr;
 use tonic::{
-    metadata::{Ascii, MetadataKey, MetadataMap, MetadataValue},
+    metadata::{Ascii, MetadataKey, MetadataValue},
     Request,
 };
 
@@ -13,11 +13,11 @@ use tonic::{
 pub struct RequestMessage {
     pub message: DynamicMessage,
     method_desc: MethodDescriptor,
-    metadata: Option<MetadataMap>,
+    metadata: Option<Metadata>,
 }
 
 impl RequestMessage {
-    /// Construct `RequestMessage` from the Descriptors.
+    /// Instantiate a `RequestMessage` from the Descriptors.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc);
@@ -28,25 +28,25 @@ impl RequestMessage {
         }
     }
 
-    /// Returns the Message name
+    /// Returns the Message name.
     #[must_use]
     pub fn message_name(&self) -> String {
         self.message_descriptor().name().to_string()
     }
 
-    /// Returns the message descriptor
+    /// Returns the message descriptor.
     #[must_use]
     pub fn message_descriptor(&self) -> MessageDescriptor {
         self.message.descriptor()
     }
 
-    /// Returns the method descriptor
+    /// Returns the method descriptor.
     #[must_use]
     pub fn method_descriptor(&self) -> MethodDescriptor {
         self.method_desc.clone()
     }
 
-    /// Set a new message
+    /// Set a new message.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
     }
@@ -58,14 +58,14 @@ impl RequestMessage {
     pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
         let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
         let val: MetadataValue<Ascii> = val.parse().map_err(|_| Error::ParseToAsciiError)?;
-        let map = self.metadata.get_or_insert(MetadataMap::new());
+        let map = self.metadata.get_or_insert(Metadata::new());
         map.insert(key, val);
         Ok(())
     }
 
     /// Get the metadata
     #[must_use]
-    pub fn get_metadata(&self) -> &Option<MetadataMap> {
+    pub fn get_metadata(&self) -> &Option<Metadata> {
         &self.metadata
     }
 
@@ -126,7 +126,7 @@ impl RequestMessage {
         let metadata = self.get_metadata().clone();
         let mut req = Request::new(self);
         if let Some(meta) = metadata {
-            *req.metadata_mut() = meta;
+            *req.metadata_mut() = meta.inner;
         }
         req
     }

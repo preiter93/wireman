@@ -1,5 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 pub mod message;
+pub mod metadata;
 pub mod request;
 pub mod response;
 
