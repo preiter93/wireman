@@ -166,24 +166,16 @@ impl<'a> MessagesModel<'a> {
         if let Some(method) = &self.selected_method {
             let address = self.address_model.borrow().editor.get_text_raw();
 
-            let mut req = self.request.core_client.borrow().get_request(method);
-            let result = req.message.from_json(&self.request.editor.get_text_raw());
-            if result.is_err() {
-                return;
-            }
+            let message = self.request.editor.get_text_raw();
 
             let metadata_map = self.metadata_model.borrow().collect();
-            for (key, val) in metadata_map {
-                let result = req.insert_metadata(&key, &val);
-                if result.is_err() {
-                    let err = ErrorKind::format_error("failed to insert metadata".to_string());
-                    self.request.editor.set_error(Some(err));
-                    self.response.clear();
-                    return;
-                }
-            }
 
-            if let Ok(grpcurl) = self.request.core_client.borrow().grpcurl(&req, &address) {
+            if let Ok(grpcurl) =
+                self.request
+                    .core_client
+                    .borrow()
+                    .grpcurl(&message, &method, metadata_map, &address)
+            {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }
         }

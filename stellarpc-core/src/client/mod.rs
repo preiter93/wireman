@@ -10,6 +10,7 @@ use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
 
 mod codec;
+pub mod grpcurl;
 pub mod tls;
 
 /// Creates a new grpc client and sends a message to a grpc server.

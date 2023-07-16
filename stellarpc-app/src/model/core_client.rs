@@ -1,10 +1,11 @@
 use crate::commons::editor::ErrorKind;
 use core::{
-    descriptor::{message::grpcurl::request_as_grpcurl, RequestMessage, ResponseMessage},
+    client::grpcurl::request_as_grpcurl,
+    descriptor::{RequestMessage, ResponseMessage},
     Config, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 use http::Uri;
-use std::error::Error;
+use std::{collections::HashMap, error::Error};
 
 /// The [`CoreClient`] calls the proto descriptor and grpc client of the
 /// core package.  
@@ -64,8 +65,15 @@ impl CoreClient {
     }
 
     /// Return a grpcurl request
-    pub fn grpcurl(&self, req: &RequestMessage, address: &str) -> Result<String, String> {
+    pub fn grpcurl(
+        &self,
+        message: &str,
+        method_desc: &MethodDescriptor,
+        metadata: HashMap<String, String>,
+        address: &str,
+    ) -> Result<String, String> {
         let uri = Uri::try_from(address).map_err(|_| "Failed to get uri from address")?;
-        request_as_grpcurl(&self.grpc.0, uri, req).map_err(|err| err.to_string())
+        request_as_grpcurl(&self.grpc.0, uri, message, method_desc, metadata)
+            .map_err(|err| err.to_string())
     }
 }
