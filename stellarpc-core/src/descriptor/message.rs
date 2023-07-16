@@ -4,25 +4,26 @@ mod template;
 use self::template::apply_template_for_message;
 use crate::{error::Error, Result};
 use prost_reflect::{
-    DeserializeOptions, DynamicMessage, MessageDescriptor, ReflectMessage, SerializeOptions,
+    DeserializeOptions, DynamicMessage as DynMessage, MessageDescriptor, ReflectMessage,
+    SerializeOptions,
 };
 use std::ops::{Deref, DerefMut};
 
 /// Wrapper of `DynamicMessage`
 #[derive(Debug, Clone)]
-pub struct DynamicMessageWrapper {
-    inner: DynamicMessage,
+pub struct DynamicMessage {
+    inner: DynMessage,
 }
 
-impl Deref for DynamicMessageWrapper {
-    type Target = DynamicMessage;
+impl Deref for DynamicMessage {
+    type Target = DynMessage;
 
-    fn deref(&self) -> &DynamicMessage {
+    fn deref(&self) -> &DynMessage {
         &self.inner
     }
 }
 
-impl DerefMut for DynamicMessageWrapper {
+impl DerefMut for DynamicMessage {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
@@ -30,11 +31,11 @@ impl DerefMut for DynamicMessageWrapper {
 
 type JsonSerializer = serde_json::Serializer<Vec<u8>>;
 
-impl DynamicMessageWrapper {
+impl DynamicMessage {
     /// Construct a `Message` from a `MessageDescriptor`
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
-        let message = DynamicMessage::new(message_desc);
+        let message = DynMessage::new(message_desc);
         Self { inner: message }
     }
 
@@ -56,7 +57,7 @@ impl DynamicMessageWrapper {
     /// - Failed to deserialize message
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
-        let msg = DynamicMessage::deserialize_with_options(
+        let msg = DynMessage::deserialize_with_options(
             self.descriptor(),
             &mut de,
             &DeserializeOptions::new(),
@@ -141,7 +142,7 @@ mod test {
         assert_eq!(json, expected_json);
     }
 
-    fn load_test_message(method: &str) -> DynamicMessageWrapper {
+    fn load_test_message(method: &str) -> DynamicMessage {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
@@ -151,7 +152,7 @@ mod test {
             .get_method_by_name("proto.TestService", method)
             .unwrap();
         let request = method.input();
-        DynamicMessageWrapper::new(request)
+        DynamicMessage::new(request)
     }
 
     #[test]

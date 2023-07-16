@@ -1,4 +1,4 @@
-use super::DynamicMessageWrapper;
+use super::DynamicMessage;
 use crate::{error::Error, Result};
 use http::uri::PathAndQuery;
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
@@ -11,7 +11,7 @@ use tonic::{
 /// Holds all the necessary data for a grpc request
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
-    pub message: DynamicMessageWrapper,
+    pub message: DynamicMessage,
     method_desc: MethodDescriptor,
     metadata: Option<MetadataMap>,
 }
@@ -20,7 +20,7 @@ impl RequestMessage {
     /// Construct `RequestMessage` from the Descriptors.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
-        let message = DynamicMessageWrapper::new(message_desc);
+        let message = DynamicMessage::new(message_desc);
         Self {
             method_desc,
             message,
@@ -47,7 +47,7 @@ impl RequestMessage {
     }
 
     /// Set a new message
-    pub fn set_message(&mut self, message: DynamicMessageWrapper) {
+    pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
     }
 
