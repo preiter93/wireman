@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 
 service TestService {
   rpc Simple (SimpleReq) returns (EmptyResp) {}
+  rpc Multiple (MultipleReq) returns (EmptyResp) {}
   rpc Repeated (RepeatedReq) returns (EmptyResp) {}
   rpc Nested (NestedReq) returns (EmptyResp) {}
   rpc Enum (EnumReq) returns (EmptyResp) {}
@@ -15,6 +16,11 @@ service TestService {
 
 message SimpleReq {
   int32 number = 1;
+}
+
+message MultipleReq {
+  string id = 1;
+  int32 number = 2;
 }
 
 message RepeatedReq {
