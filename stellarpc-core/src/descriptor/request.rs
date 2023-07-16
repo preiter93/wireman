@@ -1,7 +1,7 @@
 use super::{metadata::Metadata, DynamicMessage};
 use crate::{error::Error, Result};
 use http::uri::PathAndQuery;
-use prost_reflect::{MessageDescriptor, MethodDescriptor};
+use prost_reflect::{MessageDescriptor, MethodDescriptor, SerializeOptions};
 use std::str::FromStr;
 use tonic::{
     metadata::{Ascii, MetadataKey, MetadataValue},
@@ -69,43 +69,6 @@ impl RequestMessage {
         &self.metadata
     }
 
-    // /// Deserialize a `ProtoMessage` from a json string
-    // ///
-    // /// # Errors
-    // /// - Failed to deserialize message
-    // pub fn from_json(&mut self, json: &str) -> Result<()> {
-    //     let mut de = serde_json::Deserializer::from_str(json);
-    //     let msg = DynamicMessage::deserialize_with_options(
-    //         self.get_message_descriptor(),
-    //         &mut de,
-    //         &DeserializeOptions::new(),
-    //     )
-    //     .map_err(Error::DeserializeMessage)?;
-    //     de.end().map_err(Error::DeserializeMessage)?;
-    //     *self.message = msg;
-    //     Ok(())
-    // }
-    //
-    // /// Serialize a `ProtoMessage` to a json string
-    // ///
-    // /// # Errors
-    // /// - Failed to convert utf8 to String
-    // /// - Failed to serialize message
-    // pub fn to_json(&self) -> Result<String> {
-    //     let mut s = serde_json::Serializer::new(Vec::new());
-    //     self.message
-    //         .serialize_with_options(
-    //             &mut s,
-    //             &SerializeOptions::new()
-    //                 .stringify_64_bit_integers(false)
-    //                 .skip_default_fields(false),
-    //         )
-    //         .map_err(Error::SerializeProtoMessage)?;
-    //
-    //     String::from_utf8(s.into_inner())
-    //         .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
-    // }
-
     /// Returns the uri path for grpc calls
     ///
     /// # Panics
@@ -129,6 +92,29 @@ impl RequestMessage {
             *req.metadata_mut() = meta.inner;
         }
         req
+    }
+
+    /// Serialize a `RequestMessage` to json
+    pub fn to_json(&self) -> Result<String> {
+        let mut s = serde_json::Serializer::new(Vec::new());
+
+        self.message
+            .serialize_with_options(
+                &mut s,
+                &SerializeOptions::new()
+                    .stringify_64_bit_integers(false)
+                    .skip_default_fields(false),
+            )
+            .map_err(Error::SerializeJsonError)?;
+
+        if let Some(metadata) = &self.metadata {
+            metadata
+                .serialize(&mut s)
+                .map_err(Error::SerializeJsonError)?;
+        }
+
+        String::from_utf8(s.into_inner())
+            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
 }
 
@@ -181,5 +167,19 @@ mod test {
             message.message_descriptor(),
             given_message.message_descriptor()
         );
+    }
+
+    #[test]
+    fn test_to_json() {
+        // given
+        let mut given_message = load_test_message("Simple");
+        given_message.insert_metadata("key", "value").unwrap();
+
+        // when
+        let json = given_message.to_json().unwrap();
+
+        // then
+        let expected_json = "{\"number\":0}{\"key\":\"value\"}";
+        assert_eq!(json, expected_json);
     }
 }
