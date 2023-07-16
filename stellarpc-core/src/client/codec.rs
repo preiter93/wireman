@@ -1,5 +1,5 @@
 //! This file is taken from `https://github.com/andrewhickman/grpc-client`
-use crate::descriptor::{DynamicMessageWrapper, RequestMessage, ResponseMessage};
+use crate::descriptor::{DynamicMessage, RequestMessage, ResponseMessage};
 use prost_reflect::prost::Message;
 use prost_reflect::MethodDescriptor;
 use tonic::{
@@ -51,7 +51,7 @@ impl Decoder for DynamicCodec {
     type Error = Status;
 
     fn decode(&mut self, src: &mut DecodeBuf<'_>) -> Result<Option<Self::Item>, Self::Error> {
-        let mut message = DynamicMessageWrapper::new(self.0.output());
+        let mut message = DynamicMessage::new(self.0.output());
         message
             .merge(src)
             .map_err(|err| Status::internal(err.to_string()))?;
