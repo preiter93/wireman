@@ -51,7 +51,7 @@ impl DynamicMessage {
         self.inner.descriptor()
     }
 
-    /// Deserialize a `DynMessage` from a json string
+    /// Deserialize a `DynamicMessage` from a json string
     ///
     /// # Errors
     /// - Failed to deserialize message
@@ -68,7 +68,7 @@ impl DynamicMessage {
         Ok(())
     }
 
-    /// Serialize a `DynMessage` to json.
+    /// Serialize a `DynamicMessage` to json.
     ///
     /// # Errors
     /// - Failed to convert utf8 to String
@@ -171,7 +171,7 @@ mod test {
     #[test]
     fn test_from_json() {
         // given
-        let mut given_message = load_test_message("Simple");
+        let mut given_message = load_test_message("Multiple");
         let given_json = "{\"number\":1}";
         given_message.from_json(given_json).unwrap();
 

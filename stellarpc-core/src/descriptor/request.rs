@@ -22,8 +22,8 @@ impl RequestMessage {
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc);
         Self {
-            method_desc,
             message,
+            method_desc,
             metadata: None,
         }
     }
