@@ -40,7 +40,8 @@ pub fn request_as_grpcurl<T: Into<Uri>>(
         .get_metadata()
         .as_ref()
         .map(|map| {
-            map.clone()
+            map.inner
+                .clone()
                 .into_headers()
                 .iter()
                 .map(|(key, val)| format!(" -H \"{}: {}\"", key, val.to_str().unwrap()))
