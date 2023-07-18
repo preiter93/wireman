@@ -1411,6 +1411,7 @@ dependencies = [
  "http",
  "lazy_static",
  "ratatui",
+ "serde",
  "serde_json",
  "stellarpc_core",
  "tui-textarea",

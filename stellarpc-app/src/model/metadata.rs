@@ -20,7 +20,21 @@ impl<'a> MetadataModel<'a> {
         }
     }
 
-    pub fn collect(&self) -> HashMap<String, String> {
+    pub fn from_raw(map: &HashMap<String, String>) -> Self {
+        let items = if map.is_empty() {
+            vec![KeyValue::default()]
+        } else {
+            map.iter()
+                .map(|(key, val)| KeyValue::new(key, val))
+                .collect::<Vec<_>>()
+        };
+        Self {
+            items,
+            selected: Some(0),
+        }
+    }
+
+    pub fn as_raw(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();
         for item in &self.items {
             let key = item.get_key().get_text_raw();
