@@ -10,6 +10,12 @@ pub struct Metadata {
     pub(crate) inner: MetadataMap,
 }
 
+impl Default for Metadata {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Metadata {
     pub fn new() -> Self {
         Self {

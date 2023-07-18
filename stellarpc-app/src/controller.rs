@@ -1,7 +1,9 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::{
     commons::{editor::TextEditor, HelpActions},
-    model::{AddressModel, CoreClient, MessagesModel, MetadataModel, SelectionModel},
+    model::{
+        request::Request, AddressModel, CoreClient, MessagesModel, MetadataModel, SelectionModel,
+    },
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{cell::RefCell, rc::Rc};
@@ -172,6 +174,20 @@ impl<'a> Controller<'a> {
             }
             KeyCode::Enter => {
                 model.call_grpc();
+            }
+            KeyCode::Char('S') => {
+                if let Some(method) = &self.messages.selected_method {
+                    let req = Request::from_model(&self.messages);
+                    let fname = Request::fname_from_method(method);
+                    req.write_to_file(&fname);
+                }
+            }
+            KeyCode::Char('R') => {
+                if let Some(method) = &self.messages.selected_method {
+                    let fname = Request::fname_from_method(method);
+                    let req = Request::read_from_file(&fname);
+                    req.set_model(&mut self.messages);
+                }
             }
             KeyCode::Char('H') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),

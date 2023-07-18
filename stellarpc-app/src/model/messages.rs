@@ -21,13 +21,13 @@ pub struct MessagesModel<'a> {
     loaded_cache_id: String,
 
     /// The currently selected method
-    selected_method: Option<MethodDescriptor>,
+    pub(crate) selected_method: Option<MethodDescriptor>,
 
     /// A reference to the address model
-    address_model: Rc<RefCell<AddressModel<'a>>>,
+    pub(super) address_model: Rc<RefCell<AddressModel<'a>>>,
 
     /// A reference to the address model
-    metadata_model: Rc<RefCell<MetadataModel<'a>>>,
+    pub(super) metadata_model: Rc<RefCell<MetadataModel<'a>>>,
 }
 
 impl<'a> MessagesModel<'a> {
@@ -116,7 +116,7 @@ impl<'a> MessagesModel<'a> {
             }
 
             // Metadata
-            let metadata_map = self.metadata_model.borrow().collect();
+            let metadata_map = self.metadata_model.borrow().as_raw();
             for (key, val) in metadata_map {
                 let result = req.insert_metadata(&key, &val);
                 if result.is_err() {
@@ -168,13 +168,13 @@ impl<'a> MessagesModel<'a> {
 
             let message = self.request.editor.get_text_raw();
 
-            let metadata_map = self.metadata_model.borrow().collect();
+            let metadata_map = self.metadata_model.borrow().as_raw();
 
             if let Ok(grpcurl) =
                 self.request
                     .core_client
                     .borrow()
-                    .grpcurl(&message, &method, metadata_map, &address)
+                    .grpcurl(&message, method, metadata_map, &address)
             {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }
