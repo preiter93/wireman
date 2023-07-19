@@ -20,7 +20,7 @@ pub struct Config {
     pub address: String,
     /// The path in which to store the request history
     #[serde(default)]
-    pub history: Option<String>,
+    pub history: String,
 }
 
 impl Config {
@@ -59,7 +59,7 @@ mod test {
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::default(),
             address: "http://localhost:50051".to_string(),
-            history: Some("/Users/test".to_string()),
+            history: "/Users/test".to_string(),
         };
         assert_eq!(cfg, expected);
     }
@@ -83,7 +83,7 @@ mod test {
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             address: String::new(),
-            history: None,
+            history: String::new(),
         };
         assert_eq!(cfg, expected);
     }
