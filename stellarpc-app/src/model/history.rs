@@ -1,16 +1,17 @@
 use chrono::Utc;
 use core::MethodDescriptor;
 use ratatui::text::Span;
+use std::path::PathBuf;
 use tui_widget_list::SelectableWidgetList;
 
 use crate::{commons::debug::log_to_file, widgets::list::ListItem};
 
 use super::{request::Request, MessagesModel};
 
-static DIR_HISTORY: &str = "history";
-
 #[derive(Clone)]
 pub struct HistoryModel {
+    // The filepath where the files are stored
+    path: PathBuf,
     // List of history files for the current method
     pub items: Vec<String>,
     // The index of the selected file
@@ -20,8 +21,9 @@ pub struct HistoryModel {
 }
 
 impl HistoryModel {
-    pub fn new() -> Self {
+    pub fn new(path: PathBuf) -> Self {
         Self {
+            path,
             items: vec!["Test".to_string()],
             selected: None,
         }
@@ -30,15 +32,15 @@ impl HistoryModel {
     pub fn save_history(&self, messages: &MessagesModel) {
         let req = Request::from_model(messages);
         if let Some(method) = &messages.selected_method {
-            let path = Self::path_from_method(method);
-            req.write_to_file(&path)
+            let path = self.path_from_method(method);
+            req.write_to_file(path)
         }
     }
 
     pub fn load_history(&mut self, method: &MethodDescriptor) {
         self.items.clear();
 
-        let files = list_files();
+        let files = list_files(&self.path);
         for file in files {
             if file.ends_with(method.full_name()) {
                 log_to_file(file.clone());
@@ -60,9 +62,9 @@ impl HistoryModel {
         format!("{}_{}", time, method_name)
     }
 
-    pub fn path_from_method(method: &MethodDescriptor) -> String {
+    fn path_from_method(&self, method: &MethodDescriptor) -> PathBuf {
         let fname = Self::filename_from_method(method);
-        format!("{}/{}", DIR_HISTORY, fname)
+        self.path.join(PathBuf::from(fname))
     }
 
     pub fn as_widget(&self) -> SelectableWidgetList<'_, ListItem<'_>> {
@@ -105,16 +107,13 @@ impl HistoryModel {
     }
 }
 
-fn list_files() -> Vec<String> {
-    let paths = std::fs::read_dir(DIR_HISTORY).unwrap();
+fn list_files(dir: &PathBuf) -> Vec<String> {
+    let paths = std::fs::read_dir(dir).unwrap();
 
     let mut files = Vec::new();
-    log_to_file("path");
     for path in paths {
         let path_str = path.unwrap().path().to_str().unwrap().to_string();
-        log_to_file(path_str.clone());
         files.push(path_str);
-        // println!("Name: {}", path.unwrap().path().display())
     }
     files
 }

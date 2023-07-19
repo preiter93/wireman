@@ -18,6 +18,9 @@ pub struct Config {
     /// The default server address
     #[serde(default)]
     pub address: String,
+    /// The path in which to store the request history
+    #[serde(default)]
+    pub history: Option<String>,
 }
 
 impl Config {
@@ -47,7 +50,8 @@ mod test {
                 "lucky.proto",
                 "luke.proto"
             ],
-            "address": "http://localhost:50051"
+            "address": "http://localhost:50051",
+            "history": "/Users/test"
         }"#;
         let cfg = Config::parse_from_str(&data).unwrap();
         let expected = Config {
@@ -55,6 +59,7 @@ mod test {
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::default(),
             address: "http://localhost:50051".to_string(),
+            history: Some("/Users/test".to_string()),
         };
         assert_eq!(cfg, expected);
     }
@@ -78,6 +83,7 @@ mod test {
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             address: String::new(),
+            history: None,
         };
         assert_eq!(cfg, expected);
     }
