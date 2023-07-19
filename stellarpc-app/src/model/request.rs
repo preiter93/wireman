@@ -2,9 +2,7 @@ use crate::model::{AddressModel, MetadataModel};
 
 use super::MessagesModel;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
-static DIR_HISTORY: &str = "history";
+use std::{collections::HashMap, path::PathBuf};
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct Request {
@@ -29,14 +27,11 @@ impl Request {
         serde_json::to_string_pretty(self)
     }
 
-    pub fn write_to_file(&self, path: &str) {
-        let err = std::fs::create_dir_all(DIR_HISTORY);
-        if err.is_ok() {
-            let data = self
-                .to_json()
-                .unwrap_or_else(|_| "Unable converting Request to json".to_string());
-            std::fs::write(path, data).unwrap();
-        }
+    pub fn write_to_file(&self, path: PathBuf) {
+        let data = self
+            .to_json()
+            .unwrap_or_else(|_| "Unable converting Request to json".to_string());
+        std::fs::write(path, data).unwrap();
     }
 
     pub fn read_from_file(path: &str) -> Self {

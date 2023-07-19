@@ -1,15 +1,16 @@
-use crate::{controller::Controller, model::CoreClient, view::render};
+use crate::{controller::Controller, model::CoreClient, view::render, ConfigData};
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Terminal};
 
 pub struct App<'a> {
+    /// Controller handles key events and forwards to the models.
     pub controller: Controller<'a>,
 }
 
 impl<'a> App<'a> {
-    pub fn new(core_client: CoreClient) -> App<'a> {
+    pub fn new(core_client: CoreClient, config: ConfigData) -> App<'a> {
         App {
-            controller: Controller::new(core_client),
+            controller: Controller::new(core_client, config),
         }
     }
 }

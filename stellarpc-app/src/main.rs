@@ -8,26 +8,26 @@ mod view;
 mod widgets;
 use crate::app::{run_app, App};
 use commons::debug::log_to_file;
-use core::init_from_file;
+use core::{init_from_file, Config};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use model::CoreClient;
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{env, error::Error, io};
+use std::{env, error::Error, io, path::PathBuf, str::FromStr};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
-    let core_client = init_core_client().map_err(|err| {
-        // gracefully shutdown if the config cant be parsed
-        reset_terminal().unwrap();
-        err
-    })?;
+    let cfg = init_config()?;
+    let history = init_history(&cfg)?;
+    let core_client = init_core_client(cfg)?;
 
-    let app = App::new(core_client);
+    let config = ConfigData { history };
+
+    let app = App::new(core_client, config);
     run_app(&mut terminal, app).unwrap();
 
     reset_terminal()?;
@@ -36,13 +36,35 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// Initiate the core client.
-fn init_core_client() -> Result<CoreClient> {
+pub struct ConfigData {
+    pub history: PathBuf,
+}
+
+/// Get config
+fn init_config() -> Result<Config> {
     let cfg_file = get_env();
     log_to_file(cfg_file.clone());
-    let cfg = init_from_file(&cfg_file)?;
+    Ok(init_from_file(&cfg_file).map_err(|err| {
+        reset_terminal().unwrap();
+        err
+    })?)
+}
 
-    CoreClient::new(cfg)
+/// Initiate the core client.
+fn init_core_client(cfg: Config) -> Result<CoreClient> {
+    CoreClient::new(cfg).map_err(|err| {
+        reset_terminal().unwrap();
+        err
+    })
+}
+
+/// Instanitate the history path
+fn init_history(cfg: &Config) -> Result<PathBuf> {
+    let path_str = cfg.history.clone().unwrap_or("./history".to_string());
+    Ok(PathBuf::from_str(&path_str).map_err(|err| {
+        reset_terminal().unwrap();
+        err
+    })?)
 }
 
 fn get_env() -> String {

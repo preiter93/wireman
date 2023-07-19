@@ -60,6 +60,7 @@ mod test {
             files: vec!["test_files/test.proto".to_string()],
             tls: TlsConfig::default(),
             address: String::new(),
+            history: None,
         };
         let given_uri = Uri::from_static("http://localhost:50051");
         let test_message = load_test_message("Simple");
