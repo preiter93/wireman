@@ -1,5 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
-use super::{core_client::CoreClient, AddressModel, MetadataModel};
+use super::{core_client::CoreClient, history::HistoryData, AddressModel, MetadataModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
@@ -161,6 +161,18 @@ impl<'a> MessagesModel<'a> {
         }
     }
 
+    pub fn apply_template(&mut self) {
+        if let Some(method) = &self.selected_method {
+            self.request.load_request_template(method);
+        }
+    }
+
+    pub fn apply_history(&mut self, history: &HistoryData) {
+        *self.metadata_model.borrow_mut() = MetadataModel::from_raw(&history.metadata);
+        *self.address_model.borrow_mut() = AddressModel::new(&history.address);
+        self.request.editor.set_text_raw(&history.message);
+    }
+
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
@@ -206,7 +218,7 @@ impl<'a> RequestModel<'a> {
     }
 
     /// Loads a new request message template into the editor.
-    fn load_request_template(&mut self, method: &MethodDescriptor) {
+    pub fn load_request_template(&mut self, method: &MethodDescriptor) {
         let req = self
             .core_client
             .borrow_mut()
