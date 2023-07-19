@@ -2,7 +2,8 @@
 use crate::{
     commons::{editor::TextEditor, HelpActions},
     model::{
-        request::Request, AddressModel, CoreClient, MessagesModel, MetadataModel, SelectionModel,
+        history::HistoryModel, AddressModel, CoreClient, MessagesModel, MetadataModel,
+        SelectionModel,
     },
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -22,6 +23,9 @@ pub struct Controller<'a> {
     /// The model for the metadata field
     pub metadata: Rc<RefCell<MetadataModel<'a>>>,
 
+    /// The model for the request history
+    pub history: HistoryModel,
+
     /// The active window
     pub window: Window,
 
@@ -33,6 +37,9 @@ pub struct Controller<'a> {
 
     /// Whether to display the metadata
     pub show_metadata: bool,
+
+    /// Whether to display the history
+    pub show_history: bool,
 }
 
 impl<'a> Controller<'a> {
@@ -55,15 +62,20 @@ impl<'a> Controller<'a> {
         let messages =
             MessagesModel::new(core_client_rc, Rc::clone(&address), Rc::clone(&metadata));
 
+        // The history model
+        let history = HistoryModel::new();
+
         Self {
             selection,
             messages,
             address,
             metadata,
+            history,
             window: Window::Selection,
             show_help: true,
             show_address: false,
             show_metadata: false,
+            show_history: false,
         }
     }
     /// Handles key events. Returns true if the app should quit
@@ -85,6 +97,7 @@ impl<'a> Controller<'a> {
             Window::Request => self.on_event_request(key),
             Window::Metadata => self.on_event_metadata(key),
             Window::Address => self.on_event_address(key),
+            Window::History => self.on_event_history(key),
         }
         false
     }
@@ -103,7 +116,6 @@ impl<'a> Controller<'a> {
     // Handle key events in insert mode
     pub fn on_event_insert_mode(&mut self, key: KeyEvent) {
         match self.window {
-            Window::Selection => (),
             Window::Request => self.messages.request.editor.on_key_insert_mode(key),
             Window::Metadata => {
                 let mut model = self.metadata.borrow_mut();
@@ -122,6 +134,7 @@ impl<'a> Controller<'a> {
                 }
             }
             Window::Address => self.address.borrow_mut().editor.on_key_insert_mode(key),
+            _ => (),
         }
     }
 
@@ -176,22 +189,17 @@ impl<'a> Controller<'a> {
                 model.call_grpc();
             }
             KeyCode::Char('S') => {
-                if let Some(method) = &self.messages.selected_method {
-                    let req = Request::from_model(&self.messages);
-                    let fname = Request::fname_from_method(method);
-                    req.write_to_file(&fname);
-                }
-            }
-            KeyCode::Char('R') => {
-                if let Some(method) = &self.messages.selected_method {
-                    let fname = Request::fname_from_method(method);
-                    let req = Request::read_from_file(&fname);
-                    req.set_model(&mut self.messages);
-                }
+                self.history.save_history(&self.messages);
             }
             KeyCode::Char('H') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),
+            KeyCode::Char('L') => {
+                if let Some(method) = &model.selected_method {
+                    self.history.load_history(method);
+                    self.toggle_history();
+                }
+            }
             _ => model.request.editor.on_key_normal_mode(key),
         }
     }
@@ -226,6 +234,24 @@ impl<'a> Controller<'a> {
             _ => {
                 model.borrow_mut().editor.on_key_normal_mode(key);
             }
+        }
+    }
+
+    /// handle key events on the history window
+    fn on_event_history(&mut self, key: KeyEvent) {
+        let model = &mut self.history;
+        match key.code {
+            KeyCode::Char('j') | KeyCode::Down => {
+                model.next();
+                self.history.apply_history(&mut self.messages);
+            }
+            KeyCode::Char('k') | KeyCode::Up => {
+                model.previous();
+                self.history.apply_history(&mut self.messages);
+            }
+            KeyCode::Char('H') => self.toggle_help(),
+            KeyCode::Char('L') | KeyCode::Esc | KeyCode::Enter => self.toggle_history(),
+            _ => {}
         }
     }
 
@@ -287,6 +313,13 @@ impl<'a> Controller<'a> {
                 ("A", "Untoggle address"),
                 ("i", "Insert mode"),
             ])),
+            Window::History => Some(HelpActions::from_items(vec![
+                ("q", "Quit"),
+                ("L", "Untoggle history"),
+                ("Enter", "gRPC request"),
+                ("j/↓", "down"),
+                ("k/↑", "up"),
+            ])),
         }
     }
 
@@ -305,11 +338,21 @@ impl<'a> Controller<'a> {
         };
     }
 
-    /// Toggle the meetadata window on or off
+    /// Toggle the metadata window on or off
     pub fn toggle_metadata(&mut self) {
         self.show_metadata = !self.show_metadata;
         if self.show_metadata {
             self.window = Window::Metadata;
+        } else {
+            self.window = Window::Request;
+        };
+    }
+
+    /// Toggle the history window on or off
+    pub fn toggle_history(&mut self) {
+        self.show_history = !self.show_history;
+        if self.show_history {
+            self.window = Window::History;
         } else {
             self.window = Window::Request;
         };
@@ -321,4 +364,5 @@ pub enum Window {
     Request,
     Address,
     Metadata,
+    History,
 }

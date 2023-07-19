@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 pub mod address;
 pub mod core_client;
+pub mod history;
 pub mod messages;
 pub mod metadata;
 pub mod request;
