@@ -190,14 +190,14 @@ impl<'a> Controller<'a> {
                 model.call_grpc();
             }
             KeyCode::Char('S') => {
-                self.history.save_history(&self.messages);
+                self.history.save(&self.messages);
             }
             KeyCode::Char('H') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),
             KeyCode::Char('L') => {
                 if let Some(method) = &model.selected_method {
-                    self.history.load_history(method);
+                    self.history.load(method);
                     self.toggle_history();
                 }
             }
@@ -244,14 +244,15 @@ impl<'a> Controller<'a> {
         match key.code {
             KeyCode::Char('j') | KeyCode::Down => {
                 model.next();
-                self.history.apply_history(&mut self.messages);
+                self.history.apply(&mut self.messages);
             }
             KeyCode::Char('k') | KeyCode::Up => {
                 model.previous();
-                self.history.apply_history(&mut self.messages);
+                self.history.apply(&mut self.messages);
             }
             KeyCode::Char('H') => self.toggle_help(),
             KeyCode::Char('L') | KeyCode::Esc | KeyCode::Enter => self.toggle_history(),
+            KeyCode::Char('D') => model.delete_selected(),
             _ => {}
         }
     }
@@ -317,6 +318,7 @@ impl<'a> Controller<'a> {
             Window::History => Some(HelpActions::from_items(vec![
                 ("q", "Quit"),
                 ("L", "Untoggle history"),
+                ("D", "Delete selected"),
                 ("Enter", "gRPC request"),
                 ("j/↓", "down"),
                 ("k/↑", "up"),
