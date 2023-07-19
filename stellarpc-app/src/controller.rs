@@ -5,7 +5,7 @@ use crate::{
         history::HistoryModel, AddressModel, CoreClient, MessagesModel, MetadataModel,
         SelectionModel,
     },
-    ConfigData,
+    AppConfig,
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use std::{cell::RefCell, rc::Rc};
@@ -45,7 +45,7 @@ pub struct Controller<'a> {
 
 impl<'a> Controller<'a> {
     /// Instantiate the homepage
-    pub fn new(core_client: CoreClient, config: ConfigData) -> Self {
+    pub fn new(core_client: CoreClient, config: AppConfig) -> Self {
         // The core client is shared
         let core_client_rc = Rc::new(RefCell::new(core_client));
 

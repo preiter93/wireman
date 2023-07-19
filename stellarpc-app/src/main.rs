@@ -24,8 +24,7 @@ fn main() -> Result<()> {
     let cfg = init_config()?;
     let history = init_history(&cfg)?;
     let core_client = init_core_client(cfg)?;
-
-    let config = ConfigData { history };
+    let config = AppConfig { history };
 
     let app = App::new(core_client, config);
     run_app(&mut terminal, app).unwrap();
@@ -36,7 +35,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-pub struct ConfigData {
+pub struct AppConfig {
     pub history: PathBuf,
 }
 
@@ -60,8 +59,12 @@ fn init_core_client(cfg: Config) -> Result<CoreClient> {
 
 /// Instanitate the history path
 fn init_history(cfg: &Config) -> Result<PathBuf> {
-    let path_str = cfg.history.clone().unwrap_or("./history".to_string());
-    Ok(PathBuf::from_str(&path_str).map_err(|err| {
+    let path_str = if cfg.history.is_empty() {
+        "./history"
+    } else {
+        &cfg.history
+    };
+    Ok(PathBuf::from_str(path_str).map_err(|err| {
         reset_terminal().unwrap();
         err
     })?)
