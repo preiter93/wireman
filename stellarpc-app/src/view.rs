@@ -1,5 +1,6 @@
 pub mod address;
 pub mod help;
+pub mod history;
 pub mod messages;
 pub mod metadata;
 pub mod selection;
@@ -18,6 +19,7 @@ use std::cmp::max;
 use std::rc::Rc;
 
 use self::address::render_address_popup;
+use self::history::render_history_popup;
 use self::messages::render_messages;
 use self::metadata::render_metadata_popup;
 use self::selection::render_selection;
@@ -64,6 +66,15 @@ pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
             f.size(),
             controller,
             window_border("Metadata", controller.window == Window::Metadata),
+        );
+    }
+
+    if controller.show_history {
+        render_history_popup(
+            f,
+            f.size(),
+            controller,
+            window_border("History", controller.window == Window::History),
         );
     }
 }

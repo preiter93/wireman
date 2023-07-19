@@ -1,7 +1,6 @@
 use crate::model::{AddressModel, MetadataModel};
 
 use super::MessagesModel;
-use core::MethodDescriptor;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -30,18 +29,18 @@ impl Request {
         serde_json::to_string_pretty(self)
     }
 
-    pub fn write_to_file(&self, fname: &str) {
+    pub fn write_to_file(&self, path: &str) {
         let err = std::fs::create_dir_all(DIR_HISTORY);
         if err.is_ok() {
             let data = self
                 .to_json()
                 .unwrap_or_else(|_| "Unable converting Request to json".to_string());
-            std::fs::write(fname, data).unwrap();
+            std::fs::write(path, data).unwrap();
         }
     }
 
-    pub fn read_from_file(fname: &str) -> Self {
-        let data = std::fs::read_to_string(fname).expect("Unable to read file");
+    pub fn read_from_file(path: &str) -> Self {
+        let data = std::fs::read_to_string(path).expect("Unable to read file");
         serde_json::from_str(&data).unwrap()
     }
 
@@ -49,10 +48,5 @@ impl Request {
         *model.metadata_model.borrow_mut() = MetadataModel::from_raw(&self.metadata);
         *model.address_model.borrow_mut() = AddressModel::new(&self.address);
         model.request.editor.set_text_raw(&self.message);
-    }
-
-    pub fn fname_from_method(method: &MethodDescriptor) -> String {
-        let method_name = method.full_name();
-        format!("{}/{}", DIR_HISTORY, method_name)
     }
 }
