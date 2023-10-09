@@ -28,7 +28,7 @@ where
         }
 
         let table = Table::new(rows)
-            .block(window_border("Help", false))
+            .block(window_border("Help(?)", false))
             .widths(&[Constraint::Length(5), Constraint::Min(15)])
             .column_spacing(1);
 
