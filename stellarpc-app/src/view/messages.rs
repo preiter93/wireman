@@ -50,7 +50,8 @@ pub fn render_messages<'a, B>(
     let chunks = Layout::default()
         .constraints(
             [
-                Constraint::Min(0),
+                // TODO: Add proper sizing
+                Constraint::Min(10),
                 Constraint::Length(err_length),
                 Constraint::Length(resp_length),
             ]
