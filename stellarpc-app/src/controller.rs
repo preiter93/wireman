@@ -169,7 +169,7 @@ impl<'a> Controller<'a> {
                 model.clear_method();
                 self.messages.clear_method();
             }
-            KeyCode::Char('H') => self.toggle_help(),
+            KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),
             _ => {}
@@ -192,10 +192,10 @@ impl<'a> Controller<'a> {
             KeyCode::Char('S') => {
                 self.history.save(&self.messages);
             }
-            KeyCode::Char('H') => self.toggle_help(),
+            KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),
-            KeyCode::Char('L') => {
+            KeyCode::Char('H') => {
                 if let Some(method) = &model.selected_method {
                     self.history.load(method);
                     self.toggle_history();
@@ -216,7 +216,7 @@ impl<'a> Controller<'a> {
                     model.borrow_mut().select_key();
                 }
             }
-            KeyCode::Char('H') => self.toggle_help(),
+            KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('M') | KeyCode::Esc => self.toggle_metadata(),
             _ => {
                 if let Some(editor) = model.borrow_mut().get_selected_mut() {
@@ -230,7 +230,7 @@ impl<'a> Controller<'a> {
     fn on_event_address(&mut self, key: KeyEvent) {
         let model = &mut self.address;
         match key.code {
-            KeyCode::Char('H') => self.toggle_help(),
+            KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('A') | KeyCode::Esc => self.toggle_address(),
             _ => {
                 model.borrow_mut().editor.on_key_normal_mode(key);
@@ -250,8 +250,8 @@ impl<'a> Controller<'a> {
                 model.previous();
                 self.history.apply(&mut self.messages);
             }
-            KeyCode::Char('H') => self.toggle_help(),
-            KeyCode::Char('L') | KeyCode::Esc | KeyCode::Enter => self.toggle_history(),
+            KeyCode::Char('?') => self.toggle_help(),
+            KeyCode::Char('H') | KeyCode::Esc | KeyCode::Enter => self.toggle_history(),
             KeyCode::Char('D') => model.delete_selected(),
             _ => {}
         }
@@ -291,6 +291,8 @@ impl<'a> Controller<'a> {
                 ("p", "Paste"),
                 ("u", "Undo"),
                 ("y", "Yank"),
+                ("S", "Save request"),
+                ("H", "Show history"),
                 ("<C-y>", "Yank as grpcurl"),
                 ("Enter", "gRPC request"),
             ])),
@@ -317,7 +319,7 @@ impl<'a> Controller<'a> {
             ])),
             Window::History => Some(HelpActions::from_items(vec![
                 ("q", "Quit"),
-                ("L", "Untoggle history"),
+                ("H", "Close dialog"),
                 ("D", "Delete selected"),
                 ("Enter", "gRPC request"),
                 ("j/↓", "down"),
