@@ -2,15 +2,15 @@ use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::Style,
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
-use tui_widget_list::WidgetListItem;
+use tui_widget_list::WidgetItem;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
     /// The items text
-    pub text: Spans<'a>,
+    pub text: Line<'a>,
 
     /// The items style
     pub style: Style,
@@ -22,7 +22,7 @@ pub struct ListItem<'a> {
 impl<'a> ListItem<'a> {
     pub fn new<T>(text: T) -> Self
     where
-        T: Into<Spans<'a>>,
+        T: Into<Line<'a>>,
     {
         Self {
             text: text.into(),
@@ -31,63 +31,47 @@ impl<'a> ListItem<'a> {
         }
     }
 
-    pub fn style(mut self, style: Style) -> Self {
-        self.style = style;
-        self
-    }
+    // pub fn style(mut self, style: Style) -> Self {
+    //     self.style = style;
+    //     self
+    // }
 
     pub fn prefix(mut self, prefix: Option<&'a str>) -> Self {
         self.prefix = prefix;
         self
     }
 
-    pub fn width(&self) -> usize {
-        self.text.width()
-    }
+    // pub fn width(&self) -> usize {
+    //     self.text.width()
+    // }
+}
 
-    #[allow(clippy::wrong_self_convention)]
-    pub fn as_widget(self) -> Paragraph<'a> {
-        let text = if let Some(prefix) = self.prefix {
-            prefix_text(self.text, prefix)
-        } else {
-            self.text
-        };
-        Paragraph::new(text).style(self.style)
-    }
-
-    fn modify_selected(
-        mut item: WidgetListItem<Self>,
-        selected: Option<bool>,
-    ) -> WidgetListItem<Self> {
-        if let Some(selected) = selected {
-            if selected {
-                let highlight_style = Style::default()
-                    .bg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_BG)
-                    .fg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_FG);
-                item.content.prefix = Some("  >>");
-                item.content.style = highlight_style;
-            } else {
-                item.content.prefix = Some("    ");
-            }
-        }
+impl<'a> WidgetItem for ListItem<'a> {
+    fn highlighted(&self) -> Self {
+        let mut item = self.clone();
+        let highlight_style = Style::default()
+            .bg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_BG)
+            .fg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_FG);
+        item.prefix = Some("  >>");
+        item.style = highlight_style;
         item
     }
-}
+    fn render(&self, area: Rect, buf: &mut Buffer) {
+        let text = if let Some(prefix) = self.prefix {
+            prefix_text(self.text.clone(), prefix)
+        } else {
+            self.text.clone()
+        };
+        Paragraph::new(text).style(self.style).render(area, buf)
+    }
 
-impl<'a> From<ListItem<'a>> for WidgetListItem<ListItem<'a>> {
-    fn from(val: ListItem<'a>) -> Self {
-        Self::new(val, 1_u16).modify_fn(ListItem::modify_selected)
+    fn height(&self) -> usize {
+        1
     }
 }
 
-impl<'a> Widget for ListItem<'a> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        self.as_widget().render(area, buf);
-    }
-}
-
-fn prefix_text<'a>(text: Spans<'a>, prefix: &'a str) -> Spans<'a> {
+fn prefix_text<'a>(text: Line<'a>, prefix: &'a str) -> Line<'a> {
     let mut line = text;
-    line.0.insert(0, Span::from(prefix));
+    line.spans.insert(0, Span::from(prefix));
     line
 }
