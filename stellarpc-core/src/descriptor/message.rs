@@ -145,7 +145,7 @@ mod test {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
-        let desc = ProtoDescriptor::from_files(files, includes).unwrap();
+        let desc = ProtoDescriptor::new(includes, files).unwrap();
 
         let method = desc
             .get_method_by_name("proto.TestService", method)
@@ -178,7 +178,7 @@ mod test {
         let json = given_message.to_json().unwrap();
 
         // then
-        let expected_json = "{\"number\":1}";
+        let expected_json = "{\"id\":\"\",\"number\":1}";
         assert_eq!(json, expected_json);
     }
 }

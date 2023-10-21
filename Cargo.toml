@@ -2,6 +2,7 @@
 
 members = [
     "stellarpc-core",
+    "stellarpc-config",
     "stellarpc-app",
 ]
 

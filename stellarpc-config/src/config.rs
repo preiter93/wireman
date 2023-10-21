@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::client::tls::TlsConfig;
 use crate::error::Error;
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
@@ -9,7 +8,7 @@ use std::fs::read_to_string;
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct Config {
     /// The top level workspace
-    pub workspace: String,
+    pub includes: Vec<String>,
     /// A list of proto files such as [internal.proto, api.proto]
     pub files: Vec<String>,
     /// Optional TLS settings
@@ -36,16 +35,32 @@ impl Config {
     }
 }
 
+/// The TLS config of the grpc client.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct TlsConfig {
+    /// Custom certificates
+    custom_cert: Option<String>,
+}
+
+impl TlsConfig {
+    /// Instantiate a `TlsConfig`
+    #[must_use]
+    pub fn new(custom_cert: Option<String>) -> Self {
+        Self { custom_cert }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::client::tls::TlsConfig;
 
     #[test]
     fn test_parse_from_str() {
         let data = r#"
         {
-            "workspace": "/Users/myworkspace",
+            "includes": [
+                "/Users/myworkspace"
+            ],
             "files": [
                 "lucky.proto",
                 "luke.proto"
@@ -55,7 +70,7 @@ mod test {
         }"#;
         let cfg = Config::parse_from_str(&data).unwrap();
         let expected = Config {
-            workspace: "/Users/myworkspace".to_string(),
+            includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::default(),
             address: "http://localhost:50051".to_string(),
@@ -68,7 +83,9 @@ mod test {
     fn test_parse_from_str_with_tls() {
         let data = r#"
         {
-            "workspace": "/Users/myworkspace",
+            "includes": [
+                "/Users/myworkspace"
+            ],
             "files": [
                 "lucky.proto",
                 "luke.proto"
@@ -79,7 +96,7 @@ mod test {
         }"#;
         let cfg = Config::parse_from_str(&data).unwrap();
         let expected = Config {
-            workspace: "/Users/myworkspace".to_string(),
+            includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["lucky.proto".to_string(), "luke.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             address: String::new(),

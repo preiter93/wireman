@@ -8,7 +8,7 @@ mod view;
 mod widgets;
 use crate::app::App;
 use commons::debug::log_to_file;
-use core::{init_from_file, Config};
+use config::{init_from_file, Config};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
