@@ -6,7 +6,7 @@ mod model;
 mod theme;
 mod view;
 mod widgets;
-use crate::app::{run_app, App};
+use crate::app::App;
 use commons::debug::log_to_file;
 use core::{init_from_file, Config};
 use crossterm::{
@@ -26,8 +26,7 @@ fn main() -> Result<()> {
     let core_client = init_core_client(cfg)?;
     let config = AppConfig { history };
 
-    let app = App::new(core_client, config);
-    run_app(&mut terminal, app).unwrap();
+    App::run(core_client, config, &mut terminal).unwrap();
 
     reset_terminal()?;
     terminal.show_cursor()?;
