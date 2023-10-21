@@ -23,5 +23,5 @@ pub fn render_address_popup<'a, B>(
     let popup_area = centered_rect_length(90, 4, area);
 
     f.render_widget(Clear, popup_area);
-    f.render_widget(editor.widget(), popup_area);
+    f.render_widget(&*editor, popup_area);
 }

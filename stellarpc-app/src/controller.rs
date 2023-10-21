@@ -117,7 +117,7 @@ impl<'a> Controller<'a> {
     // Handle key events in insert mode
     pub fn on_event_insert_mode(&mut self, key: KeyEvent) {
         match self.window {
-            Window::Request => self.messages.request.editor.on_key_insert_mode(key),
+            Window::Request => self.messages.request.editor.on_key(key),
             Window::Metadata => {
                 let mut model = self.metadata.borrow_mut();
                 if let Some(editor) = model.get_selected_mut() {
@@ -130,11 +130,11 @@ impl<'a> Controller<'a> {
                             model.select_key();
                         }
                     } else {
-                        editor.on_key_insert_mode(key);
+                        editor.on_key(key);
                     }
                 }
             }
-            Window::Address => self.address.borrow_mut().editor.on_key_insert_mode(key),
+            Window::Address => self.address.borrow_mut().editor.on_key(key),
             _ => (),
         }
     }
@@ -165,6 +165,11 @@ impl<'a> Controller<'a> {
                 }
             }
             KeyCode::Esc if !model.is_parent_selected() => {
+                model.collapse();
+                model.clear_method();
+                self.messages.clear_method();
+            }
+            KeyCode::Char('u') if !model.is_parent_selected() => {
                 model.collapse();
                 model.clear_method();
                 self.messages.clear_method();
@@ -201,7 +206,7 @@ impl<'a> Controller<'a> {
                     self.toggle_history();
                 }
             }
-            _ => model.request.editor.on_key_normal_mode(key),
+            _ => model.request.editor.on_key(key),
         }
     }
 
@@ -220,7 +225,7 @@ impl<'a> Controller<'a> {
             KeyCode::Char('M') | KeyCode::Esc => self.toggle_metadata(),
             _ => {
                 if let Some(editor) = model.borrow_mut().get_selected_mut() {
-                    editor.on_key_normal_mode(key);
+                    editor.on_key(key);
                 }
             }
         }
@@ -233,7 +238,7 @@ impl<'a> Controller<'a> {
             KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('A') | KeyCode::Esc => self.toggle_address(),
             _ => {
-                model.borrow_mut().editor.on_key_normal_mode(key);
+                model.borrow_mut().editor.on_key(key);
             }
         }
     }

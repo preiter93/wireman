@@ -1,6 +1,6 @@
 #![allow(dead_code, clippy::too_many_lines, clippy::module_name_repetitions)]
-use ratatui::{buffer::Buffer, layout::Rect, style::Style, text::Spans, widgets::Widget};
-use tui_widget_list::{SelectableWidgetList, WidgetListItem};
+use ratatui::{buffer::Buffer, layout::Rect, style::Style, text::Line, widgets::Widget};
+use tui_widget_list::{WidgetItem, WidgetList};
 
 use super::list::ListItem;
 
@@ -69,57 +69,72 @@ impl ListWithChildrenState {
 #[derive(Clone)]
 pub struct ItemWithChildren<'a> {
     element: ListItem<'a>,
-    list: SelectableWidgetList<'a, ListItem<'a>>,
+    list: WidgetList<'a, ListItem<'a>>,
+    height: usize,
 }
 
 impl<'a> ItemWithChildren<'a> {
     pub fn new<T, U>(element: T, list: U) -> Self
     where
-        T: Into<Spans<'a>>,
-        U: Into<SelectableWidgetList<'a, ListItem<'a>>>,
+        T: Into<Line<'a>>,
+        U: Into<WidgetList<'a, ListItem<'a>>>,
     {
         ItemWithChildren {
             element: ListItem::new(element),
             list: list.into(),
+            height: 1,
         }
     }
 
-    fn modify_selected(
-        mut item: WidgetListItem<Self>,
-        selected: Option<bool>,
-    ) -> WidgetListItem<Self> {
-        if let Some(selected) = selected {
-            if selected {
-                let highlight_style = Style::default()
-                    .bg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_BG)
-                    .fg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_FG);
-                item.content.element.style = highlight_style;
-                item.height = 1_u16 + item.content.list.items.len() as u16;
-                item.content.element = item.content.element.prefix(Some(">>"));
-            } else {
-                item.content.element = item.content.element.prefix(Some("  "));
-            }
-        }
+    // fn modify_selected(
+    //     mut item: WidgetListItem<Self>,
+    //     selected: Option<bool>,
+    // ) -> WidgetListItem<Self> {
+    //     if let Some(selected) = selected {
+    //         if selected {
+    //             let highlight_style = Style::default()
+    //                 .bg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_BG)
+    //                 .fg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_FG);
+    //             item.content.element.style = highlight_style;
+    //             item.height = 1_u16 + item.content.list.items.len() as u16;
+    //             item.content.element = item.content.element.prefix(Some(">>"));
+    //         } else {
+    //             item.content.element = item.content.element.prefix(Some("  "));
+    //         }
+    //     }
+    //     item
+    // }
+}
+
+// impl<'a> From<ItemWithChildren<'a>> for WidgetListItem<ItemWithChildren<'a>> {
+//     fn from(val: ItemWithChildren<'a>) -> Self {
+//         Self::new(val, 1_u16).modify_fn(ItemWithChildren::modify_selected)
+//     }
+// }
+
+impl WidgetItem for ItemWithChildren<'_> {
+    fn height(&self) -> usize {
+        self.height
+    }
+
+    fn highlighted(&self) -> Self {
+        let mut item = self.clone();
+        let highlight_style = Style::default()
+            .bg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_BG)
+            .fg(crate::theme::COL_LIST_HIGHLIGHTED_SERVICE_FG);
+        item.element.style = highlight_style;
+        item.height = 1 + item.list.items.len();
         item
     }
-}
 
-impl<'a> From<ItemWithChildren<'a>> for WidgetListItem<ItemWithChildren<'a>> {
-    fn from(val: ItemWithChildren<'a>) -> Self {
-        Self::new(val, 1_u16).modify_fn(ItemWithChildren::modify_selected)
-    }
-}
-
-impl Widget for ItemWithChildren<'_> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+    fn render(&self, area: Rect, buf: &mut Buffer) {
         if area.width < 1 || area.height < 1 {
             return;
         }
         // Render element
         let (x, y) = (area.left(), area.top());
-        let element = self.element.as_widget();
         let elem_area = Rect::new(x, y, area.width, 1_u16);
-        element.render(elem_area, buf);
+        self.element.render(elem_area, buf);
 
         // Render list
         let mut list = self.list.clone();

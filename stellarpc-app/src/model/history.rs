@@ -3,7 +3,7 @@ use core::MethodDescriptor;
 use ratatui::text::Span;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
-use tui_widget_list::SelectableWidgetList;
+use tui_widget_list::WidgetList;
 
 use crate::{commons::debug::log_to_file, widgets::list::ListItem};
 
@@ -91,13 +91,13 @@ impl HistoryModel {
         self.path.join(PathBuf::from(fname))
     }
 
-    pub fn as_widget(&self) -> SelectableWidgetList<'_, ListItem<'_>> {
+    pub fn as_widget(&self) -> WidgetList<'_, ListItem<'_>> {
         let items = self
             .items
             .iter()
             .map(|e| ListItem::new(Span::from(e.as_str())))
             .collect::<Vec<_>>();
-        let mut widget = SelectableWidgetList::new(items);
+        let mut widget = WidgetList::new(items);
         widget.state.select(self.selected);
         widget
     }

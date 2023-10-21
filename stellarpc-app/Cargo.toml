@@ -12,20 +12,15 @@ license = "MIT"
 
 [dependencies]
 core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
-crossterm = "0.26"
-ratatui = "0.20"
+crossterm = "0.27"
+ratatui = "0.23"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 unicode-width = "0.1"
 http = "0.2"
-tui-widget-list = "0.2.2"
+tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.3.0" }
+tui-vim-editor = { package = "tui-vim-editor", path = "../../tui-vim-editor", version = "0.1.0" }
 lazy_static = "1.4.0"
 # Clipboard
 arboard = "3.2.0"
 chrono = "0.4.26"
-
-[dependencies.tui-textarea]
-git = "https://github.com/rhysd/tui-textarea"
-branch = "main"
-default-features = false
-features = ["search", "ratatui-your-backend", "ratatui-crossterm"]

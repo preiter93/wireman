@@ -9,8 +9,8 @@ use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
+use ratatui::text::Line;
 use ratatui::text::Span;
-use ratatui::text::Spans;
 use ratatui::text::Text;
 use ratatui::widgets::Block;
 use ratatui::widgets::Borders;
@@ -60,7 +60,7 @@ pub fn render_messages<'a, B>(
         .split(area);
 
     // Render request window
-    f.render_widget(request.widget(), chunks[0]);
+    f.render_widget(&request, area);
 
     // Render error window
     if let Some(error) = &error {
@@ -82,7 +82,7 @@ fn response_widget(text: &str) -> Paragraph {
 
 /// Renders any error in a separate box
 fn error_widget<'a>(err: ErrorKind) -> Paragraph<'a> {
-    let text = vec![Spans::from(Span::styled(
+    let text = vec![Line::from(Span::styled(
         err.msg,
         Style::default().fg(theme::COL_TEXT_ERROR),
     ))];

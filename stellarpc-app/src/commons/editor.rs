@@ -1,14 +1,13 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::theme;
 use arboard::Clipboard;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyEvent;
 use lazy_static::lazy_static;
 use ratatui::{
     style::Style,
     widgets::{Block, Widget},
 };
 use std::sync::Mutex;
-use tui_textarea::{CursorMove, Input, TextArea};
+use tui_vim_editor::{Buffer, Editor, Input};
 
 lazy_static! {
     pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
@@ -19,13 +18,17 @@ lazy_static! {
 #[derive(Clone)]
 pub struct TextEditor<'a> {
     /// Textarea contains all the core functionality
-    editor: TextArea<'a>,
+    buffer: Buffer,
 
     /// Error buffer
     error: Option<ErrorKind>,
 
     /// The editor mode
     mode: EditorMode,
+
+    block: Option<Block<'a>>,
+
+    style: Style,
 }
 
 impl<'a> Default for TextEditor<'a> {
@@ -38,9 +41,11 @@ impl<'a> TextEditor<'a> {
     /// Returns an empty editor
     pub fn new() -> Self {
         Self {
-            editor: TextArea::new(Vec::new()),
+            buffer: Buffer::new(),
             error: None,
             mode: EditorMode::Normal,
+            block: None,
+            style: Style::default(),
         }
     }
 
@@ -58,12 +63,20 @@ impl<'a> TextEditor<'a> {
 
     /// Gets the editors content as raw text
     pub fn get_text_raw(&self) -> String {
-        self.editor.clone().into_lines().join("\n")
+        self.buffer
+            .lines()
+            .iter()
+            .map(|x| x.into())
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 
     /// Set the editors content from raw text
     pub fn set_text_raw(&mut self, text: &str) {
-        self.editor = TextArea::new(text.lines().map(ToOwned::to_owned).collect());
+        self.buffer.clear();
+        for line in text.lines() {
+            self.buffer.push(line)
+        }
     }
 
     /// Return the error
@@ -78,7 +91,7 @@ impl<'a> TextEditor<'a> {
 
     /// Clear all text
     pub fn clear(&mut self) {
-        self.editor = TextArea::new(vec![]);
+        self.buffer.clear()
     }
 
     /// Go into normal mode
@@ -96,7 +109,9 @@ impl<'a> TextEditor<'a> {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
             if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
-                    self.insert_str(&text);
+                    for c in text.chars() {
+                        self.insert_char(c);
+                    }
                 }
             }
         }
@@ -117,39 +132,35 @@ impl<'a> TextEditor<'a> {
     }
 
     /// Insert a str at the current cursor position. Handles newlines.
-    fn insert_str(&mut self, s: &str) {
-        let mut iter = s.lines().peekable();
-        while let Some(line) = iter.next() {
-            self.editor.insert_str(line);
-            if iter.peek().is_some() {
-                self.editor.insert_newline();
-            }
-        }
+    fn insert_char(&mut self, c: char) {
+        self.buffer.insert_char(c)
     }
 
     /// Updates the style depending on the editor mode
     pub fn update_style(&mut self) {
         // Set the cursor style depending on the mode
-        let cursor_style = if self.mode == EditorMode::Insert {
-            Style::default()
-                .fg(theme::COL_CURSOR_INSERT_MODE)
-                .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
-        } else {
-            Style::default()
-                .fg(theme::COL_CURSOR_NORMAL_MODE)
-                .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
-        };
+        // let cursor_style = if self.mode == EditorMode::Insert {
+        //     Style::default()
+        //         .fg(theme::COL_CURSOR_INSERT_MODE)
+        //         .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
+        // } else {
+        //     Style::default()
+        //         .fg(theme::COL_CURSOR_NORMAL_MODE)
+        //         .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
+        // };
 
-        self.set_cursor_style(cursor_style);
-        self.set_cursor_line_style(Style::default());
+        // self.set_cursor_style(cursor_style);
+        // self.set_cursor_line_style(Style::default());
     }
 
     pub(crate) fn set_style(&mut self, style: Style) {
-        self.editor.set_style(style);
+        self.style = style;
+        // self.editor.set_style(style);
     }
 
     pub(crate) fn set_block(&mut self, block: Block<'a>) {
-        self.editor.set_block(block);
+        self.block = Some(block);
+        // self.editor.set_block(block);
     }
 
     /// Pretty formats the editors text. The error is stored
@@ -166,7 +177,7 @@ impl<'a> TextEditor<'a> {
 
     /// Returns if the editor is empty
     pub fn is_empty(&self) -> bool {
-        self.editor.is_empty()
+        self.buffer.lines().is_empty()
     }
 
     /// Returns the editors mode
@@ -174,75 +185,93 @@ impl<'a> TextEditor<'a> {
         self.mode.clone()
     }
 
-    pub fn widget(&self) -> impl Widget + '_ {
-        self.editor.widget()
-    }
-
     /// Key bindings in normal mode
-    pub fn on_key_normal_mode(&mut self, key: KeyEvent) {
+    pub fn on_key(&mut self, key: KeyEvent) {
+        let mut input = Input::default();
         match key.code {
-            KeyCode::Char('i') => self.mode = EditorMode::Insert,
-            KeyCode::Char('a') => {
-                self.mode = EditorMode::Insert;
-                self.editor.move_cursor(CursorMove::Forward);
-            }
-            // Cursor movement
-            KeyCode::Down | KeyCode::Char('j') => self.editor.move_cursor(CursorMove::Down),
-            KeyCode::Up | KeyCode::Char('k') => self.editor.move_cursor(CursorMove::Up),
-            KeyCode::Left | KeyCode::Char('h') => self.editor.move_cursor(CursorMove::Back),
-            KeyCode::Right | KeyCode::Char('l') => self.editor.move_cursor(CursorMove::Forward),
-            KeyCode::Char('w') => self.editor.move_cursor(CursorMove::WordForward),
-            KeyCode::Char('b') => self.editor.move_cursor(CursorMove::WordBack),
-            KeyCode::Char('J') => self.editor.move_cursor(CursorMove::End),
-            KeyCode::Char('H') => self.editor.move_cursor(CursorMove::Head),
-            // Delete
-            KeyCode::Char('x') => {
-                self.editor.delete_next_char();
-            }
-            KeyCode::Char('d') => {
-                self.editor.delete_line_by_end();
-            }
-            KeyCode::Char('D') => {
-                self.editor.delete_line_by_head();
-            }
-            // Undo
-            KeyCode::Char('u') => {
-                self.editor.undo();
-            }
-            KeyCode::Char('r') => {
-                self.editor.redo();
-            }
-            // Yank & Paste
-            KeyCode::Char('p') => self.paste_from_clipboard(),
-            KeyCode::Char('y') => self.yank(),
-            // Format json
-            KeyCode::Char('f') => self.format_json(),
-            _ => {}
+            _ => input.on_key(key, &mut self.buffer),
+            // KeyCode::Char('i') => self.mode = EditorMode::Insert,
+            // KeyCode::Char('a') => {
+            //     self.mode = EditorMode::Insert;
+            //     self.buffer.move_cursor(CursorMove::Forward);
+            // }
+            // // Cursor movement
+            // KeyCode::Down | KeyCode::Char('j') => self.buffer.move_cursor(CursorMove::Down),
+            // KeyCode::Up | KeyCode::Char('k') => self.buffer.move_cursor(CursorMove::Up),
+            // KeyCode::Left | KeyCode::Char('h') => self.buffer.move_cursor(CursorMove::Back),
+            // KeyCode::Right | KeyCode::Char('l') => self.buffer.move_cursor(CursorMove::Forward),
+            // KeyCode::Char('w') => self.buffer.move_cursor(CursorMove::WordForward),
+            // KeyCode::Char('b') => self.buffer.move_cursor(CursorMove::WordBack),
+            // KeyCode::Char('J') => self.buffer.move_cursor(CursorMove::End),
+            // KeyCode::Char('H') => self.buffer.move_cursor(CursorMove::Head),
+            // // Delete
+            // KeyCode::Char('x') => {
+            //     self.buffer.delete_next_char();
+            // }
+            // KeyCode::Char('d') => {
+            //     self.buffer.delete_line_by_end();
+            // }
+            // KeyCode::Char('D') => {
+            //     self.buffer.delete_line_by_head();
+            // }
+            // // Undo
+            // KeyCode::Char('u') => {
+            //     self.buffer.undo();
+            // }
+            // KeyCode::Char('r') => {
+            //     self.buffer.redo();
+            // }
+            // // Yank & Paste
+            // KeyCode::Char('p') => self.paste_from_clipboard(),
+            // KeyCode::Char('y') => self.yank(),
+            // // Format json
+            // KeyCode::Char('f') => self.format_json(),
+            // _ => {}
         }
     }
 
-    /// Key bindings in insert mode
-    pub fn on_key_insert_mode(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Esc => self.mode = EditorMode::Normal,
-            KeyCode::Down => self.editor.move_cursor(CursorMove::Down),
-            KeyCode::Up => self.editor.move_cursor(CursorMove::Up),
-            KeyCode::Right => self.editor.move_cursor(CursorMove::Forward),
-            KeyCode::Left => self.editor.move_cursor(CursorMove::Back),
-            _ => {
-                self.editor.input_without_shortcuts(Input::from(key));
-            }
+    // /// Key bindings in insert mode
+    // pub fn on_key_insert_mode(&mut self, key: KeyEvent) {
+    //     match key.code {
+    //         KeyCode::Esc => self.mode = EditorMode::Normal,
+    //         KeyCode::Down => self.buffer.move_cursor(CursorMove::Down),
+    //         KeyCode::Up => self.buffer.move_cursor(CursorMove::Up),
+    //         KeyCode::Right => self.buffer.move_cursor(CursorMove::Forward),
+    //         KeyCode::Left => self.buffer.move_cursor(CursorMove::Back),
+    //         _ => {
+    //             // self.editor.input_without_shortcuts(Input::from(key));
+    //         }
+    //     }
+    // }
+
+    // /// Set the editors cursor line style
+    // pub(crate) fn set_cursor_line_style(&mut self, cursor_line_style: ratatui::style::Style) {
+    //     // self.editor.set_cursor_line_style(cursor_line_style);
+    // }
+    //
+    // /// Set the editors cursor style
+    // pub(crate) fn set_cursor_style(&mut self, cursor_style: ratatui::style::Style) {
+    //     // self.editor.set_cursor_style(cursor_style);
+    // }
+    // pub(crate) fn render<B: Backend>(&mut self, f: &mut Frame<B>, area: Rect) {
+    //     let mut widget = Editor::new(&mut self.buffer);
+    //     widget.set_style(self.style);
+    //     if let Some(block) = self.block.clone() {
+    //         widget.set_block(block);
+    //     }
+    //
+    //     f.render_widget(widget, area);
+    // }
+}
+
+impl<'a> Widget for &TextEditor<'_> {
+    fn render(self, area: ratatui::layout::Rect, buf: &mut ratatui::buffer::Buffer) {
+        let mut widget = Editor::new(&self.buffer);
+        widget.set_style(self.style);
+        if let Some(block) = self.block.clone() {
+            widget.set_block(block);
         }
-    }
-
-    /// Set the editors cursor line style
-    pub(crate) fn set_cursor_line_style(&mut self, cursor_line_style: ratatui::style::Style) {
-        self.editor.set_cursor_line_style(cursor_line_style);
-    }
-
-    /// Set the editors cursor style
-    pub(crate) fn set_cursor_style(&mut self, cursor_style: ratatui::style::Style) {
-        self.editor.set_cursor_style(cursor_style);
+        widget.render(area, buf);
     }
 }
 

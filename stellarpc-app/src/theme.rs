@@ -3,9 +3,11 @@ use ratatui::{
     widgets::BorderType,
 };
 
+const CYAN: Color = Color::Rgb(0, 228, 228);
+// const PURPLE: Color = Color::Rgb(105, 28, 82);
 const COLOR_PRIMARY: Color = Color::White;
 const COLOR_SECONDARY: Color = Color::Rgb(21, 21, 21); // Dark Gray
-const COLOR_TERTIARY: Color = Color::Rgb(0, 228, 228); // Dark Cyan
+const COLOR_TERTIARY: Color = CYAN;
 
 pub const COL_TEXT_NORMAL: Color = COLOR_PRIMARY;
 pub const COL_TEXT_ERROR: Color = Color::Red;
@@ -28,11 +30,11 @@ pub const COL_LIST_HIGHLIGHTED_SERVICE_BG: Color = COLOR_PRIMARY;
 pub const COL_LIST_HIGHLIGHTED_METHOD_FG: Color = COLOR_SECONDARY;
 pub const COL_LIST_HIGHLIGHTED_METHOD_BG: Color = COLOR_TERTIARY;
 
-// Editor
-pub const MOD_CURSOR_NORMAL_MODE: Modifier = Modifier::REVERSED;
-pub const MOD_CURSOR_INSERT_MODE: Modifier = Modifier::REVERSED;
-pub const COL_CURSOR_NORMAL_MODE: Color = COLOR_PRIMARY;
-pub const COL_CURSOR_INSERT_MODE: Color = COLOR_TERTIARY;
+// // Editor
+// pub const MOD_CURSOR_NORMAL_MODE: Modifier = Modifier::REVERSED;
+// pub const MOD_CURSOR_INSERT_MODE: Modifier = Modifier::REVERSED;
+// pub const COL_CURSOR_NORMAL_MODE: Color = COLOR_PRIMARY;
+// pub const COL_CURSOR_INSERT_MODE: Color = COLOR_TERTIARY;
 
 // Help window
 pub const COL_HELP_KEY_FG: Color = COLOR_TERTIARY;
