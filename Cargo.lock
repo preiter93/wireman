@@ -1487,10 +1487,20 @@ dependencies = [
  "ratatui",
  "serde",
  "serde_json",
+ "stellarpc_config",
  "stellarpc_core",
  "tui-vim-editor",
  "tui-widget-list",
  "unicode-width",
+]
+
+[[package]]
+name = "stellarpc_config"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

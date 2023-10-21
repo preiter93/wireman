@@ -130,7 +130,7 @@ mod test {
         let includes = vec!["."];
 
         // Generate the descriptor
-        let desc = ProtoDescriptor::from_files(files, includes).unwrap();
+        let desc = ProtoDescriptor::new(includes, files).unwrap();
 
         // Get the method and message
         let method = desc

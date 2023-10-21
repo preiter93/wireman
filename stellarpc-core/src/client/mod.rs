@@ -2,7 +2,6 @@
 use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
-use crate::Config;
 use crate::Result;
 use tls::TlsConfig;
 use tokio::runtime::Runtime;
@@ -18,13 +17,9 @@ pub mod tls;
 ///
 /// # Errors
 /// - Internal error calling the grpc server
-pub fn call_unary_blocking<T: Into<Uri>>(
-    cfg: &Config,
-    uri: T,
-    req: &RequestMessage,
-) -> Result<ResponseMessage> {
+pub fn call_unary_blocking<T: Into<Uri>>(uri: T, req: &RequestMessage) -> Result<ResponseMessage> {
     let rt = create_runtime()?;
-    let future = async_call_unary(cfg, uri, req);
+    let future = async_call_unary(uri, req);
     let result = rt.block_on(future);
     match result {
         Ok(response) => Ok(response),
@@ -32,12 +27,8 @@ pub fn call_unary_blocking<T: Into<Uri>>(
     }
 }
 
-async fn async_call_unary<T: Into<Uri>>(
-    cfg: &Config,
-    uri: T,
-    req: &RequestMessage,
-) -> Result<ResponseMessage> {
-    let mut client = GrpcClient::from_config(cfg, uri);
+async fn async_call_unary<T: Into<Uri>>(uri: T, req: &RequestMessage) -> Result<ResponseMessage> {
+    let mut client = GrpcClient::new(uri, None);
     let resp = client.unary(req).await?;
     Ok(resp)
 }
@@ -67,8 +58,8 @@ impl GrpcClient {
     }
 
     /// Instantiates a client from a `ProtoConfig`
-    pub fn from_config<T: Into<Uri>>(cfg: &Config, uri: T) -> Self {
-        Self::new(uri, Some(cfg.tls.clone()))
+    pub fn from_config<T: Into<Uri>>(tls: &TlsConfig, uri: T) -> Self {
+        Self::new(uri, Some(tls.clone()))
     }
 
     /// Make a unary grpc call from the client

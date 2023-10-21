@@ -12,6 +12,7 @@ license = "MIT"
 
 [dependencies]
 core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
+config = { package = "stellarpc_config", path = "../stellarpc-config", version = "0.1.0" }
 crossterm = "0.27"
 ratatui = "0.23"
 serde = { version = "1.0", features = ["derive"] }

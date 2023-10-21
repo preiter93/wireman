@@ -1,8 +1,5 @@
 {
-    "address": "http://localhost:50051",
-    "includes": [
-        "/Users/philippreiter/Rust/stellarpc/test_utils"
-    ],
+    "workspace": "/Users/philippreiter/Rust/stellarpc/test_utils",
     "files": [
         "grpc_simple/greeter.proto",
         "grpc_simple/timekeeper.proto",

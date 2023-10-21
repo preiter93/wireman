@@ -3,21 +3,22 @@ use std::collections::HashMap;
 use http::Uri;
 use prost_reflect::MethodDescriptor;
 
-use crate::Config;
-
 /// Returns the grpc request as `grpcurl` command
 ///
 /// # Errors
 /// - Serialize message to json
 pub fn request_as_grpcurl<T: Into<Uri>>(
-    cfg: &Config,
+    includes: &[String],
     uri: T,
     message: &str,
     method_desc: &MethodDescriptor,
     metadata: HashMap<String, String>,
 ) -> crate::error::Result<String> {
-    // The include paths
-    let import = &cfg.workspace;
+    // The includes
+    let mut import_str = String::new();
+    for include in includes {
+        import_str.push_str(&format!("-import-path {} ", include));
+    }
 
     // The name of the proto file
     let file_desc = method_desc.parent_file();
@@ -39,8 +40,8 @@ pub fn request_as_grpcurl<T: Into<Uri>>(
         .join("");
 
     let cmd = format!(
-        "grpcurl -d @ -import-path {} -proto {}{} -plaintext {}:{} {} <<EOM\n{}\nEOM",
-        import, proto, metadata, host, port, method, message
+        "grpcurl -d @ {}-proto {}{} -plaintext {}:{} {} <<EOM\n{}\nEOM",
+        import_str, proto, metadata, host, port, method, message
     );
     Ok(cmd)
 }
@@ -48,20 +49,14 @@ pub fn request_as_grpcurl<T: Into<Uri>>(
 #[cfg(test)]
 mod test {
     use crate::descriptor::RequestMessage;
-    use crate::{client::tls::TlsConfig, ProtoDescriptor};
+    use crate::ProtoDescriptor;
 
     use super::*;
 
     #[test]
     fn test_request_as_grpcurl() {
         // given
-        let given_cfg = Config {
-            workspace: "/Users/myworkspace".to_string(),
-            files: vec!["test_files/test.proto".to_string()],
-            tls: TlsConfig::default(),
-            address: String::new(),
-            history: String::new(),
-        };
+        let includes = vec!["/Users/myworkspace".to_string()];
         let given_uri = Uri::from_static("http://localhost:50051");
         let test_message = load_test_message("Simple");
         let given_method = test_message.method_descriptor();
@@ -70,7 +65,7 @@ mod test {
 
         // when
         let cmd = request_as_grpcurl(
-            &given_cfg,
+            &includes,
             given_uri,
             given_message,
             &given_method,
@@ -86,7 +81,7 @@ mod test {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
-        let desc = ProtoDescriptor::from_files(files, includes).unwrap();
+        let desc = ProtoDescriptor::new(includes, files).unwrap();
 
         let method = desc
             .get_method_by_name("proto.TestService", method)

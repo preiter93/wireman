@@ -1,8 +1,9 @@
 use crate::commons::editor::ErrorKind;
+use config::Config;
 use core::{
     client::grpcurl::request_as_grpcurl,
     descriptor::{RequestMessage, ResponseMessage},
-    Config, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
+    MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 use http::Uri;
 use std::{collections::HashMap, error::Error};
@@ -22,7 +23,7 @@ struct GrpcClientConfig(Config);
 
 impl CoreClient {
     pub fn new(cfg: Config) -> Result<Self, Box<dyn Error>> {
-        let desc = ProtoDescriptor::from_config(&cfg)?;
+        let desc = ProtoDescriptor::new(cfg.includes.clone(), cfg.files.clone())?;
         let grpc = GrpcClientConfig(cfg);
         Ok(Self { desc, grpc })
     }
@@ -60,7 +61,7 @@ impl CoreClient {
             kind: "ParseAddressError".to_string(),
             msg: String::new(),
         })?;
-        let resp = core::call_unary_blocking(&self.grpc.0, uri, req)?;
+        let resp = core::call_unary_blocking(uri, req)?;
         Ok(resp)
     }
 
@@ -73,7 +74,7 @@ impl CoreClient {
         address: &str,
     ) -> Result<String, String> {
         let uri = Uri::try_from(address).map_err(|_| "Failed to get uri from address")?;
-        request_as_grpcurl(&self.grpc.0, uri, message, method_desc, metadata)
+        request_as_grpcurl(&self.grpc.0.includes, uri, message, method_desc, metadata)
             .map_err(|err| err.to_string())
     }
 }
