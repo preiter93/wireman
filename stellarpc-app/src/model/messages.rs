@@ -1,9 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, history::HistoryData, AddressModel, MetadataModel};
-use crate::commons::{
-    debug::log_to_file,
-    editor::{pretty_format_json, ErrorKind, TextEditor},
-};
+use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -189,7 +186,7 @@ impl<'a> MessagesModel<'a> {
                 self.request
                     .core_client
                     .borrow()
-                    .grpcurl(&message, method, metadata_map, &address)
+                    .grpcurl(&message, method, &metadata_map, &address)
             {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }

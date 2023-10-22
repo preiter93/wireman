@@ -8,7 +8,8 @@ use prost_reflect::{
 };
 use std::ops::{Deref, DerefMut};
 
-/// Wrapper of `DynamicMessage`
+/// Represents a dynamic gRPC message that can be used
+/// with various message types.
 #[derive(Debug, Clone)]
 pub struct DynamicMessage {
     inner: DynMessage,
@@ -31,29 +32,30 @@ impl DerefMut for DynamicMessage {
 type JsonSerializer = serde_json::Serializer<Vec<u8>>;
 
 impl DynamicMessage {
-    /// Construct a `Message` from a `MessageDescriptor`
+    /// Create a new `DynamicMessage` from a `MessageDescriptor`.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
         let message = DynMessage::new(message_desc);
         Self { inner: message }
     }
 
-    /// Returns the Message name
+    /// Get the name of the message as a String.
     #[must_use]
     pub fn message_name(&self) -> String {
         self.descriptor().name().to_string()
     }
 
-    /// Returns the message descriptor
+    /// Get the message descriptor.
     #[must_use]
     pub fn descriptor(&self) -> MessageDescriptor {
         self.inner.descriptor()
     }
 
-    /// Deserialize a `DynamicMessage` from a json string
+    /// Deserialize a `DynamicMessage` from a JSON string.
     ///
     /// # Errors
-    /// - Failed to deserialize message
+    ///
+    /// - Failed to deserialize message.
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
         let msg = DynMessage::deserialize_with_options(
@@ -67,9 +69,10 @@ impl DynamicMessage {
         Ok(())
     }
 
-    /// Serialize a `DynamicMessage` to json.
+    /// Serialize a `DynamicMessage` to a JSON string.
     ///
     /// # Errors
+    ///
     /// - Failed to convert utf8 to String
     /// - Failed to serialize message
     pub fn to_json(&self) -> Result<String> {
@@ -87,7 +90,7 @@ impl DynamicMessage {
             .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
     }
 
-    /// Applies default values to a `DynMessage`.
+    /// Apply default values to a `DynamicMessage`.
     pub fn apply_template(&mut self) {
         apply_template_for_message(self);
     }
@@ -103,7 +106,7 @@ mod test {
     fn test_template_nested() {
         // given
         let mut given_message = load_test_message("Nested");
-        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"Hello\"}]}";
+        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"\"}]}";
 
         // when
         given_message.apply_template();

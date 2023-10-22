@@ -1,6 +1,6 @@
 use http::Uri;
 use stellarpc_core::ProtoDescriptor;
-use stellarpc_core::{call_unary_blocking, Result};
+use stellarpc_core::{client::call_unary_blocking, Result};
 
 fn main() -> Result<()> {
     // get services, methods and a request message

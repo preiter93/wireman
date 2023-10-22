@@ -8,16 +8,19 @@ use tonic::{
     Request,
 };
 
-/// Holds all the necessary data for a grpc request
+/// Holds all the necessary data for a gRPC request, including
+/// the message, method descriptor, and optional metadata.
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
+    /// The gRPC message.
     pub message: DynamicMessage,
     method_desc: MethodDescriptor,
     metadata: Option<Metadata>,
 }
 
 impl RequestMessage {
-    /// Instantiate a `RequestMessage` from the Descriptors.
+    /// Create a new `RequestMessage` with the provided message
+    /// descriptor and method descriptor.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc);
@@ -28,32 +31,33 @@ impl RequestMessage {
         }
     }
 
-    /// Returns the Message name.
+    /// Get the name of the message.
     #[must_use]
     pub fn message_name(&self) -> String {
         self.message_descriptor().name().to_string()
     }
 
-    /// Returns the message descriptor.
+    /// Get the message descriptor associated with the `RequestMessage`.
     #[must_use]
     pub fn message_descriptor(&self) -> MessageDescriptor {
         self.message.descriptor()
     }
 
-    /// Returns the method descriptor.
+    /// Get the method descriptor associated with the `RequestMessage`.
     #[must_use]
     pub fn method_descriptor(&self) -> MethodDescriptor {
         self.method_desc.clone()
     }
 
-    /// Set a new message.
+    /// Set a new message for the request.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
     }
 
-    /// Insert metadata
+    /// Insert metadata into the request.
     ///
     /// # Errors
+    ///
     /// - Failed to parse metadata value/key to ascii
     pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
         let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
@@ -63,18 +67,19 @@ impl RequestMessage {
         Ok(())
     }
 
-    /// Get the metadata
+    /// Get the metadata associated with the request.
     #[must_use]
-    pub fn get_metadata(&self) -> &Option<Metadata> {
+    pub fn metadata(&self) -> &Option<Metadata> {
         &self.metadata
     }
 
-    /// Returns the uri path for grpc calls
+    /// Get the URI path for gRPC calls based on the method descriptor.
     ///
     /// # Panics
-    /// - Unwrapping path and query from str
+    ///
+    /// Panics if constructing the path and query from a string fails.
     #[must_use]
-    pub fn get_path(&self) -> PathAndQuery {
+    pub fn path(&self) -> PathAndQuery {
         let path = format!(
             "/{}/{}",
             self.method_desc.parent_service().full_name(),
@@ -83,10 +88,10 @@ impl RequestMessage {
         PathAndQuery::from_str(&path).unwrap()
     }
 
-    /// Wrap the message in a `tonic::Request`
+    /// Wrap the message in a `tonic::Request`.
     #[must_use]
     pub fn into_request(self) -> Request<RequestMessage> {
-        let metadata = self.get_metadata().clone();
+        let metadata = self.metadata().clone();
         let mut req = Request::new(self);
         if let Some(meta) = metadata {
             *req.metadata_mut() = meta.inner;
@@ -94,7 +99,11 @@ impl RequestMessage {
         req
     }
 
-    /// Serialize a `RequestMessage` to json
+    /// Serialize the `RequestMessage` to a JSON string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if serialization to a JSON string fails.
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
 

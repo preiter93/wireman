@@ -1,24 +1,34 @@
 use std::collections::HashMap;
+use std::fmt::Write;
 
 use http::Uri;
 use prost_reflect::MethodDescriptor;
 
-/// Returns the grpc request as `grpcurl` command
+/// Generate a `grpcurl` command as a string for sending a gRPC request.
 ///
-/// # Errors
-/// - Serialize message to json
-pub fn request_as_grpcurl<T: Into<Uri>>(
+/// This function constructs a `grpcurl` command that can be used to send a gRPC request
+/// to a specified gRPC server. The generated command includes information such as include
+/// directories, URI, request message in JSON format, method descriptor, and metadata headers.
+///
+/// # Parameters
+///
+/// - `includes`: A list of include directories used to locate .proto files.
+/// - `uri`: The address URI of the gRPC server (e.g., "localhost:50051").
+/// - `message`: The request data in JSON format.
+/// - `method_desc`: The method descriptor for the gRPC method.
+/// - `metadata`: Key-value metadata headers to be included in the request.
+pub fn grpcurl<T: Into<Uri>>(
     includes: &[String],
     uri: T,
     message: &str,
     method_desc: &MethodDescriptor,
-    metadata: HashMap<String, String>,
-) -> crate::error::Result<String> {
+    metadata: &HashMap<String, String>,
+) -> String {
     // The includes
-    let mut import_str = String::new();
-    for include in includes {
-        import_str.push_str(&format!("-import-path {} ", include));
-    }
+    let imports = includes.iter().fold(String::new(), |mut result, include| {
+        let _ = write!(result, "-import-path {include} ");
+        result
+    });
 
     // The name of the proto file
     let file_desc = method_desc.parent_file();
@@ -35,15 +45,14 @@ pub fn request_as_grpcurl<T: Into<Uri>>(
     // The metadata if available
     let metadata = metadata
         .iter()
-        .map(|(key, val)| format!(" -H \"{}: {}\"", key, val))
-        .collect::<Vec<_>>()
-        .join("");
+        .fold(String::new(), |mut result, (key, val)| {
+            let _ = write!(result, " -H \"{key}: {val}\"");
+            result
+        });
 
-    let cmd = format!(
-        "grpcurl -d @ {}-proto {}{} -plaintext {}:{} {} <<EOM\n{}\nEOM",
-        import_str, proto, metadata, host, port, method, message
-    );
-    Ok(cmd)
+    format!(
+        "grpcurl -d @ {imports}-proto {proto}{metadata} -plaintext {host}:{port} {method} <<EOM\n{message}\nEOM"
+    )
 }
 
 #[cfg(test)]
@@ -64,14 +73,13 @@ mod test {
         let expected = "grpcurl -d @ -import-path /Users/myworkspace -proto test_files/test.proto -plaintext localhost:50051 proto.TestService.Simple <<EOM\n{\n  \"number\": 0\n}\nEOM";
 
         // when
-        let cmd = request_as_grpcurl(
+        let cmd = grpcurl(
             &includes,
             given_uri,
             given_message,
             &given_method,
-            HashMap::new(),
-        )
-        .unwrap();
+            &HashMap::new(),
+        );
 
         // then
         assert_eq!(cmd, expected);

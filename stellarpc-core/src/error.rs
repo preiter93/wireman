@@ -12,14 +12,6 @@ pub enum Error {
     #[error("internal error {0}")]
     InternalError(String),
 
-    /// Error while reading the config file
-    #[error("error reading config")]
-    ReadConfigError(#[source] std::io::Error),
-
-    /// Error while parsing the config
-    #[error("error parsing config")]
-    ParseConfigError(#[source] serde_json::Error),
-
     /// Failed to deserialize DynamicMessage from json
     #[error("error deserializing message from json")]
     DeserializeMessage(#[source] serde_json::Error),

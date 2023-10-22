@@ -1,7 +1,7 @@
 use super::DynamicMessage;
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
 
-/// Holds all the necessary data for a grpc request
+/// Holds all the necessary data for a gRPC response.
 #[derive(Debug, Clone)]
 pub struct ResponseMessage {
     pub message: DynamicMessage,
@@ -9,7 +9,7 @@ pub struct ResponseMessage {
 }
 
 impl ResponseMessage {
-    /// Construct `ResponseMessage` from the Descriptors.
+    /// Create a new `ResponseMessage` with the provided message descriptor and method descriptor.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc);
@@ -19,7 +19,7 @@ impl ResponseMessage {
         }
     }
 
-    /// Update the message
+    // Set a new message for the response.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
     }
