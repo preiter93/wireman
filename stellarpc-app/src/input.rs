@@ -102,13 +102,20 @@ impl MessagesInput<'_, '_> {
                 request.format_json();
             }
             _ => {
-                let request = &mut self.model.borrow_mut().request.editor;
+                let mut disable_root_events = false;
                 if self.context.sub == 0 {
+                    let request = &mut self.model.borrow_mut().request.editor;
+                    disable_root_events = request.insert_mode();
                     request.on_key(event);
+                }
+                if self.context.sub == 1 {
+                    let response = &mut self.model.borrow_mut().response.editor;
+                    disable_root_events = response.insert_mode();
+                    response.on_key(event);
                 }
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.
-                self.context.disable_root_events = request.insert_mode();
+                self.context.disable_root_events = disable_root_events;
             }
         }
     }
@@ -131,6 +138,9 @@ impl HeadersInput<'_> {
             KeyCode::Char('k') | KeyCode::Up if !self.context.disable_root_events => {
                 let next = self.model.borrow().selected.next();
                 self.model.borrow_mut().selected = next;
+            }
+            KeyCode::Char('p') if !self.context.disable_root_events => {
+                self.model.borrow_mut().bearer.paste_from_clipboard();
             }
             _ => {
                 let selected = self.model.borrow().selected.clone();

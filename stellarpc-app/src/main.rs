@@ -80,7 +80,7 @@ fn get_env() -> String {
     if let Some(config) = args.get(1) {
         return config.to_string();
     }
-    env::var(ENV_CONFIG).unwrap_or("confi.json".to_string())
+    env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
 }
 
 /// Initializes the terminal.

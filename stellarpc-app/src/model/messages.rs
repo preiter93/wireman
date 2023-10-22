@@ -126,6 +126,11 @@ impl<'a> MessagesModel<'a> {
                     return;
                 }
             }
+            // Bearer token
+            let bearer = self.headers_model.borrow().bearer.get_text_raw();
+            if !bearer.is_empty() {
+                let _ = req.insert_metadata("authorization", &format!("Bearer {bearer}"));
+            }
 
             // Address
             let address = self.headers_model.borrow().address.get_text_raw();
