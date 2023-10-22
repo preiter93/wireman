@@ -1,5 +1,6 @@
 /target
 /test_utils/grpc_simple/proto
+/test_utils/grpc_simple/grpc-simple
 /stellarpc-app/debug.log
 /stellarpc-app/cfg.json
 /stellarpc-app/history
