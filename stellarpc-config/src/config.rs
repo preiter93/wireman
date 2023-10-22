@@ -33,6 +33,24 @@ impl Config {
     fn parse_from_str(data: &str) -> Result<Self> {
         serde_json::from_str(data).map_err(Error::ParseConfigError)
     }
+
+    /// Gets the includes directories. Tries to shell expand the path
+    /// if it contains environment variables such as $HOME or ~.
+    pub fn includes(&self) -> Vec<String> {
+        self.includes
+            .iter()
+            .map(|include| shellexpand::env(include).map_or(include.clone(), |x| x.to_string()))
+            .collect()
+    }
+
+    /// Gets the files. Tries to shell expand the path if it contains
+    ///  environment variables such as $HOME or ~.
+    pub fn files(&self) -> Vec<String> {
+        self.files
+            .iter()
+            .map(|e| shellexpand::env(e).map_or(e.clone(), |x| x.to_string()))
+            .collect()
+    }
 }
 
 /// The TLS config of the grpc client.
@@ -103,5 +121,19 @@ mod test {
             history: String::new(),
         };
         assert_eq!(cfg, expected);
+    }
+
+    #[test]
+    fn test_shell_expand() {
+        let cfg = Config {
+            includes: vec!["$HOME/workspace".to_string()],
+            files: vec![],
+            tls: TlsConfig::default(),
+            address: String::new(),
+            history: String::new(),
+        };
+        let got = cfg.includes();
+        let home = std::env::var("HOME").unwrap();
+        assert_eq!(got.first(), Some(&format!("{home}/workspace")));
     }
 }
