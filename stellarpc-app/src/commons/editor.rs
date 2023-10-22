@@ -9,6 +9,8 @@ use ratatui::{
 use std::sync::Mutex;
 use tui_vim_editor::{Buffer, Editor, Input};
 
+use super::debug::log_to_file;
+
 lazy_static! {
     pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
 }
@@ -189,6 +191,7 @@ impl<'a> TextEditor<'a> {
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent) {
         let mut input = Input::default();
+        log_to_file("got key");
         match key.code {
             _ => input.on_key(key, &mut self.buffer),
             // KeyCode::Char('i') => self.mode = EditorMode::Insert,
