@@ -20,7 +20,7 @@ pub(super) fn apply_template_for_message(msg: &mut DynamicMessage) {
 
 fn default_value(kind: &Kind) -> Value {
     match kind {
-        Kind::String => Value::String("Hello".to_string()),
+        Kind::String => Value::String("".to_string()),
         Kind::Message(desc) => default_value_descriptor(desc),
         _ => Value::default_value(kind),
     }
