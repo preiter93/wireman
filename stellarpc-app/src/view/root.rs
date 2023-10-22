@@ -49,8 +49,8 @@ impl Root<'_, '_> {
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
         let keys = match self.context.tab {
-            Tab::Selection => SelectionTab::footer_keys(),
-            Tab::Messages => SelectionTab::footer_keys(),
+            Tab::Selection => SelectionTab::footer_keys(self.context.sub),
+            Tab::Messages => MessagesTab::footer_keys(),
             Tab::Headers => HeadersTab::footer_keys(),
         };
         let spans: Vec<Span> = keys

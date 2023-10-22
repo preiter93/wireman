@@ -15,13 +15,20 @@ pub struct SelectionTab<'a> {
 }
 
 impl<'a> SelectionTab<'a> {
-    pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
+    pub fn footer_keys(sub: usize) -> Vec<(&'static str, &'static str)> {
+        let last = if sub == 0 {
+            ("Enter", "Select")
+        } else {
+            ("Esc", "Unselect")
+        };
         vec![
             ("q", "Quit"),
             ("Tab", "Next Tab"),
-            ("↑/k", "Up"),
-            ("↓/j", "Down"),
-            ("Enter", "Select"),
+            ("j", "Next"),
+            ("k", "Prev"),
+            ("↑", "Up"),
+            ("↓", "Down"),
+            last,
         ]
     }
 }
@@ -59,11 +66,11 @@ impl Widget for SelectionTab<'_> {
             let mthds = mthds.iter().map(|e| ListItem::new(e.to_string()));
             let mut mth_list = WidgetList::new(mthds.collect());
             mth_list.state.select(self.model.selection.selected_child());
-            let mut mth_block = block.title("Methods").bold().white();
+            let mut block = block.title("Methods").bold().white();
             if self.sub == 1 {
-                mth_block = mth_block.border_type(BorderType::Double)
+                block = block.border_type(BorderType::Double)
             }
-            mth_list = mth_list.block(mth_block);
+            mth_list = mth_list.block(block);
             mth_list.render(area[1], buf);
         }
     }

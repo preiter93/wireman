@@ -4,7 +4,6 @@ use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{
     app::AppContext,
-    commons::debug::log_to_file,
     model::{MessagesModel, SelectionModel},
 };
 
@@ -17,22 +16,42 @@ pub struct SelectionInput<'a, 'b> {
 
 impl SelectionInput<'_, '_> {
     pub fn handle(&mut self, code: KeyCode) {
+        const SUBS: usize = 2;
         match code {
             KeyCode::Enter if self.context.sub == 0 => {
                 self.context.sub = 1;
-                self.model.borrow_mut().next_method();
+                // Select a method if there is none selected yet.
+                if self.model.borrow().selected_method().is_none() {
+                    self.model.borrow_mut().next_method();
+                }
+                if let Some(method) = self.model.borrow().selected_method() {
+                    self.messages_model.borrow_mut().load_method(&method);
+                }
             }
             KeyCode::Enter if self.context.sub == 1 => {
-                self.context.tab = self.context.tab.next();
-                self.context.sub = 0;
+                if self.model.borrow().selected_method().is_none() {
+                    // Select a method if there is none selected yet.
+                    self.model.borrow_mut().next_method();
+                } else {
+                    // Otherwise go to next tab
+                    self.context.tab = self.context.tab.next();
+                    self.context.sub = 0;
+                }
             }
             KeyCode::Esc if self.context.sub == 1 => {
                 self.context.sub = 0;
                 self.model.borrow_mut().clear_method();
             }
-            KeyCode::Char('j') | KeyCode::Down => {
+            KeyCode::Up => {
+                self.context.sub = (self.context.sub + SUBS).saturating_sub(1) % SUBS;
+            }
+            KeyCode::Down => {
+                self.context.sub = self.context.sub.saturating_add(1) % SUBS;
+            }
+            KeyCode::Char('j') => {
                 if self.context.sub == 0 {
                     self.model.borrow_mut().next_service();
+                    self.model.borrow_mut().clear_method();
                 } else {
                     self.model.borrow_mut().next_method();
                 }
@@ -40,9 +59,10 @@ impl SelectionInput<'_, '_> {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Char('k') | KeyCode::Up => {
+            KeyCode::Char('k') => {
                 if self.context.sub == 0 {
                     self.model.borrow_mut().previous_service();
+                    self.model.borrow_mut().clear_method();
                 } else {
                     self.model.borrow_mut().previous_method();
                 }
@@ -58,19 +78,34 @@ impl SelectionInput<'_, '_> {
 /// The input on the messages page.
 pub struct MessagesInput<'a, 'b> {
     pub model: Rc<RefCell<MessagesModel<'a>>>,
-    pub sub_index: usize,
     pub context: &'b mut AppContext,
 }
 
 impl MessagesInput<'_, '_> {
-    pub fn handle(&self, event: KeyEvent) {
-        match event {
+    pub fn handle(&mut self, event: KeyEvent) {
+        const SUBS: usize = 2;
+        match event.code {
+            KeyCode::Down if !self.context.disable_root_events => {
+                self.context.sub = self.context.sub.saturating_add(1) % SUBS;
+            }
+            KeyCode::Up if !self.context.disable_root_events => {
+                self.context.sub = (self.context.sub + SUBS).saturating_sub(1) % SUBS;
+            }
+            KeyCode::Enter if self.context.sub == 0 && !self.context.disable_root_events => {
+                self.model.borrow_mut().call_grpc();
+            }
+            KeyCode::Char('F') if self.context.sub == 0 && !self.context.disable_root_events => {
+                let request = &mut self.model.borrow_mut().request.editor;
+                request.format_json();
+            }
             _ => {
-                log_to_file("a");
+                let request = &mut self.model.borrow_mut().request.editor;
                 if self.context.sub == 0 {
-                    log_to_file("v");
-                    self.model.borrow_mut().request.editor.on_key(event);
+                    request.on_key(event);
                 }
+                // Disable all root key events if one of the editors went into insert mode
+                // to not overwrite keys such as 'q' for quitting.
+                self.context.disable_root_events = request.insert_mode();
             }
         }
     }
