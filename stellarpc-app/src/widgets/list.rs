@@ -49,12 +49,12 @@ impl<'a> ListItem<'a> {
 }
 
 impl<'a> WidgetItem for ListItem<'a> {
-    fn highlighted(&self) -> Self {
+    fn highlighted(&self) -> Option<Self> {
         let mut item = self.clone();
         let highlight_style = THEME.list.selected;
         item.prefix = Some(">>");
         item.style = highlight_style;
-        item
+        Some(item)
     }
     fn render(&self, area: Rect, buf: &mut Buffer) {
         let text = if let Some(prefix) = self.prefix {

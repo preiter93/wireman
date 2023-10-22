@@ -43,7 +43,7 @@ impl Root<'_, '_> {
                 sub: self.context.sub,
             }
             .render(area, buf),
-            Tab::Headers => HeadersTab::new(&self.ctrl.metadata.borrow()).render(area, buf),
+            Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).render(area, buf),
         };
     }
 

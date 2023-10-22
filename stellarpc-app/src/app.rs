@@ -2,7 +2,7 @@ use std::io::stdout;
 
 use crate::{
     controller::Controller,
-    input::{MessagesInput, SelectionInput},
+    input::{HeadersInput, MessagesInput, SelectionInput},
     model::CoreClient,
     view::root::Root,
     AppConfig,
@@ -65,17 +65,6 @@ impl Tab {
     }
 }
 
-// #[derive(PartialEq, Eq)]
-// pub enum Window {
-//     Services,
-//     Methods,
-//     Request,
-//     Response,
-//     Address,
-//     Metadata,
-//     History,
-// }
-
 impl<'a> App<'a> {
     pub fn new(core_client: CoreClient, config: AppConfig) -> App<'a> {
         App {
@@ -135,7 +124,11 @@ impl<'a> App<'a> {
                         context: &mut self.context,
                     }
                     .handle(event),
-                    _ => {}
+                    Tab::Headers => HeadersInput {
+                        model: self.controller.headers.clone(),
+                        context: &mut self.context,
+                    }
+                    .handle(event),
                 },
             }
         }

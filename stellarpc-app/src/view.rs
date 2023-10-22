@@ -1,4 +1,3 @@
-pub mod address;
 pub mod headers;
 pub mod help;
 pub mod history;

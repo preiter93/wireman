@@ -15,7 +15,7 @@ use crate::{commons::editor::TextEditor, theme::COL_WINDOW_BORDER_HIGHLIGHTED_FG
 
 #[derive(Clone)]
 pub struct Tile<'a> {
-    editor: TextEditor<'a>,
+    editor: TextEditor,
     style: Style,
     block: Block<'a>,
 }
@@ -43,10 +43,10 @@ impl<'a> Tile<'a> {
         self
     }
 
-    pub fn into_editor(mut self) -> TextEditor<'a> {
-        self.editor.update_style();
-        self.editor.set_block(self.block);
-        self.editor.set_style(self.style);
+    pub fn into_editor(self) -> TextEditor {
+        // self.editor.update_style();
+        // self.editor.set_block(self.block);
+        // self.editor.set_style(self.style);
         self.editor
     }
 }
@@ -85,23 +85,23 @@ impl<'a> KeyValue<'a> {
             .style_val(Style::default().bg(Color::Black).fg(Color::White))
     }
 
-    pub fn get_key(&self) -> &'_ TextEditor<'a> {
+    pub fn get_key(&self) -> &'_ TextEditor {
         &self.key.editor
     }
 
-    pub fn get_val(&self) -> &'_ TextEditor<'a> {
+    pub fn get_val(&self) -> &'_ TextEditor {
         &self.val.editor
     }
 
-    pub fn get_key_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_key_mut(&mut self) -> &'_ mut TextEditor {
         &mut self.key.editor
     }
 
-    pub fn get_val_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_val_mut(&mut self) -> &'_ mut TextEditor {
         &mut self.val.editor
     }
 
-    pub fn get_selected(&self) -> &'_ TextEditor<'a> {
+    pub fn get_selected(&self) -> &'_ TextEditor {
         if self.is_key_selected() {
             self.get_key()
         } else {
@@ -109,7 +109,7 @@ impl<'a> KeyValue<'a> {
         }
     }
 
-    pub fn get_selected_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_selected_mut(&mut self) -> &'_ mut TextEditor {
         if self.is_key_selected() {
             self.get_key_mut()
         } else {
@@ -185,12 +185,12 @@ impl<'a> WidgetItem for KeyValue<'a> {
         let width = (f64::from(area.width - 2_u16) * 0.5) as u16;
         let height = area.height;
         let area = Rect::new(x, y, width, height);
-        self.key.clone().into_editor().render(area, buf);
+        // self.key.clone().into_editor().render(area, buf);
 
         // Render value
         let x = area.right() + 2_u16;
-        let area = Rect::new(x, y, width, height);
-        self.val.clone().into_editor().render(area, buf);
+        let _ = Rect::new(x, y, width, height);
+        // self.val.clone().into_editor().render(area, buf);
     }
 
     fn height(&self) -> usize {
@@ -201,7 +201,7 @@ impl<'a> WidgetItem for KeyValue<'a> {
         }
     }
 
-    fn highlighted(&self) -> Self {
+    fn highlighted(&self) -> Option<Self> {
         let mut item: KeyValue = self.clone();
         let highlighted = Block::default()
             .borders(Borders::ALL)
@@ -213,9 +213,9 @@ impl<'a> WidgetItem for KeyValue<'a> {
         if item.is_val_selected() {
             item = item.block_val(highlighted.title("Value"));
         }
-        // Makes sure that the editor changes in insert mode
-        item.key.editor.update_style();
-        item.val.editor.update_style();
-        item
+        // // Makes sure that the editor changes in insert mode
+        // item.key.editor.update_style();
+        // item.val.editor.update_style();
+        Some(item)
     }
 }

@@ -1,5 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
-use super::{core_client::CoreClient, history::HistoryData, AddressModel, MetadataModel};
+use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryData, MetadataModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::MethodDescriptor;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
@@ -9,10 +9,10 @@ type MessagesCache = HashMap<String, (String, String)>;
 
 pub struct MessagesModel<'a> {
     /// The request editor model
-    pub request: RequestModel<'a>,
+    pub request: RequestModel,
 
     /// The response text model
-    pub response: ResponseModel<'a>,
+    pub response: ResponseModel,
 
     /// Cache previous request/response
     cache: MessagesCache,
@@ -23,8 +23,8 @@ pub struct MessagesModel<'a> {
     /// The currently selected method
     pub(crate) selected_method: Option<MethodDescriptor>,
 
-    /// A reference to the address model
-    pub(super) address_model: Rc<RefCell<AddressModel<'a>>>,
+    /// A reference to the headers model
+    pub(super) headers_model: Rc<RefCell<HeadersModel>>,
 
     /// A reference to the address model
     pub(super) metadata_model: Rc<RefCell<MetadataModel<'a>>>,
@@ -35,7 +35,7 @@ impl<'a> MessagesModel<'a> {
     /// the common messages model.
     pub fn new(
         core_client: Rc<RefCell<CoreClient>>,
-        address_model: Rc<RefCell<AddressModel<'a>>>,
+        headers_model: Rc<RefCell<HeadersModel>>,
         metadata_model: Rc<RefCell<MetadataModel<'a>>>,
     ) -> Self {
         let request = RequestModel::new(core_client);
@@ -46,8 +46,8 @@ impl<'a> MessagesModel<'a> {
             cache: HashMap::new(),
             loaded_cache_id: String::new(),
             selected_method: None,
-            address_model,
             metadata_model,
+            headers_model,
         }
     }
 
@@ -128,7 +128,7 @@ impl<'a> MessagesModel<'a> {
             }
 
             // Address
-            let address = self.address_model.borrow().editor.get_text_raw();
+            let address = self.headers_model.borrow().address.get_text_raw();
 
             // Request
             let resp = self
@@ -169,14 +169,14 @@ impl<'a> MessagesModel<'a> {
 
     pub fn apply_history(&mut self, history: &HistoryData) {
         *self.metadata_model.borrow_mut() = MetadataModel::from_raw(&history.metadata);
-        *self.address_model.borrow_mut() = AddressModel::new(&history.address);
+        *self.headers_model.borrow_mut() = HeadersModel::new(&history.address);
         self.request.editor.set_text_raw(&history.message);
     }
 
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
-            let address = self.address_model.borrow().editor.get_text_raw();
+            let address = self.headers_model.borrow().address.get_text_raw();
 
             let message = self.request.editor.get_text_raw();
 
@@ -195,18 +195,18 @@ impl<'a> MessagesModel<'a> {
 }
 
 #[derive(Clone)]
-pub struct RequestModel<'a> {
+pub struct RequestModel {
     /// The core client retrieves default proto message and making grpc calls.
     core_client: Rc<RefCell<CoreClient>>,
 
     /// The currently active editor
-    pub editor: TextEditor<'a>,
+    pub editor: TextEditor,
 
     /// The metadata
     pub metadata: String,
 }
 
-impl<'a> RequestModel<'a> {
+impl RequestModel {
     /// Returns a request model. Requires the core client which retrieves the
     /// proto message and calls the grpc client.
     pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
@@ -231,12 +231,12 @@ impl<'a> RequestModel<'a> {
 }
 
 #[derive(Clone)]
-pub struct ResponseModel<'a> {
+pub struct ResponseModel {
     // The response text field
-    pub editor: TextEditor<'a>,
+    pub editor: TextEditor,
 }
 
-impl<'a> ResponseModel<'a> {
+impl ResponseModel {
     /// Returns a response model.
     pub fn new() -> Self {
         Self {
