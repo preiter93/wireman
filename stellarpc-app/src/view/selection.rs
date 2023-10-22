@@ -1,43 +1,65 @@
 #![allow(clippy::cast_possible_truncation)]
-use crate::controller::Controller;
-use crate::widgets::list::ListItem as ListItem2;
-use crate::widgets::list_with_children::ItemWithChildren;
-use ratatui::backend::Backend;
+use crate::model::SelectionModel;
+use crate::widgets::list::ListItem;
 use ratatui::layout::Rect;
-use ratatui::widgets::Block;
-use ratatui::Frame;
+use ratatui::prelude::*;
+use ratatui::widgets::{Block, Borders, Padding, Widget};
 use tui_widget_list::WidgetList;
 
-/// Draws the service/method selection tile.
-pub fn render_selection<B>(f: &mut Frame<B>, area: Rect, controller: &mut Controller, block: Block)
-where
-    B: Backend,
-{
-    let model = &mut controller.selection;
-    let items: Vec<_> = model
-        .items
-        .iter()
-        .enumerate()
-        .map(|(i, item)| {
-            let service = item.service.clone();
-            let is_expanded = model.state.expanded_parent();
-            let methods = match is_expanded {
-                Some(expanded) if expanded == i => item
-                    .methods
-                    .iter()
-                    .map(|x| ListItem2::new(x.clone()).prefix(Some("    ")))
-                    .collect(),
-                _ => Vec::new(),
-            };
-            let mut methods_list = WidgetList::new(methods);
-            methods_list.state.select(model.state.selected_child());
-            ItemWithChildren::new(service, methods_list)
-        })
-        .collect();
+use super::theme::THEME;
 
-    let mut widget = WidgetList::new(items);
-    widget.state.select(model.state.selected_parent());
-    widget = widget.block(block);
+/// The page where to select services and methods.
+pub struct SelectionTab<'a> {
+    model: &'a SelectionModel,
+}
 
-    f.render_widget(&mut widget, area);
+impl<'a> SelectionTab<'a> {
+    pub fn new(model: &'a SelectionModel) -> Self {
+        Self { model }
+    }
+
+    pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
+        vec![
+            ("q", "Quit"),
+            ("Tab", "Next Tab"),
+            ("↑/k", "Up"),
+            ("↓/j", "Down"),
+            ("Enter", "Select"),
+        ]
+    }
+}
+
+impl Widget for SelectionTab<'_> {
+    fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
+        // Layout
+        let area = Layout::default()
+            .direction(ratatui::layout::Direction::Vertical)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+            .split(area);
+        let items = self.model.items.clone();
+
+        // Block
+        let block = Block::new()
+            .borders(Borders::ALL)
+            .title_alignment(Alignment::Center)
+            .style(THEME.content)
+            .padding(Padding::new(1, 1, 1, 1));
+
+        // Services
+        let svcs = items.into_iter().map(|e| ListItem::new(e.service));
+        let mut svc_list = WidgetList::new(svcs.collect());
+        svc_list.state.select(self.model.state.selected_parent());
+        svc_list = svc_list.block(block.clone().title("Services").bold().white());
+        svc_list.render(area[0], buf);
+
+        // Methods
+        if let Some(svc_index) = self.model.state.selected_parent() {
+            let mthds = &self.model.items[svc_index].methods;
+            let mthds = mthds.iter().map(|e| ListItem::new(e.to_string()));
+            let mut mth_list = WidgetList::new(mthds.collect());
+            mth_list.state.select(self.model.state.selected_child());
+            mth_list = mth_list.block(block.title("Methods").bold().white());
+            mth_list.render(area[1], buf);
+        }
+    }
 }

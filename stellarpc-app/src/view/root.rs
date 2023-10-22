@@ -1,24 +1,25 @@
-use crate::app::AppContext;
+use crate::{app::AppContext, controller::Controller};
 
-use super::theme::THEME;
+use super::{selection::SelectionTab, theme::THEME};
 use ratatui::{prelude::*, widgets::*};
 use std::rc::Rc;
 
-pub struct Root<'a> {
+pub struct Root<'a, 'b> {
     context: &'a AppContext,
+    ctrl: &'a Controller<'b>,
 }
 
-impl<'a> Root<'a> {
-    pub fn new(context: &'a AppContext) -> Self {
-        Root { context }
+impl<'a, 'b> Root<'a, 'b> {
+    pub fn new(context: &'a AppContext, ctrl: &'a Controller<'b>) -> Self {
+        Root { context, ctrl }
     }
 }
-impl Root<'_> {
-    fn render_title_bar(&self, area: Rect, buf: &mut Buffer) {
+impl Root<'_, '_> {
+    fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let area = layout(area, Direction::Horizontal, vec![0, 45]);
 
         Paragraph::new(Span::styled("StellaRPC", THEME.app_title)).render(area[0], buf);
-        let titles = vec![" Message ", " Headers "];
+        let titles = vec![" Selection ", " Messages ", " Headers "];
         Tabs::new(titles)
             .style(THEME.tabs)
             .highlight_style(THEME.tabs_selected)
@@ -27,15 +28,18 @@ impl Root<'_> {
             .render(area[1], buf);
     }
 
-    fn render_bottom_bar(&self, area: Rect, buf: &mut Buffer) {
-        let keys = [
-            ("q", "Quit"),
-            ("Tab", "Next Tab"),
-            ("↑/k", "Up"),
-            ("↓/j", "Down"),
-            ("←/h", "Left"),
-            ("→/l", "Right"),
-        ];
+    fn render_content(&self, area: Rect, buf: &mut Buffer) {
+        match self.context.tab_index {
+            0 => SelectionTab::new(&self.ctrl.selection).render(area, buf),
+            _ => unreachable!(),
+        };
+    }
+
+    fn render_footer(&self, area: Rect, buf: &mut Buffer) {
+        let keys = match self.context.tab_index {
+            0 => SelectionTab::footer_keys(),
+            _ => unreachable!(),
+        };
         let spans: Vec<Span> = keys
             .iter()
             .flat_map(|(key, desc)| {
@@ -52,12 +56,13 @@ impl Root<'_> {
     }
 }
 
-impl Widget for Root<'_> {
+impl Widget for Root<'_, '_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         Block::new().style(THEME.root).render(area, buf);
         let area = layout(area, Direction::Vertical, vec![1, 0, 1]);
-        self.render_title_bar(area[0], buf);
-        self.render_bottom_bar(area[2], buf);
+        self.render_navbar(area[0], buf);
+        self.render_content(area[1], buf);
+        self.render_footer(area[2], buf);
     }
 }
 

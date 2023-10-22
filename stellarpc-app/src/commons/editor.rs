@@ -264,7 +264,7 @@ impl<'a> TextEditor<'a> {
     // }
 }
 
-impl<'a> Widget for &TextEditor<'_> {
+impl Widget for &TextEditor<'_> {
     fn render(self, area: ratatui::layout::Rect, buf: &mut ratatui::buffer::Buffer) {
         let mut widget = Editor::new(&self.buffer);
         widget.set_style(self.style);
