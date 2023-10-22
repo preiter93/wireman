@@ -1,6 +1,6 @@
 [package]
 name = "stellarpc_app"
-version = "0.2.0"
+version = "0.1.0"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
@@ -19,8 +19,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 unicode-width = "0.1"
 http = "0.2"
-tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.3.0" }
-tui-vim-editor = { package = "tui-vim-editor", path = "../../tui-vim-editor", version = "0.1.0" }
+tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.3.1" }
+tui-vim-editor = { package = "tui-vim-editor", path = "../../tui-vim-editor", version = "0.1" }
 lazy_static = "1.4.0"
 # Clipboard
 arboard = "3.2.0"

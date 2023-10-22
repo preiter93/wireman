@@ -4,7 +4,10 @@ use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{
     app::AppContext,
-    model::{MessagesModel, SelectionModel},
+    model::{
+        headers::{HeadersModel, HeadersSelection},
+        MessagesModel, SelectionModel,
+    },
 };
 
 /// The input on the select services and methods page
@@ -106,6 +109,39 @@ impl MessagesInput<'_, '_> {
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.
                 self.context.disable_root_events = request.insert_mode();
+            }
+        }
+    }
+}
+
+/// The input on the headers page.
+pub struct HeadersInput<'a> {
+    pub model: Rc<RefCell<HeadersModel>>,
+    pub context: &'a mut AppContext,
+}
+
+impl HeadersInput<'_> {
+    pub fn handle(&mut self, event: KeyEvent) {
+        const SUBS: usize = 2;
+        match event.code {
+            KeyCode::Char('j') | KeyCode::Down if !self.context.disable_root_events => {
+                let prev = self.model.borrow().selected.prev();
+                self.model.borrow_mut().selected = prev;
+            }
+            KeyCode::Char('k') | KeyCode::Up if !self.context.disable_root_events => {
+                let next = self.model.borrow().selected.next();
+                self.model.borrow_mut().selected = next;
+            }
+            _ => {
+                let selected = self.model.borrow().selected.clone();
+                match selected {
+                    HeadersSelection::Address => self.model.borrow_mut().address.on_key(event),
+                    HeadersSelection::Bearer => self.model.borrow_mut().bearer.on_key(event),
+                    _ => {}
+                }
+                // Disable all root key events if one of the editors went into insert mode
+                // to not overwrite keys such as 'q' for quitting.
+                self.context.disable_root_events = self.model.borrow().bearer.insert_mode();
             }
         }
     }

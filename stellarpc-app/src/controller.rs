@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::{
     model::{
-        history::HistoryModel, AddressModel, CoreClient, MessagesModel, MetadataModel,
+        headers::HeadersModel, history::HistoryModel, CoreClient, MessagesModel, MetadataModel,
         SelectionModel,
     },
     AppConfig,
@@ -16,11 +16,11 @@ pub struct Controller<'a> {
     /// The model for the request and response messages
     pub messages: Rc<RefCell<MessagesModel<'a>>>,
 
-    /// The model for the address field
-    pub address: Rc<RefCell<AddressModel<'a>>>,
-
     /// The model for the metadata field
     pub metadata: Rc<RefCell<MetadataModel<'a>>>,
+
+    /// The model for the headers
+    pub headers: Rc<RefCell<HeadersModel>>,
 
     /// The model for the request history
     pub history: HistoryModel,
@@ -51,18 +51,17 @@ impl<'a> Controller<'a> {
             &core_client_rc,
         ))));
 
-        // The address model
-        let address = Rc::new(RefCell::new(AddressModel::new(
-            &core_client_rc.borrow().get_default_address(),
-        )));
-
         // The metadata model
         let metadata = Rc::new(RefCell::new(MetadataModel::new()));
+
+        // The metadata model
+        let server_address = &core_client_rc.borrow().get_default_address();
+        let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
 
         // The messages model
         let messages = Rc::new(RefCell::new(MessagesModel::new(
             core_client_rc,
-            Rc::clone(&address),
+            Rc::clone(&headers),
             Rc::clone(&metadata),
         )));
 
@@ -72,8 +71,8 @@ impl<'a> Controller<'a> {
         Self {
             selection,
             messages,
-            address,
             metadata,
+            headers,
             history,
             show_help: true,
             show_address: false,

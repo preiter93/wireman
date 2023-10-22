@@ -72,13 +72,13 @@ impl<'a> MetadataModel<'a> {
             .map_or(false, KeyValue::is_key_selected)
     }
 
-    pub fn get_selected(&self) -> Option<&'_ TextEditor<'a>> {
+    pub fn get_selected(&self) -> Option<&'_ TextEditor> {
         self.selected
             .and_then(|index| self.items.get(index))
             .map(KeyValue::get_selected)
     }
 
-    pub fn get_selected_mut(&mut self) -> Option<&'_ mut TextEditor<'a>> {
+    pub fn get_selected_mut(&mut self) -> Option<&'_ mut TextEditor> {
         self.selected
             .and_then(|index| self.items.get_mut(index))
             .map(KeyValue::get_selected_mut)

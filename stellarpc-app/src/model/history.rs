@@ -152,7 +152,7 @@ pub struct HistoryData {
 impl HistoryData {
     pub fn from_model(model: &MessagesModel) -> Self {
         let metadata = model.metadata_model.borrow().as_raw();
-        let address = model.address_model.borrow().editor.get_text_raw();
+        let address = model.headers_model.borrow().address.get_text_raw();
         let message = model.request.editor.get_text_raw();
         Self {
             metadata,
