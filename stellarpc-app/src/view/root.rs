@@ -1,6 +1,6 @@
 use crate::{app::AppContext, controller::Controller};
 
-use super::{selection::SelectionTab, theme::THEME};
+use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
 use ratatui::{prelude::*, widgets::*};
 use std::rc::Rc;
 
@@ -31,6 +31,8 @@ impl Root<'_, '_> {
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
         match self.context.tab_index {
             0 => SelectionTab::new(&self.ctrl.selection).render(area, buf),
+            1 => MessagesTab::new(&self.ctrl.messages).render(area, buf),
+            2 => HeadersTab::new(&self.ctrl.metadata.borrow()).render(area, buf),
             _ => unreachable!(),
         };
     }
@@ -38,6 +40,8 @@ impl Root<'_, '_> {
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
         let keys = match self.context.tab_index {
             0 => SelectionTab::footer_keys(),
+            1 => SelectionTab::footer_keys(),
+            2 => HeadersTab::footer_keys(),
             _ => unreachable!(),
         };
         let spans: Vec<Span> = keys

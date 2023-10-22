@@ -2,7 +2,7 @@ use std::io::stdout;
 
 use crate::{controller::Controller, model::CoreClient, view::root::Root, AppConfig};
 use crossterm::{
-    event::{self, Event},
+    event::{self, Event, KeyCode, KeyModifiers},
     terminal::{disable_raw_mode, LeaveAlternateScreen},
     ExecutableCommand,
 };
@@ -52,8 +52,20 @@ impl<'a> App<'a> {
 
     fn handle_events(&mut self) -> std::io::Result<()> {
         if let Event::Key(event) = event::read()? {
-            let quit = self.controller.on_event(event);
-            self.should_quit = quit;
+            const TAB_COUNT: usize = 3;
+            match event.code {
+                KeyCode::BackTab => {
+                    let tab_index = self.context.tab_index + TAB_COUNT;
+                    self.context.tab_index = tab_index.saturating_sub(1) % TAB_COUNT;
+                }
+                KeyCode::Tab => {
+                    self.context.tab_index = self.context.tab_index.saturating_add(1) % TAB_COUNT;
+                }
+                _ => {
+                    let quit = self.controller.on_event(event);
+                    self.should_quit = quit;
+                }
+            }
         }
         Ok(())
     }
