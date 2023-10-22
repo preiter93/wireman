@@ -1,6 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyEvent;
 use lazy_static::lazy_static;
 use ratatui::{
     style::Style,

@@ -1,8 +1,8 @@
 use crate::commons::editor::ErrorKind;
 use config::Config;
 use core::{
-    client::grpcurl::request_as_grpcurl,
     descriptor::{RequestMessage, ResponseMessage},
+    features::grpcurl,
     MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 use http::Uri;
@@ -61,7 +61,7 @@ impl CoreClient {
             kind: "ParseAddressError".to_string(),
             msg: String::new(),
         })?;
-        let resp = core::call_unary_blocking(uri, req)?;
+        let resp = core::client::call_unary_blocking(uri, req)?;
         Ok(resp)
     }
 
@@ -70,11 +70,15 @@ impl CoreClient {
         &self,
         message: &str,
         method_desc: &MethodDescriptor,
-        metadata: HashMap<String, String>,
+        metadata: &HashMap<String, String>,
         address: &str,
     ) -> Result<String, String> {
-        let uri = Uri::try_from(address).map_err(|_| "Failed to get uri from address")?;
-        request_as_grpcurl(&self.grpc.0.includes, uri, message, method_desc, metadata)
-            .map_err(|err| err.to_string())
+        Ok(grpcurl(
+            &self.grpc.0.includes,
+            Uri::try_from(address).map_err(|_| "Failed to parse address")?,
+            message,
+            method_desc,
+            metadata,
+        ))
     }
 }

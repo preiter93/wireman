@@ -19,10 +19,10 @@ impl<'a, 'b> Root<'a, 'b> {
 }
 impl Root<'_, '_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Horizontal, vec![0, 45]);
+        let area = layout(area, Direction::Horizontal, vec![0, 55]);
 
         Paragraph::new(Span::styled("StellaRPC", THEME.app_title)).render(area[0], buf);
-        let titles = vec![" Selection ", " Messages ", " Headers "];
+        let titles = vec![" Selection ", " Messages ", " Address & Headers "];
         Tabs::new(titles)
             .style(THEME.tabs)
             .highlight_style(THEME.tabs_selected)
