@@ -23,7 +23,7 @@ struct GrpcClientConfig(Config);
 
 impl CoreClient {
     pub fn new(cfg: Config) -> Result<Self, Box<dyn Error>> {
-        let desc = ProtoDescriptor::new(cfg.includes.clone(), cfg.files.clone())?;
+        let desc = ProtoDescriptor::new(cfg.includes(), cfg.files())?;
         let grpc = GrpcClientConfig(cfg);
         Ok(Self { desc, grpc })
     }

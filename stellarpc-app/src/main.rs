@@ -20,6 +20,11 @@ use std::{env, error::Error, io, path::PathBuf, str::FromStr};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+/// This env is used to read the path to the stellarpc config.
+/// If it is not set, the config is expected in the current
+/// directory.
+const ENV_CONFIG: &str = "STELLARPC_CONFIG";
+
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
     let cfg = init_config()?;
@@ -75,7 +80,7 @@ fn get_env() -> String {
     if let Some(config) = args.get(1) {
         return config.to_string();
     }
-    "config.json".to_string()
+    env::var(ENV_CONFIG).unwrap_or("confi.json".to_string())
 }
 
 /// Initializes the terminal.
