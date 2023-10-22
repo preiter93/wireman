@@ -4,6 +4,7 @@ use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
 use ratatui::layout::Rect;
+use ratatui::style::Style;
 use ratatui::style::Stylize;
 use ratatui::widgets::Block;
 use ratatui::widgets::BorderType;
@@ -25,9 +26,9 @@ impl<'a, 'b> MessagesTab<'a, 'b> {
         vec![
             ("q", "Quit"),
             ("Tab", "Next Tab"),
-            ("↑/k", "Up"),
-            ("↓/j", "Down"),
-            ("Enter", "Select"),
+            ("↑", "Up"),
+            ("↓", "Down"),
+            ("Enter", "Send"),
         ]
     }
 }
@@ -54,6 +55,9 @@ impl Widget for MessagesTab<'_, '_> {
         if self.sub == 0 {
             req_block = req_block.border_type(BorderType::Double)
         }
+        if self.sub != 0 {
+            widget.set_cursor_style(Style::default());
+        }
         widget.set_block(req_block);
         widget.render(area[0], buf);
 
@@ -63,6 +67,9 @@ impl Widget for MessagesTab<'_, '_> {
         let mut resp_block = block.clone().title("Response").bold().white();
         if self.sub == 1 {
             resp_block = resp_block.border_type(BorderType::Double)
+        }
+        if self.sub != 1 {
+            widget.set_cursor_style(Style::default());
         }
         widget.set_block(resp_block);
         widget.render(area[1], buf);

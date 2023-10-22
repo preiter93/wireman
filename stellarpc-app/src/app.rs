@@ -27,6 +27,11 @@ pub struct AppContext {
 
     /// The sub window
     pub sub: usize,
+
+    /// Disable root key events. if an editor
+    /// goes into insert mode, global key events
+    /// such as quit and tab should be disabled
+    pub disable_root_events: bool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
@@ -105,15 +110,15 @@ impl<'a> App<'a> {
     fn handle_events(&mut self) -> std::io::Result<()> {
         if let Event::Key(event) = event::read()? {
             match event.code {
-                KeyCode::BackTab => {
+                KeyCode::BackTab if !self.context.disable_root_events => {
                     self.context.tab = self.context.tab.prev();
                     self.context.sub = 0;
                 }
-                KeyCode::Tab => {
+                KeyCode::Tab if !self.context.disable_root_events => {
                     self.context.tab = self.context.tab.next();
                     self.context.sub = 0;
                 }
-                KeyCode::Char('q') => {
+                KeyCode::Char('q') if !self.context.disable_root_events => {
                     self.should_quit = true;
                 }
                 _ => match self.context.tab {
@@ -127,7 +132,6 @@ impl<'a> App<'a> {
                     }
                     Tab::Messages => MessagesInput {
                         model: self.controller.messages.clone(),
-                        sub_index: self.context.sub,
                         context: &mut self.context,
                     }
                     .handle(event),

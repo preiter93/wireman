@@ -1,15 +1,13 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent};
 use lazy_static::lazy_static;
 use ratatui::{
     style::Style,
     widgets::{Block, Widget},
 };
 use std::sync::Mutex;
-use tui_vim_editor::{Buffer, Editor, Input};
-
-use super::debug::log_to_file;
+use tui_vim_editor::{buffer::mode::Mode, Buffer, Editor, Input};
 
 lazy_static! {
     pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
@@ -25,13 +23,13 @@ pub struct TextEditor<'a> {
     /// Error buffer
     error: Option<ErrorKind>,
 
-    /// The editor mode
-    mode: EditorMode,
-
     /// The block
     block: Option<Block<'a>>,
 
     style: Style,
+
+    /// Whether the editor is focused.
+    focus: bool,
 }
 
 impl<'a> Default for TextEditor<'a> {
@@ -46,16 +44,24 @@ impl<'a> TextEditor<'a> {
         Self {
             buffer: Buffer::new(),
             error: None,
-            mode: EditorMode::Normal,
             block: None,
             style: Style::default(),
+            focus: false,
         }
     }
 
-    /// Whether we are in insert mode
-    pub fn insert_mode(&self) -> bool {
-        self.mode == EditorMode::Insert
+    pub fn focus(&mut self) {
+        self.focus = true;
     }
+
+    pub fn unfocus(&mut self) {
+        self.focus = false;
+    }
+
+    // /// Whether we are in insert mode
+    // pub fn insert_mode(&self) -> bool {
+    //     self.mode == EditorMode::Insert
+    // }
 
     /// Returns an empty editor
     pub fn from_str(text: &str) -> Self {
@@ -97,14 +103,9 @@ impl<'a> TextEditor<'a> {
         self.buffer.clear()
     }
 
-    /// Go into normal mode
-    pub fn set_normal_mode(&mut self) {
-        self.mode = EditorMode::Normal;
-    }
-
-    /// Go into insert mode
-    pub fn set_insert_mode(&mut self) {
-        self.mode = EditorMode::Insert;
+    /// Whether the editor is in insert mode
+    pub fn insert_mode(&self) -> bool {
+        self.buffer.mode == Mode::Insert
     }
 
     /// Paste text from clipboard to editor
@@ -183,54 +184,53 @@ impl<'a> TextEditor<'a> {
         self.buffer.lines().is_empty()
     }
 
-    /// Returns the editors mode
-    pub fn mode(&self) -> EditorMode {
-        self.mode.clone()
-    }
-
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent) {
         let mut input = Input::default();
-        log_to_file("got key");
         match key.code {
-            _ => input.on_key(key, &mut self.buffer),
-            // KeyCode::Char('i') => self.mode = EditorMode::Insert,
-            // KeyCode::Char('a') => {
-            //     self.mode = EditorMode::Insert;
-            //     self.buffer.move_cursor(CursorMove::Forward);
-            // }
-            // // Cursor movement
-            // KeyCode::Down | KeyCode::Char('j') => self.buffer.move_cursor(CursorMove::Down),
-            // KeyCode::Up | KeyCode::Char('k') => self.buffer.move_cursor(CursorMove::Up),
-            // KeyCode::Left | KeyCode::Char('h') => self.buffer.move_cursor(CursorMove::Back),
-            // KeyCode::Right | KeyCode::Char('l') => self.buffer.move_cursor(CursorMove::Forward),
-            // KeyCode::Char('w') => self.buffer.move_cursor(CursorMove::WordForward),
-            // KeyCode::Char('b') => self.buffer.move_cursor(CursorMove::WordBack),
-            // KeyCode::Char('J') => self.buffer.move_cursor(CursorMove::End),
-            // KeyCode::Char('H') => self.buffer.move_cursor(CursorMove::Head),
-            // // Delete
-            // KeyCode::Char('x') => {
-            //     self.buffer.delete_next_char();
-            // }
-            // KeyCode::Char('d') => {
-            //     self.buffer.delete_line_by_end();
-            // }
-            // KeyCode::Char('D') => {
-            //     self.buffer.delete_line_by_head();
-            // }
-            // // Undo
-            // KeyCode::Char('u') => {
-            //     self.buffer.undo();
-            // }
-            // KeyCode::Char('r') => {
-            //     self.buffer.redo();
-            // }
-            // // Yank & Paste
-            // KeyCode::Char('p') => self.paste_from_clipboard(),
-            // KeyCode::Char('y') => self.yank(),
-            // // Format json
-            // KeyCode::Char('f') => self.format_json(),
-            // _ => {}
+            // KeyCode::Enter if !self.focus => self.focus(),
+            // KeyCode::Esc if self.focus => self.unfocus(),
+            _ => {
+                // if self.focus {
+                input.on_key(key, &mut self.buffer);
+                // }
+            } // KeyCode::Char('i') => self.mode = EditorMode::Insert,
+              // KeyCode::Char('a') => {
+              //     self.mode = EditorMode::Insert;
+              //     self.buffer.move_cursor(CursorMove::Forward);
+              // }
+              // // Cursor movement
+              // KeyCode::Down | KeyCode::Char('j') => self.buffer.move_cursor(CursorMove::Down),
+              // KeyCode::Up | KeyCode::Char('k') => self.buffer.move_cursor(CursorMove::Up),
+              // KeyCode::Left | KeyCode::Char('h') => self.buffer.move_cursor(CursorMove::Back),
+              // KeyCode::Right | KeyCode::Char('l') => self.buffer.move_cursor(CursorMove::Forward),
+              // KeyCode::Char('w') => self.buffer.move_cursor(CursorMove::WordForward),
+              // KeyCode::Char('b') => self.buffer.move_cursor(CursorMove::WordBack),
+              // KeyCode::Char('J') => self.buffer.move_cursor(CursorMove::End),
+              // KeyCode::Char('H') => self.buffer.move_cursor(CursorMove::Head),
+              // // Delete
+              // KeyCode::Char('x') => {
+              //     self.buffer.delete_next_char();
+              // }
+              // KeyCode::Char('d') => {
+              //     self.buffer.delete_line_by_end();
+              // }
+              // KeyCode::Char('D') => {
+              //     self.buffer.delete_line_by_head();
+              // }
+              // // Undo
+              // KeyCode::Char('u') => {
+              //     self.buffer.undo();
+              // }
+              // KeyCode::Char('r') => {
+              //     self.buffer.redo();
+              // }
+              // // Yank & Paste
+              // KeyCode::Char('p') => self.paste_from_clipboard(),
+              // KeyCode::Char('y') => self.yank(),
+              // // Format json
+              // KeyCode::Char('f') => self.format_json(),
+              // _ => {}
         }
     }
 
@@ -283,6 +283,7 @@ impl Widget for &TextEditor<'_> {
 #[derive(Clone, PartialEq, Eq, Default)]
 pub enum EditorMode {
     #[default]
+    None,
     Normal,
     Insert,
 }
