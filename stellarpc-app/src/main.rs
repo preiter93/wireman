@@ -9,8 +9,7 @@ mod theme;
 mod view;
 mod widgets;
 use crate::app::App;
-use commons::debug::log_to_file;
-use config::{init_from_file, Config};
+use config::Config;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -43,11 +42,11 @@ pub struct AppConfig {
 /// Get config
 fn init_config() -> Result<Config> {
     let cfg_file = get_env();
-    log_to_file(cfg_file.clone());
-    Ok(init_from_file(&cfg_file).map_err(|err| {
+    let cfg = Config::load(&cfg_file).map_err(|err| {
         reset_terminal().unwrap();
         err
-    })?)
+    })?;
+    Ok(cfg)
 }
 
 /// Initiate the core client.
@@ -73,7 +72,6 @@ fn init_history(cfg: &Config) -> Result<PathBuf> {
 
 fn get_env() -> String {
     let args: Vec<String> = env::args().collect();
-    log_to_file(args.clone());
     if let Some(config) = args.get(1) {
         return config.to_string();
     }

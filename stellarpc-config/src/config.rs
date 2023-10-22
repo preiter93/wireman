@@ -24,7 +24,7 @@ pub struct Config {
 
 impl Config {
     /// Loads the config from a file.
-    pub(crate) fn load(file: &str) -> Result<Self> {
+    pub fn load(file: &str) -> Result<Self> {
         let data = read_to_string(file).map_err(Error::ReadConfigError)?;
         Self::parse_from_str(&data)
     }

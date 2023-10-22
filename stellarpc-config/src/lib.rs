@@ -1,21 +1,14 @@
+//! Configuration module for `StellaRPC`.
+//!
+//! This module provides functionality for defining and reading the configuration
+//! for `StellaRPC`. The configuration is typically read from a JSON file to
+//! customize `StellaRPC` behavior.
+//!
+//! The config contains:
+//!
+//! - `includes`: A list of include directories for gRPC.
+//! - `files`: A list of .proto files to include.
+//! - `address`: The address of the gRPC server.
 pub mod config;
 pub mod error;
 pub use config::Config;
-
-/// Checks if all requirements are met and initializes the config.
-///
-/// # Errors
-/// - config.json can not be loaded
-pub fn init() -> error::Result<config::Config> {
-    init_from_file("./config.json")
-}
-
-/// Checks if all requirements are met and initializes the config.
-///
-/// # Errors
-/// - config.json can not be loaded
-pub fn init_from_file(config_file: &str) -> error::Result<config::Config> {
-    let cfg = config::Config::load(config_file)?;
-
-    Ok(cfg)
-}
