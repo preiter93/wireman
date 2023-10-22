@@ -6,6 +6,7 @@ use ratatui::layout::Layout;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
 use ratatui::widgets::Block;
+use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
 use ratatui::widgets::Padding;
 use ratatui::widgets::Widget;
@@ -15,14 +16,11 @@ use super::theme::THEME;
 
 /// The request and response tab
 pub struct MessagesTab<'a, 'b> {
-    model: &'a MessagesModel<'b>,
+    pub model: &'a MessagesModel<'b>,
+    pub sub: usize,
 }
 
 impl<'a, 'b> MessagesTab<'a, 'b> {
-    pub fn new(model: &'a MessagesModel<'b>) -> Self {
-        Self { model }
-    }
-
     pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
         vec![
             ("q", "Quit"),
@@ -52,13 +50,21 @@ impl Widget for MessagesTab<'_, '_> {
         // Request
         let buffer = &self.model.request.editor.buffer;
         let mut widget = Editor::new(buffer);
-        widget.set_block(block.clone().title("Request").bold().white());
+        let mut req_block = block.clone().title("Request").bold().white();
+        if self.sub == 0 {
+            req_block = req_block.border_type(BorderType::Double)
+        }
+        widget.set_block(req_block);
         widget.render(area[0], buf);
 
         // Response
         let buffer = &self.model.response.editor.buffer;
         let mut widget = Editor::new(buffer);
-        widget.set_block(block.clone().title("Response").bold().white());
+        let mut resp_block = block.clone().title("Response").bold().white();
+        if self.sub == 1 {
+            resp_block = resp_block.border_type(BorderType::Double)
+        }
+        widget.set_block(resp_block);
         widget.render(area[1], buf);
     }
 }

@@ -33,8 +33,16 @@ impl Root<'_, '_> {
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
         match self.context.tab {
-            Tab::Selection => SelectionTab::new(&self.ctrl.selection.borrow()).render(area, buf),
-            Tab::Messages => MessagesTab::new(&self.ctrl.messages.borrow()).render(area, buf),
+            Tab::Selection => SelectionTab {
+                model: &self.ctrl.selection.borrow(),
+                sub: self.context.sub,
+            }
+            .render(area, buf),
+            Tab::Messages => MessagesTab {
+                model: &self.ctrl.messages.borrow(),
+                sub: self.context.sub,
+            }
+            .render(area, buf),
             Tab::Headers => HeadersTab::new(&self.ctrl.metadata.borrow()).render(area, buf),
         };
     }

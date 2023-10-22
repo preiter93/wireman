@@ -1,7 +1,11 @@
 use std::io::stdout;
 
 use crate::{
-    controller::Controller, input::SelectionInput, model::CoreClient, view::root::Root, AppConfig,
+    controller::Controller,
+    input::{MessagesInput, SelectionInput},
+    model::CoreClient,
+    view::root::Root,
+    AppConfig,
 };
 use crossterm::{
     event::{self, Event, KeyCode},
@@ -103,35 +107,30 @@ impl<'a> App<'a> {
             match event.code {
                 KeyCode::BackTab => {
                     self.context.tab = self.context.tab.prev();
+                    self.context.sub = 0;
                 }
                 KeyCode::Tab => {
                     self.context.tab = self.context.tab.next();
+                    self.context.sub = 0;
                 }
                 KeyCode::Char('q') => {
                     self.should_quit = true;
                 }
                 _ => match self.context.tab {
-                    Tab::Selection => match event.code {
-                        KeyCode::Enter if self.context.sub == 0 => {
-                            self.context.sub = 1;
-                            self.controller.selection.borrow_mut().next_method();
+                    Tab::Selection => {
+                        SelectionInput {
+                            model: self.controller.selection.clone(),
+                            messages_model: self.controller.messages.clone(),
+                            context: &mut self.context,
                         }
-                        KeyCode::Enter if self.context.sub == 1 => {
-                            self.context.tab = self.context.tab.next();
-                        }
-                        KeyCode::Esc if self.context.sub == 1 => {
-                            self.context.sub = 0;
-                            self.controller.selection.borrow_mut().clear_method();
-                        }
-                        _ => {
-                            SelectionInput {
-                                model: self.controller.selection.clone(),
-                                messages_model: self.controller.messages.clone(),
-                                sub_index: self.context.sub,
-                            }
-                            .handle(event.code);
-                        }
-                    },
+                        .handle(event.code);
+                    }
+                    Tab::Messages => MessagesInput {
+                        model: self.controller.messages.clone(),
+                        sub_index: self.context.sub,
+                        context: &mut self.context,
+                    }
+                    .handle(event),
                     _ => {}
                 },
             }
