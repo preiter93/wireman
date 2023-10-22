@@ -1,4 +1,5 @@
 pub mod address;
+pub mod headers;
 pub mod help;
 pub mod history;
 pub mod messages;
@@ -29,7 +30,6 @@ use std::rc::Rc;
 
 use self::address::render_address_popup;
 use self::history::render_history_popup;
-use self::messages::render_messages;
 use self::metadata::render_metadata_popup;
 
 /// render the widgets of this page
@@ -49,13 +49,6 @@ pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
     let chunks_l = split_left_column(chunks[0], controller);
 
     render_help(f, chunks_l[1], controller, &window_border("Help", false));
-
-    render_messages(
-        f,
-        chunks[1],
-        controller,
-        window_border("Request", controller.window == Window::Request),
-    );
 
     if controller.show_address {
         render_address_popup(

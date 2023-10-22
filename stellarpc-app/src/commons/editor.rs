@@ -18,7 +18,7 @@ lazy_static! {
 #[derive(Clone)]
 pub struct TextEditor<'a> {
     /// Textarea contains all the core functionality
-    buffer: Buffer,
+    pub buffer: Buffer,
 
     /// Error buffer
     error: Option<ErrorKind>,
@@ -26,6 +26,7 @@ pub struct TextEditor<'a> {
     /// The editor mode
     mode: EditorMode,
 
+    /// The block
     block: Option<Block<'a>>,
 
     style: Style,
