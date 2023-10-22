@@ -169,11 +169,6 @@ impl<'a> Controller<'a> {
                 model.clear_method();
                 self.messages.clear_method();
             }
-            KeyCode::Char('u') if !model.is_parent_selected() => {
-                model.collapse();
-                model.clear_method();
-                self.messages.clear_method();
-            }
             KeyCode::Char('?') => self.toggle_help(),
             KeyCode::Char('A') => self.toggle_address(),
             KeyCode::Char('M') => self.toggle_metadata(),

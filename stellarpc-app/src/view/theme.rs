@@ -10,11 +10,16 @@ pub struct Theme {
     pub description: Style,
     pub description_title: Style,
     pub key_binding: KeyBinding,
+    pub list: List,
 }
 
 pub struct KeyBinding {
     pub key: Style,
     pub description: Style,
+}
+
+pub struct List {
+    pub selected: Style,
 }
 
 pub const THEME: Theme = Theme {
@@ -36,6 +41,9 @@ pub const THEME: Theme = Theme {
     key_binding: KeyBinding {
         key: Style::new().fg(BLACK).bg(DARK_GRAY),
         description: Style::new().fg(DARK_GRAY).bg(BLACK),
+    },
+    list: List {
+        selected: Style::new().fg(DARK_BLUE).bg(WHITE),
     },
 };
 

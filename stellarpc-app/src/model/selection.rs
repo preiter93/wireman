@@ -156,7 +156,7 @@ impl SelectionModel {
     }
 
     /// Return the description of the currently selected service
-    fn get_selected_service(&self) -> Option<ServiceDescriptor> {
+    pub fn selected_service(&self) -> Option<ServiceDescriptor> {
         self.state
             .selected_parent()
             .map(|i| self.core_client.borrow().get_services()[i].clone())
@@ -164,8 +164,7 @@ impl SelectionModel {
 
     /// Return the descrption of the currently selected method
     pub fn selected_method(&self) -> Option<MethodDescriptor> {
-        if let (Some(service), Some(i)) = (self.get_selected_service(), self.state.selected_child())
-        {
+        if let (Some(service), Some(i)) = (self.selected_service(), self.state.selected_child()) {
             self.core_client
                 .borrow()
                 .get_methods(&service)
@@ -179,7 +178,7 @@ impl SelectionModel {
     /// Expands a service to show its methods. This is handled in the lists
     /// local state.
     pub fn expand(&mut self) {
-        if let Some(service) = self.get_selected_service() {
+        if let Some(service) = self.selected_service() {
             // do not expand if the service has no methods
             if self.core_client.borrow().get_methods(&service).is_empty() {
                 return;

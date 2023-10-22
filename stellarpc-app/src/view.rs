@@ -31,7 +31,6 @@ use self::address::render_address_popup;
 use self::history::render_history_popup;
 use self::messages::render_messages;
 use self::metadata::render_metadata_popup;
-use self::selection::render_selection;
 
 /// render the widgets of this page
 pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
@@ -48,13 +47,6 @@ pub fn render<B: Backend>(f: &mut Frame<B>, controller: &mut Controller) {
 
     // Left column
     let chunks_l = split_left_column(chunks[0], controller);
-
-    render_selection(
-        f,
-        chunks_l[0],
-        controller,
-        window_border("Selection", controller.window == Window::Selection),
-    );
 
     render_help(f, chunks_l[1], controller, &window_border("Help", false));
 

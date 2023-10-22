@@ -7,3 +7,5 @@ members = [
 ]
 
 default-members = ["stellarpc-app"]
+
+resolver = "2"

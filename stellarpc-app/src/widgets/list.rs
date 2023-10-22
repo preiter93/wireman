@@ -7,6 +7,8 @@ use ratatui::{
 };
 use tui_widget_list::WidgetItem;
 
+use crate::view::theme::THEME;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
     /// The items text
@@ -36,10 +38,10 @@ impl<'a> ListItem<'a> {
     //     self
     // }
 
-    pub fn prefix(mut self, prefix: Option<&'a str>) -> Self {
-        self.prefix = prefix;
-        self
-    }
+    // pub fn prefix(mut self, prefix: Option<&'a str>) -> Self {
+    //     self.prefix = prefix;
+    //     self
+    // }
 
     // pub fn width(&self) -> usize {
     //     self.text.width()
@@ -49,10 +51,8 @@ impl<'a> ListItem<'a> {
 impl<'a> WidgetItem for ListItem<'a> {
     fn highlighted(&self) -> Self {
         let mut item = self.clone();
-        let highlight_style = Style::default()
-            .bg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_BG)
-            .fg(crate::theme::COL_LIST_HIGHLIGHTED_METHOD_FG);
-        item.prefix = Some("  >>");
+        let highlight_style = THEME.list.selected;
+        item.prefix = Some(">>");
         item.style = highlight_style;
         item
     }

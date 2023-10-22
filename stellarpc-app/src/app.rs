@@ -17,7 +17,6 @@ pub struct App<'a> {
 #[derive(Debug, Default, Clone, Copy)]
 pub struct AppContext {
     pub tab_index: usize,
-    pub row_index: usize,
 }
 
 impl<'a> App<'a> {
@@ -45,7 +44,9 @@ impl<'a> App<'a> {
     }
 
     fn draw<B: Backend>(&mut self, terminal: &mut Terminal<B>) -> std::io::Result<()> {
-        terminal.draw(|frame| frame.render_widget(Root::new(&self.context), frame.size()))?;
+        terminal.draw(|frame| {
+            frame.render_widget(Root::new(&self.context, &self.controller), frame.size())
+        })?;
         Ok(())
     }
 
