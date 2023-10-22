@@ -11,7 +11,11 @@ pub enum Error {
     #[error("error reading config")]
     ReadConfigError(#[source] std::io::Error),
 
-    /// Error while parsing the config
-    #[error("error parsing config")]
-    ParseConfigError(#[source] serde_json::Error),
+    /// Error while serializing the config
+    #[error("error serializing config")]
+    SerializeConfigError(#[source] serde_json::Error),
+
+    /// Error while deserializing the config
+    #[error("error deserializing config")]
+    DeserializeConfigError(#[source] serde_json::Error),
 }
