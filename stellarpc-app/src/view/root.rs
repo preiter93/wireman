@@ -1,4 +1,7 @@
-use crate::{app::AppContext, controller::Controller};
+use crate::{
+    app::{AppContext, Tab},
+    controller::Controller,
+};
 
 use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
 use ratatui::{prelude::*, widgets::*};
@@ -23,26 +26,24 @@ impl Root<'_, '_> {
         Tabs::new(titles)
             .style(THEME.tabs)
             .highlight_style(THEME.tabs_selected)
-            .select(self.context.tab_index)
+            .select(self.context.tab.index())
             .divider("")
             .render(area[1], buf);
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
-        match self.context.tab_index {
-            0 => SelectionTab::new(&self.ctrl.selection).render(area, buf),
-            1 => MessagesTab::new(&self.ctrl.messages).render(area, buf),
-            2 => HeadersTab::new(&self.ctrl.metadata.borrow()).render(area, buf),
-            _ => unreachable!(),
+        match self.context.tab {
+            Tab::Selection => SelectionTab::new(&self.ctrl.selection.borrow()).render(area, buf),
+            Tab::Messages => MessagesTab::new(&self.ctrl.messages.borrow()).render(area, buf),
+            Tab::Headers => HeadersTab::new(&self.ctrl.metadata.borrow()).render(area, buf),
         };
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
-        let keys = match self.context.tab_index {
-            0 => SelectionTab::footer_keys(),
-            1 => SelectionTab::footer_keys(),
-            2 => HeadersTab::footer_keys(),
-            _ => unreachable!(),
+        let keys = match self.context.tab {
+            Tab::Selection => SelectionTab::footer_keys(),
+            Tab::Messages => SelectionTab::footer_keys(),
+            Tab::Headers => HeadersTab::footer_keys(),
         };
         let spans: Vec<Span> = keys
             .iter()

@@ -1,7 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 use core::{MethodDescriptor, ServiceDescriptor};
 
-use crate::widgets::list_with_children::{ListWithChildrenState, SelectionLevel};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -13,7 +12,7 @@ pub struct SelectionModel {
     core_client: Rc<RefCell<CoreClient>>,
     /// The state of the services and methods list. Holds info about currently
     /// selected service and method and whether a service should be expanded.
-    pub state: ListWithChildrenState,
+    pub selection: SelectionState,
     /// A list of proto services. Each service can hold a list of methods.
     pub items: Vec<ServiceWithMethods>,
 }
@@ -44,27 +43,27 @@ impl SelectionModel {
             .collect();
 
         // Preselect first service
-        let mut state = ListWithChildrenState::default();
+        let mut state = SelectionState::default();
         if !services.is_empty() {
             state.select_parent(Some(0));
         }
 
         Self {
             core_client,
-            state,
+            selection: state,
             items,
         }
     }
 
     /// Whether the parent level is selected
     pub fn is_parent_selected(&self) -> bool {
-        self.state.selection_level() == SelectionLevel::Parent
+        self.selection.selection_level() == SelectionLevel::Parent
     }
 
     /// Select the next service or method, depending on the current
     /// selection level.
     pub fn next(&mut self) {
-        match self.state.selection_level() {
+        match self.selection.selection_level() {
             SelectionLevel::Parent => self.next_service(),
             SelectionLevel::Children => self.next_method(),
         }
@@ -73,18 +72,18 @@ impl SelectionModel {
     /// Select the previous service or method, depending on the current
     /// selection level.
     pub fn previous(&mut self) {
-        match self.state.selection_level() {
+        match self.selection.selection_level() {
             SelectionLevel::Parent => self.previous_service(),
             SelectionLevel::Children => self.previous_method(),
         }
     }
 
     /// Select the next service.
-    fn next_service(&mut self) {
+    pub fn next_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let i = match self.state.selected_parent() {
+        let i = match self.selection.selected_parent() {
             Some(i) => {
                 if i >= self.items.len() - 1 {
                     0
@@ -94,15 +93,15 @@ impl SelectionModel {
             }
             None => 0,
         };
-        self.state.select_parent(Some(i));
+        self.selection.select_parent(Some(i));
     }
 
     /// Select the previous service.
-    fn previous_service(&mut self) {
+    pub fn previous_service(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let i = match self.state.selected_parent() {
+        let i = match self.selection.selected_parent() {
             Some(i) => {
                 if i == 0 {
                     self.items.len() - 1
@@ -112,15 +111,18 @@ impl SelectionModel {
             }
             None => 0,
         };
-        self.state.select_parent(Some(i));
+        self.selection.select_parent(Some(i));
     }
 
     /// Select the next method.
-    fn next_method(&mut self) {
+    pub fn next_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let k = match (self.state.selected_parent(), self.state.selected_child()) {
+        let k = match (
+            self.selection.selected_parent(),
+            self.selection.selected_child(),
+        ) {
             (Some(i), Some(j)) => {
                 let items = &self.items[i].methods;
                 if j >= items.len() - 1 {
@@ -131,15 +133,18 @@ impl SelectionModel {
             }
             _ => 0,
         };
-        self.state.select_child(Some(k));
+        self.selection.select_child(Some(k));
     }
 
     /// Select the previous method.
-    fn previous_method(&mut self) {
+    pub fn previous_method(&mut self) {
         if self.items.is_empty() {
             return;
         }
-        let k = match (self.state.selected_parent(), self.state.selected_child()) {
+        let k = match (
+            self.selection.selected_parent(),
+            self.selection.selected_child(),
+        ) {
             (Some(i), Some(j)) => {
                 let items = &self.items[i].methods;
                 if items.is_empty() {
@@ -152,19 +157,20 @@ impl SelectionModel {
             }
             _ => 0,
         };
-        self.state.select_child(Some(k));
+        self.selection.select_child(Some(k));
     }
 
     /// Return the description of the currently selected service
     pub fn selected_service(&self) -> Option<ServiceDescriptor> {
-        self.state
+        self.selection
             .selected_parent()
             .map(|i| self.core_client.borrow().get_services()[i].clone())
     }
 
     /// Return the descrption of the currently selected method
     pub fn selected_method(&self) -> Option<MethodDescriptor> {
-        if let (Some(service), Some(i)) = (self.selected_service(), self.state.selected_child()) {
+        if let (Some(service), Some(i)) = (self.selected_service(), self.selection.selected_child())
+        {
             self.core_client
                 .borrow()
                 .get_methods(&service)
@@ -175,24 +181,62 @@ impl SelectionModel {
         }
     }
 
-    /// Expands a service to show its methods. This is handled in the lists
-    /// local state.
-    pub fn expand(&mut self) {
-        if let Some(service) = self.selected_service() {
-            // do not expand if the service has no methods
-            if self.core_client.borrow().get_methods(&service).is_empty() {
-                return;
-            }
-            self.state.expand_parent();
-            self.next_method();
+    /// Clears the method state
+    pub fn clear_method(&mut self) {
+        self.selection.select_child(None);
+    }
+
+    pub fn selected_service_index(&self) -> Option<usize> {
+        self.selection.selected_parent
+    }
+
+    pub fn selected_method_index(&self) -> Option<usize> {
+        self.selection.selected_child
+    }
+}
+
+/// The local state for the services and methods
+/// Holds the index of selected service and method. And
+/// whether the child list of a service should be
+/// expanded.
+#[derive(Debug, Clone, Default)]
+pub struct SelectionState {
+    offset: usize,
+    selected_parent: Option<usize>,
+    selected_child: Option<usize>,
+    selection_level: SelectionLevel,
+}
+
+/// Whether we are currently selecting in the parent
+/// list or in the children list.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum SelectionLevel {
+    #[default]
+    Parent,
+    Children,
+}
+
+impl SelectionState {
+    pub fn selected_parent(&self) -> Option<usize> {
+        self.selected_parent
+    }
+
+    pub fn selected_child(&self) -> Option<usize> {
+        self.selected_child
+    }
+
+    pub fn select_parent(&mut self, index: Option<usize>) {
+        self.selected_parent = index;
+        if index.is_none() {
+            self.offset = 0;
         }
     }
 
-    pub fn collapse(&mut self) {
-        self.state.collapse_children();
+    pub fn select_child(&mut self, index: Option<usize>) {
+        self.selected_child = index;
     }
 
-    pub fn clear_method(&mut self) {
-        self.state.select_child(None);
+    pub fn selection_level(&self) -> SelectionLevel {
+        self.selection_level.clone()
     }
 }

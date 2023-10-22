@@ -48,16 +48,16 @@ impl Widget for SelectionTab<'_> {
         // Services
         let svcs = items.into_iter().map(|e| ListItem::new(e.service));
         let mut svc_list = WidgetList::new(svcs.collect());
-        svc_list.state.select(self.model.state.selected_parent());
+        svc_list.state.select(self.model.selected_service_index());
         svc_list = svc_list.block(block.clone().title("Services").bold().white());
         svc_list.render(area[0], buf);
 
         // Methods
-        if let Some(svc_index) = self.model.state.selected_parent() {
+        if let Some(svc_index) = self.model.selected_service_index() {
             let mthds = &self.model.items[svc_index].methods;
             let mthds = mthds.iter().map(|e| ListItem::new(e.to_string()));
             let mut mth_list = WidgetList::new(mthds.collect());
-            mth_list.state.select(self.model.state.selected_child());
+            mth_list.state.select(self.model.selection.selected_child());
             mth_list = mth_list.block(block.title("Methods").bold().white());
             mth_list.render(area[1], buf);
         }

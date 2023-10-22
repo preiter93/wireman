@@ -3,6 +3,7 @@
 mod app;
 mod commons;
 mod controller;
+mod input;
 mod model;
 mod theme;
 mod view;
