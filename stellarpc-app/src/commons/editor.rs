@@ -13,8 +13,11 @@ lazy_static! {
 /// and specifies commonly used key bindings.
 #[derive(Clone)]
 pub struct TextEditor {
-    /// Textarea contains all the core functionality
+    /// Buffer contains all the core functionality
     pub buffer: Buffer,
+
+    /// The input register
+    input: Input,
 
     /// Error buffer
     error: Option<ErrorKind>,
@@ -37,6 +40,7 @@ impl TextEditor {
     pub fn new() -> Self {
         Self {
             buffer: Buffer::new(),
+            input: Input::default(),
             error: None,
             focus: false,
         }
@@ -49,11 +53,6 @@ impl TextEditor {
     pub fn unfocus(&mut self) {
         self.focus = false;
     }
-
-    // /// Whether we are in insert mode
-    // pub fn insert_mode(&self) -> bool {
-    //     self.mode == EditorMode::Insert
-    // }
 
     /// Returns an empty editor
     pub fn from_str(text: &str) -> Self {
@@ -132,33 +131,6 @@ impl TextEditor {
         self.buffer.insert_char(c)
     }
 
-    // /// Updates the style depending on the editor mode
-    // pub fn update_style(&mut self) {
-    //     // Set the cursor style depending on the mode
-    //     // let cursor_style = if self.mode == EditorMode::Insert {
-    //     //     Style::default()
-    //     //         .fg(theme::COL_CURSOR_INSERT_MODE)
-    //     //         .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
-    //     // } else {
-    //     //     Style::default()
-    //     //         .fg(theme::COL_CURSOR_NORMAL_MODE)
-    //     //         .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
-    //     // };
-    //
-    //     // self.set_cursor_style(cursor_style);
-    //     // self.set_cursor_line_style(Style::default());
-    // }
-
-    // pub(crate) fn set_style(&mut self, style: Style) {
-    //     self.style = style;
-    //     // self.editor.set_style(style);
-    // }
-    //
-    // pub(crate) fn set_block(&mut self, block: Block<'a>) {
-    //     self.block = Some(block);
-    //     // self.editor.set_block(block);
-    // }
-    //
     /// Pretty formats the editors text. The error is stored
     /// internall in the error buffer.
     pub fn format_json(&mut self) {
@@ -178,14 +150,9 @@ impl TextEditor {
 
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent) {
-        let mut input = Input::default();
         match key.code {
-            // KeyCode::Enter if !self.focus => self.focus(),
-            // KeyCode::Esc if self.focus => self.unfocus(),
             _ => {
-                // if self.focus {
-                input.on_key(key, &mut self.buffer);
-                // }
+                self.input.on_key(key, &mut self.buffer);
             } // KeyCode::Char('i') => self.mode = EditorMode::Insert,
               // KeyCode::Char('a') => {
               //     self.mode = EditorMode::Insert;
@@ -225,51 +192,7 @@ impl TextEditor {
               // _ => {}
         }
     }
-
-    // /// Key bindings in insert mode
-    // pub fn on_key_insert_mode(&mut self, key: KeyEvent) {
-    //     match key.code {
-    //         KeyCode::Esc => self.mode = EditorMode::Normal,
-    //         KeyCode::Down => self.buffer.move_cursor(CursorMove::Down),
-    //         KeyCode::Up => self.buffer.move_cursor(CursorMove::Up),
-    //         KeyCode::Right => self.buffer.move_cursor(CursorMove::Forward),
-    //         KeyCode::Left => self.buffer.move_cursor(CursorMove::Back),
-    //         _ => {
-    //             // self.editor.input_without_shortcuts(Input::from(key));
-    //         }
-    //     }
-    // }
-
-    // /// Set the editors cursor line style
-    // pub(crate) fn set_cursor_line_style(&mut self, cursor_line_style: ratatui::style::Style) {
-    //     // self.editor.set_cursor_line_style(cursor_line_style);
-    // }
-    //
-    // /// Set the editors cursor style
-    // pub(crate) fn set_cursor_style(&mut self, cursor_style: ratatui::style::Style) {
-    //     // self.editor.set_cursor_style(cursor_style);
-    // }
-    // pub(crate) fn render<B: Backend>(&mut self, f: &mut Frame<B>, area: Rect) {
-    //     let mut widget = Editor::new(&mut self.buffer);
-    //     widget.set_style(self.style);
-    //     if let Some(block) = self.block.clone() {
-    //         widget.set_block(block);
-    //     }
-    //
-    //     f.render_widget(widget, area);
-    // }
 }
-
-// impl Widget for &TextEditor<'_> {
-//     fn render(self, area: ratatui::layout::Rect, buf: &mut ratatui::buffer::Buffer) {
-//         let mut widget = Editor::new(&self.buffer);
-//         widget.set_style(self.style);
-//         if let Some(block) = self.block.clone() {
-//             widget.set_block(block);
-//         }
-//         widget.render(area, buf);
-//     }
-// }
 
 /// The editor mode, i.e. Normal or Insert.
 #[derive(Clone, PartialEq, Eq, Default)]
