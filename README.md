@@ -1,4 +1,4 @@
-![](img/logo.jpg)
+![](img/logo.png)
 
 
 
