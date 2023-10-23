@@ -18,9 +18,7 @@ The program looks for a configuration file specified by the environment variable
     ],
     "files": [
         "grpc_simple/greeter.proto",
-        "grpc_simple/timekeeper.proto",
-        "grpc_simple/debugger.proto",
-        "grpc_simple/productfinder.proto"
+        "grpc_simple/timekeeper.proto"
     ]
 }
 ```
