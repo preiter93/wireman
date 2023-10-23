@@ -16,7 +16,7 @@ pub(super) fn apply_template_for_message(msg: &mut DynamicMessage) {
             Value::List(_) => *value = default_value_list(&kind),
             Value::Message(msg) => *value = default_value_message(msg),
             Value::Map(_) => {
-                println!("TODO: IMPLEMENT MAP!!");
+                // println!("TODO: IMPLEMENT MAP!!");
             }
             _ => *value = default_value(&kind),
         }
