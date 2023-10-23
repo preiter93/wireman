@@ -9,7 +9,9 @@ StellaRPC is a gRPC client that runs in the terminal! Simply put your proto file
 
 ## Demo
 
-![](img/screen.png)
+![](img/screen-1.png)
+
+![](img/screen-2.png)
 
 ## Features
 
