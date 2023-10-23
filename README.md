@@ -13,17 +13,13 @@ StellaRPC is a gRPC client that runs in the terminal! Simply put your proto file
 
 ## Features
 
-#### Keep a request history
+#### Maintain a Request Log
+You now have the option to preserve your most recent request (S) and access a history of all saved requests (H), including the default template. This feature eliminates the need to ponder over the contents of your request.
 
-You can now save your last request (S). And you can browse the history of all saved requests (H), including the default template. 
-This way you never have to think again about what goes into this request and whether you really need that parameter over there.
+#### Copy as grpcurl
+stellaRPC offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press Ctrl+Y.
 
-#### Yank as `grpcurl` request
-
-stellaRPC supports copying the request data as a `grpcurl` command. This makes collaborating with peers a breeze :) 
-Just go to the request page and type `ctrl+y`.
-
-### Roadmap
+## Roadmap
 
 - [x] List Services & Methods
 - [x] Request can be edited
