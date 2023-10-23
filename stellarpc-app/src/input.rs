@@ -4,6 +4,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{
     app::AppContext,
+    commons::debug::log_to_file,
     model::{
         headers::{HeadersModel, HeadersSelection},
         MessagesModel, SelectionModel,
@@ -105,13 +106,13 @@ impl MessagesInput<'_, '_> {
                 let mut disable_root_events = false;
                 if self.context.sub == 0 {
                     let request = &mut self.model.borrow_mut().request.editor;
-                    disable_root_events = request.insert_mode();
                     request.on_key(event);
+                    disable_root_events = request.insert_mode();
                 }
                 if self.context.sub == 1 {
                     let response = &mut self.model.borrow_mut().response.editor;
-                    disable_root_events = response.insert_mode();
                     response.on_key(event);
+                    disable_root_events = response.insert_mode();
                 }
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.

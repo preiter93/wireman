@@ -11,6 +11,7 @@ pub struct Theme {
     pub description_title: Style,
     pub key_binding: KeyBinding,
     pub list: List,
+    pub status_line: (Style, Style),
 }
 
 pub struct KeyBinding {
@@ -45,9 +46,15 @@ pub const THEME: Theme = Theme {
     list: List {
         selected: Style::new().fg(DARK_BLUE).bg(WHITE),
     },
+    status_line: (
+        Style::new().fg(Color::Indexed(255)).bg(DARK_PURPLE),
+        Style::new().bg(LIGHT_PURPLE),
+    ),
 };
 
 const DARK_BLUE: Color = Color::Rgb(16, 24, 48);
+const DARK_PURPLE: Color = Color::Indexed(55);
+const LIGHT_PURPLE: Color = Color::Indexed(93);
 const LIGHT_BLUE: Color = Color::Rgb(64, 96, 192);
 const LIGHT_YELLOW: Color = Color::Rgb(192, 192, 96);
 const LIGHT_GREEN: Color = Color::Rgb(64, 192, 96);
