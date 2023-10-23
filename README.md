@@ -7,6 +7,25 @@
 
 StellaRPC is a gRPC client that runs in the terminal! Simply put your proto files in a config and be ready to make gRPC request
 
+## Configuration Setup
+
+The program looks for a configuration file specified by the environment variable `STELLARPC_CONFIG`. The configuration file should be in JSON format and resembles the following:
+```json
+{
+    "address": "http://localhost:50051",
+    "includes": [
+        "$HOME/your-project/protos"
+    ],
+    "files": [
+        "grpc_simple/greeter.proto",
+        "grpc_simple/timekeeper.proto",
+        "grpc_simple/debugger.proto",
+        "grpc_simple/productfinder.proto"
+    ]
+}
+```
+Within this configuration, you can store a list of include directories, proto files and a default address host. Please note that these configuration options may expand in the future. In the future there will be a feature in the app that will allow you to manually edit this config.
+
 ## Demo
 
 ![](img/screen-1.png)
@@ -35,3 +54,4 @@ stellaRPC offers the ability to copy the request data as a grpcurl command, stre
 - [x] Defaults of repeated/nested fields
 - [x] Yank/Paste from clipboard
 - [x] Yank request as grpcurl command
+- [ ] Dynamically edit the config file in the app
