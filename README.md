@@ -5,7 +5,8 @@
 
 ## What is StellaRPC?
 
-StellaRPC is a gRPC client that runs in the terminal! Simply put your proto files in a config and be ready to make gRPC request
+StellaRPC is a terminal-based gRPC client. All you need to do is place your protobuf files into a config file, and you're all set to start making gRPC requests.
+
 
 ## Configuration Setup
 
