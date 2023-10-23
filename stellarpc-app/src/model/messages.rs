@@ -104,14 +104,16 @@ impl<'a> MessagesModel<'a> {
 
     /// Make a grpc call and set response or error.
     pub fn call_grpc(&mut self) {
+        self.response.editor.set_error(None);
+        self.response.editor.set_text_raw("");
         if let Some(method) = &self.selected_method {
             // Message
             let mut req = self.request.core_client.borrow().get_request(method);
             if let Err(err) = req.message.from_json(&self.request.editor.get_text_raw()) {
                 // Acquiring the request message failed
                 let err = ErrorKind::default_error(err.to_string());
-                self.request.editor.set_error(Some(err));
-                self.response.clear();
+                self.response.editor.set_error(Some(err.clone()));
+                self.response.editor.set_text_raw(&err.string());
                 return;
             }
 
@@ -121,8 +123,8 @@ impl<'a> MessagesModel<'a> {
                 let result = req.insert_metadata(&key, &val);
                 if result.is_err() {
                     let err = ErrorKind::format_error("failed to insert metadata".to_string());
-                    self.request.editor.set_error(Some(err));
-                    self.response.clear();
+                    self.response.editor.set_error(Some(err.clone()));
+                    self.response.editor.set_text_raw(&err.string());
                     return;
                 }
             }
@@ -146,23 +148,23 @@ impl<'a> MessagesModel<'a> {
                 Ok(resp) => {
                     if let Ok(resp) = resp.message.to_json() {
                         let resp = try_pretty_format_json(&resp);
-                        self.request.editor.set_error(None);
+                        self.response.editor.set_error(None);
                         self.response.editor.set_text_raw(&resp);
                     } else {
                         let err = ErrorKind::format_error("failed to parse json".to_string());
-                        self.request.editor.set_error(Some(err));
-                        self.response.clear();
+                        self.response.editor.set_error(Some(err.clone()));
+                        self.response.editor.set_text_raw(&err.string());
                     }
                 }
                 Err(err) => {
-                    self.request.editor.set_error(Some(err));
-                    self.response.clear();
+                    self.response.editor.set_error(Some(err.clone()));
+                    self.response.editor.set_text_raw(&err.string());
                 }
             }
         } else {
-            self.request
-                .editor
-                .set_error(Some(ErrorKind::default_error("Select a method!")));
+            let err = ErrorKind::default_error("Select a method!");
+            self.response.editor.set_error(Some(err.clone()));
+            self.response.editor.set_text_raw(&err.string());
         }
     }
 
@@ -182,16 +184,14 @@ impl<'a> MessagesModel<'a> {
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
             let address = self.headers_model.borrow().address.get_text_raw();
-
             let message = self.request.editor.get_text_raw();
+            let metadata = self.metadata_model.borrow().as_raw();
 
-            let metadata_map = self.metadata_model.borrow().as_raw();
-
-            if let Ok(grpcurl) =
-                self.request
-                    .core_client
-                    .borrow()
-                    .grpcurl(&message, method, &metadata_map, &address)
+            if let Ok(grpcurl) = self
+                .request
+                .core_client
+                .borrow()
+                .grpcurl(&message, method, &metadata, &address)
             {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }
