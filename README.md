@@ -1,6 +1,7 @@
-![](img/logo.png)
-
-
+<p align="center">
+    <img src="https://github.com/preiter93/stellarpc/blob/main/img/logo-light.png?raw=true#gh-light-mode-only" width="800"/>
+    <img src="https://github.com/preiter93/stellarpc/blob/main/img/logo-dark.png?raw=true#gh-dark-mode-only" width="800"/>
+</p>
 
 ## What is StellaRPC?
 
