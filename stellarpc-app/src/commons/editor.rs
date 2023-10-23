@@ -22,9 +22,6 @@ pub struct TextEditor {
     /// Error buffer
     error: Option<ErrorKind>,
 
-    // /// The block
-    // block: Option<Block<'a>>,
-    // style: Style,
     /// Whether the editor is focused.
     focus: bool,
 }
@@ -153,43 +150,7 @@ impl TextEditor {
         match key.code {
             _ => {
                 self.input.on_key(key, &mut self.buffer);
-            } // KeyCode::Char('i') => self.mode = EditorMode::Insert,
-              // KeyCode::Char('a') => {
-              //     self.mode = EditorMode::Insert;
-              //     self.buffer.move_cursor(CursorMove::Forward);
-              // }
-              // // Cursor movement
-              // KeyCode::Down | KeyCode::Char('j') => self.buffer.move_cursor(CursorMove::Down),
-              // KeyCode::Up | KeyCode::Char('k') => self.buffer.move_cursor(CursorMove::Up),
-              // KeyCode::Left | KeyCode::Char('h') => self.buffer.move_cursor(CursorMove::Back),
-              // KeyCode::Right | KeyCode::Char('l') => self.buffer.move_cursor(CursorMove::Forward),
-              // KeyCode::Char('w') => self.buffer.move_cursor(CursorMove::WordForward),
-              // KeyCode::Char('b') => self.buffer.move_cursor(CursorMove::WordBack),
-              // KeyCode::Char('J') => self.buffer.move_cursor(CursorMove::End),
-              // KeyCode::Char('H') => self.buffer.move_cursor(CursorMove::Head),
-              // // Delete
-              // KeyCode::Char('x') => {
-              //     self.buffer.delete_next_char();
-              // }
-              // KeyCode::Char('d') => {
-              //     self.buffer.delete_line_by_end();
-              // }
-              // KeyCode::Char('D') => {
-              //     self.buffer.delete_line_by_head();
-              // }
-              // // Undo
-              // KeyCode::Char('u') => {
-              //     self.buffer.undo();
-              // }
-              // KeyCode::Char('r') => {
-              //     self.buffer.redo();
-              // }
-              // // Yank & Paste
-              // KeyCode::Char('p') => self.paste_from_clipboard(),
-              // KeyCode::Char('y') => self.yank(),
-              // // Format json
-              // KeyCode::Char('f') => self.format_json(),
-              // _ => {}
+            }
         }
     }
 }
@@ -224,6 +185,10 @@ impl ErrorKind {
             kind: "Error".to_string(),
             msg: msg.into(),
         }
+    }
+
+    pub fn string(&self) -> String {
+        format!("{}: {}", self.kind, self.msg)
     }
 }
 
