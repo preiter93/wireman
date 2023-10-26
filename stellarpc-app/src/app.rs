@@ -42,21 +42,21 @@ pub enum Tab {
     Headers,
 }
 impl Tab {
-    pub fn next(&self) -> Self {
+    pub fn next(self) -> Self {
         match &self {
             Self::Selection => Self::Messages,
             Self::Messages => Self::Headers,
             Self::Headers => Self::Selection,
         }
     }
-    pub fn prev(&self) -> Self {
+    pub fn prev(self) -> Self {
         match &self {
             Self::Selection => Self::Headers,
             Self::Headers => Self::Messages,
             Self::Messages => Self::Selection,
         }
     }
-    pub fn index(&self) -> usize {
+    pub fn index(self) -> usize {
         match &self {
             Self::Selection => 0,
             Self::Messages => 1,
@@ -91,7 +91,7 @@ impl<'a> App<'a> {
 
     fn draw<B: Backend>(&mut self, terminal: &mut Terminal<B>) -> std::io::Result<()> {
         terminal.draw(|frame| {
-            frame.render_widget(Root::new(&self.context, &self.controller), frame.size())
+            frame.render_widget(Root::new(&self.context, &self.controller), frame.size());
         })?;
         Ok(())
     }

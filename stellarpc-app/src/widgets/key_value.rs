@@ -9,7 +9,7 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Block, BorderType, Borders, Widget},
 };
-use tui_widget_list::WidgetItem;
+use tui_widget_list::Listable;
 
 use crate::{commons::editor::TextEditor, theme::COL_WINDOW_BORDER_HIGHLIGHTED_FG};
 
@@ -167,8 +167,36 @@ impl<'a> KeyValue<'a> {
     // }
 }
 
-impl<'a> WidgetItem for KeyValue<'a> {
-    fn render(&self, area: Rect, buf: &mut Buffer) {
+impl Listable for KeyValue<'_> {
+    fn height(&self) -> usize {
+        if self.block.is_some() {
+            5
+        } else {
+            3
+        }
+    }
+
+    fn highlight(self) -> Option<Self> {
+        let mut item: KeyValue = self;
+        let highlighted = Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Double)
+            .style(Style::default().fg(COL_WINDOW_BORDER_HIGHLIGHTED_FG));
+        if item.is_key_selected() {
+            item = item.block_key(highlighted.clone().title("Key"));
+        }
+        if item.is_val_selected() {
+            item = item.block_val(highlighted.title("Value"));
+        }
+        // // Makes sure that the editor changes in insert mode
+        // item.key.editor.update_style();
+        // item.val.editor.update_style();
+        Some(item)
+    }
+}
+
+impl Widget for KeyValue<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         // Set the base style
         let area = match self.block.as_ref() {
             Some(b) => {
@@ -191,31 +219,5 @@ impl<'a> WidgetItem for KeyValue<'a> {
         let x = area.right() + 2_u16;
         let _ = Rect::new(x, y, width, height);
         // self.val.clone().into_editor().render(area, buf);
-    }
-
-    fn height(&self) -> usize {
-        if self.block.is_some() {
-            5
-        } else {
-            3
-        }
-    }
-
-    fn highlighted(&self) -> Option<Self> {
-        let mut item: KeyValue = self.clone();
-        let highlighted = Block::default()
-            .borders(Borders::ALL)
-            .border_type(BorderType::Double)
-            .style(Style::default().fg(COL_WINDOW_BORDER_HIGHLIGHTED_FG));
-        if item.is_key_selected() {
-            item = item.block_key(highlighted.clone().title("Key"));
-        }
-        if item.is_val_selected() {
-            item = item.block_val(highlighted.title("Value"));
-        }
-        // // Makes sure that the editor changes in insert mode
-        // item.key.editor.update_style();
-        // item.val.editor.update_style();
-        Some(item)
     }
 }

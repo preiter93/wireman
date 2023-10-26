@@ -11,7 +11,7 @@ pub fn log_to_file<T: Debug>(data: T) {
         .open("debug.log")
         .unwrap();
 
-    if let Err(e) = writeln!(file, "{:?}", data) {
-        eprintln!("Couldn't write to file: {}", e);
+    if let Err(e) = writeln!(file, "{data:?}") {
+        eprintln!("Couldn't write to file: {e}");
     }
 }

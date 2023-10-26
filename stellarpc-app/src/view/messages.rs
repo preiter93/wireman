@@ -50,37 +50,39 @@ impl Widget for MessagesTab<'_, '_> {
         // Request
         let buffer = &self.model.request.editor.buffer;
         let mut editor = Editor::new(buffer);
-        let mut block = block.title("Request").bold().white();
+        let block = block.title("Request").bold().white();
         if self.sub == 0 {
-            editor.set_status_line(
-                StatusLine::default()
-                    .style_text(THEME.status_line.0)
-                    .style_line(THEME.status_line.1),
-            );
-            block = block.border_type(BorderType::Double)
+            editor = editor
+                .status_line(
+                    StatusLine::default()
+                        .style_text(THEME.status_line.0)
+                        .style_line(THEME.status_line.1),
+                )
+                .block(block.clone().border_type(BorderType::Double));
         } else {
-            block = block.border_type(BorderType::Plain);
-            editor.set_cursor_style(Style::default());
+            editor = editor
+                .cursor_style(Style::default())
+                .block(block.clone().border_type(BorderType::Plain));
         }
-        editor.set_block(block.clone());
         editor.render(area[0], buf);
 
         // Response
         let buffer = &self.model.response.editor.buffer;
         editor = Editor::new(buffer);
-        let mut block = block.title("Response").bold().white();
+        let block = block.title("Response").bold().white();
         if self.sub == 1 {
-            editor.set_status_line(
-                StatusLine::default()
-                    .style_text(THEME.status_line.0)
-                    .style_line(THEME.status_line.1),
-            );
-            block = block.border_type(BorderType::Double)
+            editor = editor
+                .status_line(
+                    StatusLine::default()
+                        .style_text(THEME.status_line.0)
+                        .style_line(THEME.status_line.1),
+                )
+                .block(block.border_type(BorderType::Double));
         } else {
-            block = block.border_type(BorderType::Plain);
-            editor.set_cursor_style(Style::default());
+            editor = editor
+                .cursor_style(Style::default())
+                .block(block.border_type(BorderType::Plain));
         }
-        editor.set_block(block);
         editor.render(area[1], buf);
     }
 }

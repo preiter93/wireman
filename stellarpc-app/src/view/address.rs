@@ -8,14 +8,7 @@ use ratatui::{
     Frame,
 };
 
-pub fn render_address_popup<'a, B>(
-    f: &mut Frame<B>,
-    area: Rect,
-    _: &mut Controller<'a>,
-    _: Block<'a>,
-) where
-    B: Backend,
-{
+pub fn render_address_popup<'a>(f: &mut Frame, area: Rect, _: &mut Controller<'a>, _: Block<'a>) {
     // let _ = &mut controller.address.borrow_mut().editor;
     // editor.update_style();
     // editor.set_block(block);

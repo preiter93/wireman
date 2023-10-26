@@ -4,6 +4,8 @@ use core::{MethodDescriptor, ServiceDescriptor};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use tui_widget_list::ListState;
+
 use super::core_client::CoreClient;
 
 #[derive(Clone)]
@@ -15,6 +17,10 @@ pub struct SelectionModel {
     pub selection: SelectionState,
     /// A list of proto services. Each service can hold a list of methods.
     pub items: Vec<ServiceWithMethods>,
+    /// The selection state of the grpc services.
+    pub svc_state: ListState,
+    /// The selection state of the grpc methods.
+    pub mth_state: ListState,
 }
 
 /// Each service can hold a list of methods
@@ -52,6 +58,8 @@ impl SelectionModel {
             core_client,
             selection: state,
             items,
+            svc_state: ListState::default(),
+            mth_state: ListState::default(),
         }
     }
 
