@@ -2,10 +2,10 @@ use crate::model::headers::{HeadersModel, HeadersSelection};
 use ratatui::{
     prelude::*,
     style::Stylize,
-    widgets::{Block, BorderType, Borders, Padding, Widget},
+    widgets::{Block, BorderType, Borders, Padding, StatefulWidget, Widget},
 };
 use tui_vim_editor::{Buffer as EditorBuffer, Editor};
-use tui_widget_list::{WidgetItem, WidgetList};
+use tui_widget_list::{List, ListState, Listable};
 
 use super::theme::THEME;
 
@@ -50,9 +50,10 @@ impl Widget for HeadersTab<'_> {
                 selected: self.model.selected == HeadersSelection::Bearer,
             }),
         ];
-        let mut list = WidgetList::new(items);
+        let mut list = List::new(items);
         list = list.block(block);
-        list.render(area, buf);
+        let mut state = ListState::default();
+        list.render(area, buf, &mut state);
     }
 }
 
@@ -61,15 +62,17 @@ enum ListElements {
     SingleInput(SingleInput),
 }
 
-impl WidgetItem for ListElements {
+impl Listable for ListElements {
     fn height(&self) -> usize {
         match &self {
             Self::VSpace(inner) => *inner,
             Self::SingleInput(inner) => inner.height(),
         }
     }
-    fn render(&self, area: Rect, buf: &mut Buffer) {
-        match &self {
+}
+impl Widget for ListElements {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        match self {
             Self::VSpace(_) => {}
             Self::SingleInput(inner) => inner.render(area, buf),
         };
@@ -83,12 +86,13 @@ struct SingleInput {
     selected: bool,
 }
 
-impl WidgetItem for SingleInput {
+impl Listable for SingleInput {
     fn height(&self) -> usize {
         3
     }
-
-    fn render(&self, area: Rect, buf: &mut Buffer) {
+}
+impl Widget for SingleInput {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         let mut block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Left)
@@ -99,9 +103,10 @@ impl WidgetItem for SingleInput {
             block = block.border_type(BorderType::Double);
         }
         if !self.selected {
-            input.set_cursor_style(Style::default());
+            input = input.cursor_style(Style::default());
         }
-        input.set_block(block.title(self.title.clone()).bold().white());
-        input.render(area, buf);
+        input
+            .block(block.title(self.title.clone()).bold().white())
+            .render(area, buf);
     }
 }

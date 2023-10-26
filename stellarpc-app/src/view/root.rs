@@ -4,7 +4,10 @@ use crate::{
 };
 
 use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    prelude::*,
+    widgets::{Block, Paragraph, Tabs, Widget},
+};
 use std::rc::Rc;
 
 pub struct Root<'a, 'b> {
@@ -34,7 +37,7 @@ impl Root<'_, '_> {
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
         match self.context.tab {
             Tab::Selection => SelectionTab {
-                model: &self.ctrl.selection.borrow(),
+                model: &mut self.ctrl.selection.borrow_mut(),
                 sub: self.context.sub,
             }
             .render(area, buf),
@@ -56,8 +59,8 @@ impl Root<'_, '_> {
         let spans: Vec<Span> = keys
             .iter()
             .flat_map(|(key, desc)| {
-                let key = Span::styled(format!(" {} ", key), THEME.key_binding.key);
-                let desc = Span::styled(format!(" {} ", desc), THEME.key_binding.description);
+                let key = Span::styled(format!(" {key} "), THEME.key_binding.key);
+                let desc = Span::styled(format!(" {desc} "), THEME.key_binding.description);
                 [key, desc]
             })
             .collect();

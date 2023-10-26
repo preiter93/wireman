@@ -183,15 +183,15 @@ impl<'a> MessagesModel<'a> {
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
-            let address = self.headers_model.borrow().address.get_text_raw();
+            let address = self.headers_model.borrow().address();
             let message = self.request.editor.get_text_raw();
-            let metadata = self.metadata_model.borrow().as_raw();
+            let header = self.headers_model.borrow().headers();
 
             if let Ok(grpcurl) = self
                 .request
                 .core_client
                 .borrow()
-                .grpcurl(&message, method, &metadata, &address)
+                .grpcurl(&message, method, &header, &address)
             {
                 TextEditor::yank_to_clipboard(&grpcurl);
             }

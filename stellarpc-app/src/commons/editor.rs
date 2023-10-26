@@ -72,7 +72,7 @@ impl TextEditor {
     pub fn set_text_raw(&mut self, text: &str) {
         self.buffer.clear();
         for line in text.lines() {
-            self.buffer.push(line)
+            self.buffer.push(line);
         }
     }
 
@@ -88,7 +88,7 @@ impl TextEditor {
 
     /// Clear all text
     pub fn clear(&mut self) {
-        self.buffer.clear()
+        self.buffer.clear();
     }
 
     /// Whether the editor is in insert mode
@@ -125,7 +125,7 @@ impl TextEditor {
 
     /// Insert a str at the current cursor position. Handles newlines.
     fn insert_char(&mut self, c: char) {
-        self.buffer.insert_char(c)
+        self.buffer.insert_char(c);
     }
 
     /// Pretty formats the editors text. The error is stored

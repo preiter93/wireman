@@ -5,7 +5,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
-use tui_widget_list::WidgetItem;
+use tui_widget_list::Listable;
 
 use crate::view::theme::THEME;
 
@@ -48,25 +48,27 @@ impl<'a> ListItem<'a> {
     // }
 }
 
-impl<'a> WidgetItem for ListItem<'a> {
-    fn highlighted(&self) -> Option<Self> {
-        let mut item = self.clone();
+impl Listable for ListItem<'_> {
+    fn height(&self) -> usize {
+        1
+    }
+    fn highlight(self) -> Option<Self> {
+        let mut item = self;
         let highlight_style = THEME.list.selected;
         item.prefix = Some(">>");
         item.style = highlight_style;
         Some(item)
     }
-    fn render(&self, area: Rect, buf: &mut Buffer) {
+}
+
+impl Widget for ListItem<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
         let text = if let Some(prefix) = self.prefix {
             prefix_text(self.text.clone(), prefix)
         } else {
             self.text.clone()
         };
-        Paragraph::new(text).style(self.style).render(area, buf)
-    }
-
-    fn height(&self) -> usize {
-        1
+        Paragraph::new(text).style(self.style).render(area, buf);
     }
 }
 

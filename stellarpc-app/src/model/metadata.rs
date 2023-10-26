@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions)]
-use tui_widget_list::WidgetList;
 
 use crate::{commons::editor::TextEditor, widgets::key_value::KeyValue};
 use std::collections::HashMap;
@@ -45,13 +44,6 @@ impl<'a> MetadataModel<'a> {
             }
         }
         map
-    }
-
-    /// Returns the metadata as a scrollable widget list
-    pub fn as_widget(&self) -> WidgetList<'a, KeyValue<'a>> {
-        let mut widget = WidgetList::new(self.items.clone());
-        widget.state.select(self.selected);
-        widget
     }
 
     pub fn select_key(&mut self) {
