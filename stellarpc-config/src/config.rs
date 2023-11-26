@@ -25,7 +25,10 @@ pub struct Config {
 impl Config {
     /// Loads the config from a file.
     pub fn load(file: &str) -> Result<Self> {
-        let data = read_to_string(file).map_err(Error::ReadConfigError)?;
+        let data = read_to_string(file).map_err(|err| Error::ReadConfigError {
+            filename: file.to_string(),
+            source: err,
+        })?;
         Self::deserialize(&data)
     }
 

@@ -9,7 +9,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Error while reading the config file
     #[error("error reading config")]
-    ReadConfigError(#[source] std::io::Error),
+    ReadConfigError {
+        filename: String,
+        source: std::io::Error,
+    },
 
     /// Error while serializing the config
     #[error("error serializing config")]
