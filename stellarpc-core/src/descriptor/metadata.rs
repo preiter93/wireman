@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use serde::{ser::SerializeMap, Serializer};
+use serde::{ser::SerializeMap, Serialize, Serializer};
 use tonic::metadata::{Ascii, KeyRef, MetadataKey, MetadataMap, MetadataValue};
 
 use crate::error::Error;
@@ -47,6 +47,25 @@ impl Metadata {
     pub fn serialize<S: Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
         let len = self.inner.len();
         let mut map = ser.serialize_map(Some(len))?;
+        for key in self.inner.keys() {
+            if let KeyRef::Ascii(ascii_key) = key {
+                let value = self.inner.get(ascii_key).unwrap();
+                let key_str = ascii_key.to_string();
+                let value_str = value.to_str().unwrap();
+                map.serialize_entry(&key_str, value_str)?;
+            }
+        }
+        map.end()
+    }
+}
+
+impl Serialize for Metadata {
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let len = self.inner.len();
+        let mut map = serializer.serialize_map(Some(len))?;
         for key in self.inner.keys() {
             if let KeyRef::Ascii(ascii_key) = key {
                 let value = self.inner.get(ascii_key).unwrap();

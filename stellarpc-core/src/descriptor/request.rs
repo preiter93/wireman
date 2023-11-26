@@ -1,7 +1,11 @@
 use super::{metadata::Metadata, DynamicMessage};
-use crate::{error::Error, Result};
+use crate::{
+    error::{Error, FROM_UTF8},
+    Result,
+};
 use http::uri::PathAndQuery;
-use prost_reflect::{MessageDescriptor, MethodDescriptor, SerializeOptions};
+use prost_reflect::{MessageDescriptor, MethodDescriptor};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::str::FromStr;
 use tonic::{
     metadata::{Ascii, MetadataKey, MetadataValue},
@@ -13,9 +17,13 @@ use tonic::{
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
     /// The gRPC message.
-    pub message: DynamicMessage,
+    message: DynamicMessage,
+    /// The gRPC method
     method_desc: MethodDescriptor,
+    /// The requests metadata.
     metadata: Option<Metadata>,
+    /// The host address.
+    address: String,
 }
 
 impl RequestMessage {
@@ -28,6 +36,7 @@ impl RequestMessage {
             message,
             method_desc,
             metadata: None,
+            address: String::new(),
         }
     }
 
@@ -49,9 +58,35 @@ impl RequestMessage {
         self.method_desc.clone()
     }
 
+    /// Gets a reference to the message.
+    pub fn message(&self) -> &DynamicMessage {
+        &self.message
+    }
+    /// Gets a mutable reference to the message.
+    pub fn message_mut(&mut self) -> &mut DynamicMessage {
+        &mut self.message
+    }
+
     /// Set a new message for the request.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
+    }
+
+    /// Get the host address.
+    #[must_use]
+    pub fn address(&self) -> &str {
+        &self.address
+    }
+
+    /// Sets the host address.
+    pub fn set_address(&mut self, address: &str) {
+        self.address = address.to_string();
+    }
+
+    /// Get the metadata associated with the request.
+    #[must_use]
+    pub fn metadata(&self) -> &Option<Metadata> {
+        &self.metadata
     }
 
     /// Insert metadata into the request.
@@ -65,12 +100,6 @@ impl RequestMessage {
         let map = self.metadata.get_or_insert(Metadata::new());
         map.insert(key, val);
         Ok(())
-    }
-
-    /// Get the metadata associated with the request.
-    #[must_use]
-    pub fn metadata(&self) -> &Option<Metadata> {
-        &self.metadata
     }
 
     /// Get the URI path for gRPC calls based on the method descriptor.
@@ -106,24 +135,23 @@ impl RequestMessage {
     /// Returns an `Error` if serialization to a JSON string fails.
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
+        self.serialize(&mut s).unwrap();
+        String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
+    }
+}
 
-        self.message
-            .serialize_with_options(
-                &mut s,
-                &SerializeOptions::new()
-                    .stringify_64_bit_integers(false)
-                    .skip_default_fields(false),
-            )
-            .map_err(Error::SerializeJsonError)?;
-
+impl Serialize for RequestMessage {
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("RequestMessage", 3)?;
+        state.serialize_field("message", &self.message)?;
         if let Some(metadata) = &self.metadata {
-            metadata
-                .serialize(&mut s)
-                .map_err(Error::SerializeJsonError)?;
+            state.serialize_field("metadata", &metadata)?;
         }
-
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+        state.serialize_field("address", &self.address)?;
+        state.end()
     }
 }
 
@@ -150,32 +178,24 @@ mod test {
     }
 
     #[test]
-    fn test_into_requeset() {
+    fn test_into_request() {
         // given
         let mut given_message = load_test_message("Simple");
         given_message
             .insert_metadata("metadata-key", "metadata-value")
             .unwrap();
+        let method_descriptor = given_message.method_descriptor().clone();
+        let message_descriptor = given_message.message_descriptor().clone();
 
         // when
-        let given_req = given_message.clone().into_request();
+        let given_req = given_message.into_request();
 
         // then
         let metadata = given_req.metadata();
         assert!(metadata.contains_key("metadata-key"));
-        assert_eq!(
-            metadata.get("metadata-key").unwrap().as_bytes(),
-            "metadata-value".as_bytes()
-        );
-        let message = given_req.get_ref().clone();
-        assert_eq!(
-            message.method_descriptor(),
-            given_message.method_descriptor()
-        );
-        assert_eq!(
-            message.message_descriptor(),
-            given_message.message_descriptor()
-        );
+        assert_eq!(metadata.get("metadata-key").unwrap(), "metadata-value");
+        assert_eq!(given_req.get_ref().method_descriptor(), method_descriptor);
+        assert_eq!(given_req.get_ref().message_descriptor(), message_descriptor);
     }
 
     #[test]
@@ -183,12 +203,13 @@ mod test {
         // given
         let mut given_message = load_test_message("Simple");
         given_message.insert_metadata("key", "value").unwrap();
+        given_message.set_address("localhost:50051");
 
         // when
         let json = given_message.to_json().unwrap();
 
         // then
-        let expected_json = "{\"number\":0}{\"key\":\"value\"}";
+        let expected_json = "{\"message\":{\"number\":0},\"metadata\":{\"key\":\"value\"},\"address\":\"localhost:50051\"}";
         assert_eq!(json, expected_json);
     }
 }

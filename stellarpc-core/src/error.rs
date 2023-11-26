@@ -10,7 +10,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Internal error
     #[error("internal error {0}")]
-    InternalError(String),
+    Internal(String),
 
     /// Failed to deserialize DynamicMessage from json
     #[error("error deserializing message from json")]
@@ -82,3 +82,5 @@ impl From<tonic::Status> for GrpcStatus {
         }
     }
 }
+
+pub const FROM_UTF8: &str = "From UTF8 error";

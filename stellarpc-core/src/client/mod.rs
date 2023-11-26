@@ -63,7 +63,7 @@ impl GrpcClient {
 
         match result {
             Ok(response) => Ok(response.message.to_json()?),
-            Err(err) => Err(Error::InternalError(err.to_string())),
+            Err(err) => Err(Error::Internal(err.to_string())),
         }
     }
 }
@@ -73,14 +73,17 @@ impl GrpcClient {
 ///
 /// # Errors
 /// - Internal error calling the gRPC server
-pub fn call_unary_blocking<T: Into<Uri>>(uri: T, req: &RequestMessage) -> Result<ResponseMessage> {
+pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
     let runtime = create_runtime()?;
+    let uri = req.address();
+    let uri = Uri::try_from(req.address())
+        .map_err(|_| Error::Internal("Failed to parse address".to_string()))?;
     let future = async_call_unary(uri, req);
     let result = runtime.block_on(future);
 
     match result {
         Ok(response) => Ok(response),
-        Err(err) => Err(Error::InternalError(err.to_string())),
+        Err(err) => Err(Error::Internal(err.to_string())),
     }
 }
 
@@ -97,5 +100,5 @@ async fn async_call_unary<T: Into<Uri>>(uri: T, req: &RequestMessage) -> Result<
 
 /// Creates a new Tokio runtime.
 fn create_runtime() -> Result<Runtime> {
-    Runtime::new().map_err(|_| Error::InternalError("Failed to create runtime".to_string()))
+    Runtime::new().map_err(|_| Error::Internal("Failed to create runtime".to_string()))
 }

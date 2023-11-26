@@ -1,4 +1,3 @@
-use http::Uri;
 use stellarpc_core::ProtoDescriptor;
 use stellarpc_core::{client::call_unary_blocking, Result};
 
@@ -24,7 +23,7 @@ fn main() -> Result<()> {
     println!("{:?}", method.name());
     // println!("{:?}", method);
     println!("{:?}", req.message_name());
-    println!("{:?}", req.message.to_json());
+    println!("{:?}", req.message().to_json());
     // println!("{:?}", req);
 
     // for field in req.get_message_descriptor().fields() {
@@ -41,10 +40,10 @@ fn main() -> Result<()> {
     //     }
     // }
     // send message to grpc server
-    let uri = Uri::from_static("http://localhost:50051");
+    req.set_address("http://localhost:50051");
     req.insert_metadata("metadata-key", "metadata-value")
         .unwrap();
-    let resp = call_unary_blocking(uri, &req)?;
+    let resp = call_unary_blocking(&req)?;
     println!("{:?}", resp.message.to_json());
 
     Ok(())
