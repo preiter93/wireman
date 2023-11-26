@@ -79,7 +79,7 @@ impl HeadersSelection {
 }
 
 fn try_expand(raw: &str) -> String {
-    if raw.starts_with("$(") && raw.ends_with(")") {
+    if raw.starts_with("$(") && raw.ends_with(')') {
         let command = &raw[2..raw.len() - 1];
         if let Some(command) = execute_command(command) {
             return command;

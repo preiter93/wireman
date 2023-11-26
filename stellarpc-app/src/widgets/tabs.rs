@@ -8,8 +8,6 @@ use ratatui::{
     widgets::Block,
 };
 
-use crate::commons::debug::log;
-
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct ActivatableTabs<'a> {
     /// A block to wrap this widget in if necessary
