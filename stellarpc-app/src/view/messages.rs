@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
-use crate::commons::debug::log;
 use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
 use ratatui::layout::Alignment;
@@ -24,7 +23,7 @@ pub struct MessagesTab<'a> {
     pub sub: usize,
 }
 
-impl<'a, 'b> MessagesTab<'a> {
+impl<'a> MessagesTab<'a> {
     pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
         vec![
             ("q", "Quit"),
@@ -82,8 +81,7 @@ impl Widget for MessagesTab<'_> {
             .select(self.model.history_model.save_spot().saturating_sub(1))
             .divider("");
         if let Some(method) = &self.model.selected_method {
-            log(self.model.history_model.save_spots_enabled(&method));
-            tabs = tabs.active(self.model.history_model.save_spots_enabled(&method));
+            tabs = tabs.active(self.model.history_model.save_spots_enabled(method));
         }
         tabs.render(area_s[1], buf);
 
