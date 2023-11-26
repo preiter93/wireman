@@ -1,14 +1,19 @@
 mod template;
 
 use self::template::apply_template_for_message;
-use crate::{error::Error, Result};
+use crate::{
+    error::{Error, FROM_UTF8},
+    Result,
+};
 use prost_reflect::{
     DeserializeOptions, DynamicMessage as DynMessage, MessageDescriptor, ReflectMessage,
     SerializeOptions,
 };
+use serde::{Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
 
-/// Wrapper of `DynamicMessage`
+/// Represents a dynamic gRPC message that can be used
+/// with various message types.
 #[derive(Debug, Clone)]
 pub struct DynamicMessage {
     inner: DynMessage,
@@ -31,29 +36,30 @@ impl DerefMut for DynamicMessage {
 type JsonSerializer = serde_json::Serializer<Vec<u8>>;
 
 impl DynamicMessage {
-    /// Construct a `Message` from a `MessageDescriptor`
+    /// Create a new `DynamicMessage` from a `MessageDescriptor`.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor) -> Self {
         let message = DynMessage::new(message_desc);
         Self { inner: message }
     }
 
-    /// Returns the Message name
+    /// Get the name of the message as a String.
     #[must_use]
     pub fn message_name(&self) -> String {
         self.descriptor().name().to_string()
     }
 
-    /// Returns the message descriptor
+    /// Get the message descriptor.
     #[must_use]
     pub fn descriptor(&self) -> MessageDescriptor {
         self.inner.descriptor()
     }
 
-    /// Deserialize a `DynamicMessage` from a json string
+    /// Deserialize a `DynamicMessage` from a JSON string.
     ///
     /// # Errors
-    /// - Failed to deserialize message
+    ///
+    /// - Failed to deserialize message.
     pub fn from_json(&mut self, json: &str) -> Result<()> {
         let mut de = serde_json::Deserializer::from_str(json);
         let msg = DynMessage::deserialize_with_options(
@@ -67,29 +73,35 @@ impl DynamicMessage {
         Ok(())
     }
 
-    /// Serialize a `DynamicMessage` to json.
+    /// Serialize a `DynamicMessage` to a JSON string.
     ///
     /// # Errors
+    ///
     /// - Failed to convert utf8 to String
     /// - Failed to serialize message
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
-        self.inner
-            .serialize_with_options(
-                &mut s,
-                &SerializeOptions::new()
-                    .stringify_64_bit_integers(false)
-                    .skip_default_fields(false),
-            )
-            .map_err(Error::SerializeJsonError)?;
-
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+        self.serialize(&mut s).map_err(Error::SerializeJsonError)?;
+        String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
     }
 
-    /// Applies default values to a `DynMessage`.
+    /// Apply default values to a `DynamicMessage`.
     pub fn apply_template(&mut self) {
         apply_template_for_message(self);
+    }
+}
+
+impl Serialize for DynamicMessage {
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.inner.serialize_with_options(
+            serializer,
+            &SerializeOptions::new()
+                .stringify_64_bit_integers(false)
+                .skip_default_fields(false),
+        )
     }
 }
 
@@ -103,7 +115,7 @@ mod test {
     fn test_template_nested() {
         // given
         let mut given_message = load_test_message("Nested");
-        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"Hello\"}]}";
+        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"\"}]}";
 
         // when
         given_message.apply_template();
@@ -145,7 +157,7 @@ mod test {
         let files = vec!["test_files/test.proto"];
         let includes = vec!["."];
 
-        let desc = ProtoDescriptor::from_files(files, includes).unwrap();
+        let desc = ProtoDescriptor::new(includes, files).unwrap();
 
         let method = desc
             .get_method_by_name("proto.TestService", method)
@@ -178,7 +190,7 @@ mod test {
         let json = given_message.to_json().unwrap();
 
         // then
-        let expected_json = "{\"number\":1}";
+        let expected_json = "{\"id\":\"\",\"number\":1}";
         assert_eq!(json, expected_json);
     }
 }

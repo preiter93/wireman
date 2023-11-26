@@ -1,14 +1,9 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::theme;
 use arboard::Clipboard;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyEvent;
 use lazy_static::lazy_static;
-use ratatui::{
-    style::Style,
-    widgets::{Block, Widget},
-};
 use std::sync::Mutex;
-use tui_textarea::{CursorMove, Input, TextArea};
+use tui_vim_editor::{buffer::mode::Mode, Buffer, Input};
 
 lazy_static! {
     pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
@@ -17,36 +12,43 @@ lazy_static! {
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
 #[derive(Clone)]
-pub struct TextEditor<'a> {
-    /// Textarea contains all the core functionality
-    editor: TextArea<'a>,
+pub struct TextEditor {
+    /// Buffer contains all the core functionality
+    pub buffer: Buffer,
+
+    /// The input register
+    input: Input,
 
     /// Error buffer
     error: Option<ErrorKind>,
 
-    /// The editor mode
-    mode: EditorMode,
+    /// Whether the editor is focused.
+    focus: bool,
 }
 
-impl<'a> Default for TextEditor<'a> {
+impl Default for TextEditor {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a> TextEditor<'a> {
+impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
         Self {
-            editor: TextArea::new(Vec::new()),
+            buffer: Buffer::new(),
+            input: Input::default(),
             error: None,
-            mode: EditorMode::Normal,
+            focus: false,
         }
     }
 
-    /// Whether we are in insert mode
-    pub fn insert_mode(&self) -> bool {
-        self.mode == EditorMode::Insert
+    pub fn focus(&mut self) {
+        self.focus = true;
+    }
+
+    pub fn unfocus(&mut self) {
+        self.focus = false;
     }
 
     /// Returns an empty editor
@@ -58,12 +60,25 @@ impl<'a> TextEditor<'a> {
 
     /// Gets the editors content as raw text
     pub fn get_text_raw(&self) -> String {
-        self.editor.clone().into_lines().join("\n")
+        self.buffer
+            .lines()
+            .iter()
+            .map(|x| x.into())
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
+
+    /// Gets the editors content and formats it to json
+    pub fn get_text_json(&self) -> Result<String, ErrorKind> {
+        pretty_format_json(&self.get_text_raw())
     }
 
     /// Set the editors content from raw text
     pub fn set_text_raw(&mut self, text: &str) {
-        self.editor = TextArea::new(text.lines().map(ToOwned::to_owned).collect());
+        self.buffer.clear();
+        for line in text.lines() {
+            self.buffer.push(line);
+        }
     }
 
     /// Return the error
@@ -78,17 +93,12 @@ impl<'a> TextEditor<'a> {
 
     /// Clear all text
     pub fn clear(&mut self) {
-        self.editor = TextArea::new(vec![]);
+        self.buffer.clear();
     }
 
-    /// Go into normal mode
-    pub fn set_normal_mode(&mut self) {
-        self.mode = EditorMode::Normal;
-    }
-
-    /// Go into insert mode
-    pub fn set_insert_mode(&mut self) {
-        self.mode = EditorMode::Insert;
+    /// Whether the editor is in insert mode
+    pub fn insert_mode(&self) -> bool {
+        self.buffer.mode == Mode::Insert
     }
 
     /// Paste text from clipboard to editor
@@ -96,7 +106,7 @@ impl<'a> TextEditor<'a> {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
             if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
-                    self.insert_str(&text);
+                    self.buffer.insert_string(&text);
                 }
             }
         }
@@ -117,39 +127,8 @@ impl<'a> TextEditor<'a> {
     }
 
     /// Insert a str at the current cursor position. Handles newlines.
-    fn insert_str(&mut self, s: &str) {
-        let mut iter = s.lines().peekable();
-        while let Some(line) = iter.next() {
-            self.editor.insert_str(line);
-            if iter.peek().is_some() {
-                self.editor.insert_newline();
-            }
-        }
-    }
-
-    /// Updates the style depending on the editor mode
-    pub fn update_style(&mut self) {
-        // Set the cursor style depending on the mode
-        let cursor_style = if self.mode == EditorMode::Insert {
-            Style::default()
-                .fg(theme::COL_CURSOR_INSERT_MODE)
-                .add_modifier(theme::MOD_CURSOR_INSERT_MODE)
-        } else {
-            Style::default()
-                .fg(theme::COL_CURSOR_NORMAL_MODE)
-                .add_modifier(theme::MOD_CURSOR_NORMAL_MODE)
-        };
-
-        self.set_cursor_style(cursor_style);
-        self.set_cursor_line_style(Style::default());
-    }
-
-    pub(crate) fn set_style(&mut self, style: Style) {
-        self.editor.set_style(style);
-    }
-
-    pub(crate) fn set_block(&mut self, block: Block<'a>) {
-        self.editor.set_block(block);
+    fn insert_char(&mut self, c: char) {
+        self.buffer.insert_char(c);
     }
 
     /// Pretty formats the editors text. The error is stored
@@ -166,83 +145,16 @@ impl<'a> TextEditor<'a> {
 
     /// Returns if the editor is empty
     pub fn is_empty(&self) -> bool {
-        self.editor.is_empty()
-    }
-
-    /// Returns the editors mode
-    pub fn mode(&self) -> EditorMode {
-        self.mode.clone()
-    }
-
-    pub fn widget(&self) -> impl Widget + '_ {
-        self.editor.widget()
+        self.buffer.lines().is_empty()
     }
 
     /// Key bindings in normal mode
-    pub fn on_key_normal_mode(&mut self, key: KeyEvent) {
+    pub fn on_key(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Char('i') => self.mode = EditorMode::Insert,
-            KeyCode::Char('a') => {
-                self.mode = EditorMode::Insert;
-                self.editor.move_cursor(CursorMove::Forward);
-            }
-            // Cursor movement
-            KeyCode::Down | KeyCode::Char('j') => self.editor.move_cursor(CursorMove::Down),
-            KeyCode::Up | KeyCode::Char('k') => self.editor.move_cursor(CursorMove::Up),
-            KeyCode::Left | KeyCode::Char('h') => self.editor.move_cursor(CursorMove::Back),
-            KeyCode::Right | KeyCode::Char('l') => self.editor.move_cursor(CursorMove::Forward),
-            KeyCode::Char('w') => self.editor.move_cursor(CursorMove::WordForward),
-            KeyCode::Char('b') => self.editor.move_cursor(CursorMove::WordBack),
-            KeyCode::Char('J') => self.editor.move_cursor(CursorMove::End),
-            KeyCode::Char('H') => self.editor.move_cursor(CursorMove::Head),
-            // Delete
-            KeyCode::Char('x') => {
-                self.editor.delete_next_char();
-            }
-            KeyCode::Char('d') => {
-                self.editor.delete_line_by_end();
-            }
-            KeyCode::Char('D') => {
-                self.editor.delete_line_by_head();
-            }
-            // Undo
-            KeyCode::Char('u') => {
-                self.editor.undo();
-            }
-            KeyCode::Char('r') => {
-                self.editor.redo();
-            }
-            // Yank & Paste
-            KeyCode::Char('p') => self.paste_from_clipboard(),
-            KeyCode::Char('y') => self.yank(),
-            // Format json
-            KeyCode::Char('f') => self.format_json(),
-            _ => {}
-        }
-    }
-
-    /// Key bindings in insert mode
-    pub fn on_key_insert_mode(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Esc => self.mode = EditorMode::Normal,
-            KeyCode::Down => self.editor.move_cursor(CursorMove::Down),
-            KeyCode::Up => self.editor.move_cursor(CursorMove::Up),
-            KeyCode::Right => self.editor.move_cursor(CursorMove::Forward),
-            KeyCode::Left => self.editor.move_cursor(CursorMove::Back),
             _ => {
-                self.editor.input_without_shortcuts(Input::from(key));
+                self.input.on_key(key, &mut self.buffer);
             }
         }
-    }
-
-    /// Set the editors cursor line style
-    pub(crate) fn set_cursor_line_style(&mut self, cursor_line_style: ratatui::style::Style) {
-        self.editor.set_cursor_line_style(cursor_line_style);
-    }
-
-    /// Set the editors cursor style
-    pub(crate) fn set_cursor_style(&mut self, cursor_style: ratatui::style::Style) {
-        self.editor.set_cursor_style(cursor_style);
     }
 }
 
@@ -250,6 +162,7 @@ impl<'a> TextEditor<'a> {
 #[derive(Clone, PartialEq, Eq, Default)]
 pub enum EditorMode {
     #[default]
+    None,
     Normal,
     Insert,
 }
@@ -275,6 +188,10 @@ impl ErrorKind {
             kind: "Error".to_string(),
             msg: msg.into(),
         }
+    }
+
+    pub fn string(&self) -> String {
+        format!("{}: {}", self.kind, self.msg)
     }
 }
 

@@ -1,179 +1,264 @@
-use chrono::Utc;
-use core::MethodDescriptor;
-use ratatui::text::Span;
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, path::PathBuf};
-use tui_widget_list::SelectableWidgetList;
-
-use crate::{commons::debug::log_to_file, widgets::list::ListItem};
-
 use super::MessagesModel;
+use crate::commons::debug::log;
+use core::MethodDescriptor;
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+};
 
 #[derive(Clone)]
 pub struct HistoryModel {
     // The filepath where the files are stored
-    path: PathBuf,
-    // List of history files for the current method
-    pub items: Vec<String>,
-    // The index of the selected file
-    pub selected: Option<usize>,
+    base_path: PathBuf,
+    // The selected save spot (1-5)
+    save_spot: usize,
+}
+
+impl Default for HistoryModel {
+    fn default() -> Self {
+        Self::new(PathBuf::new())
+    }
 }
 
 impl HistoryModel {
     pub fn new(path: PathBuf) -> Self {
         Self {
-            path,
-            items: vec!["Default".to_string()],
-            selected: None,
+            base_path: path,
+            save_spot: 1,
         }
     }
 
+    /// Get the currently selected save spot.
+    pub fn save_spot(&self) -> usize {
+        self.save_spot
+    }
+
+    /// Returns which of the 5 save spots are enabled
+    pub fn save_spots_enabled(&self, method: &MethodDescriptor) -> Vec<bool> {
+        (1..=5)
+            .map(|i| {
+                let path = match self.path(i, method).clone() {
+                    Some(path) => path,
+                    None => return false,
+                };
+                path.exists()
+            })
+            .collect()
+    }
+
+    /// Saves a request message to history.
     pub fn save(&self, messages: &MessagesModel) {
-        let req = HistoryData::from_model(messages);
-        if let Some(method) = &messages.selected_method {
-            let path = self.path_from_method(method);
-            req.write_to_file(path)
-        }
-    }
-
-    pub fn load(&mut self, method: &MethodDescriptor) {
-        self.clear();
-        let files = list_files(&self.path);
-        for file in files {
-            if file.ends_with(method.full_name()) {
-                log_to_file(file.clone());
-                self.items.push(file);
-            }
-        }
-    }
-
-    pub fn apply(&self, messages: &mut MessagesModel) {
-        if let Some(index) = self.selected {
-            let item = &self.items[index];
-            if item == "Default" {
-                messages.apply_template();
-            } else {
-                messages.apply_history(&HistoryData::read_from_file(item));
-            }
-        }
-    }
-
-    pub fn delete_selected(&mut self) {
-        if let Some(index) = self.selected {
-            let item = &self.items[index];
-            if item == "Default" {
+        let method = match &messages.selected_method {
+            Some(method) => method,
+            None => {
+                log("history: no method selected");
                 return;
             }
-            let res = std::fs::remove_file(item);
-            if res.is_ok() {
-                self.items.remove(index);
-                if index >= self.items.len() {
-                    self.selected = Some(index - 1);
-                }
+        };
+
+        let message = match messages.request.editor.get_text_json() {
+            Ok(message) => message,
+            Err(_) => {
+                log("history: failed to parse request");
+                return;
+            }
+        };
+
+        let path = match self.path(self.save_spot, method).clone() {
+            Some(path) => path,
+            None => return,
+        };
+
+        let address = messages.headers_model.borrow().address();
+        let bearer_str = messages.headers_model.borrow().bearer.get_text_raw();
+        let bearer = Option::from(!bearer_str.is_empty()).and_then(|_| Some(bearer_str));
+        let request = HistoryData {
+            message,
+            address,
+            bearer,
+            metadata: BTreeMap::new(),
+        };
+
+        match serde_json::to_string_pretty(&request) {
+            Ok(data) => {
+                std::fs::write(path, data).unwrap_or_else(|_| {
+                    log(format!("history: unable to write file"));
+                });
+            }
+            Err(_) => {
+                log(format!("history: unable to convert to json",));
             }
         }
     }
 
-    fn clear(&mut self) {
-        self.items.clear();
-        self.items.push("Default".to_string());
-        self.selected = None;
-    }
-
-    fn filename_from_method(method: &MethodDescriptor) -> String {
-        let method_name = method.full_name();
-        let time: String = Utc::now().to_rfc3339();
-        format!("{}_{}", time, method_name)
-    }
-
-    fn path_from_method(&self, method: &MethodDescriptor) -> PathBuf {
-        let fname = Self::filename_from_method(method);
-        self.path.join(PathBuf::from(fname))
-    }
-
-    pub fn as_widget(&self) -> SelectableWidgetList<'_, ListItem<'_>> {
-        let items = self
-            .items
-            .iter()
-            .map(|e| ListItem::new(Span::from(e.as_str())))
-            .collect::<Vec<_>>();
-        let mut widget = SelectableWidgetList::new(items);
-        widget.state.select(self.selected);
-        widget
-    }
-
-    pub fn next(&mut self) {
-        let i = match self.selected {
-            Some(i) => {
-                if i >= self.items.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
+    /// Loads a request from history.
+    pub fn load(&self, messages: &mut MessagesModel) -> Option<()> {
+        let method = match &messages.selected_method {
+            Some(method) => method,
+            None => {
+                log("history: no method selected");
+                return None;
             }
-            None => 0,
         };
-        self.selected = Some(i);
-    }
-
-    pub fn previous(&mut self) {
-        let i = match self.selected {
-            Some(i) => {
-                if i == 0 {
-                    self.items.len() - 1
-                } else {
-                    i - 1
-                }
+        let path = match self.path(self.save_spot(), method).clone() {
+            Some(path) => path,
+            None => return None,
+        };
+        if !path.exists() {
+            return None;
+        }
+        let content = match std::fs::read_to_string(path.clone()) {
+            Ok(content) => content,
+            Err(_) => {
+                log(format!("history: failed to read file {:?}", path));
+                return None;
             }
-            None => 0,
         };
-        self.selected = Some(i);
+        let history: HistoryData = match serde_json::from_str(&content) {
+            Ok(history) => history,
+            Err(_) => {
+                log(format!("history: failed to parse from str"));
+                return None;
+            }
+        };
+        history.apply(messages);
+        Some(())
     }
-}
 
-fn list_files(dir: &PathBuf) -> Vec<String> {
-    let paths = std::fs::read_dir(dir).unwrap();
-    let mut files = Vec::new();
-    for path in paths {
-        let path_str = path.unwrap().path().to_str().unwrap().to_string();
-        files.push(path_str);
+    /// Deletes a save spot
+    pub fn delete(&self, method: &MethodDescriptor) {
+        let path = match self.path(self.save_spot, method).clone() {
+            Some(path) => path,
+            None => return,
+        };
+        let _ = std::fs::remove_file(path);
     }
-    files.sort();
-    files
+
+    /// Select a history save spot.
+    pub fn select(&mut self, index: usize) {
+        self.save_spot = index;
+    }
+
+    /// Convenience method to construct a path from a method
+    /// Fails if the history base folder does not exist.
+    /// If the method sub-folder does not exist, it is created.
+    fn path(&self, save_spot: usize, method: &MethodDescriptor) -> Option<PathBuf> {
+        if !Path::new(&self.base_path).exists() {
+            let p = self.base_path.to_str().unwrap_or("");
+            log(format!("failed to save history: path {} does not exist", p));
+            return None;
+        }
+        let path = self.base_path.join(method.full_name());
+        std::fs::create_dir_all(&path).unwrap_or_else(|_| {
+            let p = path.to_str().unwrap_or("");
+            log(format!("failed to save history: cannot create dir: {}", p));
+        });
+        let fname = format!("{}.json", save_spot);
+        Some(path.join(PathBuf::from(fname)))
+    }
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct HistoryData {
     pub message: String,
     pub address: String,
-    pub metadata: HashMap<String, String>,
+    pub bearer: Option<String>,
+    pub metadata: BTreeMap<String, String>,
 }
 
 impl HistoryData {
-    pub fn from_model(model: &MessagesModel) -> Self {
-        let metadata = model.metadata_model.borrow().as_raw();
-        let address = model.address_model.borrow().editor.get_text_raw();
-        let message = model.request.editor.get_text_raw();
+    pub fn new(
+        message: String,
+        address: String,
+        bearer: Option<String>,
+        metadata: BTreeMap<String, String>,
+    ) -> Self {
         Self {
-            metadata,
-            address,
             message,
+            address,
+            bearer,
+            metadata,
         }
     }
 
-    pub fn to_json(&self) -> Result<String, serde_json::Error> {
-        serde_json::to_string_pretty(self)
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap_or_else(|_| {
+            log("history: failed to parse to json");
+            String::new()
+        })
     }
 
-    pub fn write_to_file(&self, path: PathBuf) {
-        let data = self
-            .to_json()
-            .unwrap_or_else(|_| "Unable converting Request to json".to_string());
-        std::fs::write(path, data).unwrap();
+    /// Applies a history.
+    fn apply(&self, messages: &mut MessagesModel) {
+        let mut headers_model = messages.headers_model.borrow_mut();
+        headers_model.address.set_text_raw(&self.address);
+        if let Some(bearer) = &self.bearer {
+            headers_model.bearer.set_text_raw(bearer);
+        }
+        messages.request.editor.set_text_raw(&self.message);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_history_data_to_json() {
+        // given
+        let mut metadata = BTreeMap::new();
+        metadata.insert("key1".to_string(), "value1".to_string());
+        metadata.insert("key2".to_string(), "value2".to_string());
+
+        let history_data = HistoryData {
+            message: "Test message".to_string(),
+            address: "Test address".to_string(),
+            bearer: Some("Test bearer".to_string()),
+            metadata,
+        };
+
+        // when
+        let pretty_json = history_data.to_json();
+
+        //  then
+        let expected_pretty_json = r#"{
+  "message": "Test message",
+  "address": "Test address",
+  "bearer": "Test bearer",
+  "metadata": {
+    "key1": "value1",
+    "key2": "value2"
+  },
+}"#;
+        assert_eq!(pretty_json, expected_pretty_json);
+        // std::fs::write("file.txt", pretty_json).unwrap();
     }
 
-    pub fn read_from_file(path: &str) -> Self {
-        let data = std::fs::read_to_string(path).expect("Unable to read file");
-        serde_json::from_str(&data).unwrap()
+    #[test]
+    fn test_history_apply() {
+        // given
+        let mut metadata = BTreeMap::new();
+        metadata.insert("key1".to_string(), "value1".to_string());
+        metadata.insert("key2".to_string(), "value2".to_string());
+
+        let history_data = HistoryData {
+            message: "Test message".to_string(),
+            address: "Test address".to_string(),
+            bearer: Some("Test bearer".to_string()),
+            metadata,
+        };
+
+        // when
+        let mut messages = MessagesModel::default();
+        history_data.apply(&mut messages);
+
+        //  then
+        let expected_message = r#"Test message"#;
+        assert_eq!(messages.request.editor.get_text_raw(), expected_message);
+
+        let expected_address = "Test address";
+        assert_eq!(messages.headers_model.borrow().address(), expected_address);
     }
 }

@@ -1,14 +1,15 @@
 #![allow(clippy::cast_possible_truncation)]
+#![allow(dead_code)]
 mod app;
 mod commons;
 mod controller;
+mod input;
 mod model;
 mod theme;
 mod view;
 mod widgets;
-use crate::app::{run_app, App};
-use commons::debug::log_to_file;
-use core::{init_from_file, Config};
+use crate::app::App;
+use config::Config;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -19,6 +20,15 @@ use std::{env, error::Error, io, path::PathBuf, str::FromStr};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+/// This env is used to read the path to the stellarpc config.
+/// If it is not set, the config is expected in the current
+/// directory.
+const ENV_CONFIG: &str = "STELLARPC_CONFIG";
+/// Debug flag
+const DEBUG: bool = true;
+/// Autosaves the history when switching between histories
+const AUTOSAVE_HISTORY: bool = false;
+
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
     let cfg = init_config()?;
@@ -26,8 +36,7 @@ fn main() -> Result<()> {
     let core_client = init_core_client(cfg)?;
     let config = AppConfig { history };
 
-    let app = App::new(core_client, config);
-    run_app(&mut terminal, app).unwrap();
+    App::run(core_client, config, &mut terminal).unwrap();
 
     reset_terminal()?;
     terminal.show_cursor()?;
@@ -42,11 +51,11 @@ pub struct AppConfig {
 /// Get config
 fn init_config() -> Result<Config> {
     let cfg_file = get_env();
-    log_to_file(cfg_file.clone());
-    Ok(init_from_file(&cfg_file).map_err(|err| {
+    let cfg = Config::load(&cfg_file).map_err(|err| {
         reset_terminal().unwrap();
         err
-    })?)
+    })?;
+    Ok(cfg)
 }
 
 /// Initiate the core client.
@@ -59,10 +68,11 @@ fn init_core_client(cfg: Config) -> Result<CoreClient> {
 
 /// Instanitate the history path
 fn init_history(cfg: &Config) -> Result<PathBuf> {
-    let path_str = if cfg.history.is_empty() {
+    let history = cfg.history();
+    let path_str = if history.is_empty() {
         "./history"
     } else {
-        &cfg.history
+        &history
     };
     Ok(PathBuf::from_str(path_str).map_err(|err| {
         reset_terminal().unwrap();
@@ -71,12 +81,13 @@ fn init_history(cfg: &Config) -> Result<PathBuf> {
 }
 
 fn get_env() -> String {
-    let args: Vec<String> = env::args().collect();
-    log_to_file(args.clone());
-    if let Some(config) = args.get(1) {
-        return config.to_string();
+    if let Ok(current_dir) = std::env::current_dir() {
+        let config_path = current_dir.join("config.json");
+        if config_path.exists() && config_path.is_file() {
+            return format!("{}/config.json", current_dir.to_str().unwrap());
+        }
     }
-    "config.json".to_string()
+    env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
 }
 
 /// Initializes the terminal.

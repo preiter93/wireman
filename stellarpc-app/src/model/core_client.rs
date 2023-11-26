@@ -1,8 +1,9 @@
 use crate::commons::editor::ErrorKind;
+use config::Config;
 use core::{
-    client::grpcurl::request_as_grpcurl,
     descriptor::{RequestMessage, ResponseMessage},
-    Config, MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
+    features::grpcurl,
+    MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 use http::Uri;
 use std::{collections::HashMap, error::Error};
@@ -17,12 +18,18 @@ pub struct CoreClient {
     grpc: GrpcClientConfig,
 }
 
+impl Default for CoreClient {
+    fn default() -> Self {
+        Self::new(Config::default()).unwrap()
+    }
+}
+
 #[derive(Debug, Clone)]
 struct GrpcClientConfig(Config);
 
 impl CoreClient {
     pub fn new(cfg: Config) -> Result<Self, Box<dyn Error>> {
-        let desc = ProtoDescriptor::from_config(&cfg)?;
+        let desc = ProtoDescriptor::new(cfg.includes(), cfg.files())?;
         let grpc = GrpcClientConfig(cfg);
         Ok(Self { desc, grpc })
     }
@@ -40,7 +47,7 @@ impl CoreClient {
     /// Returns the proto request of a given method
     pub fn get_request(&self, method: &MethodDescriptor) -> RequestMessage {
         let mut req = self.desc.get_request(method);
-        req.message.apply_template();
+        req.message_mut().apply_template();
         req
     }
 
@@ -51,16 +58,8 @@ impl CoreClient {
 
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in [`ProtoMessage`]
-    pub fn call_unary(
-        &self,
-        req: &RequestMessage,
-        address: &str,
-    ) -> Result<ResponseMessage, ErrorKind> {
-        let uri = Uri::try_from(address).map_err(|_| ErrorKind {
-            kind: "ParseAddressError".to_string(),
-            msg: String::new(),
-        })?;
-        let resp = core::call_unary_blocking(&self.grpc.0, uri, req)?;
+    pub fn call_unary(&self, req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
+        let resp = core::client::call_unary_blocking(req)?;
         Ok(resp)
     }
 
@@ -69,11 +68,15 @@ impl CoreClient {
         &self,
         message: &str,
         method_desc: &MethodDescriptor,
-        metadata: HashMap<String, String>,
+        metadata: &HashMap<String, String>,
         address: &str,
     ) -> Result<String, String> {
-        let uri = Uri::try_from(address).map_err(|_| "Failed to get uri from address")?;
-        request_as_grpcurl(&self.grpc.0, uri, message, method_desc, metadata)
-            .map_err(|err| err.to_string())
+        Ok(grpcurl(
+            &self.grpc.0.includes,
+            Uri::try_from(address).map_err(|_| "Failed to parse address")?,
+            message,
+            method_desc,
+            metadata,
+        ))
     }
 }

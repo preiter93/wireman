@@ -1,47 +1,17 @@
 //! Module for all grpc related stuff
+mod codec;
+pub mod tls;
+
 use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
-use crate::Config;
 use crate::Result;
 use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
 
-mod codec;
-pub mod grpcurl;
-pub mod tls;
-
-/// Creates a new grpc client and sends a message to a grpc server.
-/// This method is blocking.
-///
-/// # Errors
-/// - Internal error calling the grpc server
-pub fn call_unary_blocking<T: Into<Uri>>(
-    cfg: &Config,
-    uri: T,
-    req: &RequestMessage,
-) -> Result<ResponseMessage> {
-    let rt = create_runtime()?;
-    let future = async_call_unary(cfg, uri, req);
-    let result = rt.block_on(future);
-    match result {
-        Ok(response) => Ok(response),
-        Err(err) => Err(Error::InternalError(err.to_string())),
-    }
-}
-
-async fn async_call_unary<T: Into<Uri>>(
-    cfg: &Config,
-    uri: T,
-    req: &RequestMessage,
-) -> Result<ResponseMessage> {
-    let mut client = GrpcClient::from_config(cfg, uri);
-    let resp = client.unary(req).await?;
-    Ok(resp)
-}
-
+/// Represents a gRPC client for making RPC calls.
 #[derive(Clone, Debug)]
 pub struct GrpcClient {
     grpc: Grpc<Channel>,
@@ -66,44 +36,69 @@ impl GrpcClient {
         }
     }
 
-    /// Instantiates a client from a `ProtoConfig`
-    pub fn from_config<T: Into<Uri>>(cfg: &Config, uri: T) -> Self {
-        Self::new(uri, Some(cfg.tls.clone()))
-    }
-
-    /// Make a unary grpc call from the client
+    /// Make a unary gRPC call from the client.
     ///
     /// # Errors
-    /// - grpc client is not ready
-    /// - server call failed
+    /// - gRPC client is not ready
+    /// - Server call failed
     pub async fn unary(&mut self, req: &RequestMessage) -> Result<ResponseMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
         let codec = codec::DynamicCodec::new(req.method_descriptor());
-        // path
-        let path = req.get_path();
-        // make call
-        let req = req.clone().into_request();
-        let response = self.grpc.unary(req, path, codec).await?.into_inner();
+        let path = req.path();
+        let request = req.clone().into_request();
+        let response = self.grpc.unary(request, path, codec).await?.into_inner();
         Ok(response)
     }
 
     /// Make a unary grpc call from the client. The call is
-    /// wrapped in a tokio runtime to run asynchronous asks.
+    /// wrapped in a tokio runtime to run asynchronously.
     ///
     /// # Errors
-    /// - grpc client is not ready
-    /// - server call failed
+    /// - gRPC client is not ready
+    /// - Server call failed
     pub fn unary_with_runtime(&mut self, req: &RequestMessage) -> Result<String> {
-        let rt = create_runtime()?;
+        let runtime = create_runtime()?;
         let future = self.unary(req);
-        let result = rt.block_on(future);
+        let result = runtime.block_on(future);
+
         match result {
             Ok(response) => Ok(response.message.to_json()?),
-            Err(err) => Err(Error::InternalError(err.to_string())),
+            Err(err) => Err(Error::Internal(err.to_string())),
         }
     }
 }
 
+/// Creates a new gRPC client and sends a message to a gRPC server.
+/// This method is blocking.
+///
+/// # Errors
+/// - Internal error calling the gRPC server
+pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
+    let runtime = create_runtime()?;
+    let uri = req.address();
+    let uri = Uri::try_from(req.address())
+        .map_err(|_| Error::Internal("Failed to parse address".to_string()))?;
+    let future = async_call_unary(uri, req);
+    let result = runtime.block_on(future);
+
+    match result {
+        Ok(response) => Ok(response),
+        Err(err) => Err(Error::Internal(err.to_string())),
+    }
+}
+
+/// Creates a new gRPC client and sends a message to a gRPC server.
+/// This method is non-blocking.
+///
+/// # Errors
+/// - Internal error calling the gRPC server
+async fn async_call_unary<T: Into<Uri>>(uri: T, req: &RequestMessage) -> Result<ResponseMessage> {
+    let mut client = GrpcClient::new(uri, None);
+    let response = client.unary(req).await?;
+    Ok(response)
+}
+
+/// Creates a new Tokio runtime.
 fn create_runtime() -> Result<Runtime> {
-    Runtime::new().map_err(|_| Error::InternalError("Failed to create runtime".to_string()))
+    Runtime::new().map_err(|_| Error::Internal("Failed to create runtime".to_string()))
 }

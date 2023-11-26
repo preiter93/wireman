@@ -1,11 +1,17 @@
-use http::Uri;
-use stellarpc_core::{call_unary_blocking, Result};
-use stellarpc_core::{init, ProtoDescriptor};
+use stellarpc_core::ProtoDescriptor;
+use stellarpc_core::{client::call_unary_blocking, Result};
 
 fn main() -> Result<()> {
-    let cfg = init()?;
     // get services, methods and a request message
-    let desc = ProtoDescriptor::from_config(&cfg)?;
+    let desc = ProtoDescriptor::new(
+        vec!["/Users/philippreiter/Rust/stellarpc/test_utils"],
+        vec![
+            "grpc_simple/greeter.proto",
+            "grpc_simple/timekeeper.proto",
+            "grpc_simple/debugger.proto",
+            "grpc_simple/productfinder.proto",
+        ],
+    )?;
     let services = desc.get_services();
     for service in services.clone() {
         println!("{:?}", service.name());
@@ -17,7 +23,7 @@ fn main() -> Result<()> {
     println!("{:?}", method.name());
     // println!("{:?}", method);
     println!("{:?}", req.message_name());
-    println!("{:?}", req.message.to_json());
+    println!("{:?}", req.message().to_json());
     // println!("{:?}", req);
 
     // for field in req.get_message_descriptor().fields() {
@@ -34,10 +40,10 @@ fn main() -> Result<()> {
     //     }
     // }
     // send message to grpc server
-    let uri = Uri::from_static("http://localhost:50051");
+    req.set_address("http://localhost:50051");
     req.insert_metadata("metadata-key", "metadata-value")
         .unwrap();
-    let resp = call_unary_blocking(&cfg, uri, &req)?;
+    let resp = call_unary_blocking(&req)?;
     println!("{:?}", resp.message.to_json());
 
     Ok(())
