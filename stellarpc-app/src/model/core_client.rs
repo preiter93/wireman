@@ -41,7 +41,7 @@ impl CoreClient {
     /// Returns the proto request of a given method
     pub fn get_request(&self, method: &MethodDescriptor) -> RequestMessage {
         let mut req = self.desc.get_request(method);
-        req.message.apply_template();
+        req.message_mut().apply_template();
         req
     }
 
@@ -52,16 +52,8 @@ impl CoreClient {
 
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in [`ProtoMessage`]
-    pub fn call_unary(
-        &self,
-        req: &RequestMessage,
-        address: &str,
-    ) -> Result<ResponseMessage, ErrorKind> {
-        let uri = Uri::try_from(address).map_err(|_| ErrorKind {
-            kind: "ParseAddressError".to_string(),
-            msg: String::new(),
-        })?;
-        let resp = core::client::call_unary_blocking(uri, req)?;
+    pub fn call_unary(&self, req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
+        let resp = core::client::call_unary_blocking(req)?;
         Ok(resp)
     }
 

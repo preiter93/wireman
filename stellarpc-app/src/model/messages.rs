@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
-use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryData, MetadataModel};
+use super::{core_client::CoreClient, headers::HeadersModel, MetadataModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
-use core::MethodDescriptor;
+use core::{descriptor::RequestMessage, MethodDescriptor};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 /// Map from Method to request/response message
@@ -61,7 +61,7 @@ impl<'a> MessagesModel<'a> {
         }
         // Load the request template (only if the editor is empty)
         if self.request.editor.is_empty() {
-            self.request.load_request_template(method);
+            self.request.load_template(method);
         }
         // Mark method as selected
         self.selected_method = Some(method.clone());
@@ -102,83 +102,107 @@ impl<'a> MessagesModel<'a> {
         self.response.editor.set_text_raw(&resp);
     }
 
+    /// Returns the request as json string
+    pub fn to_json(&self) -> String {
+        if let Some(method) = &self.selected_method {
+            let mut req = self.request.core_client.borrow().get_request(method);
+            match req
+                .message_mut()
+                .from_json(&self.request.editor.get_text_raw())
+            {
+                Ok(_) => try_pretty_format_json(&req.to_json().unwrap()),
+                Err(_) => String::new(),
+            }
+        } else {
+            return String::new();
+        }
+    }
+
+    // Build the grpc request
+    pub fn build_request(&self, method: &MethodDescriptor) -> Result<RequestMessage, ErrorKind> {
+        let mut req = self.request.core_client.borrow().get_request(method);
+        // Message
+        if let Err(err) = req
+            .message_mut()
+            .from_json(&self.request.editor.get_text_raw())
+        {
+            return Err(ErrorKind::default_error(err.to_string()));
+        }
+        // Metadata
+        let metadata_map = self.metadata_model.borrow().as_raw();
+        for (key, val) in metadata_map {
+            let result = req.insert_metadata(&key, &val);
+            if result.is_err() {
+                return Err(ErrorKind::format_error(
+                    "failed to insert metadata".to_string(),
+                ));
+            }
+        }
+        // Bearer token
+        let bearer = self.headers_model.borrow().bearer.get_text_raw();
+        if !bearer.is_empty() {
+            let _ = req.insert_metadata("authorization", &format!("Bearer {bearer}"));
+        }
+        // Address
+        req.set_address(&self.headers_model.borrow().address());
+        Ok(req)
+    }
+
     /// Make a grpc call and set response or error.
     pub fn call_grpc(&mut self) {
         self.response.editor.set_error(None);
         self.response.editor.set_text_raw("");
-        if let Some(method) = &self.selected_method {
-            // Message
-            let mut req = self.request.core_client.borrow().get_request(method);
-            if let Err(err) = req.message.from_json(&self.request.editor.get_text_raw()) {
-                // Acquiring the request message failed
-                let err = ErrorKind::default_error(err.to_string());
+        let method = match self.selected_method.clone() {
+            Some(method) => method,
+            None => {
+                let err = ErrorKind::default_error("Select a method!");
                 self.response.editor.set_error(Some(err.clone()));
                 self.response.editor.set_text_raw(&err.string());
                 return;
             }
+        };
 
-            // Metadata
-            let metadata_map = self.metadata_model.borrow().as_raw();
-            for (key, val) in metadata_map {
-                let result = req.insert_metadata(&key, &val);
-                if result.is_err() {
-                    let err = ErrorKind::format_error("failed to insert metadata".to_string());
-                    self.response.editor.set_error(Some(err.clone()));
-                    self.response.editor.set_text_raw(&err.string());
-                    return;
-                }
+        let req = match self.build_request(&method) {
+            Ok(req) => req,
+            Err(err) => {
+                self.response.editor.set_error(Some(err.clone()));
+                self.response.editor.set_text_raw(&err.string());
+                return;
             }
-            // Bearer token
-            let bearer = self.headers_model.borrow().bearer.get_text_raw();
-            if !bearer.is_empty() {
-                let _ = req.insert_metadata("authorization", &format!("Bearer {bearer}"));
-            }
+        };
 
-            // Address
-            let address = self.headers_model.borrow().address.get_text_raw();
+        let resp = self.request.core_client.borrow_mut().call_unary(&req);
 
-            // Request
-            let resp = self
-                .request
-                .core_client
-                .borrow_mut()
-                .call_unary(&req, &address);
-
-            match resp {
-                Ok(resp) => {
-                    if let Ok(resp) = resp.message.to_json() {
-                        let resp = try_pretty_format_json(&resp);
-                        self.response.editor.set_error(None);
-                        self.response.editor.set_text_raw(&resp);
-                    } else {
-                        let err = ErrorKind::format_error("failed to parse json".to_string());
-                        self.response.editor.set_error(Some(err.clone()));
-                        self.response.editor.set_text_raw(&err.string());
-                    }
-                }
-                Err(err) => {
+        match resp {
+            Ok(resp) => {
+                if let Ok(json) = resp.message.to_json() {
+                    let formatted_json = try_pretty_format_json(&json);
+                    self.response.editor.set_error(None);
+                    self.response.editor.set_text_raw(&formatted_json);
+                } else {
+                    let err = ErrorKind::format_error("failed to parse json".to_string());
                     self.response.editor.set_error(Some(err.clone()));
                     self.response.editor.set_text_raw(&err.string());
                 }
             }
-        } else {
-            let err = ErrorKind::default_error("Select a method!");
-            self.response.editor.set_error(Some(err.clone()));
-            self.response.editor.set_text_raw(&err.string());
+            Err(err) => {
+                self.response.editor.set_error(Some(err.clone()));
+                self.response.editor.set_text_raw(&err.string());
+            }
         }
     }
 
     pub fn apply_template(&mut self) {
         if let Some(method) = &self.selected_method {
-            self.request.load_request_template(method);
+            self.request.load_template(method);
         }
     }
 
-    pub fn apply_history(&mut self, history: &HistoryData) {
-        *self.metadata_model.borrow_mut() = MetadataModel::from_raw(&history.metadata);
-        *self.headers_model.borrow_mut() = HeadersModel::new(&history.address);
-        self.request.editor.set_text_raw(&history.message);
-    }
+    // pub fn apply_history(&mut self, history: &HistoryData) {
+    //     *self.metadata_model.borrow_mut() = MetadataModel::from_raw(&history.metadata);
+    //     *self.headers_model.borrow_mut() = HeadersModel::new(&history.address);
+    //     self.request.editor.set_text_raw(&history.message);
+    // }
 
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
@@ -223,12 +247,12 @@ impl RequestModel {
     }
 
     /// Loads a new request message template into the editor.
-    pub fn load_request_template(&mut self, method: &MethodDescriptor) {
+    pub fn load_template(&mut self, method: &MethodDescriptor) {
         let req = self
             .core_client
             .borrow_mut()
             .get_request(method)
-            .message
+            .message()
             .to_json()
             .map_or("{}".to_string(), |r| try_pretty_format_json(&r));
         self.editor.set_text_raw(&req);

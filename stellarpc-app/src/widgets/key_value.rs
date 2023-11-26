@@ -176,7 +176,7 @@ impl Listable for KeyValue<'_> {
         }
     }
 
-    fn highlight(self) -> Option<Self> {
+    fn highlight(self) -> Self {
         let mut item: KeyValue = self;
         let highlighted = Block::default()
             .borders(Borders::ALL)
@@ -191,7 +191,7 @@ impl Listable for KeyValue<'_> {
         // // Makes sure that the editor changes in insert mode
         // item.key.editor.update_style();
         // item.val.editor.update_style();
-        Some(item)
+        item
     }
 }
 
