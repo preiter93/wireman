@@ -81,6 +81,12 @@ fn init_history(cfg: &Config) -> Result<PathBuf> {
 }
 
 fn get_env() -> String {
+    if let Ok(current_dir) = std::env::current_dir() {
+        let config_path = current_dir.join("config.json");
+        if config_path.exists() && config_path.is_file() {
+            return format!("{}/config.json", current_dir.to_str().unwrap());
+        }
+    }
     env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
 }
 

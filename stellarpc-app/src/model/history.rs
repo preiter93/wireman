@@ -34,6 +34,19 @@ impl HistoryModel {
         self.save_spot
     }
 
+    /// Returns which of the 5 save spots are enabled
+    pub fn save_spots_enabled(&self, method: &MethodDescriptor) -> Vec<bool> {
+        (1..=5)
+            .map(|i| {
+                let path = match self.path(i, method).clone() {
+                    Some(path) => path,
+                    None => return false,
+                };
+                path.exists()
+            })
+            .collect()
+    }
+
     /// Saves a request message to history.
     pub fn save(&self, messages: &MessagesModel) {
         let method = match &messages.selected_method {
@@ -52,7 +65,7 @@ impl HistoryModel {
             }
         };
 
-        let path = match self.path(method).clone() {
+        let path = match self.path(self.save_spot, method).clone() {
             Some(path) => path,
             None => return,
         };
@@ -88,7 +101,7 @@ impl HistoryModel {
                 return None;
             }
         };
-        let path = match self.path(method).clone() {
+        let path = match self.path(self.save_spot(), method).clone() {
             Some(path) => path,
             None => return None,
         };
@@ -113,6 +126,15 @@ impl HistoryModel {
         Some(())
     }
 
+    /// Deletes a save spot
+    pub fn delete(&self, method: &MethodDescriptor) {
+        let path = match self.path(self.save_spot, method).clone() {
+            Some(path) => path,
+            None => return,
+        };
+        let _ = std::fs::remove_file(path);
+    }
+
     /// Select a history save spot.
     pub fn select(&mut self, index: usize) {
         self.save_spot = index;
@@ -121,7 +143,7 @@ impl HistoryModel {
     /// Convenience method to construct a path from a method
     /// Fails if the history base folder does not exist.
     /// If the method sub-folder does not exist, it is created.
-    fn path(&self, method: &MethodDescriptor) -> Option<PathBuf> {
+    fn path(&self, save_spot: usize, method: &MethodDescriptor) -> Option<PathBuf> {
         if !Path::new(&self.base_path).exists() {
             let p = self.base_path.to_str().unwrap_or("");
             log(format!("failed to save history: path {} does not exist", p));
@@ -132,7 +154,7 @@ impl HistoryModel {
             let p = path.to_str().unwrap_or("");
             log(format!("failed to save history: cannot create dir: {}", p));
         });
-        let fname = format!("{}.json", self.save_spot);
+        let fname = format!("{}.json", save_spot);
         Some(path.join(PathBuf::from(fname)))
     }
 }
