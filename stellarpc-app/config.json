@@ -3,6 +3,7 @@
     "includes": [
         "$HOME/Rust/stellarpc/test_utils"
     ],
+    "history": "$HOME/Rust/stellarpc/stellarpc-app/history",
     "files": [
         "grpc_simple/greeter.proto",
         "grpc_simple/timekeeper.proto",

@@ -24,6 +24,8 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// If it is not set, the config is expected in the current
 /// directory.
 const ENV_CONFIG: &str = "STELLARPC_CONFIG";
+/// Debug flag
+const DEBUG: bool = true;
 
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
@@ -64,10 +66,11 @@ fn init_core_client(cfg: Config) -> Result<CoreClient> {
 
 /// Instanitate the history path
 fn init_history(cfg: &Config) -> Result<PathBuf> {
-    let path_str = if cfg.history.is_empty() {
+    let history = cfg.history();
+    let path_str = if history.is_empty() {
         "./history"
     } else {
-        &cfg.history
+        &history
     };
     Ok(PathBuf::from_str(path_str).map_err(|err| {
         reset_terminal().unwrap();

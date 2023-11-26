@@ -121,6 +121,7 @@ impl<'a> App<'a> {
                     }
                     Tab::Messages => MessagesInput {
                         model: self.controller.messages.clone(),
+                        history_model: self.controller.history.clone(),
                         context: &mut self.context,
                     }
                     .handle(event),

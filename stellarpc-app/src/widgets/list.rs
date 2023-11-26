@@ -52,12 +52,12 @@ impl Listable for ListItem<'_> {
     fn height(&self) -> usize {
         1
     }
-    fn highlight(self) -> Option<Self> {
+    fn highlight(self) -> Self {
         let mut item = self;
         let highlight_style = THEME.list.selected;
         item.prefix = Some(">>");
         item.style = highlight_style;
-        Some(item)
+        item
     }
 }
 

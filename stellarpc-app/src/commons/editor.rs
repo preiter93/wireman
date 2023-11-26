@@ -101,9 +101,7 @@ impl TextEditor {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
             if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
-                    for c in text.chars() {
-                        self.insert_char(c);
-                    }
+                    self.buffer.insert_string(&text);
                 }
             }
         }

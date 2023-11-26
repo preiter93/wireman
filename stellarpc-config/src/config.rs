@@ -64,6 +64,12 @@ impl Config {
             .map(|e| shellexpand::env(e).map_or(e.clone(), |x| x.to_string()))
             .collect()
     }
+
+    /// Gets the history. Tries to shell expand the path if it contains
+    ///  environment variables such as $HOME or ~.
+    pub fn history(&self) -> String {
+        shellexpand::env(&self.history).map_or(self.history.clone(), |x| x.to_string())
+    }
 }
 
 /// The TLS config of the grpc client.

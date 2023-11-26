@@ -4,14 +4,13 @@ use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
 use ratatui::layout::Rect;
-use ratatui::style::Style;
 use ratatui::style::Stylize;
 use ratatui::widgets::Block;
 use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
 use ratatui::widgets::Widget;
+use tui_vim_editor::editor::theme::EditorTheme;
 use tui_vim_editor::Editor;
-use tui_vim_editor::StatusLine;
 
 use super::theme::THEME;
 
@@ -50,40 +49,32 @@ impl Widget for MessagesTab<'_, '_> {
         // Request
         let buffer = &self.model.request.editor.buffer;
         let mut editor = Editor::new(buffer);
+        let mut theme = EditorTheme::default();
         let block = block.title("Request").bold().white();
         if self.sub == 0 {
-            editor = editor
-                .status_line(
-                    StatusLine::default()
-                        .style_text(THEME.status_line.0)
-                        .style_line(THEME.status_line.1),
-                )
-                .block(block.clone().border_type(BorderType::Double));
+            theme = theme.block(block.clone().border_type(BorderType::Double));
         } else {
-            editor = editor
-                .cursor_style(Style::default())
-                .block(block.clone().border_type(BorderType::Plain));
+            theme = theme
+                .block(block.clone().border_type(BorderType::Plain))
+                .cursor_style(EditorTheme::default().base)
+                .status_line(None);
         }
-        editor.render(area[0], buf);
+        editor.theme(theme).render(area[0], buf);
 
         // Response
         let buffer = &self.model.response.editor.buffer;
         editor = Editor::new(buffer);
+        let mut theme = EditorTheme::default();
         let block = block.title("Response").bold().white();
         if self.sub == 1 {
-            editor = editor
-                .status_line(
-                    StatusLine::default()
-                        .style_text(THEME.status_line.0)
-                        .style_line(THEME.status_line.1),
-                )
-                .block(block.border_type(BorderType::Double));
+            theme = theme.block(block.clone().border_type(BorderType::Double));
         } else {
-            editor = editor
-                .cursor_style(Style::default())
-                .block(block.border_type(BorderType::Plain));
+            theme = theme
+                .block(block.clone().border_type(BorderType::Plain))
+                .cursor_style(EditorTheme::default().base)
+                .status_line(None);
         }
-        editor.render(area[1], buf);
+        editor.theme(theme).render(area[1], buf);
     }
 }
 

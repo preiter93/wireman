@@ -1,10 +1,9 @@
 use crate::model::headers::{HeadersModel, HeadersSelection};
 use ratatui::{
     prelude::*,
-    style::Stylize,
     widgets::{Block, BorderType, Borders, Padding, StatefulWidget, Widget},
 };
-use tui_vim_editor::{Buffer as EditorBuffer, Editor};
+use tui_vim_editor::{editor::theme::EditorTheme, Buffer as EditorBuffer, Editor};
 use tui_widget_list::{List, ListState, Listable};
 
 use super::theme::THEME;
@@ -98,15 +97,15 @@ impl Widget for SingleInput {
             .title_alignment(Alignment::Left)
             .style(THEME.content)
             .padding(Padding::new(1, 1, 0, 1));
-        let mut input = Editor::new(&self.buffer);
+        let input = Editor::new(&self.buffer);
+        let mut theme = EditorTheme::default().status_line(None);
         if self.selected {
             block = block.border_type(BorderType::Double);
         }
         if !self.selected {
-            input = input.cursor_style(Style::default());
+            theme = theme.cursor_style(EditorTheme::default().base)
         }
-        input
-            .block(block.title(self.title.clone()).bold().white())
-            .render(area, buf);
+        theme = theme.block(block.title(self.title.clone()).bold().white());
+        input.theme(theme).render(area, buf);
     }
 }

@@ -6,6 +6,7 @@ use crate::{
     app::AppContext,
     model::{
         headers::{HeadersModel, HeadersSelection},
+        history::HistoryModel,
         MessagesModel, SelectionModel,
     },
 };
@@ -81,6 +82,7 @@ impl SelectionInput<'_, '_> {
 /// The input on the messages page.
 pub struct MessagesInput<'a, 'b> {
     pub model: Rc<RefCell<MessagesModel<'a>>>,
+    pub history_model: Rc<RefCell<HistoryModel>>,
     pub context: &'b mut AppContext,
 }
 
@@ -113,6 +115,12 @@ impl MessagesInput<'_, '_> {
             KeyCode::Char('Y') if !self.context.disable_root_events => {
                 self.model.borrow_mut().yank_grpcurl();
             }
+            KeyCode::Char('S') if !self.context.disable_root_events => {
+                self.history_model.borrow().save(&self.model.borrow());
+            }
+            // KeyCode::Char('L') if !self.context.disable_root_events => {
+            //     self.history_model.borrow_mut().load(&self.model.borrow());
+            // }
             _ => {
                 let mut disable_root_events = false;
                 if self.context.sub == 0 {

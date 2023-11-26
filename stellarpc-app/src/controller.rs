@@ -23,7 +23,7 @@ pub struct Controller<'a> {
     pub headers: Rc<RefCell<HeadersModel>>,
 
     /// The model for the request history
-    pub history: HistoryModel,
+    pub history: Rc<RefCell<HistoryModel>>,
 
     // /// The active window
     // pub window: Window,
@@ -66,7 +66,7 @@ impl<'a> Controller<'a> {
         )));
 
         // The history model
-        let history = HistoryModel::new(config.history);
+        let history = Rc::new(RefCell::new(HistoryModel::new(config.history)));
 
         Self {
             selection,
