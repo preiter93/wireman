@@ -72,7 +72,7 @@ impl HistoryModel {
 
         let address = messages.headers_model.borrow().address();
         let bearer_str = messages.headers_model.borrow().bearer.get_text_raw();
-        let bearer = Option::from(!bearer_str.is_empty()).and_then(|_| Some(bearer_str));
+        let bearer = Option::from(!bearer_str.is_empty()).map(|_| bearer_str);
         let request = HistoryData {
             message,
             address,
@@ -83,11 +83,11 @@ impl HistoryModel {
         match serde_json::to_string_pretty(&request) {
             Ok(data) => {
                 std::fs::write(path, data).unwrap_or_else(|_| {
-                    log(format!("history: unable to write file"));
+                    log("history: unable to write file".to_string());
                 });
             }
             Err(_) => {
-                log(format!("history: unable to convert to json",));
+                log("history: unable to convert to json".to_string());
             }
         }
     }
@@ -118,7 +118,7 @@ impl HistoryModel {
         let history: HistoryData = match serde_json::from_str(&content) {
             Ok(history) => history,
             Err(_) => {
-                log(format!("history: failed to parse from str"));
+                log("history: failed to parse from str".to_string());
                 return None;
             }
         };

@@ -171,9 +171,8 @@ impl MessagesInput<'_> {
         model.history_model.select(index);
 
         let history_model = model.history_model.clone();
-        if let Some(_) = history_model.load(&mut model) {
-            return;
-        }
+        let _ = history_model.load(&mut model);
+
         // if let Some(method) = model.selected_method.clone() {
         //     model.request.load_template(&method);
         // }

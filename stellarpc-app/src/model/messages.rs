@@ -73,10 +73,8 @@ impl MessagesModel {
         // Mark method as selected
         self.selected_method = Some(method.clone());
         // Load the request message
-        if self.request.editor.is_empty() {
-            if self.history_model.clone().load(self).is_none() {
-                self.request.load_template(method);
-            }
+        if self.request.editor.is_empty() && self.history_model.clone().load(self).is_none() {
+            self.request.load_template(method);
         }
         // Clear the error state
         self.request.editor.set_error(None);
@@ -127,7 +125,7 @@ impl MessagesModel {
                 Err(_) => String::new(),
             }
         } else {
-            return String::new();
+            String::new()
         }
     }
 
