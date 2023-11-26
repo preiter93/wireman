@@ -27,7 +27,7 @@ const ENV_CONFIG: &str = "STELLARPC_CONFIG";
 /// Debug flag
 const DEBUG: bool = true;
 /// Autosaves the history when switching between histories
-const AUTOSAVE_HISTORY: bool = true;
+const AUTOSAVE_HISTORY: bool = false;
 
 fn main() -> Result<()> {
     let mut terminal = init_terminal()?;
