@@ -14,6 +14,7 @@ The program looks for a configuration file specified by the environment variable
 ```json
 {
     "address": "http://localhost:50051",
+    "history": "$HOME/.config/stellarpc/history",
     "includes": [
         "$HOME/your-project/protos"
     ],
