@@ -8,6 +8,7 @@ use crate::{
         headers::{HeadersModel, HeadersSelection},
         MessagesModel, SelectionModel,
     },
+    AUTOSAVE_HISTORY,
 };
 
 /// The input on the select services and methods page
@@ -161,6 +162,10 @@ impl MessagesInput<'_> {
     }
 
     fn handle_history_reload(&mut self, index: usize) {
+        if AUTOSAVE_HISTORY {
+            self.model.borrow().history_model.save(&self.model.borrow());
+        }
+
         let mut model = self.model.borrow_mut();
         model.history_model.select(index);
 
