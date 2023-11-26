@@ -150,11 +150,7 @@ impl TextEditor {
 
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent) {
-        match key.code {
-            _ => {
-                self.input.on_key(key, &mut self.buffer);
-            }
-        }
+        self.input.on_key(key, &mut self.buffer);
     }
 }
 
