@@ -24,3 +24,10 @@
 //     //     f.render_widget(table, area);
 //     // }
 // }
+// let mut widget = controller.metadata.borrow_mut().as_widget();
+// widget = widget.block(block);
+//
+// let popup_area = centered_rect_percentage(90, 20, area);
+//
+// f.render_widget(Clear, popup_area);
+// f.render_widget(&mut widget, popup_area);

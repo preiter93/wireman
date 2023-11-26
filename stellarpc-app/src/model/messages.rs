@@ -1,5 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
-use super::{core_client::CoreClient, headers::HeadersModel, MetadataModel};
+use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
@@ -7,7 +7,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 /// Map from Method to request/response message
 type MessagesCache = HashMap<String, (String, String)>;
 
-pub struct MessagesModel<'a> {
+pub struct MessagesModel {
     /// The request editor model
     pub request: RequestModel,
 
@@ -26,17 +26,27 @@ pub struct MessagesModel<'a> {
     /// A reference to the headers model
     pub(super) headers_model: Rc<RefCell<HeadersModel>>,
 
-    /// A reference to the address model
-    pub(super) metadata_model: Rc<RefCell<MetadataModel<'a>>>,
+    /// The model for the request history.
+    pub history_model: HistoryModel,
 }
 
-impl<'a> MessagesModel<'a> {
+impl Default for MessagesModel {
+    fn default() -> Self {
+        Self::new(
+            Rc::new(RefCell::new(CoreClient::default())),
+            Rc::new(RefCell::new(HeadersModel::default())),
+            HistoryModel::default(),
+        )
+    }
+}
+
+impl MessagesModel {
     /// Instantiates a request and response model and returns
     /// the common messages model.
     pub fn new(
         core_client: Rc<RefCell<CoreClient>>,
         headers_model: Rc<RefCell<HeadersModel>>,
-        metadata_model: Rc<RefCell<MetadataModel<'a>>>,
+        history_model: HistoryModel,
     ) -> Self {
         let request = RequestModel::new(core_client);
         let response = ResponseModel::new();
@@ -46,8 +56,9 @@ impl<'a> MessagesModel<'a> {
             cache: HashMap::new(),
             loaded_cache_id: String::new(),
             selected_method: None,
-            metadata_model,
+            // metadata_model,
             headers_model,
+            history_model,
         }
     }
 
@@ -59,12 +70,14 @@ impl<'a> MessagesModel<'a> {
         if id != self.loaded_cache_id {
             self.change_method(id);
         }
-        // Load the request template (only if the editor is empty)
-        if self.request.editor.is_empty() {
-            self.request.load_template(method);
-        }
         // Mark method as selected
         self.selected_method = Some(method.clone());
+        // Load the request message
+        if self.request.editor.is_empty() {
+            if self.history_model.clone().load(self).is_none() {
+                self.request.load_template(method);
+            }
+        }
         // Clear the error state
         self.request.editor.set_error(None);
     }
@@ -128,16 +141,16 @@ impl<'a> MessagesModel<'a> {
         {
             return Err(ErrorKind::default_error(err.to_string()));
         }
-        // Metadata
-        let metadata_map = self.metadata_model.borrow().as_raw();
-        for (key, val) in metadata_map {
-            let result = req.insert_metadata(&key, &val);
-            if result.is_err() {
-                return Err(ErrorKind::format_error(
-                    "failed to insert metadata".to_string(),
-                ));
-            }
-        }
+        // // Metadata
+        // let metadata_map = self.metadata_model.borrow().as_raw();
+        // for (key, val) in metadata_map {
+        //     let result = req.insert_metadata(&key, &val);
+        //     if result.is_err() {
+        //         return Err(ErrorKind::format_error(
+        //             "failed to insert metadata".to_string(),
+        //         ));
+        //     }
+        // }
         // Bearer token
         let bearer = self.headers_model.borrow().bearer.get_text_raw();
         if !bearer.is_empty() {

@@ -1,28 +1,27 @@
+use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
 use crate::{
     app::{AppContext, Tab},
     controller::Controller,
 };
-
-use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Tabs, Widget},
 };
 use std::rc::Rc;
 
-pub struct Root<'a, 'b> {
+pub struct Root<'a> {
     context: &'a AppContext,
-    ctrl: &'a Controller<'b>,
+    ctrl: &'a Controller,
 }
 
-impl<'a, 'b> Root<'a, 'b> {
-    pub fn new(context: &'a AppContext, ctrl: &'a Controller<'b>) -> Self {
+impl<'a> Root<'a> {
+    pub fn new(context: &'a AppContext, ctrl: &'a Controller) -> Self {
         Root { context, ctrl }
     }
 }
-impl Root<'_, '_> {
+impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Horizontal, vec![0, 55]);
+        let area = layout(area, Direction::Horizontal, vec![0, 50]);
 
         Paragraph::new(Span::styled("StellaRPC", THEME.app_title)).render(area[0], buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
@@ -72,7 +71,7 @@ impl Root<'_, '_> {
     }
 }
 
-impl Widget for Root<'_, '_> {
+impl Widget for Root<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         Block::new().style(THEME.root).render(area, buf);
         let area = layout(area, Direction::Vertical, vec![1, 0, 1]);

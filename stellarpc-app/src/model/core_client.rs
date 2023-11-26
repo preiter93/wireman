@@ -18,6 +18,12 @@ pub struct CoreClient {
     grpc: GrpcClientConfig,
 }
 
+impl Default for CoreClient {
+    fn default() -> Self {
+        Self::new(Config::default()).unwrap()
+    }
+}
+
 #[derive(Debug, Clone)]
 struct GrpcClientConfig(Config);
 

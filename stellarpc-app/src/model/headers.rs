@@ -13,6 +13,12 @@ pub struct HeadersModel {
     pub selected: HeadersSelection,
 }
 
+impl Default for HeadersModel {
+    fn default() -> Self {
+        Self::new("")
+    }
+}
+
 impl HeadersModel {
     /// Create a new `HeadersModel` instance
     pub fn new(default_address: &str) -> Self {

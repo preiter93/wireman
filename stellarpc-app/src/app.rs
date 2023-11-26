@@ -14,8 +14,8 @@ use crossterm::{
 };
 use ratatui::{backend::Backend, Terminal};
 
-pub struct App<'a> {
-    pub controller: Controller<'a>,
+pub struct App {
+    pub controller: Controller,
     context: AppContext,
     should_quit: bool,
 }
@@ -65,8 +65,8 @@ impl Tab {
     }
 }
 
-impl<'a> App<'a> {
-    pub fn new(core_client: CoreClient, config: AppConfig) -> App<'a> {
+impl App {
+    pub fn new(core_client: CoreClient, config: AppConfig) -> App {
         App {
             controller: Controller::new(core_client, config),
             context: AppContext::default(),
@@ -121,7 +121,6 @@ impl<'a> App<'a> {
                     }
                     Tab::Messages => MessagesInput {
                         model: self.controller.messages.clone(),
-                        history_model: self.controller.history.clone(),
                         context: &mut self.context,
                     }
                     .handle(event),
