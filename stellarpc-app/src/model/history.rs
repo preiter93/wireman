@@ -1,4 +1,4 @@
-use super::{headers::HeadersModel, MessagesModel};
+use super::MessagesModel;
 use crate::commons::debug::log;
 use core::MethodDescriptor;
 use serde::{Deserialize, Serialize};
@@ -58,9 +58,12 @@ impl HistoryModel {
         };
 
         let address = messages.headers_model.borrow().address();
+        let bearer_str = messages.headers_model.borrow().bearer.get_text_raw();
+        let bearer = Option::from(!bearer_str.is_empty()).and_then(|_| Some(bearer_str));
         let request = HistoryData {
             message,
             address,
+            bearer,
             metadata: BTreeMap::new(),
         };
 
@@ -138,14 +141,21 @@ impl HistoryModel {
 pub struct HistoryData {
     pub message: String,
     pub address: String,
+    pub bearer: Option<String>,
     pub metadata: BTreeMap<String, String>,
 }
 
 impl HistoryData {
-    pub fn new(message: String, address: String, metadata: BTreeMap<String, String>) -> Self {
+    pub fn new(
+        message: String,
+        address: String,
+        bearer: Option<String>,
+        metadata: BTreeMap<String, String>,
+    ) -> Self {
         Self {
             message,
             address,
+            bearer,
             metadata,
         }
     }
@@ -159,7 +169,11 @@ impl HistoryData {
 
     /// Applies a history.
     fn apply(&self, messages: &mut MessagesModel) {
-        *messages.headers_model.borrow_mut() = HeadersModel::new(&self.address);
+        let mut headers_model = messages.headers_model.borrow_mut();
+        headers_model.address.set_text_raw(&self.address);
+        if let Some(bearer) = &self.bearer {
+            headers_model.bearer.set_text_raw(bearer);
+        }
         messages.request.editor.set_text_raw(&self.message);
     }
 }
@@ -179,6 +193,7 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
+            bearer: Some("Test bearer".to_string()),
             metadata,
         };
 
@@ -189,10 +204,11 @@ mod tests {
         let expected_pretty_json = r#"{
   "message": "Test message",
   "address": "Test address",
+  "bearer": "Test bearer",
   "metadata": {
     "key1": "value1",
     "key2": "value2"
-  }
+  },
 }"#;
         assert_eq!(pretty_json, expected_pretty_json);
         // std::fs::write("file.txt", pretty_json).unwrap();
@@ -208,6 +224,7 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
+            bearer: Some("Test bearer".to_string()),
             metadata,
         };
 

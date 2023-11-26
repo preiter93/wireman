@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, process::Command};
 
 use crate::commons::editor::TextEditor;
 
@@ -46,6 +46,12 @@ impl HeadersModel {
         }
         map
     }
+
+    /// Get the bearer. If a command is found $(<cmd>),
+    /// it is tried to be expanded.
+    pub fn bearer(&self) -> String {
+        try_expand(&self.bearer.get_text_raw())
+    }
 }
 
 /// The selection state of `HeadersModel`.
@@ -70,4 +76,29 @@ impl HeadersSelection {
             Self::Bearer => Self::Address,
         }
     }
+}
+
+fn try_expand(raw: &str) -> String {
+    if raw.starts_with("$(") && raw.ends_with(")") {
+        let command = &raw[2..raw.len() - 1];
+        if let Some(command) = execute_command(command) {
+            return command;
+        };
+    }
+    raw.to_string()
+}
+
+fn execute_command(command: &str) -> Option<String> {
+    let output = Command::new(command).output();
+
+    match output {
+        Ok(output) if output.status.success() => {
+            if let Ok(mut stdout) = String::from_utf8(output.stdout) {
+                stdout.pop(); // Remove the newline character at the end
+                return Some(stdout);
+            }
+        }
+        _ => {}
+    };
+    None
 }

@@ -152,7 +152,7 @@ impl MessagesModel {
         //     }
         // }
         // Bearer token
-        let bearer = self.headers_model.borrow().bearer.get_text_raw();
+        let bearer = self.headers_model.borrow().bearer();
         if !bearer.is_empty() {
             let _ = req.insert_metadata("authorization", &format!("Bearer {bearer}"));
         }
