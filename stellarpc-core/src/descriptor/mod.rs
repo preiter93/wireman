@@ -9,7 +9,6 @@ pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
 use crate::error::Error;
-use crate::Config;
 use crate::Result;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
 use std::path::Path;
@@ -20,25 +19,25 @@ pub struct ProtoDescriptor {
 }
 
 impl ProtoDescriptor {
-    /// Instantiates a descriptor from a [`ProtoConfig`]
-    ///
-    /// # Errors
-    /// - Failed to compile proto `ProtoxCompileError`
-    /// - Failed to generate descriptor `DescriptorError`
-    pub fn from_config(cfg: &Config) -> Result<Self> {
-        let files = cfg.files.clone();
-        let includes = vec![cfg.workspace.clone()];
-        Self::from_files(files, includes)
-    }
+    // /// Instantiates a descriptor from a [`ProtoConfig`]
+    // ///
+    // /// # Errors
+    // /// - Failed to compile proto `ProtoxCompileError`
+    // /// - Failed to generate descriptor `DescriptorError`
+    // pub fn from_config(cfg: &Config) -> Result<Self> {
+    //     let files = cfg.files.clone();
+    //     let includes = vec![cfg.workspace.clone()];
+    //     Self::from_files(files, includes)
+    // }
 
     /// Instantiate `DescriptorPool` from proto files and include paths
     ///
     /// # Errors
     /// - Failed to compile proto `ProtoxCompileError`
     /// - Failed to generate descriptor `DescriptorError`
-    pub fn from_files(
-        files: impl IntoIterator<Item = impl AsRef<Path>>,
+    pub fn new(
         includes: impl IntoIterator<Item = impl AsRef<Path>>,
+        files: impl IntoIterator<Item = impl AsRef<Path>>,
     ) -> Result<Self> {
         // Compile proto files to file descriptors
         let file_desc_set = protox::compile(files, includes).map_err(Error::ProtoxCompileError)?;

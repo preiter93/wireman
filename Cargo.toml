@@ -2,7 +2,10 @@
 
 members = [
     "stellarpc-core",
+    "stellarpc-config",
     "stellarpc-app",
 ]
 
 default-members = ["stellarpc-app"]
+
+resolver = "2"

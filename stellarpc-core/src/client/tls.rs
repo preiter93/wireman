@@ -12,13 +12,13 @@ pub struct TlsConfig {
 }
 
 impl TlsConfig {
-    /// Instantiate a `TlsConfig`
+    /// Create a new `TlsConfig` with optional custom certificates.
     #[must_use]
     pub fn new(custom_cert: Option<String>) -> Self {
         Self { custom_cert }
     }
 
-    /// Returns the https connector matching the tls config
+    /// Get the HTTPS connector based on the TLS configuration.
     #[must_use]
     pub fn get_connector_from_tls(&self) -> HttpsConnector<HttpConnector> {
         let tls = self.get_client_config();
@@ -33,7 +33,7 @@ impl TlsConfig {
             .wrap_connector(http)
     }
 
-    /// Returns the clients tls config as `rustls::ClientConfig`
+    /// Get the client's TLS configuration as a `rustls::ClientConfig`.
     fn get_client_config(&self) -> rustls::ClientConfig {
         if let Some(cert) = &self.custom_cert {
             return get_client_config_with_custom_certs(cert).unwrap();
@@ -50,7 +50,7 @@ fn get_client_config_native_certs() -> rustls::ClientConfig {
         .with_no_client_auth()
 }
 
-/// TLS client config with a custom certificate
+/// Get TLS client configuration with a custom certificate.
 fn get_client_config_with_custom_certs(ca_cert: &str) -> Result<rustls::ClientConfig> {
     let certs = load_certs(ca_cert)?;
     let mut roots = rustls::RootCertStore::empty();
@@ -71,37 +71,3 @@ fn load_certs(filename: &str) -> Result<Vec<Vec<u8>>> {
     // Load and return certificate.
     rustls_pemfile::certs(&mut reader).map_err(Error::LoadTLSCertificateError)
 }
-
-// /// TLS client config without certificiate verification. Should
-// /// be used with caution.
-// fn get_client_config_no_tls_check() -> Arc<rustls::ClientConfig> {
-//     let config = rustls::ClientConfig::builder()
-//         .with_safe_defaults()
-//         .with_custom_certificate_verifier(Arc::new(SkipServerVerification))
-//         .with_no_client_auth();
-//     Arc::new(config)
-// }
-
-// /// Implementation of `ServerCertVerifier` that verifies everything as trustworthy.
-// /// Code from `https://quinn-rs.github.io/quinn/quinn/certificate.html`
-// struct SkipServerVerification;
-//
-// impl SkipServerVerification {
-//     fn new() -> Arc<Self> {
-//         Arc::new(Self)
-//     }
-// }
-//
-// impl rustls::client::ServerCertVerifier for SkipServerVerification {
-//     fn verify_server_cert(
-//         &self,
-//         _end_entity: &rustls::Certificate,
-//         _intermediates: &[rustls::Certificate],
-//         _server_name: &rustls::ServerName,
-//         _scts: &mut dyn Iterator<Item = &[u8]>,
-//         _ocsp_response: &[u8],
-//         _now: std::time::SystemTime,
-//     ) -> std::result::Result<rustls::client::ServerCertVerified, rustls::Error> {
-//         Ok(rustls::client::ServerCertVerified::assertion())
-//     }
-// }

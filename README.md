@@ -34,10 +34,10 @@ Within this configuration, you can store a list of include directories, proto fi
 ## Features
 
 #### Maintain a Request History
-You now have the option to preserve your most recent request (S) and access a history of all saved requests (H), including the default template. This feature eliminates the need to ponder over the contents of your request.
+You can save up to five histories histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing S, and restore the default message by typing D.
 
 #### Copy as grpcurl
-stellaRPC offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press Ctrl+Y.
+stellaRPC offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press Y.
 
 ## Roadmap
 

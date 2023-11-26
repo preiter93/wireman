@@ -10,15 +10,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Internal error
     #[error("internal error {0}")]
-    InternalError(String),
-
-    /// Error while reading the config file
-    #[error("error reading config")]
-    ReadConfigError(#[source] std::io::Error),
-
-    /// Error while parsing the config
-    #[error("error parsing config")]
-    ParseConfigError(#[source] serde_json::Error),
+    Internal(String),
 
     /// Failed to deserialize DynamicMessage from json
     #[error("error deserializing message from json")]
@@ -90,3 +82,5 @@ impl From<tonic::Status> for GrpcStatus {
         }
     }
 }
+
+pub const FROM_UTF8: &str = "From UTF8 error";

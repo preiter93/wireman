@@ -9,13 +9,13 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Block, BorderType, Borders, Widget},
 };
-use tui_widget_list::WidgetListItem;
+use tui_widget_list::Listable;
 
 use crate::{commons::editor::TextEditor, theme::COL_WINDOW_BORDER_HIGHLIGHTED_FG};
 
 #[derive(Clone)]
 pub struct Tile<'a> {
-    editor: TextEditor<'a>,
+    editor: TextEditor,
     style: Style,
     block: Block<'a>,
 }
@@ -29,9 +29,9 @@ impl<'a> Tile<'a> {
         }
     }
 
-    pub fn set_text<T: Into<String>>(&mut self, text: T) {
-        self.editor.set_text_raw(&text.into());
-    }
+    // pub fn set_text<T: Into<String>>(&mut self, text: T) {
+    //     self.editor.set_text_raw(&text.into());
+    // }
 
     pub fn style(mut self, style: Style) -> Self {
         self.style = style;
@@ -43,10 +43,10 @@ impl<'a> Tile<'a> {
         self
     }
 
-    pub fn into_editor(mut self) -> TextEditor<'a> {
-        self.editor.update_style();
-        self.editor.set_block(self.block);
-        self.editor.set_style(self.style);
+    pub fn into_editor(self) -> TextEditor {
+        // self.editor.update_style();
+        // self.editor.set_block(self.block);
+        // self.editor.set_style(self.style);
         self.editor
     }
 }
@@ -85,23 +85,23 @@ impl<'a> KeyValue<'a> {
             .style_val(Style::default().bg(Color::Black).fg(Color::White))
     }
 
-    pub fn get_key(&self) -> &'_ TextEditor<'a> {
+    pub fn get_key(&self) -> &'_ TextEditor {
         &self.key.editor
     }
 
-    pub fn get_val(&self) -> &'_ TextEditor<'a> {
+    pub fn get_val(&self) -> &'_ TextEditor {
         &self.val.editor
     }
 
-    pub fn get_key_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_key_mut(&mut self) -> &'_ mut TextEditor {
         &mut self.key.editor
     }
 
-    pub fn get_val_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_val_mut(&mut self) -> &'_ mut TextEditor {
         &mut self.val.editor
     }
 
-    pub fn get_selected(&self) -> &'_ TextEditor<'a> {
+    pub fn get_selected(&self) -> &'_ TextEditor {
         if self.is_key_selected() {
             self.get_key()
         } else {
@@ -109,7 +109,7 @@ impl<'a> KeyValue<'a> {
         }
     }
 
-    pub fn get_selected_mut(&mut self) -> &'_ mut TextEditor<'a> {
+    pub fn get_selected_mut(&mut self) -> &'_ mut TextEditor {
         if self.is_key_selected() {
             self.get_key_mut()
         } else {
@@ -153,56 +153,55 @@ impl<'a> KeyValue<'a> {
         self
     }
 
-    pub fn insert_key<T: Into<String>>(&mut self, text: T) {
-        self.key.set_text(text);
-    }
+    // pub fn insert_key<T: Into<String>>(&mut self, text: T) {
+    //     self.key.set_text(text);
+    // }
+    //
+    // pub fn insert_val<T: Into<String>>(&mut self, text: T) {
+    //     self.val.set_text(text);
+    // }
+    //
+    // pub fn block(mut self, block: Block<'a>) -> Self {
+    //     self.block = Some(block);
+    //     self
+    // }
+}
 
-    pub fn insert_val<T: Into<String>>(&mut self, text: T) {
-        self.val.set_text(text);
-    }
-
-    pub fn block(mut self, block: Block<'a>) -> Self {
-        self.block = Some(block);
-        self
-    }
-
-    // Render the item differently depending on the selection state
-    fn modify_fn(mut item: WidgetListItem<Self>, selected: Option<bool>) -> WidgetListItem<Self> {
-        if let Some(selected) = selected {
-            if selected {
-                let highlighted = Block::default()
-                    .borders(Borders::ALL)
-                    .border_type(BorderType::Double)
-                    .style(Style::default().fg(COL_WINDOW_BORDER_HIGHLIGHTED_FG));
-                if item.content.is_key_selected() {
-                    item.content = item.content.block_key(highlighted.clone().title("Key"));
-                }
-                if item.content.is_val_selected() {
-                    item.content = item.content.block_val(highlighted.title("Value"));
-                }
-            }
+impl Listable for KeyValue<'_> {
+    fn height(&self) -> usize {
+        if self.block.is_some() {
+            5
+        } else {
+            3
         }
-        // Makes sure that the editor changes in insert mode
-        item.content.key.editor.update_style();
-        item.content.val.editor.update_style();
+    }
+
+    fn highlight(self) -> Self {
+        let mut item: KeyValue = self;
+        let highlighted = Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Double)
+            .style(Style::default().fg(COL_WINDOW_BORDER_HIGHLIGHTED_FG));
+        if item.is_key_selected() {
+            item = item.block_key(highlighted.clone().title("Key"));
+        }
+        if item.is_val_selected() {
+            item = item.block_val(highlighted.title("Value"));
+        }
+        // // Makes sure that the editor changes in insert mode
+        // item.key.editor.update_style();
+        // item.val.editor.update_style();
         item
     }
 }
 
-impl<'a> From<KeyValue<'a>> for WidgetListItem<KeyValue<'a>> {
-    fn from(val: KeyValue<'a>) -> Self {
-        let height = if val.block.is_some() { 5_u16 } else { 3_u16 };
-        Self::new(val, height).modify_fn(KeyValue::modify_fn)
-    }
-}
-
-impl<'a> Widget for KeyValue<'a> {
+impl Widget for KeyValue<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // Set the base style
-        let area = match self.block {
+        let area = match self.block.as_ref() {
             Some(b) => {
                 let inner_area = b.inner(area);
-                b.render(area, buf);
+                b.clone().render(area, buf);
                 inner_area
             }
             None => area,
@@ -214,11 +213,11 @@ impl<'a> Widget for KeyValue<'a> {
         let width = (f64::from(area.width - 2_u16) * 0.5) as u16;
         let height = area.height;
         let area = Rect::new(x, y, width, height);
-        self.key.into_editor().widget().render(area, buf);
+        // self.key.clone().into_editor().render(area, buf);
 
         // Render value
         let x = area.right() + 2_u16;
-        let area = Rect::new(x, y, width, height);
-        self.val.into_editor().widget().render(area, buf);
+        let _ = Rect::new(x, y, width, height);
+        // self.val.clone().into_editor().render(area, buf);
     }
 }

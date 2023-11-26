@@ -1,43 +1,80 @@
 #![allow(clippy::cast_possible_truncation)]
-use crate::controller::Controller;
-use crate::widgets::list::ListItem as ListItem2;
-use crate::widgets::list_with_children::ItemWithChildren;
-use ratatui::backend::Backend;
+use crate::model::SelectionModel;
+use crate::widgets::list::ListItem;
 use ratatui::layout::Rect;
-use ratatui::widgets::Block;
-use ratatui::Frame;
-use tui_widget_list::SelectableWidgetList;
+use ratatui::prelude::*;
+use ratatui::widgets::{Block, BorderType, Borders, Padding, StatefulWidget, Widget};
+use tui_widget_list::List;
 
-/// Draws the service/method selection tile.
-pub fn render_selection<B>(f: &mut Frame<B>, area: Rect, controller: &mut Controller, block: Block)
-where
-    B: Backend,
-{
-    let model = &mut controller.selection;
-    let items: Vec<_> = model
-        .items
-        .iter()
-        .enumerate()
-        .map(|(i, item)| {
-            let service = item.service.clone();
-            let is_expanded = model.state.expanded_parent();
-            let methods = match is_expanded {
-                Some(expanded) if expanded == i => item
-                    .methods
-                    .iter()
-                    .map(|x| ListItem2::new(x.clone()))
-                    .collect(),
-                _ => Vec::new(),
-            };
-            let mut methods_list = SelectableWidgetList::new(methods);
-            methods_list.state.select(model.state.selected_child());
-            ItemWithChildren::new(service, methods_list)
-        })
-        .collect();
+use super::theme::THEME;
 
-    let mut widget = SelectableWidgetList::new(items);
-    widget.state.select(model.state.selected_parent());
-    widget = widget.block(block);
+/// The page where to select services and methods.
+pub struct SelectionTab<'a> {
+    pub model: &'a mut SelectionModel,
+    pub sub: usize,
+}
 
-    f.render_widget(&mut widget, area);
+impl<'a> SelectionTab<'a> {
+    pub fn footer_keys(sub: usize) -> Vec<(&'static str, &'static str)> {
+        let last = if sub == 0 {
+            ("Enter", "Select")
+        } else {
+            ("Esc", "Unselect")
+        };
+        vec![
+            ("q", "Quit"),
+            ("Tab", "Next Tab"),
+            ("j", "Next"),
+            ("k", "Prev"),
+            ("↑", "Up"),
+            ("↓", "Down"),
+            last,
+        ]
+    }
+}
+
+impl Widget for SelectionTab<'_> {
+    fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
+        // Layout
+        let area = Layout::default()
+            .direction(ratatui::layout::Direction::Vertical)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+            .split(area);
+        let items = &self.model.items;
+
+        // Block
+        let block = Block::new()
+            .borders(Borders::ALL)
+            .title_alignment(Alignment::Center)
+            .style(THEME.content)
+            .padding(Padding::new(1, 1, 1, 1));
+
+        // Services
+        let svcs = items.iter().map(|e| ListItem::new(e.service.clone()));
+        let index = self.model.selected_service_index();
+        let state = &mut self.model.svc_state;
+        state.select(index);
+        let mut svc_block = block.clone().title("Services").bold().white();
+        if self.sub == 0 {
+            svc_block = svc_block.border_type(BorderType::Double);
+        }
+        List::new(svcs.collect())
+            .block(svc_block)
+            .render(area[0], buf, state);
+
+        // Methods
+        if let Some(svc_index) = self.model.selected_service_index() {
+            let mths = &self.model.items[svc_index].methods;
+            let mths = mths.iter().map(|e| ListItem::new(e.to_string()));
+            let state = &mut self.model.mth_state;
+            state.select(self.model.selection.selected_child());
+            let mut block = block.title("Methods").bold().white();
+            if self.sub == 1 {
+                block = block.border_type(BorderType::Double);
+            }
+            List::new(mths.collect())
+                .block(block)
+                .render(area[1], buf, state);
+        }
+    }
 }

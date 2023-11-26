@@ -1,23 +1,34 @@
 use super::{metadata::Metadata, DynamicMessage};
-use crate::{error::Error, Result};
+use crate::{
+    error::{Error, FROM_UTF8},
+    Result,
+};
 use http::uri::PathAndQuery;
-use prost_reflect::{MessageDescriptor, MethodDescriptor, SerializeOptions};
+use prost_reflect::{MessageDescriptor, MethodDescriptor};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::str::FromStr;
 use tonic::{
     metadata::{Ascii, MetadataKey, MetadataValue},
     Request,
 };
 
-/// Holds all the necessary data for a grpc request
+/// Holds all the necessary data for a gRPC request, including
+/// the message, method descriptor, and optional metadata.
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
-    pub message: DynamicMessage,
+    /// The gRPC message.
+    message: DynamicMessage,
+    /// The gRPC method
     method_desc: MethodDescriptor,
+    /// The requests metadata.
     metadata: Option<Metadata>,
+    /// The host address.
+    address: String,
 }
 
 impl RequestMessage {
-    /// Instantiate a `RequestMessage` from the Descriptors.
+    /// Create a new `RequestMessage` with the provided message
+    /// descriptor and method descriptor.
     #[must_use]
     pub fn new(message_desc: MessageDescriptor, method_desc: MethodDescriptor) -> Self {
         let message = DynamicMessage::new(message_desc);
@@ -25,35 +36,63 @@ impl RequestMessage {
             message,
             method_desc,
             metadata: None,
+            address: String::new(),
         }
     }
 
-    /// Returns the Message name.
+    /// Get the name of the message.
     #[must_use]
     pub fn message_name(&self) -> String {
         self.message_descriptor().name().to_string()
     }
 
-    /// Returns the message descriptor.
+    /// Get the message descriptor associated with the `RequestMessage`.
     #[must_use]
     pub fn message_descriptor(&self) -> MessageDescriptor {
         self.message.descriptor()
     }
 
-    /// Returns the method descriptor.
+    /// Get the method descriptor associated with the `RequestMessage`.
     #[must_use]
     pub fn method_descriptor(&self) -> MethodDescriptor {
         self.method_desc.clone()
     }
 
-    /// Set a new message.
+    /// Gets a reference to the message.
+    pub fn message(&self) -> &DynamicMessage {
+        &self.message
+    }
+    /// Gets a mutable reference to the message.
+    pub fn message_mut(&mut self) -> &mut DynamicMessage {
+        &mut self.message
+    }
+
+    /// Set a new message for the request.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
     }
 
-    /// Insert metadata
+    /// Get the host address.
+    #[must_use]
+    pub fn address(&self) -> &str {
+        &self.address
+    }
+
+    /// Sets the host address.
+    pub fn set_address(&mut self, address: &str) {
+        self.address = address.to_string();
+    }
+
+    /// Get the metadata associated with the request.
+    #[must_use]
+    pub fn metadata(&self) -> &Option<Metadata> {
+        &self.metadata
+    }
+
+    /// Insert metadata into the request.
     ///
     /// # Errors
+    ///
     /// - Failed to parse metadata value/key to ascii
     pub fn insert_metadata(&mut self, key: &str, val: &str) -> Result<()> {
         let key: MetadataKey<Ascii> = key.parse().map_err(|_| Error::ParseToAsciiError)?;
@@ -63,18 +102,13 @@ impl RequestMessage {
         Ok(())
     }
 
-    /// Get the metadata
-    #[must_use]
-    pub fn get_metadata(&self) -> &Option<Metadata> {
-        &self.metadata
-    }
-
-    /// Returns the uri path for grpc calls
+    /// Get the URI path for gRPC calls based on the method descriptor.
     ///
     /// # Panics
-    /// - Unwrapping path and query from str
+    ///
+    /// Panics if constructing the path and query from a string fails.
     #[must_use]
-    pub fn get_path(&self) -> PathAndQuery {
+    pub fn path(&self) -> PathAndQuery {
         let path = format!(
             "/{}/{}",
             self.method_desc.parent_service().full_name(),
@@ -83,10 +117,10 @@ impl RequestMessage {
         PathAndQuery::from_str(&path).unwrap()
     }
 
-    /// Wrap the message in a `tonic::Request`
+    /// Wrap the message in a `tonic::Request`.
     #[must_use]
     pub fn into_request(self) -> Request<RequestMessage> {
-        let metadata = self.get_metadata().clone();
+        let metadata = self.metadata().clone();
         let mut req = Request::new(self);
         if let Some(meta) = metadata {
             *req.metadata_mut() = meta.inner;
@@ -94,27 +128,30 @@ impl RequestMessage {
         req
     }
 
-    /// Serialize a `RequestMessage` to json
+    /// Serialize the `RequestMessage` to a JSON string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if serialization to a JSON string fails.
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
+        self.serialize(&mut s).unwrap();
+        String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
+    }
+}
 
-        self.message
-            .serialize_with_options(
-                &mut s,
-                &SerializeOptions::new()
-                    .stringify_64_bit_integers(false)
-                    .skip_default_fields(false),
-            )
-            .map_err(Error::SerializeJsonError)?;
-
+impl Serialize for RequestMessage {
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("RequestMessage", 3)?;
+        state.serialize_field("message", &self.message)?;
         if let Some(metadata) = &self.metadata {
-            metadata
-                .serialize(&mut s)
-                .map_err(Error::SerializeJsonError)?;
+            state.serialize_field("metadata", &metadata)?;
         }
-
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+        state.serialize_field("address", &self.address)?;
+        state.end()
     }
 }
 
@@ -130,7 +167,7 @@ mod test {
         let includes = vec!["."];
 
         // Generate the descriptor
-        let desc = ProtoDescriptor::from_files(files, includes).unwrap();
+        let desc = ProtoDescriptor::new(includes, files).unwrap();
 
         // Get the method and message
         let method = desc
@@ -141,32 +178,24 @@ mod test {
     }
 
     #[test]
-    fn test_into_requeset() {
+    fn test_into_request() {
         // given
         let mut given_message = load_test_message("Simple");
         given_message
             .insert_metadata("metadata-key", "metadata-value")
             .unwrap();
+        let method_descriptor = given_message.method_descriptor().clone();
+        let message_descriptor = given_message.message_descriptor().clone();
 
         // when
-        let given_req = given_message.clone().into_request();
+        let given_req = given_message.into_request();
 
         // then
         let metadata = given_req.metadata();
         assert!(metadata.contains_key("metadata-key"));
-        assert_eq!(
-            metadata.get("metadata-key").unwrap().as_bytes(),
-            "metadata-value".as_bytes()
-        );
-        let message = given_req.get_ref().clone();
-        assert_eq!(
-            message.method_descriptor(),
-            given_message.method_descriptor()
-        );
-        assert_eq!(
-            message.message_descriptor(),
-            given_message.message_descriptor()
-        );
+        assert_eq!(metadata.get("metadata-key").unwrap(), "metadata-value");
+        assert_eq!(given_req.get_ref().method_descriptor(), method_descriptor);
+        assert_eq!(given_req.get_ref().message_descriptor(), message_descriptor);
     }
 
     #[test]
@@ -174,12 +203,13 @@ mod test {
         // given
         let mut given_message = load_test_message("Simple");
         given_message.insert_metadata("key", "value").unwrap();
+        given_message.set_address("localhost:50051");
 
         // when
         let json = given_message.to_json().unwrap();
 
         // then
-        let expected_json = "{\"number\":0}{\"key\":\"value\"}";
+        let expected_json = "{\"message\":{\"number\":0},\"metadata\":{\"key\":\"value\"},\"address\":\"localhost:50051\"}";
         assert_eq!(json, expected_json);
     }
 }

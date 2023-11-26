@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
+
 use crate::{commons::editor::TextEditor, widgets::key_value::KeyValue};
-use std::collections::HashMap;
-use tui_widget_list::SelectableWidgetList;
+use std::collections::{BTreeMap, HashMap};
 
 /// The metadata model
 pub struct MetadataModel<'a> {
@@ -34,8 +34,8 @@ impl<'a> MetadataModel<'a> {
         }
     }
 
-    pub fn as_raw(&self) -> HashMap<String, String> {
-        let mut map = HashMap::new();
+    pub fn as_raw(&self) -> BTreeMap<String, String> {
+        let mut map = BTreeMap::new();
         for item in &self.items {
             let key = item.get_key().get_text_raw();
             let val = item.get_val().get_text_raw();
@@ -44,13 +44,6 @@ impl<'a> MetadataModel<'a> {
             }
         }
         map
-    }
-
-    /// Returns the metadata as a scrollable widget list
-    pub fn as_widget(&self) -> SelectableWidgetList<'a, KeyValue<'a>> {
-        let mut widget = SelectableWidgetList::new(self.items.clone());
-        widget.state.select(self.selected);
-        widget
     }
 
     pub fn select_key(&mut self) {
@@ -71,13 +64,13 @@ impl<'a> MetadataModel<'a> {
             .map_or(false, KeyValue::is_key_selected)
     }
 
-    pub fn get_selected(&self) -> Option<&'_ TextEditor<'a>> {
+    pub fn get_selected(&self) -> Option<&'_ TextEditor> {
         self.selected
             .and_then(|index| self.items.get(index))
             .map(KeyValue::get_selected)
     }
 
-    pub fn get_selected_mut(&mut self) -> Option<&'_ mut TextEditor<'a>> {
+    pub fn get_selected_mut(&mut self) -> Option<&'_ mut TextEditor> {
         self.selected
             .and_then(|index| self.items.get_mut(index))
             .map(KeyValue::get_selected_mut)
