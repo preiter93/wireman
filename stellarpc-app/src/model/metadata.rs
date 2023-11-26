@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 
 use crate::{commons::editor::TextEditor, widgets::key_value::KeyValue};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// The metadata model
 pub struct MetadataModel<'a> {
@@ -34,8 +34,8 @@ impl<'a> MetadataModel<'a> {
         }
     }
 
-    pub fn as_raw(&self) -> HashMap<String, String> {
-        let mut map = HashMap::new();
+    pub fn as_raw(&self) -> BTreeMap<String, String> {
+        let mut map = BTreeMap::new();
         for item in &self.items {
             let key = item.get_key().get_text_raw();
             let val = item.get_val().get_text_raw();

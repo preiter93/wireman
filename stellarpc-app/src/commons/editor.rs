@@ -68,6 +68,11 @@ impl TextEditor {
             .join("\n")
     }
 
+    /// Gets the editors content and formats it to json
+    pub fn get_text_json(&self) -> Result<String, ErrorKind> {
+        pretty_format_json(&self.get_text_raw())
+    }
+
     /// Set the editors content from raw text
     pub fn set_text_raw(&mut self, text: &str) {
         self.buffer.clear();

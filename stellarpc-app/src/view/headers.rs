@@ -103,7 +103,7 @@ impl Widget for SingleInput {
             block = block.border_type(BorderType::Double);
         }
         if !self.selected {
-            theme = theme.cursor_style(EditorTheme::default().base)
+            theme = theme.cursor_style(EditorTheme::default().base_style())
         }
         theme = theme.block(block.title(self.title.clone()).bold().white());
         input.theme(theme).render(area, buf);

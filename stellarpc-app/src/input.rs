@@ -6,19 +6,18 @@ use crate::{
     app::AppContext,
     model::{
         headers::{HeadersModel, HeadersSelection},
-        history::HistoryModel,
         MessagesModel, SelectionModel,
     },
 };
 
 /// The input on the select services and methods page
-pub struct SelectionInput<'a, 'b> {
+pub struct SelectionInput<'a> {
     pub model: Rc<RefCell<SelectionModel>>,
-    pub messages_model: Rc<RefCell<MessagesModel<'a>>>,
-    pub context: &'b mut AppContext,
+    pub messages_model: Rc<RefCell<MessagesModel>>,
+    pub context: &'a mut AppContext,
 }
 
-impl SelectionInput<'_, '_> {
+impl SelectionInput<'_> {
     pub fn handle(&mut self, code: KeyCode) {
         const SUBS: usize = 2;
         match code {
@@ -80,13 +79,12 @@ impl SelectionInput<'_, '_> {
 }
 
 /// The input on the messages page.
-pub struct MessagesInput<'a, 'b> {
-    pub model: Rc<RefCell<MessagesModel<'a>>>,
-    pub history_model: Rc<RefCell<HistoryModel>>,
-    pub context: &'b mut AppContext,
+pub struct MessagesInput<'a> {
+    pub model: Rc<RefCell<MessagesModel>>,
+    pub context: &'a mut AppContext,
 }
 
-impl MessagesInput<'_, '_> {
+impl MessagesInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
         const SUBS: usize = 2;
         match event.code {
@@ -115,12 +113,34 @@ impl MessagesInput<'_, '_> {
             KeyCode::Char('Y') if !self.context.disable_root_events => {
                 self.model.borrow_mut().yank_grpcurl();
             }
-            KeyCode::Char('S') if !self.context.disable_root_events => {
-                self.history_model.borrow().save(&self.model.borrow());
+            KeyCode::Char('D') if !self.context.disable_root_events => {
+                let method = self.model.borrow().selected_method.clone();
+                if let Some(method) = method {
+                    self.model.borrow_mut().request.load_template(&method);
+                }
             }
-            // KeyCode::Char('L') if !self.context.disable_root_events => {
-            //     self.history_model.borrow_mut().load(&self.model.borrow());
-            // }
+            KeyCode::Char('S') if !self.context.disable_root_events => {
+                self.model.borrow().history_model.save(&self.model.borrow());
+            }
+            KeyCode::Char('L') if !self.context.disable_root_events => {
+                let history_model = self.model.borrow().history_model.clone();
+                history_model.load(&mut self.model.borrow_mut());
+            }
+            KeyCode::Char('1') if !self.context.disable_root_events => {
+                self.handle_history_reload(1);
+            }
+            KeyCode::Char('2') if !self.context.disable_root_events => {
+                self.handle_history_reload(2);
+            }
+            KeyCode::Char('3') if !self.context.disable_root_events => {
+                self.handle_history_reload(3);
+            }
+            KeyCode::Char('4') if !self.context.disable_root_events => {
+                self.handle_history_reload(4);
+            }
+            KeyCode::Char('5') if !self.context.disable_root_events => {
+                self.handle_history_reload(5);
+            }
             _ => {
                 let mut disable_root_events = false;
                 if self.context.sub == 0 {
@@ -137,6 +157,20 @@ impl MessagesInput<'_, '_> {
                 // to not overwrite keys such as 'q' for quitting.
                 self.context.disable_root_events = disable_root_events;
             }
+        }
+    }
+
+    fn handle_history_reload(&mut self, index: usize) {
+        let mut model = self.model.borrow_mut();
+        model.history_model.select(index);
+
+        let history_model = model.history_model.clone();
+        if let Some(_) = history_model.load(&mut model) {
+            return;
+        }
+
+        if let Some(method) = model.selected_method.clone() {
+            model.request.load_template(&method);
         }
     }
 }
