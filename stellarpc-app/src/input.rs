@@ -117,6 +117,7 @@ impl MessagesInput<'_> {
             KeyCode::Char('D') if !self.context.disable_root_events => {
                 let method = self.model.borrow().selected_method.clone();
                 if let Some(method) = method {
+                    self.model.borrow().history_model.delete(&method);
                     self.model.borrow_mut().request.load_template(&method);
                 }
             }
@@ -173,10 +174,9 @@ impl MessagesInput<'_> {
         if let Some(_) = history_model.load(&mut model) {
             return;
         }
-
-        if let Some(method) = model.selected_method.clone() {
-            model.request.load_template(&method);
-        }
+        // if let Some(method) = model.selected_method.clone() {
+        //     model.request.load_template(&method);
+        // }
     }
 }
 

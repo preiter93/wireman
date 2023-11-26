@@ -5,6 +5,7 @@ pub struct Theme {
     pub content: Style,
     pub app_title: Style,
     pub tabs: Style,
+    pub tabs_active: Style,
     pub tabs_selected: Style,
     pub borders: Style,
     pub description: Style,
@@ -31,6 +32,7 @@ pub const THEME: Theme = Theme {
         .bg(DARK_BLUE)
         .add_modifier(Modifier::BOLD),
     tabs: Style::new().fg(MID_GRAY).bg(DARK_BLUE),
+    tabs_active: Style::new().fg(WHITE).bg(DARK_BLUE),
     tabs_selected: Style::new()
         .fg(WHITE)
         .bg(DARK_BLUE)

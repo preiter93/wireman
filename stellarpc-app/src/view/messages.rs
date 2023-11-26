@@ -1,5 +1,7 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
+use crate::commons::debug::log;
 use crate::model::MessagesModel;
+use crate::widgets::tabs::ActivatableTabs;
 use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -9,7 +11,6 @@ use ratatui::style::Stylize;
 use ratatui::widgets::Block;
 use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
-use ratatui::widgets::Tabs;
 use ratatui::widgets::Widget;
 use tui_vim_editor::editor::theme::EditorTheme;
 use tui_vim_editor::Editor;
@@ -74,12 +75,17 @@ impl Widget for MessagesTab<'_> {
         // Save spot
         let area_s = layout(area[1], Direction::Horizontal, vec![0, 25]);
         let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
-        Tabs::new(titles)
+        let mut tabs = ActivatableTabs::new(titles)
             .style(THEME.tabs)
+            .active_style(THEME.tabs_active)
             .highlight_style(THEME.tabs_selected)
             .select(self.model.history_model.save_spot().saturating_sub(1))
-            .divider("")
-            .render(area_s[1], buf);
+            .divider("");
+        if let Some(method) = &self.model.selected_method {
+            log(self.model.history_model.save_spots_enabled(&method));
+            tabs = tabs.active(self.model.history_model.save_spots_enabled(&method));
+        }
+        tabs.render(area_s[1], buf);
 
         // Response
         let buffer = &self.model.response.editor.buffer;
