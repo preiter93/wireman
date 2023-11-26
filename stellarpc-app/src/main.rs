@@ -81,10 +81,6 @@ fn init_history(cfg: &Config) -> Result<PathBuf> {
 }
 
 fn get_env() -> String {
-    let args: Vec<String> = env::args().collect();
-    if let Some(config) = args.get(1) {
-        return config.to_string();
-    }
     env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
 }
 
