@@ -1,11 +1,15 @@
 mod template;
 
 use self::template::apply_template_for_message;
-use crate::{error::Error, Result};
+use crate::{
+    error::{Error, FROM_UTF8},
+    Result,
+};
 use prost_reflect::{
     DeserializeOptions, DynamicMessage as DynMessage, MessageDescriptor, ReflectMessage,
     SerializeOptions,
 };
+use serde::{Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
 
 /// Represents a dynamic gRPC message that can be used
@@ -77,22 +81,27 @@ impl DynamicMessage {
     /// - Failed to serialize message
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
-        self.inner
-            .serialize_with_options(
-                &mut s,
-                &SerializeOptions::new()
-                    .stringify_64_bit_integers(false)
-                    .skip_default_fields(false),
-            )
-            .map_err(Error::SerializeJsonError)?;
-
-        String::from_utf8(s.into_inner())
-            .map_err(|_| Error::InternalError("FromUTF8Error".to_string()))
+        self.serialize(&mut s).map_err(Error::SerializeJsonError)?;
+        String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
     }
 
     /// Apply default values to a `DynamicMessage`.
     pub fn apply_template(&mut self) {
         apply_template_for_message(self);
+    }
+}
+
+impl Serialize for DynamicMessage {
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.inner.serialize_with_options(
+            serializer,
+            &SerializeOptions::new()
+                .stringify_64_bit_integers(false)
+                .skip_default_fields(false),
+        )
     }
 }
 

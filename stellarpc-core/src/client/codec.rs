@@ -46,7 +46,7 @@ impl Encoder for DynamicCodec {
 
         // Encode the request message into the destination buffer.
         request
-            .message
+            .message()
             .encode(dst)
             .map_err(|err| Status::internal(err.to_string()))?;
 
