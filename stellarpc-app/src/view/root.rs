@@ -21,7 +21,7 @@ impl<'a> Root<'a> {
 }
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Horizontal, vec![0, 50]);
+        let area = layout(area, Direction::Horizontal, &vec![0, 50]);
 
         Paragraph::new(Span::styled("StellaRPC", THEME.app_title)).render(area[0], buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
@@ -74,7 +74,7 @@ impl Root<'_> {
 impl Widget for Root<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         Block::new().style(THEME.root).render(area, buf);
-        let area = layout(area, Direction::Vertical, vec![1, 0, 1]);
+        let area = layout(area, Direction::Vertical, &vec![1, 0, 1]);
         self.render_navbar(area[0], buf);
         self.render_content(area[1], buf);
         self.render_footer(area[2], buf);
@@ -82,7 +82,7 @@ impl Widget for Root<'_> {
 }
 
 /// simple helper method to split an area into multiple sub-areas
-pub fn layout(area: Rect, direction: Direction, heights: Vec<u16>) -> Rc<[Rect]> {
+pub fn layout(area: Rect, direction: Direction, heights: &[u16]) -> Rc<[Rect]> {
     let constraints: Vec<Constraint> = heights
         .iter()
         .map(|&h| {
