@@ -300,6 +300,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "edtui"
+version = "0.1.0"
+dependencies = [
+ "crossterm",
+ "ratatui",
+]
+
+[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1513,6 +1521,7 @@ version = "0.1.0"
 dependencies = [
  "arboard",
  "crossterm",
+ "edtui",
  "http",
  "lazy_static",
  "ratatui",
@@ -1520,7 +1529,6 @@ dependencies = [
  "serde_json",
  "stellarpc_config",
  "stellarpc_core",
- "tui-vim-editor",
  "tui-widget-list",
  "unicode-width",
 ]
@@ -1827,14 +1835,6 @@ name = "try-lock"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
-
-[[package]]
-name = "tui-vim-editor"
-version = "0.2.0"
-dependencies = [
- "crossterm",
- "ratatui",
-]
 
 [[package]]
 name = "tui-widget-list"

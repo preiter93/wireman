@@ -1,6 +1,8 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
+use edtui::editor::theme::EditorTheme;
+use edtui::Editor;
 use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -11,15 +13,13 @@ use ratatui::widgets::Block;
 use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
 use ratatui::widgets::Widget;
-use tui_vim_editor::editor::theme::EditorTheme;
-use tui_vim_editor::Editor;
 
 use super::root::layout;
 use super::theme::THEME;
 
 /// The request and response tab
 pub struct MessagesTab<'a> {
-    pub model: &'a MessagesModel,
+    pub model: &'a mut MessagesModel,
     pub sub: usize,
 }
 
@@ -57,8 +57,8 @@ impl Widget for MessagesTab<'_> {
             .style(THEME.content);
 
         // Request
-        let buffer = &self.model.request.editor.buffer;
-        let mut editor = Editor::new(buffer);
+        let (buffer, state) = self.model.request.editor.get_parts();
+        let mut editor = Editor::new(buffer, state);
         let mut theme = EditorTheme::default();
         let block = block.title("Request").bold().white();
         if self.sub == 0 {
@@ -86,8 +86,8 @@ impl Widget for MessagesTab<'_> {
         tabs.render(area_s[1], buf);
 
         // Response
-        let buffer = &self.model.response.editor.buffer;
-        editor = Editor::new(buffer);
+        let (buffer, state) = self.model.request.editor.get_parts();
+        editor = Editor::new(buffer, state);
         let mut theme = EditorTheme::default();
         let block = block.title("Response").bold().white();
         if self.sub == 1 {
