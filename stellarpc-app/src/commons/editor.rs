@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
 use crossterm::event::KeyEvent;
-use edtui::{EditorBuffer, EditorState, Input, Mode};
+use edtui::{EditorMode, EditorState, Input};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
@@ -13,10 +13,7 @@ lazy_static! {
 /// and specifies commonly used key bindings.
 #[derive(Clone)]
 pub struct TextEditor {
-    /// Buffer contains all the core functionality
-    pub buffer: EditorBuffer,
-
-    /// The editor state
+    /// State contains the editors text and view state
     pub state: EditorState,
 
     /// The input register
@@ -39,15 +36,11 @@ impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
         Self {
-            buffer: EditorBuffer::new(),
-            state: EditorState::default(),
+            state: EditorState::new(),
             input: Input::default(),
             error: None,
             focus: false,
         }
-    }
-    pub fn get_parts(&mut self) -> (&EditorBuffer, &mut EditorState) {
-        (&self.buffer, &mut self.state)
     }
 
     pub fn focus(&mut self) {
@@ -67,7 +60,7 @@ impl TextEditor {
 
     /// Gets the editors content as raw text
     pub fn get_text_raw(&self) -> String {
-        self.buffer
+        self.state
             .lines()
             .iter()
             .map(std::convert::Into::into)
@@ -82,9 +75,9 @@ impl TextEditor {
 
     /// Set the editors content from raw text
     pub fn set_text_raw(&mut self, text: &str) {
-        self.buffer.clear();
+        self.state.clear();
         for line in text.lines() {
-            self.buffer.push(line);
+            self.state.push(line);
         }
     }
 
@@ -100,12 +93,12 @@ impl TextEditor {
 
     /// Clear all text
     pub fn clear(&mut self) {
-        self.buffer.clear();
+        self.state.clear();
     }
 
     /// Whether the editor is in insert mode
     pub fn insert_mode(&self) -> bool {
-        self.buffer.mode == Mode::Insert
+        self.state.mode == EditorMode::Insert
     }
 
     /// Paste text from clipboard to editor
@@ -113,7 +106,7 @@ impl TextEditor {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
             if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
-                    self.buffer.insert_string(&text);
+                    self.state.insert_string(&text);
                 }
             }
         }
@@ -135,7 +128,7 @@ impl TextEditor {
 
     /// Insert a str at the current cursor position. Handles newlines.
     fn insert_char(&mut self, c: char) {
-        self.buffer.insert_char(c);
+        self.state.insert_char(c);
     }
 
     /// Pretty formats the editors text. The error is stored
@@ -152,23 +145,23 @@ impl TextEditor {
 
     /// Returns if the editor is empty
     pub fn is_empty(&self) -> bool {
-        self.buffer.lines().is_empty()
+        self.state.lines().is_empty()
     }
 
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent) {
-        self.input.on_key(key, &mut self.buffer);
+        self.input.on_key(key, &mut self.state);
     }
 }
 
-/// The editor mode, i.e. Normal or Insert.
-#[derive(Clone, PartialEq, Eq, Default)]
-pub enum EditorMode {
-    #[default]
-    None,
-    Normal,
-    Insert,
-}
+// /// The editor mode, i.e. Normal or Insert.
+// #[derive(Clone, PartialEq, Eq, Default)]
+// pub enum EditorMode {
+//     #[default]
+//     None,
+//     Normal,
+//     Insert,
+// }
 
 /// The error of the request. Can hold a kind value
 /// to distinguish between format and grpc errors.

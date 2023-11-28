@@ -1,5 +1,5 @@
 use crate::model::headers::{AuthSelection, HeadersModel, HeadersSelection};
-use edtui::{editor::theme::EditorTheme, Editor, EditorBuffer, EditorState};
+use edtui::{EditorState, EditorTheme, EditorView};
 use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, Borders, Padding, StatefulWidget, Widget},
@@ -37,7 +37,7 @@ impl Widget for HeadersTab<'_> {
             .style(THEME.content)
             .padding(Padding::new(1, 1, 1, 1));
         let mut items: Vec<ListElements> = vec![ListElements::SingleInput(SingleInput {
-            buffer: self.model.address.buffer.clone(),
+            state: self.model.address.state.clone(),
             title: "Address".to_string(),
             selected: self.model.selected == HeadersSelection::Address,
         })];
@@ -45,7 +45,7 @@ impl Widget for HeadersTab<'_> {
             AuthSelection::Bearer => items.append(&mut vec![
                 ListElements::VSpace(2),
                 ListElements::SingleInput(SingleInput {
-                    buffer: self.model.auth.bearer.buffer.clone(),
+                    state: self.model.auth.bearer.state.clone(),
                     title: "Bearer".to_string(),
                     selected: self.model.selected == HeadersSelection::Auth,
                 }),
@@ -53,7 +53,7 @@ impl Widget for HeadersTab<'_> {
             AuthSelection::Basic => items.append(&mut vec![
                 ListElements::VSpace(2),
                 ListElements::SingleInput(SingleInput {
-                    buffer: self.model.auth.basic.buffer.clone(),
+                    state: self.model.auth.basic.state.clone(),
                     title: "Basic".to_string(),
                     selected: self.model.selected == HeadersSelection::Auth,
                 }),
@@ -90,7 +90,7 @@ impl Widget for ListElements {
 
 #[derive(Clone)]
 struct SingleInput {
-    buffer: EditorBuffer,
+    state: EditorState,
     title: String,
     selected: bool,
 }
@@ -101,14 +101,13 @@ impl Listable for SingleInput {
     }
 }
 impl Widget for SingleInput {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+    fn render(mut self, area: Rect, buf: &mut Buffer) {
         let mut block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Left)
             .style(THEME.content)
             .padding(Padding::new(1, 1, 0, 1));
-        let mut state = EditorState::default();
-        let input = Editor::new(&self.buffer, &mut state);
+        let input = EditorView::new(&mut self.state);
         let mut theme = EditorTheme::default().status_line(None);
         if self.selected {
             block = block.border_type(BorderType::Double);
