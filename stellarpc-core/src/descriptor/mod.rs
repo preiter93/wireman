@@ -74,12 +74,16 @@ impl ProtoDescriptor {
     /// Returns all Services from the descriptor pool
     #[must_use]
     pub fn get_services(&self) -> Vec<ServiceDescriptor> {
-        self.pool.services().collect()
+        let mut services: Vec<ServiceDescriptor> = self.pool.services().collect();
+        services.sort_by(|a, b| a.full_name().cmp(b.full_name()));
+        services
     }
     // Returns all Methods of a given Service
     #[must_use]
     pub fn get_methods(&self, service: &ServiceDescriptor) -> Vec<MethodDescriptor> {
-        service.methods().collect()
+        let mut methods: Vec<MethodDescriptor> = service.methods().collect();
+        methods.sort_by(|a, b| a.full_name().cmp(b.full_name()));
+        methods
     }
 
     // Returns the request MessageDescriptor of a given Method
