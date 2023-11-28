@@ -70,7 +70,7 @@ impl TextEditor {
         self.buffer
             .lines()
             .iter()
-            .map(|x| x.into())
+            .map(std::convert::Into::into)
             .collect::<Vec<String>>()
             .join("\n")
     }

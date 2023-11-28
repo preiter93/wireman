@@ -198,18 +198,21 @@ impl HeadersInput<'_> {
                 self.model.borrow_mut().selected = next;
             }
             KeyCode::Char('p') if !self.context.disable_root_events => {
-                self.model.borrow_mut().bearer.paste_from_clipboard();
+                self.model.borrow_mut().auth.paste();
+            }
+            KeyCode::Char('B') if !self.context.disable_root_events => {
+                self.model.borrow_mut().auth.next();
             }
             _ => {
                 let selected = self.model.borrow().selected.clone();
                 match selected {
                     HeadersSelection::Address => self.model.borrow_mut().address.on_key(event),
-                    HeadersSelection::Bearer => self.model.borrow_mut().bearer.on_key(event),
+                    HeadersSelection::Auth => self.model.borrow_mut().auth.on_key(event),
                     HeadersSelection::None => {}
                 }
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.
-                self.context.disable_root_events = self.model.borrow().bearer.insert_mode();
+                self.context.disable_root_events = self.model.borrow().auth.insert_mode();
             }
         }
     }

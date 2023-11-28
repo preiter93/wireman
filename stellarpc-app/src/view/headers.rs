@@ -1,4 +1,4 @@
-use crate::model::headers::{HeadersModel, HeadersSelection};
+use crate::model::headers::{AuthSelection, HeadersModel, HeadersSelection};
 use edtui::{editor::theme::EditorTheme, Editor, EditorBuffer, EditorState};
 use ratatui::{
     prelude::*,
@@ -36,19 +36,29 @@ impl Widget for HeadersTab<'_> {
             .title_alignment(Alignment::Center)
             .style(THEME.content)
             .padding(Padding::new(1, 1, 1, 1));
-        let items: Vec<ListElements> = vec![
-            ListElements::SingleInput(SingleInput {
-                buffer: self.model.address.buffer.clone(),
-                title: "Address".to_string(),
-                selected: self.model.selected == HeadersSelection::Address,
-            }),
-            ListElements::VSpace(2),
-            ListElements::SingleInput(SingleInput {
-                buffer: self.model.bearer.buffer.clone(),
-                title: "Bearer".to_string(),
-                selected: self.model.selected == HeadersSelection::Bearer,
-            }),
-        ];
+        let mut items: Vec<ListElements> = vec![ListElements::SingleInput(SingleInput {
+            buffer: self.model.address.buffer.clone(),
+            title: "Address".to_string(),
+            selected: self.model.selected == HeadersSelection::Address,
+        })];
+        match self.model.auth.selected {
+            AuthSelection::Bearer => items.append(&mut vec![
+                ListElements::VSpace(2),
+                ListElements::SingleInput(SingleInput {
+                    buffer: self.model.auth.bearer.buffer.clone(),
+                    title: "Bearer".to_string(),
+                    selected: self.model.selected == HeadersSelection::Auth,
+                }),
+            ]),
+            AuthSelection::Basic => items.append(&mut vec![
+                ListElements::VSpace(2),
+                ListElements::SingleInput(SingleInput {
+                    buffer: self.model.auth.basic.buffer.clone(),
+                    title: "Basic".to_string(),
+                    selected: self.model.selected == HeadersSelection::Auth,
+                }),
+            ]),
+        }
         let mut list = List::new(items);
         list = list.block(block);
         let mut state = ListState::default();
@@ -87,7 +97,7 @@ struct SingleInput {
 
 impl Listable for SingleInput {
     fn height(&self) -> usize {
-        3
+        5
     }
 }
 impl Widget for SingleInput {
@@ -104,7 +114,7 @@ impl Widget for SingleInput {
             block = block.border_type(BorderType::Double);
         }
         if !self.selected {
-            theme = theme.cursor_style(EditorTheme::default().base_style())
+            theme = theme.cursor_style(EditorTheme::default().base_style());
         }
         theme = theme.block(block.title(self.title.clone()).bold().white());
         input.theme(theme).render(area, buf);

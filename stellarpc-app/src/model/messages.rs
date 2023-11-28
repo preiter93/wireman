@@ -149,11 +149,12 @@ impl MessagesModel {
         //         ));
         //     }
         // }
-        // Bearer token
-        let bearer = self.headers_model.borrow().bearer();
-        if !bearer.is_empty() {
-            let _ = req.insert_metadata("authorization", &format!("Bearer {bearer}"));
+        // Auth token
+        let auth = self.headers_model.borrow().auth.value();
+        if !auth.is_empty() {
+            let _ = req.insert_metadata("authorization", &auth);
         }
+
         // Address
         req.set_address(&self.headers_model.borrow().address());
         Ok(req)
@@ -163,14 +164,11 @@ impl MessagesModel {
     pub fn call_grpc(&mut self) {
         self.response.editor.set_error(None);
         self.response.editor.set_text_raw("");
-        let method = match self.selected_method.clone() {
-            Some(method) => method,
-            None => {
-                let err = ErrorKind::default_error("Select a method!");
-                self.response.editor.set_error(Some(err.clone()));
-                self.response.editor.set_text_raw(&err.string());
-                return;
-            }
+        let Some(method) = self.selected_method.clone() else {
+            let err = ErrorKind::default_error("Select a method!");
+            self.response.editor.set_error(Some(err.clone()));
+            self.response.editor.set_text_raw(&err.string());
+            return;
         };
 
         let req = match self.build_request(&method) {

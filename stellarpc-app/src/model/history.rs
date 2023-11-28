@@ -49,34 +49,37 @@ impl HistoryModel {
 
     /// Saves a request message to history.
     pub fn save(&self, messages: &MessagesModel) {
-        let method = match &messages.selected_method {
-            Some(method) => method,
-            None => {
-                log("history: no method selected");
-                return;
-            }
+        let Some(method) = &messages.selected_method else {
+            log("history: no method selected");
+            return;
         };
 
-        let message = match messages.request.editor.get_text_json() {
-            Ok(message) => message,
-            Err(_) => {
-                log("history: failed to parse request");
-                return;
-            }
+        let Ok(message) = messages.request.editor.get_text_json() else {
+            log("history: failed to parse request");
+            return;
         };
 
-        let path = match self.path(self.save_spot, method).clone() {
-            Some(path) => path,
-            None => return,
+        let Some(path) = self.path(self.save_spot, method).clone() else {
+            return;
         };
+
+        if let Some(dir) = path.parent() {
+            if std::fs::create_dir_all(dir).is_err() {
+                log(format!("history: cannot create dir: {dir:?}"));
+                return;
+            }
+        } else {
+            log(format!("history: no parent dir found: {path:?}",));
+            return;
+        }
 
         let address = messages.headers_model.borrow().address();
-        let bearer_str = messages.headers_model.borrow().bearer.get_text_raw();
-        let bearer = Option::from(!bearer_str.is_empty()).map(|_| bearer_str);
+        let auth_str = messages.headers_model.borrow().auth.value();
+        let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
         let request = HistoryData {
             message,
             address,
-            bearer,
+            auth,
             metadata: BTreeMap::new(),
         };
 
@@ -94,33 +97,25 @@ impl HistoryModel {
 
     /// Loads a request from history.
     pub fn load(&self, messages: &mut MessagesModel) -> Option<()> {
-        let method = match &messages.selected_method {
-            Some(method) => method,
-            None => {
-                log("history: no method selected");
-                return None;
-            }
+        let Some(method) = &messages.selected_method else {
+            log("history: no method selected");
+            return None;
         };
-        let path = match self.path(self.save_spot(), method).clone() {
-            Some(path) => path,
-            None => return None,
+        let Some(path) = self.path(self.save_spot(), method).clone() else {
+            return None;
         };
         if !path.exists() {
             return None;
         }
-        let content = match std::fs::read_to_string(path.clone()) {
-            Ok(content) => content,
-            Err(_) => {
-                log(format!("history: failed to read file {:?}", path));
-                return None;
-            }
+        let Ok(content) = std::fs::read_to_string(path.clone()) else {
+            log(format!("history: failed to read file {path:?}"));
+            return None;
         };
-        let history: HistoryData = match serde_json::from_str(&content) {
-            Ok(history) => history,
-            Err(_) => {
-                log("history: failed to parse from str".to_string());
-                return None;
-            }
+        let history: HistoryData = if let Ok(history) = serde_json::from_str(&content) {
+            history
+        } else {
+            log("history: failed to parse from str".to_string());
+            return None;
         };
         history.apply(messages);
         Some(())
@@ -146,15 +141,11 @@ impl HistoryModel {
     fn path(&self, save_spot: usize, method: &MethodDescriptor) -> Option<PathBuf> {
         if !Path::new(&self.base_path).exists() {
             let p = self.base_path.to_str().unwrap_or("");
-            log(format!("failed to save history: path {} does not exist", p));
+            log(format!("failed to save history: path {p} does not exist"));
             return None;
         }
         let path = self.base_path.join(method.full_name());
-        std::fs::create_dir_all(&path).unwrap_or_else(|_| {
-            let p = path.to_str().unwrap_or("");
-            log(format!("failed to save history: cannot create dir: {}", p));
-        });
-        let fname = format!("{}.json", save_spot);
+        let fname = format!("{save_spot}.json");
         Some(path.join(PathBuf::from(fname)))
     }
 }
@@ -163,7 +154,7 @@ impl HistoryModel {
 pub struct HistoryData {
     pub message: String,
     pub address: String,
-    pub bearer: Option<String>,
+    pub auth: Option<String>,
     pub metadata: BTreeMap<String, String>,
 }
 
@@ -171,13 +162,13 @@ impl HistoryData {
     pub fn new(
         message: String,
         address: String,
-        bearer: Option<String>,
+        auth: Option<String>,
         metadata: BTreeMap<String, String>,
     ) -> Self {
         Self {
             message,
             address,
-            bearer,
+            auth,
             metadata,
         }
     }
@@ -192,9 +183,10 @@ impl HistoryData {
     /// Applies a history.
     fn apply(&self, messages: &mut MessagesModel) {
         let mut headers_model = messages.headers_model.borrow_mut();
+        log(&self.address);
         headers_model.address.set_text_raw(&self.address);
-        if let Some(bearer) = &self.bearer {
-            headers_model.bearer.set_text_raw(bearer);
+        if let Some(auth) = &self.auth {
+            headers_model.auth.set_text(auth);
         }
         messages.request.editor.set_text_raw(&self.message);
     }
@@ -215,7 +207,7 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
-            bearer: Some("Test bearer".to_string()),
+            auth: Some("Bearer Test".to_string()),
             metadata,
         };
 
@@ -246,7 +238,7 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
-            bearer: Some("Test bearer".to_string()),
+            auth: Some("Bearer test".to_string()),
             metadata,
         };
 
@@ -260,5 +252,8 @@ mod tests {
 
         let expected_address = "Test address";
         assert_eq!(messages.headers_model.borrow().address(), expected_address);
+
+        let expected_auth = "test";
+        assert_eq!(messages.headers_model.borrow().auth.value(), expected_auth);
     }
 }
