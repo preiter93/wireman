@@ -41,7 +41,7 @@ impl Root<'_> {
             }
             .render(area, buf),
             Tab::Messages => MessagesTab {
-                model: &self.ctrl.messages.borrow(),
+                model: &mut self.ctrl.messages.borrow_mut(),
                 sub: self.context.sub,
             }
             .render(area, buf),

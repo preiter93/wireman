@@ -1,9 +1,9 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
 use crossterm::event::KeyEvent;
+use edtui::{EditorBuffer, EditorState, Input, Mode};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
-use tui_vim_editor::{buffer::mode::Mode, Buffer, Input};
 
 lazy_static! {
     pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
@@ -14,7 +14,10 @@ lazy_static! {
 #[derive(Clone)]
 pub struct TextEditor {
     /// Buffer contains all the core functionality
-    pub buffer: Buffer,
+    pub buffer: EditorBuffer,
+
+    /// The editor state
+    pub state: EditorState,
 
     /// The input register
     input: Input,
@@ -36,11 +39,15 @@ impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
         Self {
-            buffer: Buffer::new(),
+            buffer: EditorBuffer::new(),
+            state: EditorState::default(),
             input: Input::default(),
             error: None,
             focus: false,
         }
+    }
+    pub fn get_parts(&mut self) -> (&EditorBuffer, &mut EditorState) {
+        (&self.buffer, &mut self.state)
     }
 
     pub fn focus(&mut self) {
