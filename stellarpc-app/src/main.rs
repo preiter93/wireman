@@ -25,7 +25,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// directory.
 const ENV_CONFIG: &str = "STELLARPC_CONFIG";
 /// Debug flag
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 /// Autosaves the history when switching between histories
 const AUTOSAVE_HISTORY: bool = false;
 

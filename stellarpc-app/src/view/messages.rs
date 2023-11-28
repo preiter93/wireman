@@ -1,8 +1,8 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
-use edtui::editor::theme::EditorTheme;
-use edtui::Editor;
+use edtui::EditorTheme;
+use edtui::EditorView;
 use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -57,15 +57,14 @@ impl Widget for MessagesTab<'_> {
             .style(THEME.content);
 
         // Request
-        let (buffer, state) = self.model.request.editor.get_parts();
-        let mut editor = Editor::new(buffer, state);
+        let editor = EditorView::new(&mut self.model.request.editor.state);
         let mut theme = EditorTheme::default();
-        let block = block.title("Request").bold().white();
+        let block_req = block.clone().title("Request").bold().white();
         if self.sub == 0 {
-            theme = theme.block(block.clone().border_type(BorderType::Double));
+            theme = theme.block(block_req.clone().border_type(BorderType::Double));
         } else {
             theme = theme
-                .block(block.clone().border_type(BorderType::Plain))
+                .block(block_req.clone().border_type(BorderType::Plain))
                 .cursor_style(EditorTheme::default().base_style())
                 .status_line(None);
         }
@@ -86,15 +85,14 @@ impl Widget for MessagesTab<'_> {
         tabs.render(area_s[1], buf);
 
         // Response
-        let (buffer, state) = self.model.request.editor.get_parts();
-        editor = Editor::new(buffer, state);
+        let editor = EditorView::new(&mut self.model.response.editor.state);
         let mut theme = EditorTheme::default();
-        let block = block.title("Response").bold().white();
+        let block_resp = block.title("Response").bold().white();
         if self.sub == 1 {
-            theme = theme.block(block.clone().border_type(BorderType::Double));
+            theme = theme.block(block_resp.clone().border_type(BorderType::Double));
         } else {
             theme = theme
-                .block(block.clone().border_type(BorderType::Plain))
+                .block(block_resp.clone().border_type(BorderType::Plain))
                 .cursor_style(EditorTheme::default().base_style())
                 .status_line(None);
         }
