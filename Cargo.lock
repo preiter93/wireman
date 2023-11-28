@@ -1839,6 +1839,8 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 [[package]]
 name = "tui-widget-list"
 version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "351cddff72e16c7978719fe1a54127d7929e3223506d02b91d1fb4b5f3b0603d"
 dependencies = [
  "crossterm",
  "ratatui",
