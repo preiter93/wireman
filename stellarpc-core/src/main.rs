@@ -1,29 +1,39 @@
 use stellarpc_core::ProtoDescriptor;
-use stellarpc_core::{client::call_unary_blocking, Result};
+use stellarpc_core::Result;
 
 fn main() -> Result<()> {
     // get services, methods and a request message
     let desc = ProtoDescriptor::new(
-        vec!["/Users/philippreiter/Rust/stellarpc/test_utils"],
+        // vec!["/Users/philippreiter/Rust/stellarpc/test_utils"],
+        vec!["/Users/philippreiter/Rust/stellarpc/stellarpc-core"],
         vec![
-            "grpc_simple/greeter.proto",
-            "grpc_simple/timekeeper.proto",
-            "grpc_simple/debugger.proto",
-            "grpc_simple/productfinder.proto",
+            // "test_files/recursive.proto",
+            "test_files/oneof.proto",
+            // "grpc_simple/greeter.proto",
+            // "grpc_simple/timekeeper.proto",
+            // "grpc_simple/debugger.proto",
+            // "grpc_simple/productfinder.proto",
         ],
     )?;
     let services = desc.get_services();
     for service in services.clone() {
         println!("{:?}", service.name());
     }
-    let service = &services[2];
-    let methods = desc.get_methods(service);
-    let method = &methods[0];
-    let mut req = desc.get_request(method);
-    println!("{:?}", method.name());
-    // println!("{:?}", method);
-    println!("{:?}", req.message_name());
+    let service = &services[0];
+    let method = &desc.get_methods(&service)[0];
+    let mut req = desc.get_request(&method);
+
+    req.message_mut().apply_template();
     println!("{:?}", req.message().to_json());
+    // for method in desc.get_methods(service) {
+    //     println!("{:?}", method.name());
+    // }
+    // let method = &methods[0];
+    // let mut req = desc.get_request(method);
+    // println!("{:?}", method.name());
+    // println!("{:?}", method);
+    // println!("{:?}", req.message_name());
+    // println!("{:?}", req.message().to_json());
     // println!("{:?}", req);
 
     // for field in req.get_message_descriptor().fields() {
@@ -39,12 +49,12 @@ fn main() -> Result<()> {
     //         println!("VALUE {:?}", value);
     //     }
     // }
-    // send message to grpc server
-    req.set_address("http://localhost:50051");
-    req.insert_metadata("metadata-key", "metadata-value")
-        .unwrap();
-    let resp = call_unary_blocking(&req)?;
-    println!("{:?}", resp.message.to_json());
+    // // send message to grpc server
+    // req.set_address("http://localhost:50051");
+    // req.insert_metadata("metadata-key", "metadata-value")
+    //     .unwrap();
+    // let resp = call_unary_blocking(&req)?;
+    // println!("{:?}", resp.message.to_json());
 
     Ok(())
 }

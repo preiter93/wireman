@@ -87,7 +87,7 @@ impl DynamicMessage {
 
     /// Apply default values to a `DynamicMessage`.
     pub fn apply_template(&mut self) {
-        apply_template_for_message(self);
+        apply_template_for_message(self, 0);
     }
 }
 

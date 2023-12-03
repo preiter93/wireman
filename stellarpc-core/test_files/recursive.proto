@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+import "google/protobuf/timestamp.proto";
+
+service TestService {
+  rpc Recursive (Message) returns (EmptyResp) {}
+}
+
+message EmptyResp {}
+
+message Message {
+  Message inner = 1;
+  string value = 2;
+}
