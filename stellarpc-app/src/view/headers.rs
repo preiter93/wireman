@@ -97,7 +97,7 @@ struct SingleInput {
 
 impl Listable for SingleInput {
     fn height(&self) -> usize {
-        5
+        3
     }
 }
 impl Widget for SingleInput {
@@ -105,8 +105,7 @@ impl Widget for SingleInput {
         let mut block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Left)
-            .style(THEME.content)
-            .padding(Padding::new(1, 1, 0, 1));
+            .style(THEME.content);
         let input = EditorView::new(&mut self.state);
         let mut theme = EditorTheme::default().status_line(None);
         if self.selected {
