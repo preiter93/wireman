@@ -60,12 +60,7 @@ impl TextEditor {
 
     /// Gets the editors content as raw text
     pub fn get_text_raw(&self) -> String {
-        self.state
-            .lines()
-            .iter()
-            .map(std::convert::Into::into)
-            .collect::<Vec<String>>()
-            .join("\n")
+        self.state.lines.clone().into()
     }
 
     /// Gets the editors content and formats it to json
@@ -145,7 +140,7 @@ impl TextEditor {
 
     /// Returns if the editor is empty
     pub fn is_empty(&self) -> bool {
-        self.state.lines().is_empty()
+        self.state.lines.is_empty()
     }
 
     /// Key bindings in normal mode

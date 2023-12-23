@@ -218,11 +218,11 @@ mod tests {
         let expected_pretty_json = r#"{
   "message": "Test message",
   "address": "Test address",
-  "bearer": "Test bearer",
+  "auth": "Bearer Test",
   "metadata": {
     "key1": "value1",
     "key2": "value2"
-  },
+  }
 }"#;
         assert_eq!(pretty_json, expected_pretty_json);
         // std::fs::write("file.txt", pretty_json).unwrap();
@@ -253,7 +253,7 @@ mod tests {
         let expected_address = "Test address";
         assert_eq!(messages.headers_model.borrow().address(), expected_address);
 
-        let expected_auth = "test";
+        let expected_auth = "Bearer test";
         assert_eq!(messages.headers_model.borrow().auth.value(), expected_auth);
     }
 }

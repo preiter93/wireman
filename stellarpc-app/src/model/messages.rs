@@ -150,7 +150,7 @@ impl MessagesModel {
         //     }
         // }
         // Auth token
-        let auth = self.headers_model.borrow().auth.value();
+        let auth = self.headers_model.borrow().auth.value_expanded();
         if !auth.is_empty() {
             let _ = req.insert_metadata("authorization", &auth);
         }

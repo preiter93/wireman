@@ -301,17 +301,35 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "crossterm",
+ "edtui-jagged",
+ "enum_dispatch",
  "ratatui",
 ]
+
+[[package]]
+name = "edtui-jagged"
+version = "0.1.0"
 
 [[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
+
+[[package]]
+name = "enum_dispatch"
+version = "0.3.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f33313078bb8d4d05a2733a94ac4c2d8a0df9a2b84424ebf4f33bfc224a890e"
+dependencies = [
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
+]
 
 [[package]]
 name = "errno"
@@ -1839,8 +1857,6 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 [[package]]
 name = "tui-widget-list"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "351cddff72e16c7978719fe1a54127d7929e3223506d02b91d1fb4b5f3b0603d"
 dependencies = [
  "crossterm",
  "ratatui",
