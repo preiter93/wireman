@@ -67,9 +67,20 @@ impl AuthHeader {
     }
 
     pub fn value(&self) -> String {
+        self._value(false)
+    }
+
+    pub fn value_expanded(&self) -> String {
+        self._value(true)
+    }
+
+    fn _value(&self, expanded: bool) -> String {
         match self.selected {
             AuthSelection::Bearer => {
-                let value = self.bearer.get_text_raw();
+                let mut value = self.bearer.get_text_raw();
+                if expanded {
+                    value = try_expand(&value)
+                };
                 if value.is_empty() {
                     String::new()
                 } else {
@@ -77,7 +88,10 @@ impl AuthHeader {
                 }
             }
             AuthSelection::Basic => {
-                let value = self.basic.get_text_raw();
+                let mut value = self.basic.get_text_raw();
+                if expanded {
+                    value = try_expand(&value)
+                };
                 if value.is_empty() {
                     String::new()
                 } else {
@@ -98,14 +112,6 @@ impl AuthHeader {
             self.selected = AuthSelection::Basic;
             return;
         }
-    }
-
-    pub fn bearer(&self) -> String {
-        try_expand(&self.bearer.get_text_raw())
-    }
-
-    pub fn basic(&self) -> String {
-        try_expand(&self.basic.get_text_raw())
     }
 }
 
@@ -176,7 +182,10 @@ fn try_expand(raw: &str) -> String {
 }
 
 fn execute_command(command: &str) -> Option<String> {
-    let output = Command::new(command).output();
+    let mut parts = command.split_whitespace();
+    let program = parts.next()?;
+    let args: Vec<&str> = parts.collect();
+    let output = Command::new(program).args(args).output();
 
     match output {
         Ok(output) if output.status.success() => {
