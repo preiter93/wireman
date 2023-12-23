@@ -1,7 +1,11 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
 use crossterm::event::KeyEvent;
-use edtui::{EditorMode, EditorState, Input};
+use edtui::{
+    actions::{insert::InsertString, Execute, InsertChar},
+    state::position::Position,
+    EditorMode, EditorState, Input,
+};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
@@ -36,11 +40,17 @@ impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
         Self {
-            state: EditorState::new(),
+            state: EditorState::default(),
             input: Input::default(),
             error: None,
             focus: false,
         }
+    }
+
+    pub fn clear(&mut self) {
+        self.state.lines.clear();
+        self.state.cursor = Position::new(0, 0);
+        self.state.selection = None;
     }
 
     pub fn focus(&mut self) {
@@ -70,9 +80,10 @@ impl TextEditor {
 
     /// Set the editors content from raw text
     pub fn set_text_raw(&mut self, text: &str) {
-        self.state.clear();
+        self.clear();
         for line in text.lines() {
-            self.state.push(line);
+            let chars: Vec<char> = line.chars().collect();
+            self.state.lines.push(chars);
         }
     }
 
@@ -86,11 +97,6 @@ impl TextEditor {
         self.error = error;
     }
 
-    /// Clear all text
-    pub fn clear(&mut self) {
-        self.state.clear();
-    }
-
     /// Whether the editor is in insert mode
     pub fn insert_mode(&self) -> bool {
         self.state.mode == EditorMode::Insert
@@ -101,7 +107,7 @@ impl TextEditor {
         if let Ok(mut clipboard) = CLIPBOARD.lock() {
             if let Some(clipboard) = &mut *clipboard {
                 if let Ok(text) = clipboard.get_text() {
-                    self.state.insert_string(&text);
+                    InsertString(text).execute(&mut self.state);
                 }
             }
         }
@@ -122,8 +128,8 @@ impl TextEditor {
     }
 
     /// Insert a str at the current cursor position. Handles newlines.
-    fn insert_char(&mut self, c: char) {
-        self.state.insert_char(c);
+    fn insert_char(&mut self, ch: char) {
+        InsertChar(ch).execute(&mut self.state);
     }
 
     /// Pretty formats the editors text. The error is stored
