@@ -35,20 +35,29 @@ Within this configuration, you can store a list of include directories, proto fi
 ## Features
 
 #### Maintain a Request History
-You can save up to five histories histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing S, and restore the default message by typing D.
+You can save up to five histories histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing S, and restore the default message by typing ctrl+d.
 
 #### Copy as grpcurl
-stellaRPC offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press Y.
+stellaRPC offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press ctrl+y.
+
+#### Format request
+Press ctrl+f to format the json of the request message.
 
 ## Roadmap
 
 - [x] Unary gRPC client calls
-- [x] Headers & Address section
+- [x] Headers & Address page
 - [x] Request History
 - [x] Defaults of repeated/nested fields
 - [x] Yank/Paste from clipboard
 - [x] Yank request as grpcurl command
-- [ ] Vim like editor feeling
+- [x] Vim like editor feeling
+
+Planned
+- [ ] Show loading indicator
+- [ ] Edit the config file from the app
+- [ ] Provide installation help
+
+Unclear
 - [ ] Display extended message info
 - [ ] Streaming gRPC client calls
-- [ ] Dynamically edit the config file in app
