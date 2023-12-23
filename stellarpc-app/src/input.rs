@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::{
     app::AppContext,
@@ -87,6 +87,10 @@ pub struct MessagesInput<'a> {
 
 impl MessagesInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
+        fn is_control(event: KeyEvent) -> bool {
+            event.modifiers == KeyModifiers::CONTROL
+        }
+
         const SUBS: usize = 2;
         match event.code {
             KeyCode::Down if !self.context.disable_root_events => {
@@ -98,10 +102,6 @@ impl MessagesInput<'_> {
             KeyCode::Enter if self.context.sub == 0 && !self.context.disable_root_events => {
                 self.model.borrow_mut().call_grpc();
             }
-            KeyCode::Char('F') if self.context.sub == 0 && !self.context.disable_root_events => {
-                let request = &mut self.model.borrow_mut().request.editor;
-                request.format_json();
-            }
             KeyCode::Char('p') if !self.context.disable_root_events => {
                 let mut model = self.model.borrow_mut();
                 if self.context.sub == 0 {
@@ -111,20 +111,28 @@ impl MessagesInput<'_> {
                     model.response.editor.paste_from_clipboard();
                 }
             }
-            KeyCode::Char('Y') if !self.context.disable_root_events => {
+            KeyCode::Char('y') if is_control(event) && !self.context.disable_root_events => {
                 self.model.borrow_mut().yank_grpcurl();
             }
-            KeyCode::Char('D') if !self.context.disable_root_events => {
+            KeyCode::Char('f')
+                if is_control(event)
+                    && self.context.sub == 0
+                    && !self.context.disable_root_events =>
+            {
+                let request = &mut self.model.borrow_mut().request.editor;
+                request.format_json();
+            }
+            KeyCode::Char('d') if is_control(event) && !self.context.disable_root_events => {
                 let method = self.model.borrow().selected_method.clone();
                 if let Some(method) = method {
                     self.model.borrow().history_model.delete(&method);
                     self.model.borrow_mut().request.load_template(&method);
                 }
             }
-            KeyCode::Char('S') if !self.context.disable_root_events => {
+            KeyCode::Char('s') if is_control(event) && !self.context.disable_root_events => {
                 self.model.borrow().history_model.save(&self.model.borrow());
             }
-            KeyCode::Char('L') if !self.context.disable_root_events => {
+            KeyCode::Char('l') if is_control(event) && !self.context.disable_root_events => {
                 let history_model = self.model.borrow().history_model.clone();
                 history_model.load(&mut self.model.borrow_mut());
             }

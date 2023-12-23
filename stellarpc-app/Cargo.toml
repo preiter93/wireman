@@ -14,12 +14,12 @@ license = "MIT"
 core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
 config = { package = "stellarpc_config", path = "../stellarpc-config", version = "0.1.0" }
 crossterm = "0.27"
-ratatui = "0.24"
+ratatui = "0.25"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 unicode-width = "0.1"
 http = "0.2"
-tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.5.0" }
+tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.6.0" }
 edtui = { package = "edtui", path = "../../edtui", version = "0.1.1" }
 lazy_static = "1.4.0"
 # Clipboard
