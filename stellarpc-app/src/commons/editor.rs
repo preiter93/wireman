@@ -3,8 +3,7 @@ use arboard::Clipboard;
 use crossterm::event::KeyEvent;
 use edtui::{
     actions::{insert::InsertString, Execute, InsertChar},
-    state::position::Position,
-    EditorMode, EditorState, Input,
+    EditorMode, EditorState, Index2, Input,
 };
 use lazy_static::lazy_static;
 use std::sync::Mutex;
@@ -49,7 +48,7 @@ impl TextEditor {
 
     pub fn clear(&mut self) {
         self.state.lines.clear();
-        self.state.cursor = Position::new(0, 0);
+        self.state.cursor = Index2::new(0, 0);
         self.state.selection = None;
     }
 
