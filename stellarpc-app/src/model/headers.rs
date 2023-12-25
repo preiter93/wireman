@@ -51,13 +51,6 @@ impl AuthHeader {
         }
     }
 
-    pub fn paste(&mut self) {
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.paste_from_clipboard(),
-            AuthSelection::Basic => self.basic.paste_from_clipboard(),
-        }
-    }
-
     pub fn insert_mode(&self) -> bool {
         self.bearer.insert_mode() || self.basic.insert_mode()
     }
@@ -79,7 +72,7 @@ impl AuthHeader {
             AuthSelection::Bearer => {
                 let mut value = self.bearer.get_text_raw();
                 if expanded {
-                    value = try_expand(&value)
+                    value = try_expand(&value);
                 };
                 if value.is_empty() {
                     String::new()
@@ -90,7 +83,7 @@ impl AuthHeader {
             AuthSelection::Basic => {
                 let mut value = self.basic.get_text_raw();
                 if expanded {
-                    value = try_expand(&value)
+                    value = try_expand(&value);
                 };
                 if value.is_empty() {
                     String::new()

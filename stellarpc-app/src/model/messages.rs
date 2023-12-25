@@ -1,6 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
-use crate::commons::editor::{pretty_format_json, ErrorKind, TextEditor};
+use crate::commons::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -226,7 +226,7 @@ impl MessagesModel {
                 .borrow()
                 .grpcurl(&message, method, &header, &address)
             {
-                TextEditor::yank_to_clipboard(&grpcurl);
+                yank_to_clipboard(&grpcurl);
             }
         }
     }
