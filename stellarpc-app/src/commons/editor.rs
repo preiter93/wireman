@@ -2,15 +2,12 @@
 use arboard::Clipboard;
 use crossterm::event::KeyEvent;
 use edtui::{
-    actions::{insert::InsertString, Execute, InsertChar},
+    actions::{Execute, InsertChar},
+    clipboard::ClipboardTrait,
     EditorMode, EditorState, Index2, Input,
 };
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::sync::Mutex;
-
-lazy_static! {
-    pub static ref CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(Clipboard::new().ok());
-}
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -38,8 +35,10 @@ impl Default for TextEditor {
 impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
+        let mut state = EditorState::default();
+        state.set_clipboard(Lazy::force(&CLIPBOARD));
         Self {
-            state: EditorState::default(),
+            state,
             input: Input::default(),
             error: None,
             focus: false,
@@ -101,31 +100,6 @@ impl TextEditor {
         self.state.mode == EditorMode::Insert
     }
 
-    /// Paste text from clipboard to editor
-    pub fn paste_from_clipboard(&mut self) {
-        if let Ok(mut clipboard) = CLIPBOARD.lock() {
-            if let Some(clipboard) = &mut *clipboard {
-                if let Ok(text) = clipboard.get_text() {
-                    InsertString(text).execute(&mut self.state);
-                }
-            }
-        }
-    }
-
-    /// Yanks the full text
-    pub fn yank(&self) {
-        Self::yank_to_clipboard(&self.get_text_raw());
-    }
-
-    /// Yank text to clipboard
-    pub fn yank_to_clipboard(text: &str) {
-        if let Ok(mut clipboard) = CLIPBOARD.lock() {
-            if let Some(clipboard) = &mut *clipboard {
-                let _res = clipboard.set_text(text);
-            }
-        }
-    }
-
     /// Insert a str at the current cursor position. Handles newlines.
     fn insert_char(&mut self, ch: char) {
         InsertChar(ch).execute(&mut self.state);
@@ -154,14 +128,43 @@ impl TextEditor {
     }
 }
 
-// /// The editor mode, i.e. Normal or Insert.
-// #[derive(Clone, PartialEq, Eq, Default)]
-// pub enum EditorMode {
-//     #[default]
-//     None,
-//     Normal,
-//     Insert,
-// }
+static CLIPBOARD: Lazy<GlobalClipboard> = Lazy::new(|| GlobalClipboard::new());
+
+struct GlobalClipboard(Mutex<Option<Clipboard>>);
+
+impl GlobalClipboard {
+    pub fn new() -> Self {
+        Self(Mutex::new(Clipboard::new().ok()))
+    }
+}
+
+impl ClipboardTrait for &GlobalClipboard {
+    fn set_text(&mut self, text: String) {
+        if let Ok(mut clipboard) = self.0.lock() {
+            if let Some(clipboard) = &mut *clipboard {
+                let _ = clipboard.set_text(text);
+            }
+        }
+    }
+
+    fn get_text(&mut self) -> String {
+        if let Ok(mut clipboard) = self.0.lock() {
+            if let Some(clipboard) = &mut *clipboard {
+                return clipboard.get_text().unwrap_or_default();
+            }
+        }
+        String::new()
+    }
+}
+
+/// Yank text to clipboard
+pub fn yank_to_clipboard(text: &str) {
+    if let Ok(mut clipboard) = CLIPBOARD.0.lock() {
+        if let Some(clipboard) = &mut *clipboard {
+            let _res = clipboard.set_text(text.to_string());
+        }
+    }
+}
 
 /// The error of the request. Can hold a kind value
 /// to distinguish between format and grpc errors.

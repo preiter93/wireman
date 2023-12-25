@@ -102,15 +102,6 @@ impl MessagesInput<'_> {
             KeyCode::Enter if self.context.sub == 0 && !self.context.disable_root_events => {
                 self.model.borrow_mut().call_grpc();
             }
-            KeyCode::Char('p') if !self.context.disable_root_events => {
-                let mut model = self.model.borrow_mut();
-                if self.context.sub == 0 {
-                    model.request.editor.paste_from_clipboard();
-                }
-                if self.context.sub == 1 {
-                    model.response.editor.paste_from_clipboard();
-                }
-            }
             KeyCode::Char('y') if is_control(event) && !self.context.disable_root_events => {
                 self.model.borrow_mut().yank_grpcurl();
             }
@@ -204,9 +195,6 @@ impl HeadersInput<'_> {
             KeyCode::Char('k') | KeyCode::Up if !self.context.disable_root_events => {
                 let next = self.model.borrow().selected.next();
                 self.model.borrow_mut().selected = next;
-            }
-            KeyCode::Char('p') if !self.context.disable_root_events => {
-                self.model.borrow_mut().auth.paste();
             }
             KeyCode::Char('B') if !self.context.disable_root_events => {
                 self.model.borrow_mut().auth.next();
