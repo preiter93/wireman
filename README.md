@@ -45,19 +45,20 @@ Press ctrl+f to format the json of the request message.
 
 ## Roadmap
 
-- [x] Unary gRPC client calls
-- [x] Headers & Address page
+- [x] Unary gRPC
+- [x] Set host address
+- [x] Set authentication headers
 - [x] Request History
 - [x] Defaults of repeated/nested fields
 - [x] Yank/Paste from clipboard
 - [x] Yank request as grpcurl command
 - [x] Vim like editor feeling
+- [x] Show loading indicator
 
 Planned
-- [ ] Show loading indicator
-- [ ] Edit the config file from the app
+- [ ] Set metadata
+- [ ] Edit config file in app
 - [ ] Provide installation help
 
-Unclear
-- [ ] Display extended message info
-- [ ] Streaming gRPC client calls
+Maybe
+- [ ] Streaming gRPC
