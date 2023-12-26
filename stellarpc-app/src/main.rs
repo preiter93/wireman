@@ -2,21 +2,18 @@
 #![allow(dead_code)]
 mod app;
 mod commons;
+mod config;
 mod controller;
 mod input;
 mod model;
+mod term;
 mod theme;
 mod view;
 mod widgets;
-use crate::app::App;
-use config::Config;
-use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture},
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use model::CoreClient;
-use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{env, error::Error, io, path::PathBuf, str::FromStr};
+use app::App;
+use config::{AppConfig, Config};
+use std::{env, error::Error};
+use term::Term;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -30,94 +27,25 @@ const DEBUG: bool = false;
 const AUTOSAVE_HISTORY: bool = false;
 
 fn main() -> Result<()> {
-    let mut terminal = init_terminal()?;
-    let cfg = init_config()?;
-    let history = init_history(&cfg)?;
-    let core_client = init_core_client(cfg)?;
-    let config = AppConfig { history };
-
-    App::run(core_client, config, &mut terminal).unwrap();
-
-    reset_terminal()?;
-    terminal.show_cursor()?;
+    App::run(init_env()?)?;
 
     Ok(())
 }
 
-pub struct AppConfig {
-    pub history: PathBuf,
-}
-
-/// Get config
-fn init_config() -> Result<Config> {
-    let cfg_file = get_env();
+fn init_env() -> Result<Config> {
+    fn env_file() -> String {
+        if let Ok(current_dir) = std::env::current_dir() {
+            let config_path = current_dir.join("config.json");
+            if config_path.exists() && config_path.is_file() {
+                return format!("{}/config.json", current_dir.to_str().unwrap());
+            }
+        }
+        env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
+    }
+    let cfg_file = env_file();
     let cfg = Config::load(&cfg_file).map_err(|err| {
-        reset_terminal().unwrap();
+        Term::stop().unwrap();
         err
     })?;
     Ok(cfg)
-}
-
-/// Initiate the core client.
-fn init_core_client(cfg: Config) -> Result<CoreClient> {
-    CoreClient::new(cfg).map_err(|err| {
-        reset_terminal().unwrap();
-        err
-    })
-}
-
-/// Instanitate the history path
-fn init_history(cfg: &Config) -> Result<PathBuf> {
-    let history = cfg.history();
-    let path_str = if history.is_empty() {
-        "./history"
-    } else {
-        &history
-    };
-    Ok(PathBuf::from_str(path_str).map_err(|err| {
-        reset_terminal().unwrap();
-        err
-    })?)
-}
-
-fn get_env() -> String {
-    if let Ok(current_dir) = std::env::current_dir() {
-        let config_path = current_dir.join("config.json");
-        if config_path.exists() && config_path.is_file() {
-            return format!("{}/config.json", current_dir.to_str().unwrap());
-        }
-    }
-    env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
-}
-
-/// Initializes the terminal.
-fn init_terminal() -> Result<Terminal<CrosstermBackend<io::Stdout>>> {
-    crossterm::execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture)?;
-    enable_raw_mode()?;
-
-    let backend = CrosstermBackend::new(io::stdout());
-
-    let mut terminal = Terminal::new(backend)?;
-    terminal.hide_cursor()?;
-
-    panic_hook();
-
-    Ok(terminal)
-}
-
-/// Resets the terminal.
-fn reset_terminal() -> Result<()> {
-    disable_raw_mode()?;
-    crossterm::execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
-
-    Ok(())
-}
-
-fn panic_hook() {
-    let original_hook = std::panic::take_hook();
-
-    std::panic::set_hook(Box::new(move |panic| {
-        reset_terminal().unwrap();
-        original_hook(panic);
-    }));
 }

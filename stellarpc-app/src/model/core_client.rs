@@ -20,7 +20,7 @@ pub struct CoreClient {
 
 impl Default for CoreClient {
     fn default() -> Self {
-        Self::new(Config::default()).unwrap()
+        Self::new(&Config::default()).unwrap()
     }
 }
 
@@ -28,9 +28,9 @@ impl Default for CoreClient {
 struct GrpcClientConfig(Config);
 
 impl CoreClient {
-    pub fn new(cfg: Config) -> Result<Self, Box<dyn Error>> {
+    pub fn new(cfg: &Config) -> Result<Self, Box<dyn Error>> {
         let desc = ProtoDescriptor::new(cfg.includes(), cfg.files())?;
-        let grpc = GrpcClientConfig(cfg);
+        let grpc = GrpcClientConfig(cfg.clone());
         Ok(Self { desc, grpc })
     }
 
