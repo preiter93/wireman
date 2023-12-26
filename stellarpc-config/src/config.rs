@@ -76,7 +76,7 @@ impl Config {
     }
 
     /// Gets the history. Tries to shell expand the path if it contains
-    ///  environment variables such as $HOME or ~.
+    /// environment variables such as $HOME or ~.
     #[must_use]
     pub fn history(&self) -> String {
         shellexpand::env(&self.history).map_or(self.history.clone(), |x| x.to_string())

@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 mod app;
 mod commons;
-mod config;
 mod controller;
 mod input;
 mod model;
@@ -11,7 +10,7 @@ mod theme;
 mod view;
 mod widgets;
 use app::App;
-use config::{AppConfig, Config};
+use config::Config;
 use std::{env, error::Error};
 use term::Term;
 
@@ -22,7 +21,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// directory.
 const ENV_CONFIG: &str = "STELLARPC_CONFIG";
 /// Debug flag
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 /// Autosaves the history when switching between histories
 const AUTOSAVE_HISTORY: bool = false;
 
