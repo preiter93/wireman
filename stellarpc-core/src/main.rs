@@ -1,4 +1,5 @@
 use http::Uri;
+use std::sync::mpsc;
 use stellarpc_core::client::async_call_unary;
 use stellarpc_core::client::create_runtime;
 use stellarpc_core::ProtoDescriptor;
@@ -10,6 +11,9 @@ fn main() -> Result<()> {
     Ok(())
 }
 fn _test_async() -> Result<()> {
+    // Create a channel for the event stream
+    let (tx, rx) = mpsc::channel::<String>();
+
     let desc = ProtoDescriptor::new(
         vec!["/Users/philippreiter/Rust/stellarpc/test_utils"],
         vec!["grpc_simple/debugger.proto"],
@@ -26,14 +30,24 @@ fn _test_async() -> Result<()> {
 
     // Call grpc
     let rt = create_runtime()?;
-    let handle = rt.spawn(async move {
+    let _ = rt.spawn(async move {
         let uri = Uri::try_from(req.address()).unwrap();
         let resp = async_call_unary(uri, &req).await;
         println!("Response {:?}", resp);
+        if let Err(err) = tx.send(String::from("Hello!")) {
+            eprintln!("Error sending event: {:?}", err);
+        }
     });
-    let _ = rt.block_on(handle);
 
-    println!("Shutdown");
+    // Process events from the stream
+    loop {
+        if let Ok(code) = rx.recv() {
+            println!("Received event: {:?}", code,);
+            break;
+        }
+    }
+
+    // Shut down runtime
     rt.shutdown_background();
 
     return Ok(());
