@@ -36,6 +36,9 @@ pub struct MessagesModel {
 
     /// Event sender.
     pub event_sender: Sender<String>,
+
+    /// A flag indicating whether a request is being processed.
+    pub is_processing: bool,
 }
 
 impl Default for MessagesModel {
@@ -70,6 +73,7 @@ impl MessagesModel {
             headers_model,
             history_model,
             event_sender,
+            is_processing: false,
         }
     }
 
@@ -132,7 +136,7 @@ impl MessagesModel {
                 .message_mut()
                 .from_json(&self.request.editor.get_text_raw())
             {
-                Ok(_) => try_pretty_format_json(&req.to_json().unwrap()),
+                Ok(()) => try_pretty_format_json(&req.to_json().unwrap()),
                 Err(_) => String::new(),
             }
         } else {
@@ -171,8 +175,16 @@ impl MessagesModel {
         Ok(req)
     }
 
+    /// This method is called before `call_grpc` to give the ui an
+    /// indication that a request is in process. The actual grpc
+    /// request is done on the next frame.
+    pub fn start_request(&mut self) {
+        self.is_processing = true;
+        self.response.editor.set_text_raw("Processing...");
+    }
+
     /// Make a grpc call and set response or error.
-    pub fn call_grpc(&mut self) {
+    pub fn do_request(&mut self) {
         self.response.editor.set_error(None);
         self.response.editor.set_text_raw("");
         let Some(method) = self.selected_method.clone() else {
@@ -191,7 +203,9 @@ impl MessagesModel {
             }
         };
 
-        let resp = self.request.core_client.borrow_mut().call_unary(&req);
+        let resp = CoreClient::call_unary(&req);
+        let _ = self.event_sender.send(String::from("finished"));
+        self.is_processing = false;
 
         match resp {
             Ok(resp) => {

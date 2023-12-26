@@ -100,7 +100,7 @@ impl MessagesInput<'_> {
                 self.context.sub = (self.context.sub + SUBS).saturating_sub(1) % SUBS;
             }
             KeyCode::Enter if self.context.sub == 0 && !self.context.disable_root_events => {
-                self.model.borrow_mut().call_grpc();
+                self.model.borrow_mut().start_request();
             }
             KeyCode::Char('y') if is_control(event) && !self.context.disable_root_events => {
                 self.model.borrow_mut().yank_grpcurl();

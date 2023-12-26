@@ -71,15 +71,17 @@ impl Tab {
 }
 
 impl App {
+    #[allow(clippy::needless_pass_by_value)]
     pub fn new(env: Config) -> Result<App> {
         Ok(App {
             term: Term::new()?,
-            controller: Controller::new(env)?,
+            controller: Controller::new(&env)?,
             context: AppContext::default(),
             should_quit: false,
         })
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     pub fn run(env: Config) -> Result<()> {
         let mut app = Self::new(env)?;
         while !app.should_quit {
@@ -132,6 +134,22 @@ impl App {
                     }
                     .handle(event),
                 },
+            }
+            // Draw and handle events again in certain scenarios. This is
+            // to avoid having to handle two event channels, the crossterm
+            // key events and internal app events, which would require the
+            // introduction of async code. Currently, app events are used
+            // to indicate that a grpc request is being processed, with a
+            // "Processing..." text being displayed in the response editor
+            // in the first frame after which the grpc request is made.
+            if self.controller.messages.borrow().is_processing {
+                self.draw()?;
+                self.controller.messages.borrow_mut().do_request();
+                loop {
+                    if self.controller.event_recv.recv().is_ok() {
+                        break;
+                    }
+                }
             }
         }
         Ok(())

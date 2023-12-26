@@ -66,6 +66,7 @@ impl Widget for HeadersTab<'_> {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 enum ListElements {
     VSpace(usize),
     SingleInput(SingleInput),

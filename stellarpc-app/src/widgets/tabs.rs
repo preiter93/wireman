@@ -133,7 +133,7 @@ impl<'a> Styled for ActivatableTabs<'a> {
 impl<'a> Widget for ActivatableTabs<'a> {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         buf.set_style(area, self.style);
-        let tabs_area = match self.block.take() {
+        let total_area = match self.block.take() {
             Some(b) => {
                 let inner_area = b.inner(area);
                 b.render(area, buf);
@@ -142,40 +142,40 @@ impl<'a> Widget for ActivatableTabs<'a> {
             None => area,
         };
 
-        if tabs_area.height < 1 {
+        if total_area.height < 1 {
             return;
         }
 
-        let mut x = tabs_area.left();
+        let mut x = total_area.left();
         let titles_length = self.titles.len();
         for (i, title) in self.titles.into_iter().enumerate() {
             let last_title = titles_length - 1 == i;
             x = x.saturating_add(1);
-            let remaining_width = tabs_area.right().saturating_sub(x);
+            let remaining_width = total_area.right().saturating_sub(x);
             if remaining_width == 0 {
                 break;
             }
-            let pos = buf.set_line(x, tabs_area.top(), &title, remaining_width);
-            let tab_area = Rect {
+            let pos = buf.set_line(x, total_area.top(), &title, remaining_width);
+            let area = Rect {
                 x,
-                y: tabs_area.top(),
+                y: total_area.top(),
                 width: pos.0.saturating_sub(x),
                 height: 1,
             };
             if let Some(ref active) = self.active {
                 if active[i] {
-                    buf.set_style(tab_area, self.active_style);
+                    buf.set_style(area, self.active_style);
                 }
             }
             if i == self.selected {
-                buf.set_style(tab_area, self.highlight_style);
+                buf.set_style(area, self.highlight_style);
             }
             x = pos.0.saturating_add(1);
-            let remaining_width = tabs_area.right().saturating_sub(x);
+            let remaining_width = total_area.right().saturating_sub(x);
             if remaining_width == 0 || last_title {
                 break;
             }
-            let pos = buf.set_span(x, tabs_area.top(), &self.divider, remaining_width);
+            let pos = buf.set_span(x, total_area.top(), &self.divider, remaining_width);
             x = pos.0;
         }
     }

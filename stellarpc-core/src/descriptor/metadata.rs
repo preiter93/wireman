@@ -5,8 +5,8 @@ use tonic::metadata::{Ascii, KeyRef, MetadataKey, MetadataMap, MetadataValue};
 
 use crate::error::Error;
 
-/// Represents gRPC metadata, which contains key-value pairs. Metadata is commonly used to
-/// provide additional information with gRPC requests and responses.
+/// Represents `gRPC` metadata, which contains key-value pairs. Metadata is commonly used to
+/// provide additional information with `gRPC` requests and responses.
 #[derive(Debug, Clone)]
 pub struct Metadata {
     pub(crate) inner: MetadataMap,
@@ -21,6 +21,7 @@ impl Default for Metadata {
 
 impl Metadata {
     /// Create a new `Metadata` instance.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             inner: MetadataMap::new(),
@@ -49,9 +50,13 @@ impl Metadata {
         let mut map = ser.serialize_map(Some(len))?;
         for key in self.inner.keys() {
             if let KeyRef::Ascii(ascii_key) = key {
-                let value = self.inner.get(ascii_key).unwrap();
+                let Some(value) = self.inner.get(ascii_key) else {
+                    continue;
+                };
                 let key_str = ascii_key.to_string();
-                let value_str = value.to_str().unwrap();
+                let Ok(value_str) = value.to_str() else {
+                    continue;
+                };
                 map.serialize_entry(&key_str, value_str)?;
             }
         }

@@ -21,7 +21,7 @@ pub(super) fn apply_template_for_message(msg: &mut DynamicMessage, recursion_dep
         match value {
             Value::List(_) => *value = default_value_list(&kind, recursion_depth),
             Value::Message(msg) => {
-                *value = default_value_message(&msg.descriptor(), recursion_depth)
+                *value = default_value_message(&msg.descriptor(), recursion_depth);
             }
             Value::Map(_) => {
                 // println!("TODO: IMPLEMENT MAP!!");
@@ -34,7 +34,7 @@ pub(super) fn apply_template_for_message(msg: &mut DynamicMessage, recursion_dep
 /// Get the default value for a specific data type (Kind).
 fn default_value(kind: &Kind, recursion_depth: usize) -> Value {
     match kind {
-        Kind::String => Value::String("".to_string()),
+        Kind::String => Value::String(String::new()),
         Kind::Message(desc) => default_value_message(desc, recursion_depth),
         _ => Value::default_value(kind),
     }

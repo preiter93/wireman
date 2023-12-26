@@ -24,6 +24,10 @@ pub struct Config {
 
 impl Config {
     /// Loads the config from a file.
+    ///
+    /// # Errors
+    ///
+    /// Failed to read the config file.
     pub fn load(file: &str) -> Result<Self> {
         let f = shellexpand::env(file).map_or(file.to_string(), |x| x.to_string());
         let data = read_to_string(&f).map_err(|err| Error::ReadConfigError {
@@ -53,6 +57,7 @@ impl Config {
 
     /// Gets the includes directories. Tries to shell expand the path
     /// if it contains environment variables such as $HOME or ~.
+    #[must_use]
     pub fn includes(&self) -> Vec<String> {
         self.includes
             .iter()
@@ -62,6 +67,7 @@ impl Config {
 
     /// Gets the files. Tries to shell expand the path if it contains
     ///  environment variables such as $HOME or ~.
+    #[must_use]
     pub fn files(&self) -> Vec<String> {
         self.files
             .iter()
@@ -71,6 +77,7 @@ impl Config {
 
     /// Gets the history. Tries to shell expand the path if it contains
     ///  environment variables such as $HOME or ~.
+    #[must_use]
     pub fn history(&self) -> String {
         shellexpand::env(&self.history).map_or(self.history.clone(), |x| x.to_string())
     }

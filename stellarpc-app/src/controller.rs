@@ -34,9 +34,9 @@ pub struct Controller {
 
 impl Controller {
     /// Instantiate the homepage
-    pub fn new(env: Config) -> Result<Self> {
-        let core_client = CoreClient::new(&env)?;
-        let app_config = AppConfig::new(&env)?;
+    pub fn new(env: &Config) -> Result<Self> {
+        let core_client = CoreClient::new(env)?;
+        let app_config = AppConfig::new(env)?;
 
         // The core client
         let core_client_rc = Rc::new(RefCell::new(core_client));

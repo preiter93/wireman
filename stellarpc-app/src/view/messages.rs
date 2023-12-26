@@ -71,7 +71,7 @@ impl Widget for MessagesTab<'_> {
         editor.theme(theme).render(area[0], buf);
 
         // Save spot
-        let area_s = layout(area[1], Direction::Horizontal, &vec![0, 25]);
+        let area_s = layout(area[1], Direction::Horizontal, &[0, 25]);
         let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
         let mut tabs = ActivatableTabs::new(titles)
             .style(THEME.tabs)

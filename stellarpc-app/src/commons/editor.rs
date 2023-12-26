@@ -128,7 +128,7 @@ impl TextEditor {
     }
 }
 
-static CLIPBOARD: Lazy<GlobalClipboard> = Lazy::new(|| GlobalClipboard::new());
+static CLIPBOARD: Lazy<GlobalClipboard> = Lazy::new(GlobalClipboard::new);
 
 struct GlobalClipboard(Mutex<Option<Clipboard>>);
 

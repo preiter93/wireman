@@ -1,4 +1,4 @@
-#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_truncation, clippy::module_name_repetitions)]
 #![allow(dead_code)]
 mod app;
 mod commons;

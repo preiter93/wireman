@@ -55,7 +55,7 @@ impl AuthHeader {
         self.bearer.insert_mode() || self.basic.insert_mode()
     }
 
-    pub fn key(&self) -> String {
+    pub fn key() -> String {
         "authorization".to_string()
     }
 
@@ -98,12 +98,10 @@ impl AuthHeader {
         if value.starts_with("Bearer ") {
             self.bearer.set_text_raw(&value.replacen("Bearer ", "", 1));
             self.selected = AuthSelection::Bearer;
-            return;
         }
         if value.starts_with("Basic ") {
             self.basic.set_text_raw(&value.replacen("Basic ", "", 1));
             self.selected = AuthSelection::Basic;
-            return;
         }
     }
 }
@@ -134,7 +132,7 @@ impl HeadersModel {
     pub fn headers(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();
         if !self.auth.is_empty() {
-            map.insert(self.auth.key(), self.auth.value());
+            map.insert(AuthHeader::key(), self.auth.value());
         }
         map
     }

@@ -7,13 +7,14 @@ use tonic::{
     Status,
 };
 
-/// DynamicCodec is a customizable gRPC codec that can handle requests and responses with
+/// `DynamicCodec` is a customizable `gRPC` codec that can handle requests and responses with
 /// dynamic message descriptors.
 #[derive(Debug, Clone)]
 pub struct DynamicCodec(MethodDescriptor);
 
 impl DynamicCodec {
-    /// Create a new DynamicCodec with the provided [`MethodDescriptor`].
+    /// Create a new `DynamicCodec` with the provided [`MethodDescriptor`].
+    #[must_use]
     pub fn new(desc: MethodDescriptor) -> Self {
         DynamicCodec(desc)
     }
