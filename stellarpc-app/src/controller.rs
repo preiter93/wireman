@@ -5,7 +5,9 @@ use crate::{
     },
     AppConfig,
 };
-use std::{cell::RefCell, rc::Rc};
+use config::Config;
+use std::{cell::RefCell, error::Error, rc::Rc};
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// Translates key input to actions for the models
 pub struct Controller {
@@ -24,7 +26,10 @@ pub struct Controller {
 
 impl Controller {
     /// Instantiate the homepage
-    pub fn new(core_client: CoreClient, config: AppConfig) -> Self {
+    pub fn new(env: Config) -> Result<Self> {
+        let core_client = CoreClient::new(&env)?;
+        let app_config = AppConfig::new(&env)?;
+
         // The core client is shared
         let core_client_rc = Rc::new(RefCell::new(core_client));
 
@@ -41,14 +46,14 @@ impl Controller {
         let messages = Rc::new(RefCell::new(MessagesModel::new(
             core_client_rc,
             Rc::clone(&headers),
-            HistoryModel::new(config.history),
+            HistoryModel::new(app_config.history),
         )));
 
-        Self {
+        Ok(Self {
             selection,
             messages,
             headers,
             show_help: true,
-        }
+        })
     }
 }
