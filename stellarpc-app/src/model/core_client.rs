@@ -64,7 +64,7 @@ impl CoreClient {
     }
 
     /// Return a grpcurl request
-    pub fn grpcurl(
+    pub fn get_grpcurl(
         &self,
         message: &str,
         method_desc: &MethodDescriptor,
