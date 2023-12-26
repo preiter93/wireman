@@ -17,9 +17,6 @@ pub struct Controller {
 
     /// The model for the headers
     pub headers: Rc<RefCell<HeadersModel>>,
-
-    ///  Whether to display the help
-    pub show_help: bool,
 }
 
 impl Controller {
@@ -53,7 +50,6 @@ impl Controller {
             selection,
             messages,
             headers,
-            show_help: true,
         })
     }
 }
