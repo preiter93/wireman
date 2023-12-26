@@ -152,6 +152,7 @@ impl MessagesModel {
         //         ));
         //     }
         // }
+
         // Auth token
         let auth = self.headers_model.borrow().auth.value_expanded();
         if !auth.is_empty() {
@@ -219,12 +220,6 @@ impl MessagesModel {
         }
     }
 
-    // pub fn apply_history(&mut self, history: &HistoryData) {
-    //     *self.metadata_model.borrow_mut() = MetadataModel::from_raw(&history.metadata);
-    //     *self.headers_model.borrow_mut() = HeadersModel::new(&history.address);
-    //     self.request.editor.set_text_raw(&history.message);
-    // }
-
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
@@ -232,13 +227,13 @@ impl MessagesModel {
             let message = self.request.editor.get_text_raw();
             let header = self.headers_model.borrow().headers();
 
-            if let Ok(grpcurl) = self
+            if let Ok(text) = self
                 .request
                 .core_client
                 .borrow()
-                .grpcurl(&message, method, &header, &address)
+                .get_grpcurl(&message, method, &header, &address)
             {
-                yank_to_clipboard(&grpcurl);
+                yank_to_clipboard(&text);
             }
         }
     }
