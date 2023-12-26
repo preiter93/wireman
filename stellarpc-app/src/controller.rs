@@ -1,9 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
-use crate::{
-    model::{
-        headers::HeadersModel, history::HistoryModel, CoreClient, MessagesModel, SelectionModel,
-    },
-    AppConfig,
+use crate::model::{
+    headers::HeadersModel, history::HistoryModel, CoreClient, MessagesModel, SelectionModel,
 };
 use config::Config;
 use std::{cell::RefCell, error::Error, rc::Rc};
@@ -29,7 +26,6 @@ impl Controller {
     /// Instantiate the homepage
     pub fn new(env: &Config) -> Result<Self> {
         let core_client = CoreClient::new(env)?;
-        let app_config = AppConfig::new(env)?;
 
         // The core client
         let core_client_rc = Rc::new(RefCell::new(core_client));
@@ -43,11 +39,14 @@ impl Controller {
         let server_address = &core_client_rc.borrow().get_default_address();
         let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
 
+        // The history model
+        let history_model = HistoryModel::new(env)?;
+
         // The messages model
         let messages = Rc::new(RefCell::new(MessagesModel::new(
             core_client_rc,
             Rc::clone(&headers),
-            HistoryModel::new(app_config.history),
+            history_model,
         )));
 
         Ok(Self {

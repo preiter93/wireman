@@ -70,19 +70,21 @@ impl Widget for MessagesTab<'_> {
         }
         editor.theme(theme).render(area[0], buf);
 
-        // Save spot
-        let area_s = layout(area[1], Direction::Horizontal, &[0, 25]);
-        let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
-        let mut tabs = ActivatableTabs::new(titles)
-            .style(THEME.tabs)
-            .active_style(THEME.tabs_active)
-            .highlight_style(THEME.tabs_selected)
-            .select(self.model.history_model.save_spot().saturating_sub(1))
-            .divider("");
-        if let Some(method) = &self.model.selected_method {
-            tabs = tabs.active(self.model.history_model.save_spots_enabled(method));
+        // History
+        if self.model.history_model.enabled {
+            let area_s = layout(area[1], Direction::Horizontal, &[0, 25]);
+            let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
+            let mut tabs = ActivatableTabs::new(titles)
+                .style(THEME.tabs)
+                .active_style(THEME.tabs_active)
+                .highlight_style(THEME.tabs_selected)
+                .select(self.model.history_model.save_spot().saturating_sub(1))
+                .divider("");
+            if let Some(method) = &self.model.selected_method {
+                tabs = tabs.active(self.model.history_model.save_spots_enabled(method));
+            }
+            tabs.render(area_s[1], buf);
         }
-        tabs.render(area_s[1], buf);
 
         // Response
         let editor = EditorView::new(&mut self.model.response.editor.state);

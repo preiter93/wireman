@@ -1,32 +1,51 @@
 use super::MessagesModel;
-use crate::commons::debug::log;
+use crate::{commons::debug::log, term::Term};
+use config::Config;
 use core::MethodDescriptor;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
+    error::Error,
     path::{Path, PathBuf},
+    str::FromStr,
 };
+
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[derive(Clone)]
 pub struct HistoryModel {
-    // The filepath where the files are stored
+    /// The filepath where the files are stored
     base_path: PathBuf,
-    // The selected save spot (1-5)
+
+    /// The selected save spot (1-5)
     save_spot: usize,
+
+    /// Whether history is enabled
+    pub(crate) enabled: bool,
 }
 
 impl Default for HistoryModel {
     fn default() -> Self {
-        Self::new(PathBuf::new())
+        Self {
+            base_path: PathBuf::default(),
+            save_spot: 1,
+            enabled: true,
+        }
     }
 }
 
 impl HistoryModel {
-    pub fn new(path: PathBuf) -> Self {
-        Self {
+    pub fn new(env: &Config) -> Result<Self> {
+        let path = PathBuf::from_str(&env.history()).map_err(|err| {
+            Term::stop().unwrap();
+            err
+        })?;
+        let enabled = !path.as_os_str().is_empty();
+        Ok(Self {
             base_path: path,
             save_spot: 1,
-        }
+            enabled,
+        })
     }
 
     /// Get the currently selected save spot.
@@ -48,6 +67,10 @@ impl HistoryModel {
 
     /// Saves a request message to history.
     pub fn save(&self, messages: &MessagesModel) {
+        if !self.enabled {
+            return;
+        }
+
         let Some(method) = &messages.selected_method else {
             log("history: no method selected");
             return;
@@ -96,6 +119,10 @@ impl HistoryModel {
 
     /// Loads a request from history.
     pub fn load(&self, messages: &mut MessagesModel) -> Option<()> {
+        if !self.enabled {
+            return None;
+        }
+
         let Some(method) = &messages.selected_method else {
             log("history: no method selected");
             return None;
