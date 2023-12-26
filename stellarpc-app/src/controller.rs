@@ -6,12 +6,8 @@ use crate::{
     AppConfig,
 };
 use config::Config;
-use std::{
-    cell::RefCell,
-    error::Error,
-    rc::Rc,
-    sync::mpsc::{self, Receiver},
-};
+use std::{cell::RefCell, error::Error, rc::Rc};
+
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// Translates key input to actions for the models
@@ -27,9 +23,6 @@ pub struct Controller {
 
     ///  Whether to display the help
     pub show_help: bool,
-
-    /// An event receiver for app internal events.
-    pub event_recv: Receiver<String>,
 }
 
 impl Controller {
@@ -50,15 +43,11 @@ impl Controller {
         let server_address = &core_client_rc.borrow().get_default_address();
         let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
 
-        // An event hanlder for sending and receiving app events
-        let (tx, rx) = mpsc::channel::<String>();
-
         // The messages model
         let messages = Rc::new(RefCell::new(MessagesModel::new(
             core_client_rc,
             Rc::clone(&headers),
             HistoryModel::new(app_config.history),
-            tx,
         )));
 
         Ok(Self {
@@ -66,7 +55,6 @@ impl Controller {
             messages,
             headers,
             show_help: true,
-            event_recv: rx,
         })
     }
 }

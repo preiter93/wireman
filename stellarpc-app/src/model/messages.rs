@@ -2,12 +2,7 @@
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::commons::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    rc::Rc,
-    sync::mpsc::{self, Sender},
-};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 /// Map from Method to request/response message
 type MessagesCache = HashMap<String, (String, String)>;
@@ -34,21 +29,16 @@ pub struct MessagesModel {
     /// The model for the request history.
     pub history_model: HistoryModel,
 
-    /// Event sender.
-    pub event_sender: Sender<String>,
-
     /// A flag indicating whether a request is being processed.
     pub is_processing: bool,
 }
 
 impl Default for MessagesModel {
     fn default() -> Self {
-        let (tx, _) = mpsc::channel::<String>();
         Self::new(
             Rc::new(RefCell::new(CoreClient::default())),
             Rc::new(RefCell::new(HeadersModel::default())),
             HistoryModel::default(),
-            tx,
         )
     }
 }
@@ -60,7 +50,6 @@ impl MessagesModel {
         core_client: Rc<RefCell<CoreClient>>,
         headers_model: Rc<RefCell<HeadersModel>>,
         history_model: HistoryModel,
-        event_sender: Sender<String>,
     ) -> Self {
         let request = RequestModel::new(core_client);
         let response = ResponseModel::new();
@@ -72,7 +61,6 @@ impl MessagesModel {
             selected_method: None,
             headers_model,
             history_model,
-            event_sender,
             is_processing: false,
         }
     }
@@ -204,7 +192,6 @@ impl MessagesModel {
         };
 
         let resp = CoreClient::call_unary(&req);
-        let _ = self.event_sender.send(String::from("finished"));
         self.is_processing = false;
 
         match resp {
