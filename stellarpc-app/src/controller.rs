@@ -22,10 +22,8 @@ pub struct Controller {
 impl Controller {
     /// Instantiate the homepage
     pub fn new(env: &Config) -> Result<Self> {
-        let core_client = CoreClient::new(env)?;
-
         // The core client
-        let core_client_rc = Rc::new(RefCell::new(core_client));
+        let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 
         // The selection model
         let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
