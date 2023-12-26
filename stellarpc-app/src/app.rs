@@ -145,11 +145,6 @@ impl App {
             if self.controller.messages.borrow().is_processing {
                 self.draw()?;
                 self.controller.messages.borrow_mut().do_request();
-                loop {
-                    if self.controller.event_recv.recv().is_ok() {
-                        break;
-                    }
-                }
             }
         }
         Ok(())
