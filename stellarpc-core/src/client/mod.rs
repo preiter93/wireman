@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 //! Module for all grpc related stuff
 mod codec;
 pub mod tls;
@@ -11,7 +12,7 @@ use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
 
-/// Represents a gRPC client for making RPC calls.
+/// Represents a `gRPC` client for making RPC calls.
 #[derive(Clone, Debug)]
 pub struct GrpcClient {
     grpc: Grpc<Channel>,
@@ -36,10 +37,10 @@ impl GrpcClient {
         }
     }
 
-    /// Make a unary gRPC call from the client.
+    /// Make a unary `gRPC` call from the client.
     ///
     /// # Errors
-    /// - gRPC client is not ready
+    /// - `gRPC` client is not ready
     /// - Server call failed
     pub async fn unary(&mut self, req: &RequestMessage) -> Result<ResponseMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
@@ -50,11 +51,11 @@ impl GrpcClient {
         Ok(response)
     }
 
-    /// Make a unary grpc call from the client. The call is
+    /// Make a unary `gRPC` call from the client. The call is
     /// wrapped in a tokio runtime to run asynchronously.
     ///
     /// # Errors
-    /// - gRPC client is not ready
+    /// - `gRPC` client is not ready
     /// - Server call failed
     pub fn unary_with_runtime(&mut self, req: &RequestMessage) -> Result<String> {
         let runtime = create_runtime()?;
@@ -68,11 +69,11 @@ impl GrpcClient {
     }
 }
 
-/// Creates a new gRPC client and sends a message to a gRPC server.
+/// Creates a new `gRPC` client and sends a message to a `gRPC` server.
 /// This method is blocking.
 ///
 /// # Errors
-/// - Internal error calling the gRPC server
+/// - Internal error calling the `gRPC` server
 pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
     let rt = create_runtime()?;
     let uri = Uri::try_from(req.address())
@@ -86,11 +87,11 @@ pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
     }
 }
 
-/// Creates a new gRPC client and sends a message to a gRPC server.
+/// Creates a new `gRPC` client and sends a message to a `gRPC` server.
 /// This method is non-blocking.
 ///
 /// # Errors
-/// - Internal error calling the gRPC server
+/// - Internal error calling the `gRPC` server
 pub async fn async_call_unary<T: Into<Uri>>(
     uri: T,
     req: &RequestMessage,
@@ -101,6 +102,9 @@ pub async fn async_call_unary<T: Into<Uri>>(
 }
 
 /// Creates a new Tokio runtime.
+///
+/// # Errors
+/// - Internal: Failed to crate tokio runtime.
 pub fn create_runtime() -> Result<Runtime> {
     Runtime::new().map_err(|_| Error::Internal(String::from("Failed to create runtime")))
 }

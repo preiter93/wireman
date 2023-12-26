@@ -29,9 +29,10 @@ pub fn centered_rect_percentage(percent_x: u16, percent_y: u16, r: Rect) -> Rect
 
 /// helper function to create a centered rect using up certain percentage in x and a certain
 /// height of the available rect `r`
+#[allow(clippy::cast_sign_loss)]
 pub fn centered_rect_length(percent_x: u16, height: u16, r: Rect) -> Rect {
     let full_height = r.height;
-    let percent_y = ((height as f64 / full_height as f64) * 100.) as u16;
+    let percent_y = ((f64::from(height) / f64::from(full_height)) * 100.) as u16;
     let popup_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints(

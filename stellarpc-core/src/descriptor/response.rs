@@ -1,7 +1,7 @@
 use super::DynamicMessage;
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
 
-/// Holds all the necessary data for a gRPC response.
+/// Holds all the necessary data for a `gRPC` response.
 #[derive(Debug, Clone)]
 pub struct ResponseMessage {
     pub message: DynamicMessage,

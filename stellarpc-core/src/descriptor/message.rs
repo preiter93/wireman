@@ -12,7 +12,7 @@ use prost_reflect::{
 use serde::{Serialize, Serializer};
 use std::ops::{Deref, DerefMut};
 
-/// Represents a dynamic gRPC message that can be used
+/// Represents a dynamic `gRPC` message that can be used
 /// with various message types.
 #[derive(Debug, Clone)]
 pub struct DynamicMessage {

@@ -4,19 +4,20 @@ use std::fmt::Write;
 use http::Uri;
 use prost_reflect::MethodDescriptor;
 
-/// Generate a `grpcurl` command as a string for sending a gRPC request.
+/// Generate a `grpcurl` command as a string for sending a `gRPC` request.
 ///
-/// This function constructs a `grpcurl` command that can be used to send a gRPC request
-/// to a specified gRPC server. The generated command includes information such as include
+/// This function constructs a `grpcurl` command that can be used to send a `gRPC` request
+/// to a specified `gRPC` server. The generated command includes information such as include
 /// directories, URI, request message in JSON format, method descriptor, and metadata headers.
 ///
 /// # Parameters
 ///
 /// - `includes`: A list of include directories used to locate .proto files.
-/// - `uri`: The address URI of the gRPC server (e.g., "localhost:50051").
+/// - `uri`: The address URI of the `gRPC` server (e.g., "localhost:50051").
 /// - `message`: The request data in JSON format.
-/// - `method_desc`: The method descriptor for the gRPC method.
+/// - `method_desc`: The method descriptor for the `gRPC` method.
 /// - `metadata`: Key-value metadata headers to be included in the request.
+#[allow(clippy::implicit_hasher)]
 pub fn grpcurl<T: Into<Uri>>(
     includes: &[String],
     uri: T,

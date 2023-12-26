@@ -38,9 +38,8 @@ impl HistoryModel {
     pub fn save_spots_enabled(&self, method: &MethodDescriptor) -> Vec<bool> {
         (1..=5)
             .map(|i| {
-                let path = match self.path(i, method).clone() {
-                    Some(path) => path,
-                    None => return false,
+                let Some(path) = self.path(i, method).clone() else {
+                    return false;
                 };
                 path.exists()
             })
@@ -123,9 +122,8 @@ impl HistoryModel {
 
     /// Deletes a save spot
     pub fn delete(&self, method: &MethodDescriptor) {
-        let path = match self.path(self.save_spot, method).clone() {
-            Some(path) => path,
-            None => return,
+        let Some(path) = self.path(self.save_spot, method).clone() else {
+            return;
         };
         let _ = std::fs::remove_file(path);
     }

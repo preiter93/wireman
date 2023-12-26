@@ -12,13 +12,13 @@ use tonic::{
     Request,
 };
 
-/// Holds all the necessary data for a gRPC request, including
+/// Holds all the necessary data for a `gRPC` request, including
 /// the message, method descriptor, and optional metadata.
 #[derive(Debug, Clone)]
 pub struct RequestMessage {
-    /// The gRPC message.
+    /// The `gRPC` message.
     message: DynamicMessage,
-    /// The gRPC method
+    /// The `gRPC` method
     method_desc: MethodDescriptor,
     /// The requests metadata.
     metadata: Option<Metadata>,
@@ -59,10 +59,13 @@ impl RequestMessage {
     }
 
     /// Gets a reference to the message.
+    #[must_use]
     pub fn message(&self) -> &DynamicMessage {
         &self.message
     }
+
     /// Gets a mutable reference to the message.
+    #[must_use]
     pub fn message_mut(&mut self) -> &mut DynamicMessage {
         &mut self.message
     }
@@ -102,7 +105,7 @@ impl RequestMessage {
         Ok(())
     }
 
-    /// Get the URI path for gRPC calls based on the method descriptor.
+    /// Get the URI path for `gRPC` calls based on the method descriptor.
     ///
     /// # Panics
     ///
@@ -135,7 +138,8 @@ impl RequestMessage {
     /// Returns an `Error` if serialization to a JSON string fails.
     pub fn to_json(&self) -> Result<String> {
         let mut s = serde_json::Serializer::new(Vec::new());
-        self.serialize(&mut s).unwrap();
+        self.serialize(&mut s)
+            .map_err(|_| Error::Internal(String::from("failed to serialize message")))?;
         String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
     }
 }

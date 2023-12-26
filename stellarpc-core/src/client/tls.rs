@@ -1,3 +1,4 @@
+#![allow(clippy::module_name_repetitions)]
 use crate::error::{Error, Result};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnectorBuilder;

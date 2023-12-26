@@ -38,6 +38,7 @@ func (s *Server) SayHello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp,
 
 func (s *Server) GetDate(ctx context.Context, req *pb.GetDateReq) (*pb.GetDateResp, error) {
 	now := timestamppb.Now()
+	time.Sleep(time.Second)
 	return &pb.GetDateResp{Date: now}, nil
 }
 
