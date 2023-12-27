@@ -1,18 +1,10 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
 use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
-use edtui::EditorTheme;
-use edtui::EditorView;
-use edtui::StatusLine;
-use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
 use ratatui::layout::Rect;
 use ratatui::prelude::Direction;
-use ratatui::style::Stylize;
-use ratatui::widgets::Block;
-use ratatui::widgets::BorderType;
-use ratatui::widgets::Borders;
 use ratatui::widgets::Widget;
 
 use super::theme::THEME;
@@ -50,31 +42,13 @@ impl Widget for MessagesTab<'_> {
             )
             .split(area);
 
-        // Block
-        let block = Block::new()
-            .borders(Borders::ALL)
-            .title_alignment(Alignment::Center)
-            .style(THEME.content);
-
         // Request
-        let editor = EditorView::new(&mut self.model.request.editor.state);
-        let mut theme = EditorTheme::default();
-        let block_req = block.clone().title("Request").bold().white();
-        if self.sub == 0 {
-            theme = theme
-                .block(block_req.clone().border_type(BorderType::Double))
-                .status_line(Some(
-                    StatusLine::default()
-                        .style_text(THEME.status_line.0)
-                        .style_line(THEME.status_line.1),
-                ));
+        let editor = if self.sub == 0 {
+            super::editor::view_selected(&mut self.model.request.editor.state, "Request")
         } else {
-            theme = theme
-                .block(block_req.clone().border_type(BorderType::Plain))
-                .cursor_style(EditorTheme::default().base_style())
-                .status_line(None);
-        }
-        editor.theme(theme).render(area[0], buf);
+            super::editor::view_unselected(&mut self.model.request.editor.state, "Request")
+        };
+        editor.render(area[0], buf);
 
         // History
         if self.model.history_model.enabled {
@@ -92,18 +66,12 @@ impl Widget for MessagesTab<'_> {
             tabs.render(area_s[1], buf);
         }
 
-        // Response
-        let editor = EditorView::new(&mut self.model.response.editor.state);
-        let mut theme = EditorTheme::default();
-        let block_resp = block.title("Response").bold().white();
-        if self.sub == 1 {
-            theme = theme.block(block_resp.clone().border_type(BorderType::Double));
+        // Request
+        let editor = if self.sub == 1 {
+            super::editor::view_selected(&mut self.model.response.editor.state, "Response")
         } else {
-            theme = theme
-                .block(block_resp.clone().border_type(BorderType::Plain))
-                .cursor_style(EditorTheme::default().base_style())
-                .status_line(None);
-        }
-        editor.theme(theme).render(area[2], buf);
+            super::editor::view_unselected(&mut self.model.response.editor.state, "Response")
+        };
+        editor.render(area[2], buf);
     }
 }
