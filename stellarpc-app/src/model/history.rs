@@ -98,12 +98,12 @@ impl HistoryModel {
         let address = messages.headers_model.borrow().address();
         let auth_str = messages.headers_model.borrow().auth.value();
         let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
-        let meta = messages.headers_model.borrow().meta.as_btree();
+        let metadata = messages.headers_model.borrow().meta.as_btree();
         let request = HistoryData {
             message,
             address,
-            auth,
-            meta,
+            authentication: auth,
+            metadata,
         };
 
         match serde_json::to_string_pretty(&request) {
@@ -180,22 +180,22 @@ impl HistoryModel {
 pub struct HistoryData {
     pub message: String,
     pub address: String,
-    pub auth: Option<String>,
-    pub meta: BTreeMap<String, String>,
+    pub authentication: Option<String>,
+    pub metadata: BTreeMap<String, String>,
 }
 
 impl HistoryData {
     pub fn new(
         message: String,
         address: String,
-        auth: Option<String>,
-        meta: BTreeMap<String, String>,
+        authentication: Option<String>,
+        metadata: BTreeMap<String, String>,
     ) -> Self {
         Self {
             message,
             address,
-            auth,
-            meta,
+            authentication,
+            metadata,
         }
     }
 
@@ -211,12 +211,12 @@ impl HistoryData {
         let mut headers_model = messages.headers_model.borrow_mut();
         headers_model.clear();
         headers_model.addr.set_text_raw(&self.address);
-        if let Some(auth) = &self.auth {
+        if let Some(auth) = &self.authentication {
             headers_model.auth.set_text(auth);
         } else {
             headers_model.auth.set_text("");
         }
-        headers_model.meta.set_btree(&self.meta);
+        headers_model.meta.set_btree(&self.metadata);
         messages.request.editor.set_text_raw(&self.message);
     }
 }
@@ -236,8 +236,8 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
-            auth: Some("Bearer Test".to_string()),
-            meta: metadata,
+            authentication: Some("Bearer Test".to_string()),
+            metadata,
         };
 
         // when
@@ -247,8 +247,8 @@ mod tests {
         let expected_pretty_json = r#"{
   "message": "Test message",
   "address": "Test address",
-  "auth": "Bearer Test",
-  "meta": {
+  "authentication": "Bearer Test",
+  "metadata": {
     "key1": "value1",
     "key2": "value2"
   }
@@ -266,8 +266,8 @@ mod tests {
         let history_data = HistoryData {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
-            auth: Some("Bearer test".to_string()),
-            meta: metadata,
+            authentication: Some("Bearer test".to_string()),
+            metadata,
         };
 
         // when

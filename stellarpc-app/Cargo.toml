@@ -14,7 +14,7 @@ license = "MIT"
 core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
 config = { package = "stellarpc_config", path = "../stellarpc-config", version = "0.1.0" }
 tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.6.0" }
-edtui = { package = "edtui", path = "../../edtui", version = "0.2.0", default-features = false }
+edtui = { package = "edtui", path = "../../edtui", version = "0.2.1", default-features = false }
 crossterm = "0.27"
 ratatui = "0.25"
 serde = { version = "1.0", features = ["derive"] }

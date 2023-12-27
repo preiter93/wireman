@@ -300,7 +300,7 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "crossterm",
  "edtui-jagged",
@@ -310,7 +310,7 @@ dependencies = [
 
 [[package]]
 name = "edtui-jagged"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "either"
