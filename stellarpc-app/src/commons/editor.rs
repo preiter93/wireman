@@ -1,8 +1,8 @@
 #![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
-    actions::{Execute, InsertChar},
+    actions::{Execute, InsertChar, SwitchMode},
     clipboard::ClipboardTrait,
     EditorMode, EditorState, Index2, Input,
 };
@@ -123,8 +123,15 @@ impl TextEditor {
     }
 
     /// Key bindings in normal mode
-    pub fn on_key(&mut self, key: KeyEvent) {
-        self.input.on_key(key, &mut self.state);
+    pub fn on_key(&mut self, key: KeyEvent, single: bool) {
+        match key.code {
+            KeyCode::Tab | KeyCode::BackTab if single && self.insert_mode() => {
+                SwitchMode(EditorMode::Normal).execute(&mut self.state);
+            }
+            _ => {
+                self.input.on_key(key, &mut self.state);
+            }
+        }
     }
 }
 

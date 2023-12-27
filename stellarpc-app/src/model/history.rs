@@ -1,4 +1,4 @@
-use super::MessagesModel;
+use super::{headers::HeadersSelection, MessagesModel};
 use crate::{commons::debug::log, term::Term};
 use config::Config;
 use core::MethodDescriptor;
@@ -217,6 +217,7 @@ impl HistoryData {
         }
         headers_model.meta.set_btree(&self.meta);
         messages.request.editor.set_text_raw(&self.message);
+        headers_model.selected = HeadersSelection::Auth;
     }
 }
 

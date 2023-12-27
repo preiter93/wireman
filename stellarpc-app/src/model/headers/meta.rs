@@ -46,7 +46,7 @@ impl MetaHeaders {
             }
             _ => {
                 if let Some(input) = self.selected_editor_mut() {
-                    input.on_key(event);
+                    input.on_key(event, true);
                 }
             }
         }
@@ -157,6 +157,7 @@ impl MetaHeaders {
             v.set_text_raw(val);
             self.headers.push(KV { key: k, val: v });
         }
+        self.selected = None;
     }
 
     pub(super) fn clear(&mut self) {
