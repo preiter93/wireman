@@ -209,6 +209,7 @@ impl HistoryData {
     /// Applies a history.
     fn apply(&self, messages: &mut MessagesModel) {
         let mut headers_model = messages.headers_model.borrow_mut();
+        headers_model.clear();
         headers_model.addr.set_text_raw(&self.address);
         if let Some(auth) = &self.auth {
             headers_model.auth.set_text(auth);
@@ -254,7 +255,6 @@ mod tests {
   }
 }"#;
         assert_eq!(pretty_json, expected_pretty_json);
-        // std::fs::write("file.txt", pretty_json).unwrap();
     }
 
     #[test]

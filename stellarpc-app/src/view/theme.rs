@@ -1,4 +1,4 @@
-use ratatui::prelude::*;
+use ratatui::{prelude::*, widgets::BorderType};
 
 pub struct Theme {
     pub root: Style,
@@ -13,6 +13,7 @@ pub struct Theme {
     pub key_binding: KeyBinding,
     pub list: List,
     pub status_line: (Style, Style),
+    pub divider: Divider,
 }
 
 pub struct KeyBinding {
@@ -22,6 +23,11 @@ pub struct KeyBinding {
 
 pub struct List {
     pub selected: Style,
+}
+pub struct Divider {
+    pub title: Style,
+    pub border_style: Style,
+    pub border_type: BorderType,
 }
 
 pub const THEME: Theme = Theme {
@@ -52,6 +58,14 @@ pub const THEME: Theme = Theme {
         Style::new().fg(Color::Indexed(255)).bg(DARK_PURPLE),
         Style::new().bg(LIGHT_PURPLE),
     ),
+    divider: Divider {
+        title: Style::new()
+            .add_modifier(Modifier::BOLD)
+            .fg(WHITE)
+            .bg(DARK_PURPLE),
+        border_style: Style::new().fg(DARK_BLUE).bg(DARK_BLUE),
+        border_type: BorderType::Thick,
+    },
 };
 
 const DARK_BLUE: Color = Color::Rgb(16, 24, 48);

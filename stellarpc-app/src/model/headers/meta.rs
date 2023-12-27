@@ -7,40 +7,48 @@ use crate::commons::editor::TextEditor;
 
 #[derive(Default)]
 pub struct MetaHeaders {
-    headers: Vec<KV>,
-    selected: Option<Index2>,
+    /// The key value pairs.
+    pub(crate) headers: Vec<(TextEditor, TextEditor)>,
+
+    /// The selected field. Headers are organized in a grid
+    /// where the column represents the key (=0) and val (=1).
+    pub(crate) selected: Option<Index2>,
 }
 
 impl MetaHeaders {
     pub fn on_key(&mut self, event: KeyEvent) {
+        let navigation_enabled = self.mode() == EditorMode::Normal;
         match event.code {
-            KeyCode::Left | KeyCode::Right if self.mode() == EditorMode::Normal => {
+            KeyCode::Tab | KeyCode::Right if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
                     selected.col ^= 1;
                 }
             }
-            KeyCode::Up | KeyCode::Char('k') if self.mode() == EditorMode::Normal => {
+            KeyCode::BackTab | KeyCode::Left if navigation_enabled => {
+                if let Some(selected) = &mut self.selected {
+                    selected.col ^= 1;
+                }
+            }
+            KeyCode::Up | KeyCode::Char('k') if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
                     selected.row = selected.row.saturating_sub(1);
                 }
             }
-            KeyCode::Down | KeyCode::Char('j') if self.mode() == EditorMode::Normal => {
+            KeyCode::Down | KeyCode::Char('j') if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
                     selected.row += 1;
                     selected.row = selected.row.min(self.headers.len().saturating_sub(1));
                 }
             }
             KeyCode::Char('h')
-                if event.modifiers == KeyModifiers::CONTROL
-                    && self.mode() == EditorMode::Normal =>
+                if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
             {
                 self.add();
             }
             KeyCode::Char('d')
-                if event.modifiers == KeyModifiers::CONTROL
-                    && self.mode() == EditorMode::Normal =>
+                if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
             {
-                if let Some(index) = self.selected_index() {
+                if let Some(index) = self.selected {
                     self.remove(index.row);
                 }
             }
@@ -52,12 +60,16 @@ impl MetaHeaders {
         }
     }
 
+    pub fn is_shown(&self) -> bool {
+        self.headers.is_empty()
+    }
+
     pub(super) fn mode(&self) -> EditorMode {
         self.selected_editor()
             .map_or(EditorMode::Normal, |x| x.state.mode)
     }
 
-    pub(super) fn select(&mut self) {
+    pub(crate) fn select(&mut self) {
         self.selected = Some(Index2::default());
     }
 
@@ -87,9 +99,9 @@ impl MetaHeaders {
         if let Some(selected) = self.selected {
             let pair = &self.headers[selected.row];
             if selected.col == 1 {
-                return Some(&pair.val);
+                return Some(&pair.1);
             }
-            return Some(&pair.key);
+            return Some(&pair.0);
         }
         None
     }
@@ -98,22 +110,24 @@ impl MetaHeaders {
         if let Some(selected) = self.selected {
             let pair = &mut self.headers[selected.row];
             if selected.col == 1 {
-                return Some(&mut pair.val);
+                return Some(&mut pair.1);
             }
-            return Some(&mut pair.key);
+            return Some(&mut pair.0);
         }
         None
     }
 
+    /// Adds an empty header key value pair
     pub(crate) fn add(&mut self) {
-        self.headers.push(KV::default());
+        self.headers.push((TextEditor::new(), TextEditor::new()));
+        self.select();
     }
 
+    /// Removes a header key value pair.
     pub(crate) fn remove(&mut self, index: usize) {
         self.headers.remove(index);
         if self.headers.is_empty() {
             self.selected = None;
-            return;
         }
         if let Some(selected) = &mut self.selected {
             selected.row = selected.row.saturating_sub(1);
@@ -121,53 +135,27 @@ impl MetaHeaders {
         }
     }
 
-    pub(crate) fn headers(&self) -> Vec<(&TextEditor, &TextEditor)> {
-        self.headers.iter().map(|x| (&x.key, &x.val)).collect()
-    }
-
-    pub(crate) fn headers_raw(&self) -> Vec<(String, String)> {
-        self.headers
-            .iter()
-            .map(|x| (x.key.get_text_raw(), x.val.get_text_raw()))
-            .collect()
-    }
-
-    pub(crate) fn selected_index(&self) -> Option<Index2> {
-        self.selected
-    }
-
-    /// Get the headers as a map.
-    pub fn as_btree(&self) -> BTreeMap<String, String> {
-        let mut map = BTreeMap::new();
-        for (key, val) in self.headers_raw() {
-            if !key.is_empty() {
-                let _ = map.insert(key, val);
-            }
-        }
-        map
-    }
-
-    /// Get the headers as a map.
-    pub fn set_btree(&mut self, data: &BTreeMap<String, String>) {
-        self.headers.clear();
-        for (key, val) in data {
-            let mut k = TextEditor::new();
-            k.set_text_raw(key);
-            let mut v = TextEditor::new();
-            v.set_text_raw(val);
-            self.headers.push(KV { key: k, val: v });
-        }
-        self.selected = None;
-    }
-
     pub(super) fn clear(&mut self) {
         self.headers.clear();
         self.selected = None;
     }
-}
 
-#[derive(Default)]
-struct KV {
-    key: TextEditor,
-    val: TextEditor,
+    pub(crate) fn as_btree(&self) -> BTreeMap<String, String> {
+        self.headers
+            .iter()
+            .filter(|(key, _)| !key.is_empty())
+            .map(|(key, val)| (key.get_text_raw(), val.get_text_raw()))
+            .collect()
+    }
+
+    pub(crate) fn set_btree(&mut self, data: &BTreeMap<String, String>) {
+        for (key, val) in data {
+            let mut k = TextEditor::new();
+            let mut v = TextEditor::new();
+            k.set_text_raw(key);
+            v.set_text_raw(val);
+            self.headers.push((k, v));
+        }
+        self.selected = None;
+    }
 }

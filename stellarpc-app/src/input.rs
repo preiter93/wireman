@@ -23,6 +23,14 @@ impl SelectionInput<'_> {
     pub fn handle(&mut self, code: KeyCode) {
         const SUBS: usize = 2;
         match code {
+            KeyCode::BackTab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.prev();
+                self.context.sub = 0;
+            }
+            KeyCode::Tab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.next();
+                self.context.sub = 0;
+            }
             KeyCode::Enter if self.context.sub == 0 => {
                 self.context.sub = 1;
                 // Select a method if there is none selected yet.
@@ -94,6 +102,14 @@ impl MessagesInput<'_> {
 
         const SUBS: usize = 2;
         match event.code {
+            KeyCode::BackTab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.prev();
+                self.context.sub = 0;
+            }
+            KeyCode::Tab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.next();
+                self.context.sub = 0;
+            }
             KeyCode::Down if !self.context.disable_root_events => {
                 self.context.sub = self.context.sub.saturating_add(1) % SUBS;
             }
@@ -173,10 +189,6 @@ impl MessagesInput<'_> {
 
         let history_model = model.history_model.clone();
         let _ = history_model.load(&mut model);
-
-        // if let Some(method) = model.selected_method.clone() {
-        //     model.request.load_template(&method);
-        // }
     }
 }
 
@@ -189,41 +201,61 @@ pub struct HeadersInput<'a> {
 impl HeadersInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
         const SUBS: usize = 2;
+        let mut model = self.model.borrow_mut();
         match event.code {
+            KeyCode::Esc if !self.context.disable_root_events => {
+                model.selected = HeadersSelection::None;
+            }
             KeyCode::Char('k') | KeyCode::Up
-                if !self.context.disable_root_events && !self.model.borrow().meta.block_prev() =>
+                if !self.context.disable_root_events && !model.meta.block_prev() =>
             {
-                let prev = self.model.borrow_mut().prev();
-                self.model.borrow_mut().selected = prev;
+                model.selected = model.prev();
             }
             KeyCode::Char('j') | KeyCode::Down
-                if !self.context.disable_root_events && !self.model.borrow().meta.block_next() =>
+                if !self.context.disable_root_events && !model.meta.block_next() =>
             {
-                let next = self.model.borrow_mut().next();
-                self.model.borrow_mut().selected = next;
-            }
-            KeyCode::Char('h')
-                if event.modifiers == KeyModifiers::CONTROL
-                    && !self.context.disable_root_events
-                    && self.model.borrow().meta.headers().is_empty() =>
-            {
-                self.model.borrow_mut().meta.add();
+                model.selected = model.next();
             }
             _ => {
-                let selected = self.model.borrow().selected.clone();
+                let selected = model.selected.clone();
                 match selected {
-                    HeadersSelection::Addr => self.model.borrow_mut().addr.on_key(event, true),
-                    HeadersSelection::Auth => self.model.borrow_mut().auth.on_key(event),
-                    HeadersSelection::Meta => self.model.borrow_mut().meta.on_key(event),
+                    HeadersSelection::Addr => match event.code {
+                        KeyCode::Tab => {
+                            self.context.tab = self.context.tab.next();
+                            self.context.sub = 0;
+                        }
+                        KeyCode::BackTab => {
+                            self.context.tab = self.context.tab.prev();
+                            self.context.sub = 0;
+                        }
+                        _ => model.addr.on_key(event, true),
+                    },
+                    HeadersSelection::Auth => model.auth.on_key(event),
+                    HeadersSelection::Meta => model.meta.on_key(event),
+                    HeadersSelection::None => match event.code {
+                        KeyCode::Tab => {
+                            self.context.tab = self.context.tab.next();
+                            self.context.sub = 0;
+                        }
+                        KeyCode::BackTab => {
+                            self.context.tab = self.context.tab.prev();
+                            self.context.sub = 0;
+                        }
+                        KeyCode::Enter => {
+                            model.selected = HeadersSelection::Addr;
+                        }
+                        KeyCode::Char('h') if event.modifiers == KeyModifiers::CONTROL => {
+                            model.meta.add();
+                            model.selected = HeadersSelection::Meta;
+                        }
+                        _ => {}
+                    },
                 }
                 // Disable all root key events unless all editors are in normal mode.
-                let disable_root_events = self.model.borrow().mode() != EditorMode::Normal;
-                self.context.disable_root_events = disable_root_events;
+                self.context.disable_root_events = model.mode() != EditorMode::Normal;
                 // Make sure that a valid field is selected
-                if selected == HeadersSelection::Meta
-                    && self.model.borrow().meta.headers().is_empty()
-                {
-                    self.model.borrow_mut().selected = HeadersSelection::Auth;
+                if selected == HeadersSelection::Meta && model.meta.headers.is_empty() {
+                    model.selected = HeadersSelection::None;
                 }
             }
         }

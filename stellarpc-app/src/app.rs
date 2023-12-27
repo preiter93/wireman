@@ -103,14 +103,6 @@ impl App {
     fn handle_events(&mut self) -> Result<()> {
         if let Event::Key(event) = event::read()? {
             match event.code {
-                KeyCode::BackTab if !self.context.disable_root_events => {
-                    self.context.tab = self.context.tab.prev();
-                    self.context.sub = 0;
-                }
-                KeyCode::Tab if !self.context.disable_root_events => {
-                    self.context.tab = self.context.tab.next();
-                    self.context.sub = 0;
-                }
                 KeyCode::Char('q') if !self.context.disable_root_events => {
                     self.should_quit = true;
                 }
