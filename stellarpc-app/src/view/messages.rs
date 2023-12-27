@@ -3,6 +3,7 @@ use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
 use edtui::EditorTheme;
 use edtui::EditorView;
+use edtui::StatusLine;
 use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -14,7 +15,6 @@ use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
 use ratatui::widgets::Widget;
 
-use super::root::layout;
 use super::theme::THEME;
 
 /// The request and response tab
@@ -61,7 +61,13 @@ impl Widget for MessagesTab<'_> {
         let mut theme = EditorTheme::default();
         let block_req = block.clone().title("Request").bold().white();
         if self.sub == 0 {
-            theme = theme.block(block_req.clone().border_type(BorderType::Double));
+            theme = theme
+                .block(block_req.clone().border_type(BorderType::Double))
+                .status_line(Some(
+                    StatusLine::default()
+                        .style_text(THEME.status_line.0)
+                        .style_line(THEME.status_line.1),
+                ));
         } else {
             theme = theme
                 .block(block_req.clone().border_type(BorderType::Plain))
@@ -72,7 +78,7 @@ impl Widget for MessagesTab<'_> {
 
         // History
         if self.model.history_model.enabled {
-            let area_s = layout(area[1], Direction::Horizontal, &[0, 25]);
+            let area_s = crate::view::root::layout(area[1], Direction::Horizontal, &[0, 25]);
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
                 .style(THEME.tabs)
