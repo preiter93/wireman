@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use edtui::EditorMode;
 
 use crate::{
     app::AppContext,
@@ -188,15 +189,19 @@ impl HeadersInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
         const SUBS: usize = 2;
         match event.code {
-            KeyCode::Char('j') | KeyCode::Down if !self.context.disable_root_events => {
+            KeyCode::Char('j') | KeyCode::Down
+                if self.model.borrow().mode() == EditorMode::Normal =>
+            {
                 let prev = self.model.borrow().selected.prev();
                 self.model.borrow_mut().selected = prev;
             }
-            KeyCode::Char('k') | KeyCode::Up if !self.context.disable_root_events => {
+            KeyCode::Char('k') | KeyCode::Up
+                if self.model.borrow().mode() == EditorMode::Normal =>
+            {
                 let next = self.model.borrow().selected.next();
                 self.model.borrow_mut().selected = next;
             }
-            KeyCode::Char('B') if !self.context.disable_root_events => {
+            KeyCode::Left | KeyCode::Right if self.model.borrow().mode() == EditorMode::Normal => {
                 self.model.borrow_mut().auth.next();
             }
             _ => {

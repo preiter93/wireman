@@ -2,6 +2,7 @@ use std::{collections::HashMap, process::Command};
 
 use crate::commons::editor::TextEditor;
 use crossterm::event::KeyEvent;
+use edtui::EditorMode;
 
 /// The data model for the `gRPC` headers. Contains authorization
 /// headers and metadata key value headers.
@@ -53,6 +54,13 @@ impl AuthHeader {
 
     pub fn insert_mode(&self) -> bool {
         self.bearer.insert_mode() || self.basic.insert_mode()
+    }
+
+    pub fn mode(&self) -> EditorMode {
+        match self.selected {
+            AuthSelection::Bearer => self.bearer.state.mode,
+            AuthSelection::Basic => self.basic.state.mode,
+        }
     }
 
     pub fn key() -> String {
@@ -126,6 +134,13 @@ impl HeadersModel {
     /// Get the address as a string
     pub fn address(&self) -> String {
         self.address.get_text_raw()
+    }
+
+    pub fn mode(&self) -> EditorMode {
+        [self.auth.mode(), self.address.state.mode]
+            .into_iter()
+            .find(|&x| x != EditorMode::Normal)
+            .unwrap_or(EditorMode::Normal)
     }
 
     /// Get the headers as a map
