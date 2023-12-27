@@ -1,4 +1,7 @@
-use super::root::layout;
+use super::{
+    editor::{view_single_selected, view_single_unselected},
+    root::layout,
+};
 use crate::model::headers::{AuthSelection, HeadersModel, HeadersSelection};
 use edtui::{EditorState, StatusLine};
 use ratatui::{
@@ -20,36 +23,65 @@ impl<'a> HeadersTab<'a> {
     }
 
     pub fn footer_keys(&self) -> Vec<(&'static str, &'static str)> {
-        let mut footer = vec![
-            ("q", "Quit"),
-            ("Tab", "Next Tab"),
-            ("↑/k", "Up"),
-            ("↓/j", "Down"),
-        ];
-        if self.model.meta.headers().is_empty() || self.model.selected == HeadersSelection::Meta {
-            footer.push(("^h", "Add Header"));
+        match self.model.selected {
+            HeadersSelection::Addr => {
+                vec![
+                    ("q", "Quit"),
+                    ("Esc", "Unselect"),
+                    ("↑/k", "Up"),
+                    ("↓/j", "Down"),
+                ]
+            }
+            HeadersSelection::Auth => {
+                vec![
+                    ("q", "Quit"),
+                    ("Esc", "Unselect"),
+                    ("Tab", "Switch"),
+                    ("↑/k", "Up"),
+                    ("↓/j", "Down"),
+                ]
+            }
+            HeadersSelection::Meta => {
+                vec![
+                    ("q", "Quit"),
+                    ("Esc", "Unselect"),
+                    ("Tab", "Switch"),
+                    ("↑/k", "Up"),
+                    ("↓/j", "Down"),
+                    ("^h", "Add Header"),
+                    ("^d", "Remove Header"),
+                ]
+            }
+            HeadersSelection::None => {
+                vec![
+                    ("q", "Quit"),
+                    ("Tab", "Next Tab"),
+                    ("↑/k", "Up"),
+                    ("↓/j", "Down"),
+                    ("^h", "Add Header"),
+                ]
+            }
         }
-        if self.model.selected == HeadersSelection::Meta {
-            footer.push(("^d", "Remove Header"));
-        }
-        footer
     }
 }
 
 impl Widget for HeadersTab<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        let area = layout(area, Direction::Vertical, &[5, 1, 6, 3, 0, 1]);
+        let area = layout(area, Direction::Vertical, &[1, 4, 2, 5, 2, 0, 1]);
 
         // Address
-        SingleInput {
+        // ListElements::VDivider(String::from("Address"))
+        //     .render(area[0].inner(&Margin::new(0, 1)), buf);
+        Address {
             state: self.model.addr.state.clone(),
             title: String::from("Address"),
             selected: self.model.selected == HeadersSelection::Addr,
         }
-        .render(area[0].inner(&Margin::new(0, 1)), buf);
+        .render(crop_top(area[1], 3), buf);
 
         // Authentication
-        ListElements::VDivider(String::from("Authentication")).render(area[1], buf);
+        ListElements::VDivider(String::from("Authentication"))
+            .render(area[2].inner(&Margin::new(0, 0)), buf);
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -64,27 +96,29 @@ impl Widget for HeadersTab<'_> {
                 selected_tag: 1,
             },
         };
-        body.render(area[2], buf);
+        body.render(crop_top(area[3], 4), buf);
 
         // Metadata
-        let meta = self.model.meta.headers();
-        if !meta.is_empty() {
-            ListElements::VDivider(String::from("Headers"))
-                .render(area[3].inner(&Margin::new(0, 1)), buf);
-            let index = self.model.meta.selected_index();
+        if !self.model.meta.is_shown() {
+            ListElements::VDivider(String::from("Headers")).render(area[4], buf);
+            let headers = &self.model.meta.headers;
+            let index = self.model.meta.selected;
             Metadata {
-                content: meta
+                content: headers
                     .iter()
                     .enumerate()
                     .map(|(i, x)| KV {
                         key: x.0.state.clone(),
                         val: x.1.state.clone(),
-                        key_selected: index.map_or(false, |x| x.row == i && x.col == 0),
-                        val_selected: index.map_or(false, |x| x.row == i && x.col == 1),
+                        key_selected: (self.model.selected == HeadersSelection::Meta)
+                            && index.map_or(false, |x| x.row == i && x.col == 0),
+                        val_selected: (self.model.selected == HeadersSelection::Meta)
+                            && index.map_or(false, |x| x.row == i && x.col == 1),
                     })
                     .collect(),
+                selected_row: index.map(|x| x.row),
             }
-            .render(area[4], buf);
+            .render(area[5], buf);
         }
 
         // Show a combined status line for all editors
@@ -92,7 +126,7 @@ impl Widget for HeadersTab<'_> {
             .style_text(THEME.status_line.0)
             .style_line(THEME.status_line.1)
             .content(self.model.mode().name())
-            .render(area[5], buf);
+            .render(area[6], buf);
     }
 }
 
@@ -109,8 +143,11 @@ impl Widget for ListElements {
             Self::VDivider(title) => {
                 Block::default()
                     .title(title)
-                    .title_alignment(Alignment::Center)
                     .borders(Borders::TOP)
+                    .title_alignment(Alignment::Center)
+                    .title_style(THEME.divider.title)
+                    .border_style(THEME.divider.border_style)
+                    .border_type(THEME.divider.border_type)
                     .render(area, buf);
             }
         };
@@ -118,23 +155,18 @@ impl Widget for ListElements {
 }
 
 #[derive(Clone)]
-struct SingleInput {
+struct Address {
     state: EditorState,
     title: String,
     selected: bool,
 }
 
-impl Listable for SingleInput {
-    fn height(&self) -> usize {
-        5
-    }
-}
-impl Widget for SingleInput {
+impl Widget for Address {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         if self.selected {
-            super::editor::view_single_selected(&mut self.state, &self.title).render(area, buf);
+            view_single_selected(&mut self.state, &self.title).render(area, buf);
         } else {
-            super::editor::view_single_unselected(&mut self.state, &self.title).render(area, buf);
+            view_single_unselected(&mut self.state, &self.title).render(area, buf);
         }
     }
 }
@@ -148,8 +180,8 @@ struct Authentication {
 }
 
 impl Widget for Authentication {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Vertical, &[3, 0]);
+    fn render(mut self, area: Rect, buf: &mut Buffer) {
+        let area = layout(area, Direction::Vertical, &[1, 0]);
 
         let titles = vec![" Bearer ", " Basic "];
         Tabs::new(titles)
@@ -159,23 +191,24 @@ impl Widget for Authentication {
             .divider("")
             .render(area[0].inner(&Margin::new(0, 1)), buf);
 
-        SingleInput {
-            state: self.state,
-            title: self.title,
-            selected: self.selected,
+        if self.selected {
+            view_single_selected(&mut self.state, self.title).render(area[1], buf);
+        } else {
+            view_single_unselected(&mut self.state, self.title).render(area[1], buf);
         }
-        .render(area[1], buf);
     }
 }
 
 #[derive(Clone)]
 struct Metadata {
     content: Vec<KV>,
+    selected_row: Option<usize>,
 }
 
 impl Widget for Metadata {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = ListState::default();
+        state.selected = self.selected_row;
         let list = List::new(self.content);
         list.render(area, buf, &mut state);
     }
@@ -212,18 +245,27 @@ impl Widget for KV {
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(area);
 
-        SingleInput {
+        Address {
             state: self.key,
             title: String::new(),
             selected: self.key_selected,
         }
         .render(area[0], buf);
 
-        SingleInput {
+        Address {
             state: self.val,
             title: String::new(),
             selected: self.val_selected,
         }
         .render(area[1], buf);
+    }
+}
+
+fn crop_top(area: Rect, size: u16) -> Rect {
+    Rect {
+        x: area.x,
+        y: area.y,
+        width: area.width,
+        height: size,
     }
 }

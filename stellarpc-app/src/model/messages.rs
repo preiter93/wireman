@@ -143,21 +143,22 @@ impl MessagesModel {
             return Err(ErrorKind::default_error(err.to_string()));
         }
 
-        // Auth token
-        let auth = self.headers_model.borrow().auth.value_expanded();
-        if !auth.is_empty() {
-            let _ = req.insert_metadata("authorization", &auth);
-        }
+        // // Auth token
+        // let auth = headers_model.auth.value_expanded();
+        // if !auth.is_empty() {
+        //     let _ = req.insert_metadata("authorization", &auth);
+        // }
 
-        // Metadata headers
-        for (key, val) in self.headers_model.borrow().meta.headers_raw() {
+        // Metadata
+        let headers_model = self.headers_model.borrow();
+        for (key, val) in headers_model.headers() {
             if !key.is_empty() {
                 let _ = req.insert_metadata(&key, &val);
             }
         }
 
         // Address
-        req.set_address(&self.headers_model.borrow().address());
+        req.set_address(&headers_model.address());
         Ok(req)
     }
 

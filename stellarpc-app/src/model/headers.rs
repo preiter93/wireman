@@ -38,7 +38,7 @@ impl HeadersModel {
             addr: address,
             auth: AuthHeader::default(),
             meta: MetaHeaders::default(),
-            selected: HeadersSelection::Auth,
+            selected: HeadersSelection::default(),
         }
     }
     /// Get the address as a string
@@ -64,19 +64,21 @@ impl HeadersModel {
         }
 
         // Metadata
-        for (key, val) in self.meta.headers_raw() {
+        for (key, val) in &self.meta.headers {
             if !key.is_empty() {
-                let _ = map.insert(key, val);
+                let _ = map.insert(key.get_text_raw(), val.get_text_raw());
             }
         }
         map
     }
 
     /// Get the next header tab
+    /// TODO: Simplify
     pub fn next(&mut self) -> HeadersSelection {
         match self.selected {
+            HeadersSelection::None => HeadersSelection::Addr,
             HeadersSelection::Auth => {
-                if self.meta.headers().is_empty() {
+                if self.meta.is_shown() {
                     return HeadersSelection::Addr;
                 }
                 self.meta.select();
@@ -84,20 +86,24 @@ impl HeadersModel {
             }
             HeadersSelection::Addr => HeadersSelection::Auth,
             HeadersSelection::Meta => {
-                if self.meta.block_next() {
-                    return HeadersSelection::Meta;
-                }
                 self.meta.unselect();
                 HeadersSelection::Addr
             }
         }
     }
 
-    /// Get the previous header tab
+    /// Get the previous header tab.
+    /// TODO: Simplify
     pub fn prev(&mut self) -> HeadersSelection {
         match self.selected {
+            HeadersSelection::None => {
+                if self.meta.is_shown() {
+                    return HeadersSelection::Auth;
+                }
+                HeadersSelection::Meta
+            }
             HeadersSelection::Addr => {
-                if self.meta.headers().is_empty() {
+                if self.meta.is_shown() {
                     return HeadersSelection::Auth;
                 }
                 self.meta.select();
@@ -105,46 +111,28 @@ impl HeadersModel {
             }
             HeadersSelection::Auth => HeadersSelection::Addr,
             HeadersSelection::Meta => {
-                if self.meta.block_prev() {
-                    return HeadersSelection::Meta;
-                }
                 self.meta.unselect();
                 HeadersSelection::Auth
             }
         }
     }
-    /// Clears headers
+
+    /// Clears the headers state.
     pub fn clear(&mut self) {
         self.auth.clear();
         self.meta.clear();
+        self.selected = HeadersSelection::None;
     }
 }
 
 /// The selection state of `HeadersModel`.
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
 pub enum HeadersSelection {
-    Addr,
     #[default]
+    None,
+    Addr,
     Auth,
     Meta,
-}
-
-impl HeadersSelection {
-    pub fn next(&self) -> Self {
-        match &self {
-            Self::Auth => Self::Meta,
-            Self::Addr => Self::Auth,
-            Self::Meta => Self::Addr,
-        }
-    }
-
-    pub fn prev(&self) -> Self {
-        match &self {
-            Self::Addr => Self::Meta,
-            Self::Auth => Self::Addr,
-            Self::Meta => Self::Auth,
-        }
-    }
 }
 
 fn try_expand(raw: &str) -> String {
