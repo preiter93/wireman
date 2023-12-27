@@ -54,13 +54,31 @@ impl HeadersModel {
             .unwrap_or(EditorMode::Normal)
     }
 
-    /// Get the headers as a map
+    /// Get the raw headers as a map
     pub fn headers(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();
 
         // Authorization
         if !self.auth.is_empty() {
             map.insert(AuthHeader::key(), self.auth.value());
+        }
+
+        // Metadata
+        for (key, val) in &self.meta.headers {
+            if !key.is_empty() {
+                let _ = map.insert(key.get_text_raw(), val.get_text_raw());
+            }
+        }
+        map
+    }
+
+    /// Get the shell expanded headers as a map
+    pub fn headers_expanded(&self) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+
+        // Authorization
+        if !self.auth.is_empty() {
+            map.insert(AuthHeader::key(), self.auth.value_expanded());
         }
 
         // Metadata
