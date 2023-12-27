@@ -1,9 +1,9 @@
 use super::root::layout;
 use crate::model::headers::{AuthSelection, HeadersModel, HeadersSelection};
-use edtui::{EditorState, EditorTheme, EditorView, StatusLine};
+use edtui::{EditorState, StatusLine};
 use ratatui::{
     prelude::*,
-    widgets::{Block, BorderType, Borders, StatefulWidget, Tabs, Widget},
+    widgets::{Block, Borders, StatefulWidget, Tabs, Widget},
 };
 use tui_widget_list::{List, ListState, Listable};
 
@@ -126,26 +126,11 @@ impl Listable for SingleInput {
 }
 impl Widget for SingleInput {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
-        let mut block = Block::new()
-            .borders(Borders::ALL)
-            .title_alignment(Alignment::Left)
-            .style(THEME.content)
-            .title(self.title)
-            .bold()
-            .white();
-
-        let mut theme = EditorTheme::default().status_line(None);
         if self.selected {
-            block = block.border_type(BorderType::Double);
+            super::editor::view_single_selected(&mut self.state, &self.title).render(area, buf);
+        } else {
+            super::editor::view_single_unselected(&mut self.state, &self.title).render(area, buf);
         }
-        if !self.selected {
-            theme = theme.cursor_style(EditorTheme::default().base_style());
-        }
-        theme = theme.block(block);
-
-        EditorView::new(&mut self.state)
-            .theme(theme)
-            .render(area, buf);
     }
 }
 

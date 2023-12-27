@@ -1,3 +1,4 @@
+pub(super) mod editor;
 pub mod headers;
 pub mod help;
 pub mod messages;
