@@ -1,14 +1,18 @@
 use super::{
     editor::{view_single_selected, view_single_unselected},
     root::layout,
+    util::crop_top,
 };
-use crate::model::headers::{AuthSelection, HeadersModel, HeadersSelection};
+use crate::{
+    model::headers::{AuthSelection, HeadersModel, HeadersSelection},
+    widgets::kv::KV,
+};
 use edtui::{EditorState, StatusLine};
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, StatefulWidget, Tabs, Widget},
 };
-use tui_widget_list::{List, ListState, Listable};
+use tui_widget_list::{List, ListState};
 
 use super::theme::THEME;
 
@@ -209,61 +213,5 @@ impl Widget for Metadata {
         state.selected = self.selected_row;
         let list = List::new(self.content);
         list.render(area, buf, &mut state);
-    }
-}
-
-#[derive(Clone)]
-struct KV {
-    key: EditorState,
-    val: EditorState,
-    key_selected: bool,
-    val_selected: bool,
-}
-
-impl KV {
-    fn new(key: &EditorState, val: &EditorState) -> Self {
-        Self {
-            key: key.clone(),
-            val: val.clone(),
-            key_selected: false,
-            val_selected: false,
-        }
-    }
-}
-
-impl Listable for KV {
-    fn height(&self) -> usize {
-        3
-    }
-}
-impl Widget for KV {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let area = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(area);
-
-        Address {
-            state: self.key,
-            title: String::new(),
-            selected: self.key_selected,
-        }
-        .render(area[0], buf);
-
-        Address {
-            state: self.val,
-            title: String::new(),
-            selected: self.val_selected,
-        }
-        .render(area[1], buf);
-    }
-}
-
-fn crop_top(area: Rect, size: u16) -> Rect {
-    Rect {
-        x: area.x,
-        y: area.y,
-        width: area.width,
-        height: size,
     }
 }

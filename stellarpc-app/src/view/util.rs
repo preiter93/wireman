@@ -57,3 +57,12 @@ pub fn centered_rect_length(percent_x: u16, height: u16, r: Rect) -> Rect {
         )
         .split(popup_layout[1])[1]
 }
+
+pub(super) fn crop_top(area: Rect, size: u16) -> Rect {
+    Rect {
+        x: area.x,
+        y: area.y,
+        width: area.width,
+        height: size,
+    }
+}
