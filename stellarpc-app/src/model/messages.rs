@@ -24,7 +24,7 @@ pub struct MessagesModel {
     pub(crate) selected_method: Option<MethodDescriptor>,
 
     /// A reference to the headers model
-    pub(super) headers_model: Rc<RefCell<HeadersModel>>,
+    pub headers_model: Rc<RefCell<HeadersModel>>,
 
     /// The model for the request history.
     pub history_model: HistoryModel,
@@ -142,21 +142,18 @@ impl MessagesModel {
         {
             return Err(ErrorKind::default_error(err.to_string()));
         }
-        // // Metadata
-        // let metadata_map = self.metadata_model.borrow().as_raw();
-        // for (key, val) in metadata_map {
-        //     let result = req.insert_metadata(&key, &val);
-        //     if result.is_err() {
-        //         return Err(ErrorKind::format_error(
-        //             "failed to insert metadata".to_string(),
-        //         ));
-        //     }
-        // }
 
         // Auth token
         let auth = self.headers_model.borrow().auth.value_expanded();
         if !auth.is_empty() {
             let _ = req.insert_metadata("authorization", &auth);
+        }
+
+        // Metadata headers
+        for (key, val) in self.headers_model.borrow().meta.headers_raw() {
+            if !key.is_empty() {
+                let _ = req.insert_metadata(&key, &val);
+            }
         }
 
         // Address
