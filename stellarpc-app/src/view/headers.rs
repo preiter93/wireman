@@ -67,21 +67,19 @@ impl<'a> HeadersTab<'a> {
 
 impl Widget for HeadersTab<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        let area = layout(area, Direction::Vertical, &[1, 4, 2, 5, 2, 0, 1]);
+        let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
 
         // Address
-        // ListElements::VDivider(String::from("Address"))
-        //     .render(area[0].inner(&Margin::new(0, 1)), buf);
+        ListElements::VDivider(String::from("Address")).render(area[0], buf);
         Address {
             state: self.model.addr.state.clone(),
-            title: String::from("Address"),
+            title: String::new(),
             selected: self.model.selected == HeadersSelection::Addr,
         }
         .render(crop_top(area[1], 3), buf);
 
         // Authentication
-        ListElements::VDivider(String::from("Authentication"))
-            .render(area[2].inner(&Margin::new(0, 0)), buf);
+        ListElements::VDivider(String::from("Authentication")).render(area[2], buf);
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -189,7 +187,7 @@ impl Widget for Authentication {
             .highlight_style(THEME.tabs_selected)
             .select(self.selected_tag)
             .divider("")
-            .render(area[0].inner(&Margin::new(0, 1)), buf);
+            .render(area[0].inner(&Margin::new(0, 0)), buf);
 
         if self.selected {
             view_single_selected(&mut self.state, self.title).render(area[1], buf);
