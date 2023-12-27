@@ -151,7 +151,7 @@ impl MessagesModel {
 
         // Metadata
         let headers_model = self.headers_model.borrow();
-        for (key, val) in headers_model.headers() {
+        for (key, val) in headers_model.headers_expanded() {
             if !key.is_empty() {
                 let _ = req.insert_metadata(&key, &val);
             }
