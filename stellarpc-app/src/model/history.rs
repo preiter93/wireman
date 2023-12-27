@@ -98,11 +98,12 @@ impl HistoryModel {
         let address = messages.headers_model.borrow().address();
         let auth_str = messages.headers_model.borrow().auth.value();
         let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
+        let meta = messages.headers_model.borrow().meta.as_btree();
         let request = HistoryData {
             message,
             address,
             auth,
-            metadata: BTreeMap::new(),
+            meta,
         };
 
         match serde_json::to_string_pretty(&request) {
@@ -180,7 +181,7 @@ pub struct HistoryData {
     pub message: String,
     pub address: String,
     pub auth: Option<String>,
-    pub metadata: BTreeMap<String, String>,
+    pub meta: BTreeMap<String, String>,
 }
 
 impl HistoryData {
@@ -188,13 +189,13 @@ impl HistoryData {
         message: String,
         address: String,
         auth: Option<String>,
-        metadata: BTreeMap<String, String>,
+        meta: BTreeMap<String, String>,
     ) -> Self {
         Self {
             message,
             address,
             auth,
-            metadata,
+            meta,
         }
     }
 
@@ -208,11 +209,13 @@ impl HistoryData {
     /// Applies a history.
     fn apply(&self, messages: &mut MessagesModel) {
         let mut headers_model = messages.headers_model.borrow_mut();
-        log(&self.address);
-        headers_model.address.set_text_raw(&self.address);
+        headers_model.addr.set_text_raw(&self.address);
         if let Some(auth) = &self.auth {
             headers_model.auth.set_text(auth);
+        } else {
+            headers_model.auth.set_text("");
         }
+        headers_model.meta.set_btree(&self.meta);
         messages.request.editor.set_text_raw(&self.message);
     }
 }
@@ -233,7 +236,7 @@ mod tests {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
             auth: Some("Bearer Test".to_string()),
-            metadata,
+            meta: metadata,
         };
 
         // when
@@ -244,7 +247,7 @@ mod tests {
   "message": "Test message",
   "address": "Test address",
   "auth": "Bearer Test",
-  "metadata": {
+  "meta": {
     "key1": "value1",
     "key2": "value2"
   }
@@ -264,7 +267,7 @@ mod tests {
             message: "Test message".to_string(),
             address: "Test address".to_string(),
             auth: Some("Bearer test".to_string()),
-            metadata,
+            meta: metadata,
         };
 
         // when

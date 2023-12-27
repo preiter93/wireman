@@ -36,15 +36,17 @@ impl AuthHeader {
     }
 
     pub fn on_key(&mut self, event: KeyEvent) {
-        if (event.code == KeyCode::Left || event.code == KeyCode::Right)
-            && self.mode() == EditorMode::Normal
-        {
-            self.next();
-            return;
-        }
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.on_key(event),
-            AuthSelection::Basic => self.basic.on_key(event),
+        match event.code {
+            KeyCode::Left if self.mode() == EditorMode::Normal => {
+                self.next();
+            }
+            KeyCode::Right if self.mode() == EditorMode::Normal => {
+                self.next();
+            }
+            _ => match self.selected {
+                AuthSelection::Bearer => self.bearer.on_key(event),
+                AuthSelection::Basic => self.basic.on_key(event),
+            },
         }
     }
 
@@ -107,5 +109,11 @@ impl AuthHeader {
             self.basic.set_text_raw(&value.replacen("Basic ", "", 1));
             self.selected = AuthSelection::Basic;
         }
+    }
+
+    pub(super) fn clear(&mut self) {
+        self.basic.clear();
+        self.bearer.clear();
+        self.selected = AuthSelection::Bearer;
     }
 }
