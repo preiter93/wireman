@@ -148,12 +148,12 @@ impl MessagesInput<'_> {
                 let mut disable_root_events = false;
                 if self.context.sub == 0 {
                     let request = &mut self.model.borrow_mut().request.editor;
-                    request.on_key(event);
+                    request.on_key(event, false);
                     disable_root_events = request.insert_mode();
                 }
                 if self.context.sub == 1 {
                     let response = &mut self.model.borrow_mut().response.editor;
-                    response.on_key(event);
+                    response.on_key(event, false);
                     disable_root_events = response.insert_mode();
                 }
                 // Disable all root key events if one of the editors went into insert mode
@@ -212,7 +212,7 @@ impl HeadersInput<'_> {
             _ => {
                 let selected = self.model.borrow().selected.clone();
                 match selected {
-                    HeadersSelection::Addr => self.model.borrow_mut().addr.on_key(event),
+                    HeadersSelection::Addr => self.model.borrow_mut().addr.on_key(event, true),
                     HeadersSelection::Auth => self.model.borrow_mut().auth.on_key(event),
                     HeadersSelection::Meta => self.model.borrow_mut().meta.on_key(event),
                 }

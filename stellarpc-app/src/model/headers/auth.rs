@@ -44,8 +44,8 @@ impl AuthHeader {
                 self.next();
             }
             _ => match self.selected {
-                AuthSelection::Bearer => self.bearer.on_key(event),
-                AuthSelection::Basic => self.basic.on_key(event),
+                AuthSelection::Bearer => self.bearer.on_key(event, true),
+                AuthSelection::Basic => self.basic.on_key(event, true),
             },
         }
     }

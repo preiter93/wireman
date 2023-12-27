@@ -38,7 +38,7 @@ impl<'a> HeadersTab<'a> {
 
 impl Widget for HeadersTab<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        let area = layout(area, Direction::Vertical, &[5, 1, 5, 3, 0, 1]);
+        let area = layout(area, Direction::Vertical, &[5, 1, 6, 3, 0, 1]);
 
         // Address
         SingleInput {
@@ -100,20 +100,8 @@ impl Widget for HeadersTab<'_> {
 enum ListElements {
     VSpace(usize),
     VDivider(String),
-    SingleInput(SingleInput),
-    Authentication(Authentication),
 }
 
-impl Listable for ListElements {
-    fn height(&self) -> usize {
-        match &self {
-            Self::VSpace(height) => *height,
-            Self::VDivider(_) => 1,
-            Self::SingleInput(inner) => inner.height(),
-            Self::Authentication(inner) => inner.height(),
-        }
-    }
-}
 impl Widget for ListElements {
     fn render(self, area: Rect, buf: &mut Buffer) {
         match self {
@@ -124,14 +112,6 @@ impl Widget for ListElements {
                     .title_alignment(Alignment::Center)
                     .borders(Borders::TOP)
                     .render(area, buf);
-            }
-            Self::SingleInput(inner) => {
-                let inner_area = area.inner(&Margin::new(1, 1));
-                inner.render(inner_area, buf);
-            }
-            Self::Authentication(inner) => {
-                let inner_area = area.inner(&Margin::new(1, 0));
-                inner.render(inner_area, buf);
             }
         };
     }
@@ -167,14 +147,9 @@ struct Authentication {
     selected_tag: usize,
 }
 
-impl Listable for Authentication {
-    fn height(&self) -> usize {
-        5
-    }
-}
 impl Widget for Authentication {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Vertical, &[2, 0]);
+        let area = layout(area, Direction::Vertical, &[3, 0]);
 
         let titles = vec![" Bearer ", " Basic "];
         Tabs::new(titles)
@@ -182,7 +157,7 @@ impl Widget for Authentication {
             .highlight_style(THEME.tabs_selected)
             .select(self.selected_tag)
             .divider("")
-            .render(area[0], buf);
+            .render(area[0].inner(&Margin::new(0, 1)), buf);
 
         SingleInput {
             state: self.state,
@@ -196,7 +171,6 @@ impl Widget for Authentication {
 #[derive(Clone)]
 struct Metadata {
     content: Vec<KV>,
-    // selected: Index2,
 }
 
 impl Widget for Metadata {
@@ -251,19 +225,5 @@ impl Widget for KV {
             selected: self.val_selected,
         }
         .render(area[1], buf);
-        // let titles = vec![" Bearer ", " Basic "];
-        // Tabs::new(titles)
-        //     .style(THEME.tabs)
-        //     .highlight_style(THEME.tabs_selected)
-        //     .select(self.selected_tag)
-        //     .divider("")
-        //     .render(area[0], buf);
-        //
-        // SingleInput {
-        //     state: self.state,
-        //     title: self.title,
-        //     selected: self.selected,
-        // }
-        // .render(area[1], buf);
     }
 }
