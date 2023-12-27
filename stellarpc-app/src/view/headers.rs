@@ -25,9 +25,11 @@ impl<'a> HeadersTab<'a> {
             ("Tab", "Next Tab"),
             ("↑/k", "Up"),
             ("↓/j", "Down"),
-            ("^h", "Add Header"),
         ];
-        if self.model.selected == HeadersSelection::Metadata {
+        if self.model.meta.headers().is_empty() || self.model.selected == HeadersSelection::Meta {
+            footer.push(("^h", "Add Header"));
+        }
+        if self.model.selected == HeadersSelection::Meta {
             footer.push(("^d", "Remove Header"));
         }
         footer
@@ -40,23 +42,24 @@ impl Widget for HeadersTab<'_> {
 
         // Address
         SingleInput {
-            state: self.model.address.state.clone(),
+            state: self.model.addr.state.clone(),
             title: String::from("Address"),
-            selected: self.model.selected == HeadersSelection::Address,
+            selected: self.model.selected == HeadersSelection::Addr,
         }
         .render(area[0].inner(&Margin::new(0, 1)), buf);
+
         // Authentication
         ListElements::VDivider(String::from("Authentication")).render(area[1], buf);
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
-                title: String::from("Bearer"),
+                title: String::new(),
                 selected: self.model.selected == HeadersSelection::Auth,
                 selected_tag: 0,
             },
             AuthSelection::Basic => Authentication {
                 state: self.model.auth.basic.state.clone(),
-                title: String::from("Basic"),
+                title: String::new(),
                 selected: self.model.selected == HeadersSelection::Auth,
                 selected_tag: 1,
             },
@@ -68,10 +71,17 @@ impl Widget for HeadersTab<'_> {
         if !meta.is_empty() {
             ListElements::VDivider(String::from("Headers"))
                 .render(area[3].inner(&Margin::new(0, 1)), buf);
+            let index = self.model.meta.selected_index();
             Metadata {
                 content: meta
                     .iter()
-                    .map(|x| KV::new(&x.0.state, &x.1.state))
+                    .enumerate()
+                    .map(|(i, x)| KV {
+                        key: x.0.state.clone(),
+                        val: x.1.state.clone(),
+                        key_selected: index.map_or(false, |x| x.row == i && x.col == 0),
+                        val_selected: index.map_or(false, |x| x.row == i && x.col == 1),
+                    })
                     .collect(),
             }
             .render(area[4], buf);
@@ -230,14 +240,14 @@ impl Widget for KV {
 
         SingleInput {
             state: self.key,
-            title: String::from("Key"),
+            title: String::new(),
             selected: self.key_selected,
         }
         .render(area[0], buf);
 
         SingleInput {
             state: self.val,
-            title: String::from("Value"),
+            title: String::new(),
             selected: self.val_selected,
         }
         .render(area[1], buf);

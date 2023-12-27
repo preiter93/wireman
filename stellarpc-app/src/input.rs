@@ -119,6 +119,7 @@ impl MessagesInput<'_> {
                 if let Some(method) = method {
                     self.model.borrow().history_model.delete(&method);
                     self.model.borrow_mut().request.load_template(&method);
+                    self.model.borrow_mut().headers_model.borrow_mut().clear();
                 }
             }
             KeyCode::Char('s') if is_control(event) && !self.context.disable_root_events => {
@@ -189,41 +190,41 @@ impl HeadersInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
         const SUBS: usize = 2;
         match event.code {
-            KeyCode::Char('j') | KeyCode::Down
-                if self.model.borrow().mode() == EditorMode::Normal =>
+            KeyCode::Char('k') | KeyCode::Up
+                if !self.context.disable_root_events && !self.model.borrow().meta.block_prev() =>
             {
-                let prev = self.model.borrow().selected.prev();
+                let prev = self.model.borrow_mut().prev();
                 self.model.borrow_mut().selected = prev;
             }
-            KeyCode::Char('k') | KeyCode::Up
-                if self.model.borrow().mode() == EditorMode::Normal =>
+            KeyCode::Char('j') | KeyCode::Down
+                if !self.context.disable_root_events && !self.model.borrow().meta.block_next() =>
             {
-                let next = self.model.borrow().selected.next();
+                let next = self.model.borrow_mut().next();
                 self.model.borrow_mut().selected = next;
             }
             KeyCode::Char('h')
                 if event.modifiers == KeyModifiers::CONTROL
-                    && self.model.borrow().mode() == EditorMode::Normal =>
+                    && !self.context.disable_root_events
+                    && self.model.borrow().meta.headers().is_empty() =>
             {
                 self.model.borrow_mut().meta.add();
-            }
-            KeyCode::Char('d')
-                if event.modifiers == KeyModifiers::CONTROL
-                    && self.model.borrow().mode() == EditorMode::Normal =>
-            {
-                self.model.borrow_mut().meta.remove(0);
             }
             _ => {
                 let selected = self.model.borrow().selected.clone();
                 match selected {
-                    HeadersSelection::Address => self.model.borrow_mut().address.on_key(event),
+                    HeadersSelection::Addr => self.model.borrow_mut().addr.on_key(event),
                     HeadersSelection::Auth => self.model.borrow_mut().auth.on_key(event),
-                    HeadersSelection::Metadata => {}
-                    HeadersSelection::None => {}
+                    HeadersSelection::Meta => self.model.borrow_mut().meta.on_key(event),
                 }
-                // Disable all root key events if one of the editors went into insert mode
-                // to not overwrite keys such as 'q' for quitting.
-                self.context.disable_root_events = self.model.borrow().auth.insert_mode();
+                // Disable all root key events unless all editors are in normal mode.
+                let disable_root_events = self.model.borrow().mode() != EditorMode::Normal;
+                self.context.disable_root_events = disable_root_events;
+                // Make sure that a valid field is selected
+                if selected == HeadersSelection::Meta
+                    && self.model.borrow().meta.headers().is_empty()
+                {
+                    self.model.borrow_mut().selected = HeadersSelection::Auth;
+                }
             }
         }
     }
