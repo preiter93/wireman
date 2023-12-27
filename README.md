@@ -1,6 +1,6 @@
 <p align="center">
-    <img src="https://github.com/preiter93/stellarpc/blob/main/img/logo-light.png?raw=true#gh-light-mode-only" width="600"/>
-    <img src="https://github.com/preiter93/stellarpc/blob/main/img/logo-dark.png?raw=true#gh-dark-mode-only" width="600"/>
+    <img src="https://github.com/preiter93/stellarpc/blob/main/resources/logo-light.png?raw=true#gh-light-mode-only" width="600"/>
+    <img src="https://github.com/preiter93/stellarpc/blob/main/resources/logo-dark.png?raw=true#gh-dark-mode-only" width="600"/>
 </p>
 
 ## What is StellaRPC?
@@ -28,9 +28,7 @@ Within this configuration, you can store a list of include directories, proto fi
 
 ## Demo
 
-![](img/screen-1.png)
-
-![](img/screen-2.png)
+![](resources/demo.gif)
 
 ## Features
 
