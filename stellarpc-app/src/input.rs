@@ -201,14 +201,24 @@ impl HeadersInput<'_> {
                 let next = self.model.borrow().selected.next();
                 self.model.borrow_mut().selected = next;
             }
-            KeyCode::Left | KeyCode::Right if self.model.borrow().mode() == EditorMode::Normal => {
-                self.model.borrow_mut().auth.next();
+            KeyCode::Char('h')
+                if event.modifiers == KeyModifiers::CONTROL
+                    && self.model.borrow().mode() == EditorMode::Normal =>
+            {
+                self.model.borrow_mut().meta.add();
+            }
+            KeyCode::Char('d')
+                if event.modifiers == KeyModifiers::CONTROL
+                    && self.model.borrow().mode() == EditorMode::Normal =>
+            {
+                self.model.borrow_mut().meta.remove(0);
             }
             _ => {
                 let selected = self.model.borrow().selected.clone();
                 match selected {
                     HeadersSelection::Address => self.model.borrow_mut().address.on_key(event),
                     HeadersSelection::Auth => self.model.borrow_mut().auth.on_key(event),
+                    HeadersSelection::Metadata => {}
                     HeadersSelection::None => {}
                 }
                 // Disable all root key events if one of the editors went into insert mode

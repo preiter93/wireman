@@ -53,7 +53,7 @@ impl Root<'_> {
         let keys = match self.context.tab {
             Tab::Selection => SelectionTab::footer_keys(self.context.sub),
             Tab::Messages => MessagesTab::footer_keys(),
-            Tab::Headers => HeadersTab::footer_keys(),
+            Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).footer_keys(),
         };
         let spans: Vec<Span> = keys
             .iter()

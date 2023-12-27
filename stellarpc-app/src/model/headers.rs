@@ -1,117 +1,26 @@
-use std::{collections::HashMap, process::Command};
+pub mod auth;
+pub use auth::{AuthHeader, AuthSelection};
+pub mod meta;
+pub use meta::MetaHeaders;
 
 use crate::commons::editor::TextEditor;
-use crossterm::event::KeyEvent;
 use edtui::EditorMode;
+use std::{collections::HashMap, process::Command};
 
 /// The data model for the `gRPC` headers. Contains authorization
 /// headers and metadata key value headers.
 pub struct HeadersModel {
-    /// The server address.
+    /// The host address.
     pub address: TextEditor,
-    /// The bearer token.
+
+    /// The authentication header.
     pub auth: AuthHeader,
+
+    /// The metadata headers.
+    pub meta: MetaHeaders,
+
     /// The selection state.
     pub selected: HeadersSelection,
-}
-
-#[derive(Default)]
-pub struct AuthHeader {
-    pub(crate) bearer: TextEditor,
-    pub(crate) basic: TextEditor,
-    pub(crate) selected: AuthSelection,
-}
-
-/// The selection state of `HeadersModel`.
-#[derive(Debug, Clone, Eq, PartialEq, Default)]
-pub enum AuthSelection {
-    #[default]
-    Bearer,
-    Basic,
-}
-
-impl AuthHeader {
-    pub fn is_empty(&self) -> bool {
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.is_empty(),
-            AuthSelection::Basic => self.basic.is_empty(),
-        }
-    }
-
-    pub fn next(&mut self) {
-        match self.selected {
-            AuthSelection::Bearer => self.selected = AuthSelection::Basic,
-            AuthSelection::Basic => self.selected = AuthSelection::Bearer,
-        }
-    }
-
-    pub fn on_key(&mut self, key: KeyEvent) {
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.on_key(key),
-            AuthSelection::Basic => self.basic.on_key(key),
-        }
-    }
-
-    pub fn insert_mode(&self) -> bool {
-        self.bearer.insert_mode() || self.basic.insert_mode()
-    }
-
-    pub fn mode(&self) -> EditorMode {
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.state.mode,
-            AuthSelection::Basic => self.basic.state.mode,
-        }
-    }
-
-    pub fn key() -> String {
-        "authorization".to_string()
-    }
-
-    pub fn value(&self) -> String {
-        self._value(false)
-    }
-
-    pub fn value_expanded(&self) -> String {
-        self._value(true)
-    }
-
-    fn _value(&self, expanded: bool) -> String {
-        match self.selected {
-            AuthSelection::Bearer => {
-                let mut value = self.bearer.get_text_raw();
-                if expanded {
-                    value = try_expand(&value);
-                };
-                if value.is_empty() {
-                    String::new()
-                } else {
-                    "Bearer ".to_owned() + &value
-                }
-            }
-            AuthSelection::Basic => {
-                let mut value = self.basic.get_text_raw();
-                if expanded {
-                    value = try_expand(&value);
-                };
-                if value.is_empty() {
-                    String::new()
-                } else {
-                    "Basic ".to_owned() + &value
-                }
-            }
-        }
-    }
-
-    pub fn set_text(&mut self, value: &str) {
-        if value.starts_with("Bearer ") {
-            self.bearer.set_text_raw(&value.replacen("Bearer ", "", 1));
-            self.selected = AuthSelection::Bearer;
-        }
-        if value.starts_with("Basic ") {
-            self.basic.set_text_raw(&value.replacen("Basic ", "", 1));
-            self.selected = AuthSelection::Basic;
-        }
-    }
 }
 
 impl Default for HeadersModel {
@@ -128,6 +37,7 @@ impl HeadersModel {
         Self {
             address,
             auth: AuthHeader::default(),
+            meta: MetaHeaders::default(),
             selected: HeadersSelection::Auth,
         }
     }
@@ -160,19 +70,22 @@ pub enum HeadersSelection {
     None,
     Address,
     Auth,
+    Metadata,
 }
 impl HeadersSelection {
     pub fn next(&self) -> Self {
         match &self {
-            Self::None | Self::Auth => Self::Address,
+            Self::None | Self::Auth => Self::Metadata,
             Self::Address => Self::Auth,
+            Self::Metadata => Self::Address,
         }
     }
 
     pub fn prev(&self) -> Self {
         match &self {
-            Self::None | Self::Address => Self::Auth,
+            Self::None | Self::Address => Self::Metadata,
             Self::Auth => Self::Address,
+            Self::Metadata => Self::Auth,
         }
     }
 }
