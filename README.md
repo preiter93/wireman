@@ -52,9 +52,9 @@ Press ctrl+f to format the json of the request message.
 - [x] Yank request as grpcurl command
 - [x] Vim like editor feeling
 - [x] Show loading indicator
+- [x] Metadata headers
 
 Planned
-- [ ] Set metadata
 - [ ] Edit config file in app
 - [ ] Provide installation help
 
