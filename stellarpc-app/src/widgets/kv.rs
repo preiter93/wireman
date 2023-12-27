@@ -41,8 +41,7 @@ impl Widget for KV {
         } else {
             view_single_unselected(&mut self.key, String::new()).render(area[0], buf);
         }
-        //
-        if self.key_selected {
+        if self.val_selected {
             view_single_selected(&mut self.val, String::new()).render(area[1], buf);
         } else {
             view_single_unselected(&mut self.val, String::new()).render(area[1], buf);
