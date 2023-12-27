@@ -32,20 +32,6 @@ impl<'a> ListItem<'a> {
             prefix: None,
         }
     }
-
-    // pub fn style(mut self, style: Style) -> Self {
-    //     self.style = style;
-    //     self
-    // }
-
-    // pub fn prefix(mut self, prefix: Option<&'a str>) -> Self {
-    //     self.prefix = prefix;
-    //     self
-    // }
-
-    // pub fn width(&self) -> usize {
-    //     self.text.width()
-    // }
 }
 
 impl Listable for ListItem<'_> {
