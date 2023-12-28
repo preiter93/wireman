@@ -1,9 +1,9 @@
 use http::Uri;
 use std::sync::mpsc;
-use stellarpc_core::client::async_call_unary;
-use stellarpc_core::client::create_runtime;
-use stellarpc_core::ProtoDescriptor;
-use stellarpc_core::Result;
+use wireman_core::client::async_call_unary;
+use wireman_core::client::create_runtime;
+use wireman_core::ProtoDescriptor;
+use wireman_core::Result;
 
 fn main() -> Result<()> {
     _test_async()?;
@@ -15,7 +15,7 @@ fn _test_async() -> Result<()> {
     let (tx, rx) = mpsc::channel::<String>();
 
     let desc = ProtoDescriptor::new(
-        vec!["/Users/philippreiter/Rust/stellarpc/test_utils"],
+        vec!["/Users/philippreiter/Rust/wireman/test_utils"],
         vec!["grpc_simple/debugger.proto"],
     )?;
     // Services and methods
@@ -55,7 +55,7 @@ fn _test_async() -> Result<()> {
 
 fn _test_oneof() -> Result<()> {
     let desc = ProtoDescriptor::new(
-        vec!["/Users/philippreiter/Rust/stellarpc/stellarpc-core"],
+        vec!["/Users/philippreiter/Rust/wireman/wireman-core"],
         vec!["test_files/oneof.proto"],
     )?;
     let services = desc.get_services();

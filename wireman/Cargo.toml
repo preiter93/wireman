@@ -1,18 +1,17 @@
 [package]
-name = "stellarpc_app"
+name = "wireman"
 version = "0.1.0"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
-repository = "https://github.com/preiter93/stellarpc"
+repository = "https://github.com/preiter93/wireman"
 keywords = ["gRPC", "proto", "TUI"]
 readme = "README.md"
 license = "MIT"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-core = { package = "stellarpc_core", path = "../stellarpc-core", version = "0.1.0" }
-config = { package = "stellarpc_config", path = "../stellarpc-config", version = "0.1.0" }
+core = { package = "wireman_core", path = "../wireman-core", version = "0.1.0" }
+config = { package = "wireman_config", path = "../wireman-config", version = "0.1.0" }
 tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.6.0" }
 edtui = { package = "edtui", path = "../../edtui", version = "0.2.1", default-features = false }
 crossterm = "0.27"

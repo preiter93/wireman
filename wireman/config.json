@@ -1,9 +1,9 @@
 {
     "address": "http://localhost:50051",
     "includes": [
-        "$HOME/Rust/stellarpc/test_utils"
+        "$HOME/Rust/wireman/test_utils"
     ],
-    "history": "$HOME/Rust/stellarpc/stellarpc-app/history",
+    "history": "$HOME/Rust/wireman/wireman/history",
     "files": [
         "grpc_simple/greeter.proto",
         "grpc_simple/timekeeper.proto",

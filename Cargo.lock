@@ -1544,55 +1544,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stellarpc_app"
-version = "0.1.0"
-dependencies = [
- "arboard",
- "crossterm",
- "edtui",
- "http",
- "once_cell",
- "ratatui",
- "serde",
- "serde_json",
- "stellarpc_config",
- "stellarpc_core",
- "tui-widget-list",
- "unicode-width",
-]
-
-[[package]]
-name = "stellarpc_config"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "shellexpand",
- "thiserror",
-]
-
-[[package]]
-name = "stellarpc_core"
-version = "0.1.0"
-dependencies = [
- "http",
- "hyper",
- "hyper-rustls",
- "prost",
- "prost-build",
- "prost-reflect",
- "prost-types",
- "protox",
- "rustls",
- "rustls-pemfile",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tonic",
-]
-
-[[package]]
 name = "str-buf"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2185,6 +2136,55 @@ name = "windows_x86_64_msvc"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
+
+[[package]]
+name = "wireman"
+version = "0.1.0"
+dependencies = [
+ "arboard",
+ "crossterm",
+ "edtui",
+ "http",
+ "once_cell",
+ "ratatui",
+ "serde",
+ "serde_json",
+ "tui-widget-list",
+ "unicode-width",
+ "wireman_config",
+ "wireman_core",
+]
+
+[[package]]
+name = "wireman_config"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "shellexpand",
+ "thiserror",
+]
+
+[[package]]
+name = "wireman_core"
+version = "0.1.0"
+dependencies = [
+ "http",
+ "hyper",
+ "hyper-rustls",
+ "prost",
+ "prost-build",
+ "prost-reflect",
+ "prost-types",
+ "protox",
+ "rustls",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tonic",
+]
 
 [[package]]
 name = "x11rb"
