@@ -4,3 +4,5 @@
 /wireman/debug.log
 /wireman/cfg.json
 /wireman/history
+/resources/*old.png
+/resources/*.xcf
