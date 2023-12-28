@@ -114,12 +114,7 @@ impl HeadersModel {
     /// TODO: Simplify
     pub fn prev(&mut self) -> HeadersSelection {
         match self.selected {
-            HeadersSelection::None => {
-                if self.meta.is_shown() {
-                    return HeadersSelection::Auth;
-                }
-                HeadersSelection::Meta
-            }
+            HeadersSelection::None => HeadersSelection::Addr,
             HeadersSelection::Addr => {
                 if self.meta.is_shown() {
                     return HeadersSelection::Auth;
