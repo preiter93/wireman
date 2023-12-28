@@ -23,7 +23,7 @@ impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let area = layout(area, Direction::Horizontal, &[0, 50]);
 
-        Paragraph::new(Span::styled("StellaRPC", THEME.app_title)).render(area[0], buf);
+        Paragraph::new(Span::styled("WireMan", THEME.app_title)).render(area[0], buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
         Tabs::new(titles)
             .style(THEME.tabs)

@@ -1,8 +1,7 @@
-//! Configuration module for `StellaRPC`.
+//! Configuration module for `WireMan`.
 //!
 //! This module provides functionality for defining and reading the configuration
-//! for `StellaRPC`. The configuration is typically read from a JSON file to
-//! customize `StellaRPC` behavior.
+//! for `WireMan`. The config file is read from a JSON file to customize `WireMan`.
 //!
 //! The config contains:
 //!

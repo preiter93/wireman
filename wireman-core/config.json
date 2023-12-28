@@ -1,5 +1,5 @@
 {
-    "workspace": "/Users/philippreiter/Rust/stellarpc/test_utils",
+    "workspace": "/Users/philippreiter/Rust/wireman/test_utils",
     "files": [
         "grpc_simple/greeter.proto",
         "grpc_simple/timekeeper.proto",

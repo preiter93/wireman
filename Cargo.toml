@@ -1,11 +1,11 @@
 [workspace]
 
 members = [
-    "stellarpc-core",
-    "stellarpc-config",
-    "stellarpc-app",
+    "wireman-core",
+    "wireman-config",
+    "wireman",
 ]
 
-default-members = ["stellarpc-app"]
+default-members = ["wireman"]
 
 resolver = "2"

@@ -16,12 +16,14 @@ use term::Term;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-/// This env is used to read the path to the stellarpc config.
+/// This env is used to read the path for the `WireMan` config.
 /// If it is not set, the config is expected in the current
 /// directory.
-const ENV_CONFIG: &str = "STELLARPC_CONFIG";
+const ENV_CONFIG: &str = "WIREMAN_CONFIG";
+
 /// Debug flag
 const DEBUG: bool = true;
+
 /// Autosaves the history when switching between histories
 const AUTOSAVE_HISTORY: bool = false;
 
