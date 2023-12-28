@@ -10,7 +10,11 @@ WireMan is an ideal choice for developers testing gRPC endpoints directly from t
 
 ## Configuration Setup
 
-The program looks for a configuration file specified by the environment variable `WIREMAN_CONFIG`. The configuration file should be in JSON format and resembles the following:
+At startup, WireMan searches for a configuration file that is specified in the `WIREMAN_CONFIG` environment variable:
+```
+export WIREMAN_CONFIG="$HOME/.config/wireman/config.json"
+```
+The configuration file looks like this:
 ```json
 {
     "address": "http://localhost:50051",
@@ -24,7 +28,7 @@ The program looks for a configuration file specified by the environment variable
     ]
 }
 ```
-Within this configuration, you can store a list of include directories, proto files and a default address host. Please note that these configuration options may expand in the future. In the future there will be a feature in the app that will allow you to manually edit this config.
+With this configuration, the default host address is `localhost:50051`. The request history is saved in the directory `$HOME/.config/wireman/history`. `Includes` defines a list of directories in which to search for proto files and `files` specifies all `.proto` files to be loaded into WireMan.
 
 ## Demo
 
@@ -33,13 +37,15 @@ Within this configuration, you can store a list of include directories, proto fi
 ## Features
 
 #### Maintain a Request History
-You can save up to five histories histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing S, and restore the default message by typing ctrl+d.
+You can save up to five histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing ctrl+s, and delete a history with ctrl+d.
+
+The directory in which the history is saved is defined in the config under "history". If this field is left empty, WireMan does not save a request history.
 
 #### Copy as grpcurl
-WireMan offers the ability to copy the request data as a grpcurl command, streamlining collaboration with your peers. Simply navigate to the request page and press ctrl+y.
+WireMan offers the option of copying the request data as a raw `grpcurl` command, which simplifies collaboration with your colleagues. Navigate to the request page and press ctrl+y.
 
 #### Format request
-Press ctrl+f to format the json of the request message.
+On the request page, press ctrl+f. This formats the request message as pretty json (if possible).
 
 ## Roadmap
 
