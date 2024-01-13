@@ -14,7 +14,7 @@ core = { package = "wireman_core", path = "../wireman-core", version = "0.1.0" }
 config = { package = "wireman_config", path = "../wireman-config", version = "0.1.0" }
 tui-widget-list = { package = "tui-widget-list", path = "../../tui-widget-list", version = "0.6.1" }
 edtui = { package = "edtui", path = "../../edtui", version = "0.2.1", default-features = false }
-crossterm = "0.27"
+crossterm = { version = "0.27", features = ["events", "event-stream"] }
 ratatui = "0.25"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -22,3 +22,6 @@ unicode-width = "0.1"
 http = "0.2"
 arboard = "3.3.0"
 once_cell = "1.19.0"
+tokio = "1.35.1"
+futures = "0.3"
+# futures-core = "0.3"
