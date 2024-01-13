@@ -1,4 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
+use tokio::task::JoinHandle;
+
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::commons::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
@@ -31,6 +33,10 @@ pub struct MessagesModel {
 
     /// Wheter a grpc request should be dispatched
     pub dispatch: bool,
+
+    /// The task handler of the grpc request. Is None
+    /// if no request is dispatched.
+    pub handler: Option<JoinHandle<()>>,
 }
 
 impl Default for MessagesModel {
@@ -62,6 +68,7 @@ impl MessagesModel {
             headers_model,
             history_model,
             dispatch: false,
+            handler: None,
         }
     }
 
@@ -139,6 +146,15 @@ impl MessagesModel {
         self.dispatch = true;
         self.response.editor.set_text_raw("Processing...");
         self.response.editor.set_error(None);
+    }
+
+    /// This method should be called to abort a grpc request.
+    pub fn abort_request(&mut self) {
+        if let Some(handler) = self.handler.take() {
+            handler.abort();
+            self.response.editor.set_text_raw("Cancelled");
+            self.response.editor.set_error(None);
+        }
     }
 
     // Collect the grpc request
