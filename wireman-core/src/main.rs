@@ -1,6 +1,5 @@
-use http::Uri;
 use std::sync::mpsc;
-use wireman_core::client::async_call_unary;
+use wireman_core::client::call_unary_async;
 use wireman_core::client::create_runtime;
 use wireman_core::ProtoDescriptor;
 use wireman_core::Result;
@@ -31,8 +30,7 @@ fn _test_async() -> Result<()> {
     // Call grpc
     let rt = create_runtime()?;
     let _ = rt.spawn(async move {
-        let uri = Uri::try_from(req.address()).unwrap();
-        let resp = async_call_unary(uri, &req).await;
+        let resp = call_unary_async(&req).await;
         println!("Response {:?}", resp);
         if let Err(err) = tx.send(String::from("Hello!")) {
             eprintln!("Error sending event: {:?}", err);
