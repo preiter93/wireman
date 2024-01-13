@@ -59,8 +59,13 @@ impl CoreClient {
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in [`ProtoMessage`]
     pub fn call_unary(req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
-        let resp = core::client::call_unary_blocking(req)?;
-        Ok(resp)
+        Ok(core::client::call_unary_blocking(req)?)
+    }
+
+    /// Makes a unary grpc call with a given Message and Method which is
+    /// defined in [`ProtoMessage`]
+    pub async fn call_unary_async(req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
+        Ok(core::client::call_unary_async(req).await?)
     }
 
     /// Return a grpcurl request

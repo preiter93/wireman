@@ -50,23 +50,6 @@ impl GrpcClient {
         let response = self.grpc.unary(request, path, codec).await?.into_inner();
         Ok(response)
     }
-
-    /// Make a unary `gRPC` call from the client. The call is
-    /// wrapped in a tokio runtime to run asynchronously.
-    ///
-    /// # Errors
-    /// - `gRPC` client is not ready
-    /// - Server call failed
-    pub fn unary_with_runtime(&mut self, req: &RequestMessage) -> Result<String> {
-        let runtime = create_runtime()?;
-        let future = self.unary(req);
-        let result = runtime.block_on(future);
-
-        match result {
-            Ok(response) => Ok(response.message.to_json()?),
-            Err(err) => Err(Error::Internal(err.to_string())),
-        }
-    }
 }
 
 /// Creates a new `gRPC` client and sends a message to a `gRPC` server.
@@ -78,8 +61,12 @@ pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
     let rt = create_runtime()?;
     let uri = Uri::try_from(req.address())
         .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
-    let future = async_call_unary(uri, req);
-    let result = rt.block_on(future);
+    let future = async move {
+        let mut client = GrpcClient::new(uri, None);
+        let response = client.unary(req).await?;
+        Ok(response)
+    };
+    let result: Result<ResponseMessage> = rt.block_on(future);
 
     match result {
         Ok(response) => Ok(response),
@@ -88,17 +75,15 @@ pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
 }
 
 /// Creates a new `gRPC` client and sends a message to a `gRPC` server.
-/// This method is non-blocking.
+/// This method is async.
 ///
 /// # Errors
 /// - Internal error calling the `gRPC` server
-pub async fn async_call_unary<T: Into<Uri>>(
-    uri: T,
-    req: &RequestMessage,
-) -> Result<ResponseMessage> {
+pub async fn call_unary_async(req: &RequestMessage) -> Result<ResponseMessage> {
+    let uri = Uri::try_from(req.address())
+        .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
     let mut client = GrpcClient::new(uri, None);
-    let response = client.unary(req).await?;
-    Ok(response)
+    Ok(client.unary(req).await?)
 }
 
 /// Creates a new Tokio runtime.
