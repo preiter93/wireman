@@ -1,4 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
+use tokio::task::JoinHandle;
+
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::commons::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
@@ -29,8 +31,12 @@ pub struct MessagesModel {
     /// The model for the request history.
     pub history_model: HistoryModel,
 
-    /// A flag indicating whether a request is being processed.
-    pub is_processing: bool,
+    /// Wheter a grpc request should be dispatched
+    pub dispatch: bool,
+
+    /// The task handler of the grpc request. Is None
+    /// if no request is dispatched.
+    pub handler: Option<JoinHandle<()>>,
 }
 
 impl Default for MessagesModel {
@@ -61,7 +67,8 @@ impl MessagesModel {
             selected_method: None,
             headers_model,
             history_model,
-            is_processing: false,
+            dispatch: false,
+            handler: None,
         }
     }
 
@@ -132,9 +139,34 @@ impl MessagesModel {
         }
     }
 
-    // Build the grpc request
-    pub fn build_request(&self, method: &MethodDescriptor) -> Result<RequestMessage, ErrorKind> {
-        let mut req = self.request.core_client.borrow().get_request(method);
+    /// This method is called before `do_request` to give the ui an
+    /// indication that a request is in process. The actual grpc
+    /// request is done on the next frame.
+    pub fn start_request(&mut self) {
+        self.dispatch = true;
+        self.response.editor.set_text_raw("Processing...");
+        self.response.editor.set_error(None);
+    }
+
+    /// This method should be called to abort a grpc request.
+    pub fn abort_request(&mut self) {
+        if let Some(handler) = self.handler.take() {
+            handler.abort();
+            self.response.editor.set_text_raw("Cancelled");
+            self.response.editor.set_error(None);
+        }
+    }
+
+    // Collect the grpc request
+    pub fn collect_request(&mut self) -> Result<RequestMessage, ErrorKind> {
+        let Some(method) = self.selected_method.clone() else {
+            let err = ErrorKind::default_error("Select a method!");
+            self.response.editor.set_error(Some(err.clone()));
+            self.response.editor.set_text_raw(&err.string());
+            return Err(ErrorKind::default_error("No method selected"));
+        };
+        let mut req = self.request.core_client.borrow().get_request(&method);
+
         // Message
         if let Err(err) = req
             .message_mut()
@@ -142,12 +174,6 @@ impl MessagesModel {
         {
             return Err(ErrorKind::default_error(err.to_string()));
         }
-
-        // // Auth token
-        // let auth = headers_model.auth.value_expanded();
-        // if !auth.is_empty() {
-        //     let _ = req.insert_metadata("authorization", &auth);
-        // }
 
         // Metadata
         let headers_model = self.headers_model.borrow();
@@ -160,56 +186,6 @@ impl MessagesModel {
         // Address
         req.set_address(&headers_model.address());
         Ok(req)
-    }
-
-    /// This method is called before `call_grpc` to give the ui an
-    /// indication that a request is in process. The actual grpc
-    /// request is done on the next frame.
-    pub fn start_request(&mut self) {
-        self.is_processing = true;
-        self.response.editor.set_text_raw("Processing...");
-    }
-
-    /// Make a grpc call and set response or error.
-    pub fn do_request(&mut self) {
-        self.response.editor.set_error(None);
-        self.response.editor.set_text_raw("");
-        let Some(method) = self.selected_method.clone() else {
-            let err = ErrorKind::default_error("Select a method!");
-            self.response.editor.set_error(Some(err.clone()));
-            self.response.editor.set_text_raw(&err.string());
-            return;
-        };
-
-        let req = match self.build_request(&method) {
-            Ok(req) => req,
-            Err(err) => {
-                self.response.editor.set_error(Some(err.clone()));
-                self.response.editor.set_text_raw(&err.string());
-                return;
-            }
-        };
-
-        let resp = CoreClient::call_unary(&req);
-        self.is_processing = false;
-
-        match resp {
-            Ok(resp) => {
-                if let Ok(json) = resp.message.to_json() {
-                    let formatted_json = try_pretty_format_json(&json);
-                    self.response.editor.set_error(None);
-                    self.response.editor.set_text_raw(&formatted_json);
-                } else {
-                    let err = ErrorKind::format_error("failed to parse json".to_string());
-                    self.response.editor.set_error(Some(err.clone()));
-                    self.response.editor.set_text_raw(&err.string());
-                }
-            }
-            Err(err) => {
-                self.response.editor.set_error(Some(err.clone()));
-                self.response.editor.set_text_raw(&err.string());
-            }
-        }
     }
 
     pub fn apply_template(&mut self) {
@@ -233,6 +209,58 @@ impl MessagesModel {
             {
                 yank_to_clipboard(&text);
             }
+        }
+    }
+}
+
+/// Make a grpc call and set response or error.
+pub async fn do_request(req: RequestMessage) -> RequestResult {
+    let resp = CoreClient::call_unary_async(&req).await;
+
+    match resp {
+        Ok(resp) => {
+            if let Ok(json) = resp.message.to_json() {
+                let formatted_json = try_pretty_format_json(&json);
+                return RequestResult::data(formatted_json);
+            } else {
+                let err = ErrorKind::format_error("failed to parse json".to_string());
+                return RequestResult::error(err);
+            }
+        }
+        Err(err) => {
+            return RequestResult::error(err);
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct RequestResult {
+    data: Option<String>,
+    error: Option<ErrorKind>,
+}
+unsafe impl Send for RequestResult {}
+
+impl RequestResult {
+    pub fn data(data: String) -> Self {
+        Self {
+            data: Some(data),
+            error: None,
+        }
+    }
+    pub fn error(error: ErrorKind) -> Self {
+        Self {
+            data: None,
+            error: Some(error),
+        }
+    }
+    pub fn set(&self, editor: &mut TextEditor) {
+        if let Some(text) = &self.data {
+            editor.set_error(None);
+            editor.set_text_raw(&text);
+        }
+        if let Some(error) = &self.error {
+            editor.set_error(Some(error.clone()));
+            editor.set_text_raw(&error.string());
         }
     }
 }

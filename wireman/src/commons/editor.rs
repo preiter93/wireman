@@ -175,11 +175,13 @@ pub fn yank_to_clipboard(text: &str) {
 
 /// The error of the request. Can hold a kind value
 /// to distinguish between format and grpc errors.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ErrorKind {
     pub kind: String,
     pub msg: String,
 }
+
+unsafe impl Send for ErrorKind {}
 
 impl ErrorKind {
     pub fn format_error(msg: String) -> Self {
