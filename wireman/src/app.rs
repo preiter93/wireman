@@ -1,12 +1,18 @@
 use crate::{
+    commons::debug::log,
     controller::Controller,
     input::{HeadersInput, MessagesInput, SelectionInput},
     term::Term,
     view::root::Root,
 };
 use config::Config;
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent};
+use futures::{future::FutureExt, StreamExt};
 use std::error::Error;
+use tokio::{
+    select,
+    sync::mpsc::{self, Receiver, Sender},
+};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -24,9 +30,12 @@ pub struct App {
 
     /// Indicating whether the application should quit or not.
     should_quit: bool,
+
+    /// The crossterm event stream
+    crossterm_event: EventStream,
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default)]
 pub struct AppContext {
     /// The main tab.
     pub tab: Tab,
@@ -37,6 +46,12 @@ pub struct AppContext {
     /// Disable root key events. Disables keys such as
     /// quit when an editor is in insert mode.
     pub disable_root_events: bool,
+}
+
+impl AppContext {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
@@ -76,17 +91,19 @@ impl App {
         Ok(App {
             term: Term::new()?,
             controller: Controller::new(&env)?,
-            context: AppContext::default(),
+            context: AppContext::new(),
             should_quit: false,
+            crossterm_event: EventStream::new(),
         })
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    pub fn run(env: Config) -> Result<()> {
+    pub async fn run(env: Config) -> Result<()> {
         let mut app = Self::new(env)?;
+        let (sx, mut rx) = mpsc::channel::<String>(100);
         while !app.should_quit {
             app.draw()?;
-            app.handle_events()?;
+            app.handle_events(&sx, &mut rx).await?;
         }
         Term::stop()?;
         Ok(())
@@ -100,45 +117,78 @@ impl App {
         Ok(())
     }
 
-    fn handle_events(&mut self) -> Result<()> {
-        if let Event::Key(event) = event::read()? {
-            match event.code {
-                KeyCode::Char('q') if !self.context.disable_root_events => {
-                    self.should_quit = true;
+    async fn handle_events(
+        &mut self,
+        sx: &Sender<String>,
+        tx: &mut Receiver<String>,
+    ) -> Result<()> {
+        let event = self.crossterm_event.next().fuse();
+        select! {
+            crossterm_event = event => {
+                match crossterm_event {
+                    Some(Ok(Event::Key(event))) => {
+                        self.handle_key_event(event, sx).await?;
+                    }
+                    _ => {},
                 }
-                _ => match self.context.tab {
-                    Tab::Selection => {
-                        SelectionInput {
-                            model: self.controller.selection.clone(),
-                            messages_model: self.controller.messages.clone(),
-                            context: &mut self.context,
-                        }
-                        .handle(event.code);
+            },
+            internal_event = tx.recv() =>{
+                match internal_event {
+                    Some(event) => {
+                        self.handle_internal_event(event)?;
                     }
-                    Tab::Messages => MessagesInput {
-                        model: self.controller.messages.clone(),
+                    _ => {},
+                }
+            }
+        };
+        Ok(())
+    }
+
+    async fn handle_key_event(&mut self, event: KeyEvent, sx: &Sender<String>) -> Result<()> {
+        match event.code {
+            KeyCode::Char('q') if !self.context.disable_root_events => {
+                self.should_quit = true;
+            }
+            KeyCode::Char('c') => {
+                sx.send(String::from("hello")).await?;
+            }
+            _ => match self.context.tab {
+                Tab::Selection => {
+                    SelectionInput {
+                        model: self.controller.selection.clone(),
+                        messages_model: self.controller.messages.clone(),
                         context: &mut self.context,
                     }
-                    .handle(event),
-                    Tab::Headers => HeadersInput {
-                        model: self.controller.headers.clone(),
-                        context: &mut self.context,
-                    }
-                    .handle(event),
-                },
-            }
-            // Draw and handle events again in certain scenarios. This is
-            // to avoid having to handle two event channels, the crossterm
-            // key events and internal app events, which would require the
-            // introduction of async code. Currently, app events are used
-            // to indicate that a grpc request is being processed, with a
-            // "Processing..." text being displayed in the response editor
-            // in the first frame after which the grpc request is made.
-            if self.controller.messages.borrow().is_processing {
-                self.draw()?;
-                self.controller.messages.borrow_mut().do_request();
-            }
+                    .handle(event.code);
+                }
+                Tab::Messages => MessagesInput {
+                    model: self.controller.messages.clone(),
+                    context: &mut self.context,
+                }
+                .handle(event),
+                Tab::Headers => HeadersInput {
+                    model: self.controller.headers.clone(),
+                    context: &mut self.context,
+                }
+                .handle(event),
+            },
         }
+        // Draw and handle events again in certain scenarios. This is
+        // to avoid having to handle two event channels, the crossterm
+        // key events and internal app events, which would require the
+        // introduction of async code. Currently, app events are used
+        // to indicate that a grpc request is being processed, with a
+        // "Processing..." text being displayed in the response editor
+        // in the first frame after which the grpc request is made.
+        if self.controller.messages.borrow().is_processing {
+            self.draw()?;
+            self.controller.messages.borrow_mut().do_request();
+        }
+        Ok(())
+    }
+
+    fn handle_internal_event(&mut self, _: String) -> Result<()> {
+        log("received internal hello");
         Ok(())
     }
 }

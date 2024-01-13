@@ -27,8 +27,9 @@ const DEBUG: bool = true;
 /// Autosaves the history when switching between histories
 const AUTOSAVE_HISTORY: bool = false;
 
-fn main() -> Result<()> {
-    App::run(init_env()?)?;
+#[tokio::main]
+async fn main() -> Result<()> {
+    App::run(init_env()?).await?;
 
     Ok(())
 }
