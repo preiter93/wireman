@@ -6,7 +6,7 @@ use crate::{
     view::root::Root,
 };
 use config::Config;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent};
 use futures::StreamExt;
 use std::error::Error;
 use tokio::{
@@ -57,7 +57,7 @@ pub struct AppContext {
     pub tab: Tab,
 
     /// The index of the selection sub window.
-    pub selection_tab: usize,
+    pub selection_tab: SelectionTab,
 
     /// The index of the messages sub window.
     pub messages_tab: usize,
@@ -100,6 +100,34 @@ impl Tab {
             Self::Selection => 0,
             Self::Messages => 1,
             Self::Headers => 2,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
+pub enum SelectionTab {
+    #[default]
+    Services,
+    Methods,
+    SearchServices,
+    SearchMethods,
+}
+
+impl SelectionTab {
+    pub fn next(self) -> Self {
+        match &self {
+            Self::Services => Self::Methods,
+            Self::Methods => Self::Services,
+            Self::SearchServices => Self::Services,
+            Self::SearchMethods => Self::Methods,
+        }
+    }
+    pub fn prev(self) -> Self {
+        match &self {
+            Self::Services => Self::Methods,
+            Self::Methods => Self::Services,
+            Self::SearchServices => Self::Services,
+            Self::SearchMethods => Self::Methods,
         }
     }
 }
@@ -164,9 +192,6 @@ impl App {
             KeyCode::Char('q') if !self.context.disable_root_events => {
                 self.should_quit = true;
             }
-            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
-                self.controller.messages.borrow_mut().abort_request();
-            }
             _ => match self.context.tab {
                 Tab::Selection => {
                     SelectionInput {
@@ -174,7 +199,7 @@ impl App {
                         messages_model: self.controller.messages.clone(),
                         context: &mut self.context,
                     }
-                    .handle(event.code);
+                    .handle(event.code, event.modifiers);
                 }
                 Tab::Messages => MessagesInput {
                     model: self.controller.messages.clone(),
