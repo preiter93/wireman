@@ -216,14 +216,20 @@ impl App {
 
         // Dispatch the grpc request in a seperate thread.
         if self.controller.messages.borrow().dispatch {
-            self.controller.messages.borrow_mut().dispatch = false;
-            let req = self.controller.messages.borrow_mut().collect_request();
-            if let Ok(req) = req {
-                let handler = tokio::spawn(async move {
-                    let resp = do_request(req).await;
-                    let _ = sx.send(resp).await;
-                });
-                self.controller.messages.borrow_mut().handler = Some(handler);
+            let mut messages_controller = self.controller.messages.borrow_mut();
+            messages_controller.dispatch = false;
+            match messages_controller.collect_request() {
+                Ok(req) => {
+                    let handler = tokio::spawn(async move {
+                        let resp = do_request(req).await;
+                        let _ = sx.send(resp).await;
+                    });
+                    messages_controller.handler = Some(handler);
+                }
+                Err(err) => {
+                    messages_controller.response.set_text(&err.string());
+                    messages_controller.response.set_error(err);
+                }
             }
         }
         Ok(())

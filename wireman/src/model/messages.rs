@@ -152,7 +152,7 @@ impl MessagesModel {
     pub fn abort_request(&mut self) {
         if let Some(handler) = self.handler.take() {
             handler.abort();
-            self.response.editor.set_text_raw("Cancelled");
+            self.response.editor.set_text_raw("User cancelled");
             self.response.editor.set_error(None);
         }
     }
@@ -300,8 +300,12 @@ impl RequestModel {
         self.editor.set_text_raw(&req);
     }
 
-    pub fn set_text_raw(&mut self, text: &str) {
+    pub fn set_text(&mut self, text: &str) {
         self.editor.set_text_raw(text);
+    }
+
+    pub fn set_error(&mut self, error: ErrorKind) {
+        self.editor.set_error(Some(error));
     }
 }
 
@@ -322,6 +326,14 @@ impl ResponseModel {
     /// Clears the response
     pub fn clear(&mut self) {
         self.editor = TextEditor::new();
+    }
+
+    pub fn set_text(&mut self, text: &str) {
+        self.editor.set_text_raw(text);
+    }
+
+    pub fn set_error(&mut self, error: ErrorKind) {
+        self.editor.set_error(Some(error));
     }
 }
 
