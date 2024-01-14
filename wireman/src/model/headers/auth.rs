@@ -37,10 +37,10 @@ impl AuthHeader {
 
     pub fn on_key(&mut self, event: KeyEvent) {
         match event.code {
-            KeyCode::BackTab | KeyCode::Left if self.mode() == EditorMode::Normal => {
+            KeyCode::Left if self.mode() == EditorMode::Normal => {
                 self.next();
             }
-            KeyCode::Tab | KeyCode::Right if self.mode() == EditorMode::Normal => {
+            KeyCode::Right if self.mode() == EditorMode::Normal => {
                 self.next();
             }
             _ => match self.selected {

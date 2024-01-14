@@ -19,14 +19,18 @@ impl MetaHeaders {
     pub fn on_key(&mut self, event: KeyEvent) {
         let navigation_enabled = self.mode() == EditorMode::Normal;
         match event.code {
-            KeyCode::Tab | KeyCode::Right if navigation_enabled => {
+            KeyCode::Right if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
-                    selected.col ^= 1;
+                    if selected.col == 0 {
+                        selected.col = 1;
+                    }
                 }
             }
-            KeyCode::BackTab | KeyCode::Left if navigation_enabled => {
+            KeyCode::Left if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
-                    selected.col ^= 1;
+                    if selected.col == 1 {
+                        selected.col = 0;
+                    }
                 }
             }
             KeyCode::Up | KeyCode::Char('k') if navigation_enabled => {
@@ -40,7 +44,7 @@ impl MetaHeaders {
                     selected.row = selected.row.min(self.headers.len().saturating_sub(1));
                 }
             }
-            KeyCode::Char('h')
+            KeyCode::Char('h') | KeyCode::Char('a')
                 if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
             {
                 self.add();
@@ -60,7 +64,7 @@ impl MetaHeaders {
         }
     }
 
-    pub fn is_shown(&self) -> bool {
+    pub fn is_hidden(&self) -> bool {
         self.headers.is_empty()
     }
 
@@ -71,6 +75,11 @@ impl MetaHeaders {
 
     pub(crate) fn select(&mut self) {
         self.selected = Some(Index2::default());
+    }
+
+    pub(super) fn select_last(&mut self) {
+        let row = self.headers.len().saturating_sub(1);
+        self.selected = Some(Index2::new(row, 0));
     }
 
     pub(super) fn unselect(&mut self) {
