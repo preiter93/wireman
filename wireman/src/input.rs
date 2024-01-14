@@ -20,8 +20,8 @@ pub struct SelectionInput<'a> {
 }
 
 impl SelectionInput<'_> {
-    pub fn handle(&mut self, code: KeyCode) {
-        const SUBS: usize = 2;
+    pub fn handle(&mut self, code: KeyCode, modifier: KeyModifiers) {
+        let tab = self.context.selection_tab;
         match code {
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
@@ -29,9 +29,8 @@ impl SelectionInput<'_> {
             }
             KeyCode::Tab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.next();
-                // self.context.sub = 0;
             }
-            KeyCode::Enter if self.context.selection_tab == SelectionTab::Services => {
+            KeyCode::Enter if tab == SelectionTab::Services => {
                 self.context.selection_tab = SelectionTab::Methods;
                 // Select a method if there is none selected yet.
                 if self.model.borrow().selected_method().is_none() {
@@ -41,7 +40,10 @@ impl SelectionInput<'_> {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Enter if self.context.selection_tab == SelectionTab::Methods => {
+            KeyCode::Enter if tab == SelectionTab::SearchServices => {
+                self.context.selection_tab = SelectionTab::Services;
+            }
+            KeyCode::Enter if tab == SelectionTab::Methods => {
                 if self.model.borrow().selected_method().is_none() {
                     // Select a method if there is none selected yet.
                     self.model.borrow_mut().next_method();
@@ -50,38 +52,67 @@ impl SelectionInput<'_> {
                     self.context.tab = self.context.tab.next();
                 }
             }
-            KeyCode::Esc if self.context.selection_tab == SelectionTab::Methods => {
+            KeyCode::Char('c')
+                if modifier == KeyModifiers::CONTROL && tab == SelectionTab::Services =>
+            {
+                self.model.borrow_mut().clear_services_filter();
+            }
+            KeyCode::Esc if tab == SelectionTab::Services => {
+                self.model.borrow_mut().clear_services_filter();
+            }
+            KeyCode::Esc if tab == SelectionTab::Methods => {
                 self.context.selection_tab = SelectionTab::Services;
                 self.model.borrow_mut().clear_method();
             }
-            KeyCode::Up => {
-                self.context.selection_tab = self.context.selection_tab.prev();
+            KeyCode::Esc if tab == SelectionTab::SearchServices => {
+                self.context.selection_tab = SelectionTab::Services;
+                self.model.borrow_mut().clear_method();
             }
-            KeyCode::Down => {
-                self.context.selection_tab = self.context.selection_tab.next();
+            KeyCode::Up if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
+                self.context.selection_tab = tab.prev();
             }
-            KeyCode::Char('j') => {
-                if self.context.selection_tab == SelectionTab::Services {
+            KeyCode::Down if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
+                self.context.selection_tab = tab.next();
+            }
+            KeyCode::Char('j')
+                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
+            {
+                if tab == SelectionTab::Services {
                     self.model.borrow_mut().next_service();
                     self.model.borrow_mut().clear_method();
                 }
-                if self.context.selection_tab == SelectionTab::Methods {
+                if tab == SelectionTab::Methods {
                     self.model.borrow_mut().next_method();
                 }
                 if let Some(method) = self.model.borrow().selected_method() {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Char('k') => {
-                if self.context.selection_tab == SelectionTab::Services {
+            KeyCode::Char('k')
+                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
+            {
+                if tab == SelectionTab::Services {
                     self.model.borrow_mut().previous_service();
                     self.model.borrow_mut().clear_method();
                 }
-                if self.context.selection_tab == SelectionTab::Methods {
+                if tab == SelectionTab::Methods {
                     self.model.borrow_mut().previous_method();
                 }
                 if let Some(method) = self.model.borrow().selected_method() {
                     self.messages_model.borrow_mut().load_method(&method);
+                }
+            }
+            KeyCode::Char('/') if tab == SelectionTab::Services => {
+                self.context.selection_tab = SelectionTab::SearchServices;
+            }
+            KeyCode::Backspace if [SelectionTab::SearchServices].contains(&tab) => {
+                if tab == SelectionTab::SearchServices {
+                    self.model.borrow_mut().remove_char_services_filter();
+                }
+            }
+            KeyCode::Char(ch) if [SelectionTab::SearchServices].contains(&tab) => {
+                if tab == SelectionTab::SearchServices {
+                    self.model.borrow_mut().push_char_services_filter(ch);
                 }
             }
             _ => {}
@@ -103,6 +134,9 @@ impl MessagesInput<'_> {
 
         const SUBS: usize = 2;
         match event.code {
+            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
+                self.model.borrow_mut().abort_request();
+            }
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
                 self.context.messages_tab = 0;

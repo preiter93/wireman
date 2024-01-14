@@ -6,7 +6,7 @@ use crate::{
     view::root::Root,
 };
 use config::Config;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent};
 use futures::StreamExt;
 use std::error::Error;
 use tokio::{
@@ -189,9 +189,6 @@ impl App {
             KeyCode::Char('q') if !self.context.disable_root_events => {
                 self.should_quit = true;
             }
-            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
-                self.controller.messages.borrow_mut().abort_request();
-            }
             _ => match self.context.tab {
                 Tab::Selection => {
                     SelectionInput {
@@ -199,7 +196,7 @@ impl App {
                         messages_model: self.controller.messages.clone(),
                         context: &mut self.context,
                     }
-                    .handle(event.code);
+                    .handle(event.code, event.modifiers);
                 }
                 Tab::Messages => MessagesInput {
                     model: self.controller.messages.clone(),
