@@ -16,43 +16,43 @@ use crate::{
 pub struct SelectionInput<'a> {
     pub model: Rc<RefCell<SelectionModel>>,
     pub messages_model: Rc<RefCell<MessagesModel>>,
-    pub context: &'a mut AppContext,
+    pub ctx: &'a mut AppContext,
 }
 
 impl SelectionInput<'_> {
     pub fn handle(&mut self, code: KeyCode, modifier: KeyModifiers) {
-        let tab = self.context.selection_tab;
+        let tab = self.ctx.selection_tab;
         match code {
-            KeyCode::BackTab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.prev();
+            KeyCode::BackTab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.prev();
                 self.on_navigate();
             }
-            KeyCode::Tab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.next();
+            KeyCode::Tab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.next();
                 self.on_navigate();
             }
-            KeyCode::Tab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.next();
+            KeyCode::Tab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.next();
                 self.on_navigate();
             }
             KeyCode::Enter if tab == SelectionTab::Services => {
-                self.context.selection_tab = SelectionTab::Methods;
+                self.ctx.selection_tab = SelectionTab::Methods;
                 // Select a method if there is none selected yet.
                 if self.model.borrow().selected_method().is_none() {
                     self.model.borrow_mut().next_method();
                 }
             }
             KeyCode::Enter if tab == SelectionTab::SearchServices => {
-                self.context.selection_tab = SelectionTab::Services;
+                self.ctx.selection_tab = SelectionTab::Services;
             }
             KeyCode::Enter if tab == SelectionTab::SearchMethods => {
-                self.context.selection_tab = SelectionTab::Methods;
+                self.ctx.selection_tab = SelectionTab::Methods;
             }
             KeyCode::Enter if tab == SelectionTab::Methods => {
                 if self.model.borrow().selected_method().is_none() {
                     self.model.borrow_mut().next_method();
                 } else {
-                    self.context.tab = self.context.tab.next();
+                    self.ctx.tab = self.ctx.tab.next();
                     self.on_navigate();
                 }
             }
@@ -67,7 +67,7 @@ impl SelectionInput<'_> {
                 if self.model.borrow_mut().methods_filter.is_some() {
                     self.model.borrow_mut().clear_methods_filter();
                 } else {
-                    self.context.selection_tab = SelectionTab::Services;
+                    self.ctx.selection_tab = SelectionTab::Services;
                     self.model.borrow_mut().clear_methods_selection();
                 }
             }
@@ -78,21 +78,21 @@ impl SelectionInput<'_> {
                 if self.model.borrow_mut().methods_filter.is_some() {
                     self.model.borrow_mut().clear_methods_filter();
                 } else {
-                    self.context.selection_tab = SelectionTab::Services;
+                    self.ctx.selection_tab = SelectionTab::Services;
                     self.model.borrow_mut().clear_methods_selection();
                 }
             }
             KeyCode::Esc if tab == SelectionTab::SearchServices => {
-                self.context.selection_tab = SelectionTab::Services;
+                self.ctx.selection_tab = SelectionTab::Services;
             }
             KeyCode::Esc if tab == SelectionTab::SearchMethods => {
-                self.context.selection_tab = SelectionTab::Methods;
+                self.ctx.selection_tab = SelectionTab::Methods;
             }
             KeyCode::Down if tab == SelectionTab::Services => {
-                self.context.selection_tab = SelectionTab::Methods;
+                self.ctx.selection_tab = SelectionTab::Methods;
             }
             KeyCode::Up if tab == SelectionTab::Methods => {
-                self.context.selection_tab = SelectionTab::Services;
+                self.ctx.selection_tab = SelectionTab::Services;
             }
             KeyCode::Char('j') if tab == SelectionTab::Services => {
                 self.model.borrow_mut().next_service();
@@ -109,10 +109,10 @@ impl SelectionInput<'_> {
                 self.model.borrow_mut().previous_method();
             }
             KeyCode::Char('/') if tab == SelectionTab::Services => {
-                self.context.selection_tab = SelectionTab::SearchServices;
+                self.ctx.selection_tab = SelectionTab::SearchServices;
             }
             KeyCode::Char('/') if tab == SelectionTab::Methods => {
-                self.context.selection_tab = SelectionTab::SearchMethods;
+                self.ctx.selection_tab = SelectionTab::SearchMethods;
             }
             KeyCode::Backspace if tab == SelectionTab::SearchServices => {
                 self.model.borrow_mut().remove_char_services_filter();
@@ -131,11 +131,11 @@ impl SelectionInput<'_> {
     }
 
     fn on_navigate(&mut self) {
-        if self.context.selection_tab == SelectionTab::SearchServices {
-            self.context.selection_tab = SelectionTab::Services;
+        if self.ctx.selection_tab == SelectionTab::SearchServices {
+            self.ctx.selection_tab = SelectionTab::Services;
         }
-        if self.context.selection_tab == SelectionTab::SearchMethods {
-            self.context.selection_tab = SelectionTab::Methods;
+        if self.ctx.selection_tab == SelectionTab::SearchMethods {
+            self.ctx.selection_tab = SelectionTab::Methods;
         }
         if let Some(method) = self.model.borrow().selected_method() {
             self.messages_model.borrow_mut().load_method(&method);
@@ -261,7 +261,7 @@ impl MessagesInput<'_> {
 /// The input on the headers page.
 pub struct HeadersInput<'a> {
     pub model: Rc<RefCell<HeadersModel>>,
-    pub context: &'a mut AppContext,
+    pub ctx: &'a mut AppContext,
 }
 
 impl HeadersInput<'_> {
@@ -269,23 +269,23 @@ impl HeadersInput<'_> {
         const SUBS: usize = 2;
         let mut model = self.model.borrow_mut();
         match event.code {
-            KeyCode::Esc if !self.context.disable_root_events => {
+            KeyCode::Esc if !self.ctx.disable_root_events => {
                 model.selected = HeadersSelection::None;
             }
-            KeyCode::Tab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.next();
+            KeyCode::Tab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.next();
             }
-            KeyCode::BackTab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.prev();
+            KeyCode::BackTab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.prev();
             }
             KeyCode::Char('k') | KeyCode::Up
-                if !self.context.disable_root_events
+                if !self.ctx.disable_root_events
                     && !(model.selected == HeadersSelection::Meta && model.meta.block_prev()) =>
             {
                 model.selected = model.prev();
             }
             KeyCode::Char('j') | KeyCode::Down
-                if !self.context.disable_root_events
+                if !self.ctx.disable_root_events
                     && !(model.selected == HeadersSelection::Meta && model.meta.block_next()) =>
             {
                 model.selected = model.next();
@@ -312,7 +312,7 @@ impl HeadersInput<'_> {
                     },
                 }
                 // Disable all root key events unless all editors are in normal mode.
-                self.context.disable_root_events = model.mode() != EditorMode::Normal;
+                self.ctx.disable_root_events = model.mode() != EditorMode::Normal;
                 // Make sure that a valid field is selected
                 if selected == HeadersSelection::Meta && model.meta.headers.is_empty() {
                     model.selected = HeadersSelection::None;
