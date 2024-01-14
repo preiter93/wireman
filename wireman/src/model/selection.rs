@@ -199,6 +199,7 @@ impl SelectionModel {
             self.services_state.select(Some(0));
         }
         self.load_methods();
+        self.methods_state.select(None);
     }
 
     fn set_methods_filter(&mut self, filter: Option<String>) {
