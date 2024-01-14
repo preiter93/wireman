@@ -38,7 +38,6 @@ impl SelectionModel {
 
         // Preselect first service
         let mut services_state = ListState::default();
-        // let mut state = SelectionState::default();
         if !services.is_empty() {
             services_state.select(Some(0));
             methods = list_methods(&core_client.borrow(), &services[0]);
