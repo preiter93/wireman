@@ -82,26 +82,20 @@ impl App {
     async fn handle_events(&mut self) -> Result<()> {
         select! {
             crossterm_event = self.crossterm_stream.next() => {
-                match crossterm_event {
-                    Some(Ok(Event::Key(event))) => {
-                        self.handle_crossterm_event(event).await?;
-                    }
-                    _ => {},
-                }
+                if let Some(Ok(Event::Key(event))) = crossterm_event {
+                     self.handle_crossterm_event(event);
+                 }
             },
             internal_event = self.internal_stream.rx.recv() =>{
-                match internal_event {
-                    Some(event) => {
-                        self.handle_internal_event(event)?;
-                    }
-                    _ => {},
-                }
+                if let Some(event) = internal_event {
+                     self.handle_internal_event(&event);
+                 }
             }
         };
         Ok(())
     }
 
-    async fn handle_crossterm_event(&mut self, event: KeyEvent) -> Result<()> {
+    fn handle_crossterm_event(&mut self, event: KeyEvent) {
         let sx = self.internal_stream.sx.clone();
         match event.code {
             KeyCode::Char('q') if !self.ctx.disable_root_events => {
@@ -147,12 +141,10 @@ impl App {
                 }
             }
         }
-        Ok(())
     }
 
-    fn handle_internal_event(&mut self, result: RequestResult) -> Result<()> {
+    fn handle_internal_event(&mut self, result: &RequestResult) {
         result.set(&mut self.ctx.messages.borrow_mut().response.editor);
         self.ctx.messages.borrow_mut().handler.take();
-        Ok(())
     }
 }

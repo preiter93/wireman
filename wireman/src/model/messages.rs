@@ -227,15 +227,13 @@ pub async fn do_request(req: RequestMessage) -> RequestResult {
         Ok(resp) => {
             if let Ok(json) = resp.message.to_json() {
                 let formatted_json = try_pretty_format_json(&json);
-                return RequestResult::data(formatted_json);
+                RequestResult::data(formatted_json)
             } else {
                 let err = ErrorKind::format_error("failed to parse json".to_string());
-                return RequestResult::error(err);
+                RequestResult::error(err)
             }
         }
-        Err(err) => {
-            return RequestResult::error(err);
-        }
+        Err(err) => RequestResult::error(err),
     }
 }
 
@@ -262,7 +260,7 @@ impl RequestResult {
     pub fn set(&self, editor: &mut TextEditor) {
         if let Some(text) = &self.data {
             editor.set_error(None);
-            editor.set_text_raw(&text);
+            editor.set_text_raw(text);
         }
         if let Some(error) = &self.error {
             editor.set_error(Some(error.clone()));

@@ -44,7 +44,7 @@ impl MetaHeaders {
                     selected.row = selected.row.min(self.headers.len().saturating_sub(1));
                 }
             }
-            KeyCode::Char('h') | KeyCode::Char('a')
+            KeyCode::Char('h' | 'a')
                 if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
             {
                 self.add();
