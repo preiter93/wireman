@@ -1,5 +1,5 @@
 use crate::{
-    controller::Controller,
+    context::{AppContext, Tab},
     input::{HeadersInput, MessagesInput, SelectionInput},
     model::messages::{do_request, RequestResult},
     term::Term,
@@ -23,10 +23,7 @@ pub struct App {
     term: Term,
 
     /// The context containing app-specific data.
-    context: AppContext,
-
-    /// The controller managing the app's flow and inputs.
-    controller: Controller,
+    ctx: AppContext,
 
     /// Indicating whether the application should quit or not.
     should_quit: bool,
@@ -51,94 +48,12 @@ impl InternalStream {
     }
 }
 
-#[derive(Debug, Default)]
-pub struct AppContext {
-    /// The main tab.
-    pub tab: Tab,
-
-    /// The index of the selection sub window.
-    pub selection_tab: SelectionTab,
-
-    /// The index of the messages sub window.
-    pub messages_tab: usize,
-
-    /// Disable root key events. Disables keys such as
-    /// quit when an editor is in insert mode.
-    pub disable_root_events: bool,
-}
-
-impl AppContext {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
-pub enum Tab {
-    #[default]
-    Selection,
-    Messages,
-    Headers,
-}
-impl Tab {
-    pub fn next(self) -> Self {
-        match &self {
-            Self::Selection => Self::Messages,
-            Self::Messages => Self::Headers,
-            Self::Headers => Self::Selection,
-        }
-    }
-    pub fn prev(self) -> Self {
-        match &self {
-            Self::Selection => Self::Headers,
-            Self::Headers => Self::Messages,
-            Self::Messages => Self::Selection,
-        }
-    }
-    pub fn index(self) -> usize {
-        match &self {
-            Self::Selection => 0,
-            Self::Messages => 1,
-            Self::Headers => 2,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
-pub enum SelectionTab {
-    #[default]
-    Services,
-    Methods,
-    SearchServices,
-    SearchMethods,
-}
-
-impl SelectionTab {
-    pub fn next(self) -> Self {
-        match &self {
-            Self::Services => Self::Methods,
-            Self::Methods => Self::Services,
-            Self::SearchServices => Self::Services,
-            Self::SearchMethods => Self::Methods,
-        }
-    }
-    pub fn prev(self) -> Self {
-        match &self {
-            Self::Services => Self::Methods,
-            Self::Methods => Self::Services,
-            Self::SearchServices => Self::Services,
-            Self::SearchMethods => Self::Methods,
-        }
-    }
-}
-
 impl App {
     #[allow(clippy::needless_pass_by_value)]
     pub fn new(env: Config) -> Result<App> {
         Ok(App {
             term: Term::new()?,
-            controller: Controller::new(&env)?,
-            context: AppContext::new(),
+            ctx: AppContext::new(&env)?,
             should_quit: false,
             crossterm_stream: EventStream::new(),
             internal_stream: InternalStream::new(),
@@ -158,7 +73,7 @@ impl App {
 
     fn draw(&mut self) -> Result<()> {
         self.term.draw(|frame| {
-            let root = Root::new(&self.context, &self.controller);
+            let root = Root::new(&self.ctx);
             frame.render_widget(root, frame.size());
         })?;
         Ok(())
@@ -189,46 +104,46 @@ impl App {
     async fn handle_crossterm_event(&mut self, event: KeyEvent) -> Result<()> {
         let sx = self.internal_stream.sx.clone();
         match event.code {
-            KeyCode::Char('q') if !self.context.disable_root_events => {
+            KeyCode::Char('q') if !self.ctx.disable_root_events => {
                 self.should_quit = true;
             }
-            _ => match self.context.tab {
+            _ => match self.ctx.tab {
                 Tab::Selection => {
                     SelectionInput {
-                        model: self.controller.selection.clone(),
-                        messages_model: self.controller.messages.clone(),
-                        context: &mut self.context,
+                        model: self.ctx.selection.clone(),
+                        messages_model: self.ctx.messages.clone(),
+                        context: &mut self.ctx,
                     }
                     .handle(event.code, event.modifiers);
                 }
                 Tab::Messages => MessagesInput {
-                    model: self.controller.messages.clone(),
-                    context: &mut self.context,
+                    model: self.ctx.messages.clone(),
+                    ctx: &mut self.ctx,
                 }
                 .handle(event),
                 Tab::Headers => HeadersInput {
-                    model: self.controller.headers.clone(),
-                    context: &mut self.context,
+                    model: self.ctx.headers.clone(),
+                    context: &mut self.ctx,
                 }
                 .handle(event),
             },
         }
 
         // Dispatch the grpc request in a seperate thread.
-        if self.controller.messages.borrow().dispatch {
-            let mut messages_controller = self.controller.messages.borrow_mut();
-            messages_controller.dispatch = false;
-            match messages_controller.collect_request() {
+        if self.ctx.messages.borrow().dispatch {
+            let mut messages_model = self.ctx.messages.borrow_mut();
+            messages_model.dispatch = false;
+            match messages_model.collect_request() {
                 Ok(req) => {
                     let handler = tokio::spawn(async move {
                         let resp = do_request(req).await;
                         let _ = sx.send(resp).await;
                     });
-                    messages_controller.handler = Some(handler);
+                    messages_model.handler = Some(handler);
                 }
                 Err(err) => {
-                    messages_controller.response.set_text(&err.string());
-                    messages_controller.response.set_error(err);
+                    messages_model.response.set_text(&err.string());
+                    messages_model.response.set_error(err);
                 }
             }
         }
@@ -236,8 +151,8 @@ impl App {
     }
 
     fn handle_internal_event(&mut self, result: RequestResult) -> Result<()> {
-        result.set(&mut self.controller.messages.borrow_mut().response.editor);
-        self.controller.messages.borrow_mut().handler.take();
+        result.set(&mut self.ctx.messages.borrow_mut().response.editor);
+        self.ctx.messages.borrow_mut().handler.take();
         Ok(())
     }
 }

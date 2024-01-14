@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
+use crate::context::MessagesTab;
 use crate::model::MessagesModel;
 use crate::widgets::tabs::ActivatableTabs;
 use ratatui::layout::Constraint;
@@ -12,7 +13,7 @@ use super::theme::THEME;
 /// The request and response tab
 pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
-    pub sub: usize,
+    pub tab: MessagesTab,
 }
 
 impl<'a> MessagesPage<'a> {
@@ -43,7 +44,7 @@ impl Widget for MessagesPage<'_> {
             .split(area);
 
         // Request
-        let editor = if self.sub == 0 {
+        let editor = if self.tab == MessagesTab::Request {
             super::editor::view_selected(&mut self.model.request.editor.state, "Request")
         } else {
             super::editor::view_unselected(&mut self.model.request.editor.state, "Request")
@@ -67,7 +68,7 @@ impl Widget for MessagesPage<'_> {
         }
 
         // Request
-        let editor = if self.sub == 1 {
+        let editor = if self.tab == MessagesTab::Response {
             super::editor::view_selected(&mut self.model.response.editor.state, "Response")
         } else {
             super::editor::view_unselected(&mut self.model.response.editor.state, "Response")
