@@ -1,4 +1,4 @@
-use super::{headers::HeadersTab, messages::MessagesTab, selection::SelectionTab, theme::THEME};
+use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage, theme::THEME};
 use crate::{
     app::{AppContext, Tab},
     controller::Controller,
@@ -35,25 +35,25 @@ impl Root<'_> {
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
         match self.context.tab {
-            Tab::Selection => SelectionTab {
+            Tab::Selection => SelectionPage {
                 model: &mut self.ctrl.selection.borrow_mut(),
                 sub: self.context.selection_tab,
             }
             .render(area, buf),
-            Tab::Messages => MessagesTab {
+            Tab::Messages => MessagesPage {
                 model: &mut self.ctrl.messages.borrow_mut(),
                 sub: self.context.messages_tab,
             }
             .render(area, buf),
-            Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).render(area, buf),
+            Tab::Headers => HeadersPage::new(&self.ctrl.headers.borrow()).render(area, buf),
         };
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
         let keys = match self.context.tab {
-            Tab::Selection => SelectionTab::footer_keys(self.context.selection_tab),
-            Tab::Messages => MessagesTab::footer_keys(),
-            Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).footer_keys(),
+            Tab::Selection => SelectionPage::footer_keys(self.context.selection_tab),
+            Tab::Messages => MessagesPage::footer_keys(),
+            Tab::Headers => HeadersPage::new(&self.ctrl.headers.borrow()).footer_keys(),
         };
         let spans: Vec<Span> = keys
             .iter()

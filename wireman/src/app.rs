@@ -57,7 +57,7 @@ pub struct AppContext {
     pub tab: Tab,
 
     /// The index of the selection sub window.
-    pub selection_tab: usize,
+    pub selection_tab: SelectionTab,
 
     /// The index of the messages sub window.
     pub messages_tab: usize,
@@ -100,6 +100,31 @@ impl Tab {
             Self::Selection => 0,
             Self::Messages => 1,
             Self::Headers => 2,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
+pub enum SelectionTab {
+    #[default]
+    Services,
+    Methods,
+    SearchServices,
+}
+
+impl SelectionTab {
+    pub fn next(self) -> Self {
+        match &self {
+            Self::Services => Self::Methods,
+            Self::Methods => Self::Services,
+            Self::SearchServices => Self::Services,
+        }
+    }
+    pub fn prev(self) -> Self {
+        match &self {
+            Self::Services => Self::Methods,
+            Self::Methods => Self::Services,
+            Self::SearchServices => Self::Services,
         }
     }
 }
