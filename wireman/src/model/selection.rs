@@ -4,8 +4,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use tui_widget_list::ListState;
 
-use crate::commons::debug::log;
-
 use super::core_client::CoreClient;
 
 #[derive(Clone)]
@@ -158,7 +156,6 @@ impl SelectionModel {
         ) {
             let service_name = &self.services()[service_index];
             let method_name = &self.methods()[method_index];
-            log(format!("method name {}", method_name));
             return self
                 .core_client
                 .borrow()
