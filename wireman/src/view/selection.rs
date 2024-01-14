@@ -50,6 +50,15 @@ impl Widget for SelectionPage<'_> {
             .constraints([Constraint::Min(0), Constraint::Length(show_services_search)].as_ref())
             .split(area[0]);
 
+        let mut show_methods_search = 0;
+        if self.model.methods_filter.is_some() || self.sub == SelectionTab::SearchMethods {
+            show_methods_search = 1;
+        }
+        let methods_area = Layout::default()
+            .direction(ratatui::layout::Direction::Vertical)
+            .constraints([Constraint::Min(0), Constraint::Length(show_methods_search)].as_ref())
+            .split(area[1]);
+
         // Block
         let block = Block::new()
             .borders(Borders::ALL)
@@ -90,9 +99,16 @@ impl Widget for SelectionPage<'_> {
         if self.sub == SelectionTab::Methods {
             methods_block = methods_block.border_type(BorderType::Double);
         }
-        List::new(methods.collect())
-            .block(methods_block)
-            .render(area[1], buf, methods_state);
+        List::new(methods.collect()).block(methods_block).render(
+            methods_area[0],
+            buf,
+            methods_state,
+        );
+        // Search line for methods
+        if show_methods_search == 1 {
+            SearchLine::new(self.model.methods_filter.clone().unwrap_or_default())
+                .render(methods_area[1], buf);
+        }
     }
 }
 struct SearchLine {

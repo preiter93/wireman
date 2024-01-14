@@ -73,6 +73,7 @@ impl SelectionModel {
         };
         self.services_state.select(Some(i));
         self.load_methods();
+        self.methods_filter = None;
     }
 
     /// Select the previous service.
@@ -164,7 +165,7 @@ impl SelectionModel {
     }
 
     /// Clears the method state
-    pub fn clear_method(&mut self) {
+    pub fn clear_methods(&mut self) {
         self.methods_state.select(None);
     }
 
@@ -200,6 +201,15 @@ impl SelectionModel {
         self.load_methods();
     }
 
+    pub fn clear_methods_filter(&mut self) {
+        self.methods_filter = None;
+        if !self.methods().is_empty() {
+            self.methods_state.select(Some(0));
+        } else {
+            self.methods_state.select(None);
+        }
+    }
+
     pub fn push_char_services_filter(&mut self, ch: char) {
         if let Some(filter) = &mut self.services_filter {
             filter.push(ch);
@@ -214,18 +224,28 @@ impl SelectionModel {
         }
     }
 
+    pub fn push_char_methods_filter(&mut self, ch: char) {
+        if let Some(filter) = &mut self.methods_filter {
+            filter.push(ch);
+        } else {
+            self.methods_filter = Some(String::from(ch));
+        }
+        if !self.methods().is_empty() {
+            self.methods_state.select(Some(0));
+        } else {
+            self.methods_state.select(None);
+        }
+    }
+
     pub fn remove_char_services_filter(&mut self) {
         if let Some(filter) = &mut self.services_filter {
             let _ = filter.pop();
         }
     }
 
-    pub fn set_methods_filter(&mut self, filter: Option<String>) {
-        self.methods_filter = filter;
-        if !self.methods().is_empty() {
-            self.methods_state.select(Some(0));
-        } else {
-            self.methods_state.select(None);
+    pub fn remove_char_methods_filter(&mut self) {
+        if let Some(filter) = &mut self.methods_filter {
+            let _ = filter.pop();
         }
     }
 }

@@ -43,6 +43,9 @@ impl SelectionInput<'_> {
             KeyCode::Enter if tab == SelectionTab::SearchServices => {
                 self.context.selection_tab = SelectionTab::Services;
             }
+            KeyCode::Enter if tab == SelectionTab::SearchMethods => {
+                self.context.selection_tab = SelectionTab::Methods;
+            }
             KeyCode::Enter if tab == SelectionTab::Methods => {
                 if self.model.borrow().selected_method().is_none() {
                     // Select a method if there is none selected yet.
@@ -57,16 +60,24 @@ impl SelectionInput<'_> {
             {
                 self.model.borrow_mut().clear_services_filter();
             }
+            KeyCode::Char('c')
+                if modifier == KeyModifiers::CONTROL && tab == SelectionTab::Methods =>
+            {
+                self.model.borrow_mut().clear_methods_filter();
+            }
             KeyCode::Esc if tab == SelectionTab::Services => {
                 self.model.borrow_mut().clear_services_filter();
             }
             KeyCode::Esc if tab == SelectionTab::Methods => {
                 self.context.selection_tab = SelectionTab::Services;
-                self.model.borrow_mut().clear_method();
+                self.model.borrow_mut().clear_methods();
+                self.model.borrow_mut().clear_methods_filter();
             }
             KeyCode::Esc if tab == SelectionTab::SearchServices => {
                 self.context.selection_tab = SelectionTab::Services;
-                self.model.borrow_mut().clear_method();
+            }
+            KeyCode::Esc if tab == SelectionTab::SearchMethods => {
+                self.context.selection_tab = SelectionTab::Methods;
             }
             KeyCode::Up if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
                 self.context.selection_tab = tab.prev();
@@ -79,7 +90,7 @@ impl SelectionInput<'_> {
             {
                 if tab == SelectionTab::Services {
                     self.model.borrow_mut().next_service();
-                    self.model.borrow_mut().clear_method();
+                    self.model.borrow_mut().clear_methods();
                 }
                 if tab == SelectionTab::Methods {
                     self.model.borrow_mut().next_method();
@@ -93,7 +104,7 @@ impl SelectionInput<'_> {
             {
                 if tab == SelectionTab::Services {
                     self.model.borrow_mut().previous_service();
-                    self.model.borrow_mut().clear_method();
+                    self.model.borrow_mut().clear_methods();
                 }
                 if tab == SelectionTab::Methods {
                     self.model.borrow_mut().previous_method();
@@ -105,15 +116,20 @@ impl SelectionInput<'_> {
             KeyCode::Char('/') if tab == SelectionTab::Services => {
                 self.context.selection_tab = SelectionTab::SearchServices;
             }
-            KeyCode::Backspace if [SelectionTab::SearchServices].contains(&tab) => {
-                if tab == SelectionTab::SearchServices {
-                    self.model.borrow_mut().remove_char_services_filter();
-                }
+            KeyCode::Char('/') if tab == SelectionTab::Methods => {
+                self.context.selection_tab = SelectionTab::SearchMethods;
             }
-            KeyCode::Char(ch) if [SelectionTab::SearchServices].contains(&tab) => {
-                if tab == SelectionTab::SearchServices {
-                    self.model.borrow_mut().push_char_services_filter(ch);
-                }
+            KeyCode::Backspace if tab == SelectionTab::SearchServices => {
+                self.model.borrow_mut().remove_char_services_filter();
+            }
+            KeyCode::Backspace if tab == SelectionTab::SearchMethods => {
+                self.model.borrow_mut().remove_char_methods_filter();
+            }
+            KeyCode::Char(ch) if tab == SelectionTab::SearchServices => {
+                self.model.borrow_mut().push_char_services_filter(ch);
+            }
+            KeyCode::Char(ch) if tab == SelectionTab::SearchMethods => {
+                self.model.borrow_mut().push_char_methods_filter(ch);
             }
             _ => {}
         }
