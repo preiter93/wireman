@@ -19,9 +19,9 @@ pub struct SelectionModel {
     /// The selection state of the grpc methods.
     pub methods_state: ListState,
     /// Filters the services
-    services_filter: Option<String>,
+    pub services_filter: Option<String>,
     /// Filters the methods
-    methods_filter: Option<String>,
+    pub methods_filter: Option<String>,
 }
 
 /// Each service can hold a list of methods
@@ -45,7 +45,7 @@ impl SelectionModel {
             methods = list_methods(&core_client.borrow(), &services[0]);
         }
 
-        let mut s = Self {
+        Self {
             core_client,
             services,
             methods,
@@ -53,10 +53,7 @@ impl SelectionModel {
             methods_state: ListState::default(),
             services_filter: None,
             methods_filter: None,
-        };
-        s.set_services_filter(Some(String::from("proto.T")));
-        s.set_methods_filter(Some(String::from("GetD")));
-        s
+        }
     }
 
     /// Select the next service.
@@ -193,13 +190,33 @@ impl SelectionModel {
         methods
     }
 
-    pub fn set_services_filter(&mut self, filter: Option<String>) {
-        self.services_filter = filter;
+    pub fn clear_services_filter(&mut self) {
+        self.services_filter = None;
+        if !self.services().is_empty() {
+            self.services_state.select(Some(0));
+        } else {
+            self.services_state.select(None);
+        }
+        self.load_methods();
+    }
+
+    pub fn push_char_services_filter(&mut self, ch: char) {
+        if let Some(filter) = &mut self.services_filter {
+            filter.push(ch);
+        } else {
+            self.services_filter = Some(String::from(ch));
+        }
         if !self.services().is_empty() {
             self.services_state.select(Some(0));
             self.load_methods();
         } else {
             self.services_state.select(None);
+        }
+    }
+
+    pub fn remove_char_services_filter(&mut self) {
+        if let Some(filter) = &mut self.services_filter {
+            let _ = filter.pop();
         }
     }
 

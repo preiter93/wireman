@@ -4,7 +4,7 @@ use crate::model::SelectionModel;
 use crate::widgets::list::ListItem;
 use ratatui::layout::Rect;
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, BorderType, Borders, Padding, StatefulWidget, Widget};
+use ratatui::widgets::{Block, BorderType, Borders, Padding, Paragraph, StatefulWidget, Widget};
 use tui_widget_list::List;
 
 use super::theme::THEME;
@@ -41,6 +41,14 @@ impl Widget for SelectionPage<'_> {
             .direction(ratatui::layout::Direction::Vertical)
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
             .split(area);
+        let mut show_services_search = 0;
+        if self.model.services_filter.is_some() || self.sub == SelectionTab::SearchServices {
+            show_services_search = 1;
+        }
+        let services_area = Layout::default()
+            .direction(ratatui::layout::Direction::Vertical)
+            .constraints([Constraint::Min(0), Constraint::Length(show_services_search)].as_ref())
+            .split(area[0]);
 
         // Block
         let block = Block::new()
@@ -57,12 +65,19 @@ impl Widget for SelectionPage<'_> {
             .map(|service| ListItem::new(service.clone()));
         let services_state = &mut self.model.services_state;
         let mut services_block = block.clone().title("Services").bold().white();
-        if [SelectionTab::Services, SelectionTab::Services].contains(&self.sub) {
+        if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.sub) {
             services_block = services_block.border_type(BorderType::Double);
         }
-        List::new(services.collect())
-            .block(services_block)
-            .render(area[0], buf, services_state);
+        List::new(services.collect()).block(services_block).render(
+            services_area[0],
+            buf,
+            services_state,
+        );
+        // Search line for services
+        if show_services_search == 1 {
+            SearchLine::new(self.model.services_filter.clone().unwrap_or_default())
+                .render(services_area[1], buf);
+        }
 
         // Methods
         let methods = self
@@ -78,5 +93,20 @@ impl Widget for SelectionPage<'_> {
         List::new(methods.collect())
             .block(methods_block)
             .render(area[1], buf, methods_state);
+    }
+}
+struct SearchLine {
+    text: String,
+}
+
+impl SearchLine {
+    fn new<T: Into<String>>(text: T) -> Self {
+        Self { text: text.into() }
+    }
+}
+
+impl Widget for SearchLine {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        Paragraph::new(Text::from(format!("/{}", self.text))).render(area, buf);
     }
 }
