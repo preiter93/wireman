@@ -74,7 +74,7 @@ impl Widget for HeadersPage<'_> {
         let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
 
         // Address
-        ListElements::VDivider(String::from("Address")).render(area[0], buf);
+        ListElements::VDivider(String::from(" Address ")).render(area[0], buf);
         Address {
             state: self.model.addr.state.clone(),
             title: String::new(),
@@ -83,7 +83,7 @@ impl Widget for HeadersPage<'_> {
         .render(crop_top(area[1], 3), buf);
 
         // Authentication
-        ListElements::VDivider(String::from("Authentication")).render(area[2], buf);
+        ListElements::VDivider(String::from(" Authentication ")).render(area[2], buf);
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -102,7 +102,7 @@ impl Widget for HeadersPage<'_> {
 
         // Metadata
         if !self.model.meta.is_hidden() {
-            ListElements::VDivider(String::from("Headers")).render(area[4], buf);
+            ListElements::VDivider(String::from(" Headers ")).render(area[4], buf);
             let headers = &self.model.meta.headers;
             let index = self.model.meta.selected;
             Metadata {
