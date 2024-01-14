@@ -25,14 +25,14 @@ impl SelectionInput<'_> {
         match code {
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
-                self.context.sub = 0;
+                // self.context.sub = 0;
             }
             KeyCode::Tab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.next();
-                self.context.sub = 0;
+                // self.context.sub = 0;
             }
-            KeyCode::Enter if self.context.sub == 0 => {
-                self.context.sub = 1;
+            KeyCode::Enter if self.context.selection_tab == 0 => {
+                self.context.selection_tab = 1;
                 // Select a method if there is none selected yet.
                 if self.model.borrow().selected_method().is_none() {
                     self.model.borrow_mut().next_method();
@@ -41,28 +41,28 @@ impl SelectionInput<'_> {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Enter if self.context.sub == 1 => {
+            KeyCode::Enter if self.context.selection_tab == 1 => {
                 if self.model.borrow().selected_method().is_none() {
                     // Select a method if there is none selected yet.
                     self.model.borrow_mut().next_method();
                 } else {
                     // Otherwise go to next tab
                     self.context.tab = self.context.tab.next();
-                    self.context.sub = 0;
                 }
             }
-            KeyCode::Esc if self.context.sub == 1 => {
-                self.context.sub = 0;
+            KeyCode::Esc if self.context.selection_tab == 1 => {
+                self.context.selection_tab = 0;
                 self.model.borrow_mut().clear_method();
             }
             KeyCode::Up => {
-                self.context.sub = (self.context.sub + SUBS).saturating_sub(1) % SUBS;
+                self.context.selection_tab =
+                    (self.context.selection_tab + SUBS).saturating_sub(1) % SUBS;
             }
             KeyCode::Down => {
-                self.context.sub = self.context.sub.saturating_add(1) % SUBS;
+                self.context.selection_tab = self.context.selection_tab.saturating_add(1) % SUBS;
             }
             KeyCode::Char('j') => {
-                if self.context.sub == 0 {
+                if self.context.selection_tab == 0 {
                     self.model.borrow_mut().next_service();
                     self.model.borrow_mut().clear_method();
                 } else {
@@ -73,7 +73,7 @@ impl SelectionInput<'_> {
                 }
             }
             KeyCode::Char('k') => {
-                if self.context.sub == 0 {
+                if self.context.selection_tab == 0 {
                     self.model.borrow_mut().previous_service();
                     self.model.borrow_mut().clear_method();
                 } else {
@@ -104,19 +104,22 @@ impl MessagesInput<'_> {
         match event.code {
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
-                self.context.sub = 0;
+                self.context.messages_tab = 0;
             }
             KeyCode::Tab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.next();
-                self.context.sub = 0;
+                self.context.messages_tab = 0;
             }
             KeyCode::Down if !self.context.disable_root_events => {
-                self.context.sub = self.context.sub.saturating_add(1) % SUBS;
+                self.context.messages_tab = self.context.messages_tab.saturating_add(1) % SUBS;
             }
             KeyCode::Up if !self.context.disable_root_events => {
-                self.context.sub = (self.context.sub + SUBS).saturating_sub(1) % SUBS;
+                self.context.messages_tab =
+                    (self.context.messages_tab + SUBS).saturating_sub(1) % SUBS;
             }
-            KeyCode::Enter if self.context.sub == 0 && !self.context.disable_root_events => {
+            KeyCode::Enter
+                if self.context.messages_tab == 0 && !self.context.disable_root_events =>
+            {
                 self.model.borrow_mut().start_request();
             }
             KeyCode::Char('y') if is_control(event) && !self.context.disable_root_events => {
@@ -124,7 +127,7 @@ impl MessagesInput<'_> {
             }
             KeyCode::Char('f')
                 if is_control(event)
-                    && self.context.sub == 0
+                    && self.context.messages_tab == 0
                     && !self.context.disable_root_events =>
             {
                 let request = &mut self.model.borrow_mut().request.editor;
@@ -162,12 +165,12 @@ impl MessagesInput<'_> {
             }
             _ => {
                 let mut disable_root_events = false;
-                if self.context.sub == 0 {
+                if self.context.messages_tab == 0 {
                     let request = &mut self.model.borrow_mut().request.editor;
                     request.on_key(event, false);
                     disable_root_events = request.insert_mode();
                 }
-                if self.context.sub == 1 {
+                if self.context.messages_tab == 1 {
                     let response = &mut self.model.borrow_mut().response.editor;
                     response.on_key(event, false);
                     disable_root_events = response.insert_mode();
@@ -222,11 +225,9 @@ impl HeadersInput<'_> {
                     HeadersSelection::Addr => match event.code {
                         KeyCode::Tab => {
                             self.context.tab = self.context.tab.next();
-                            self.context.sub = 0;
                         }
                         KeyCode::BackTab => {
                             self.context.tab = self.context.tab.prev();
-                            self.context.sub = 0;
                         }
                         _ => model.addr.on_key(event, true),
                     },
@@ -235,11 +236,9 @@ impl HeadersInput<'_> {
                     HeadersSelection::None => match event.code {
                         KeyCode::Tab => {
                             self.context.tab = self.context.tab.next();
-                            self.context.sub = 0;
                         }
                         KeyCode::BackTab => {
                             self.context.tab = self.context.tab.prev();
-                            self.context.sub = 0;
                         }
                         KeyCode::Enter => {
                             model.selected = HeadersSelection::Addr;

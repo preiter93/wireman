@@ -56,8 +56,11 @@ pub struct AppContext {
     /// The main tab.
     pub tab: Tab,
 
-    /// The index of the sub window.
-    pub sub: usize,
+    /// The index of the selection sub window.
+    pub selection_tab: usize,
+
+    /// The index of the messages sub window.
+    pub messages_tab: usize,
 
     /// Disable root key events. Disables keys such as
     /// quit when an editor is in insert mode.
