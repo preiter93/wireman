@@ -141,7 +141,7 @@ impl SelectionInput<'_> {
             self.messages_model.borrow_mut().load_method(&method);
         } else {
             let msg = "Go back and select a method";
-            self.messages_model.borrow_mut().request.set_text_raw(msg);
+            self.messages_model.borrow_mut().request.set_text(msg);
         }
     }
 }
