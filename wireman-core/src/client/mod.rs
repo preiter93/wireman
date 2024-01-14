@@ -83,7 +83,7 @@ pub async fn call_unary_async(req: &RequestMessage) -> Result<ResponseMessage> {
     let uri = Uri::try_from(req.address())
         .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
     let mut client = GrpcClient::new(uri, None);
-    Ok(client.unary(req).await?)
+    client.unary(req).await
 }
 
 /// Creates a new Tokio runtime.

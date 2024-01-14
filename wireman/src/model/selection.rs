@@ -32,7 +32,7 @@ pub struct ServiceWithMethods {
 }
 
 impl SelectionModel {
-    /// Instantiates a [SelectionModel]. Requires the core client to
+    /// Instantiates a [`SelectionModel`]. Requires the core client to
     /// retrieve the proto services and methods.
     pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
         let services = list_services(&core_client.borrow());
@@ -145,7 +145,7 @@ impl SelectionModel {
             let name = &self.services[index];
             return self.core_client.borrow().get_service_by_name(name);
         }
-        return None;
+        None
     }
 
     /// Return the descrption of the currently selected method
@@ -161,7 +161,7 @@ impl SelectionModel {
                 .borrow()
                 .get_method_by_name(service_name, method_name);
         }
-        return None;
+        None
     }
 
     /// Clears the method state
@@ -193,20 +193,20 @@ impl SelectionModel {
 
     fn set_services_filter(&mut self, filter: Option<String>) {
         self.services_filter = filter;
-        if !self.services().is_empty() {
-            self.services_state.select(Some(0));
-        } else {
+        if self.services().is_empty() {
             self.services_state.select(None);
+        } else {
+            self.services_state.select(Some(0));
         }
         self.load_methods();
     }
 
     fn set_methods_filter(&mut self, filter: Option<String>) {
         self.methods_filter = filter;
-        if !self.methods().is_empty() {
-            self.methods_state.select(Some(0));
-        } else {
+        if self.methods().is_empty() {
             self.methods_state.select(None);
+        } else {
+            self.methods_state.select(Some(0));
         }
     }
 
@@ -269,5 +269,5 @@ fn list_methods(core_client: &CoreClient, service_name: &str) -> Vec<String> {
             .map(|method| method.name().to_string())
             .collect();
     }
-    return Vec::new();
+    Vec::new()
 }

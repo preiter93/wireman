@@ -20,6 +20,7 @@ pub struct SelectionInput<'a> {
 }
 
 impl SelectionInput<'_> {
+    #[allow(clippy::too_many_lines)]
     pub fn handle(&mut self, code: KeyCode, modifier: KeyModifiers) {
         let tab = self.ctx.selection_tab;
         match code {
@@ -278,32 +279,28 @@ impl HeadersInput<'_> {
                 self.ctx.tab = self.ctx.tab.prev();
             }
             KeyCode::Char('k') | KeyCode::Up
-                if !self.ctx.disable_root_events
-                    && !(model.selected == HeadersSelection::Meta && model.meta.block_prev()) =>
+                if !(self.ctx.disable_root_events
+                    || model.selected == HeadersSelection::Meta && model.meta.block_prev()) =>
             {
                 model.selected = model.prev();
             }
             KeyCode::Char('j') | KeyCode::Down
-                if !self.ctx.disable_root_events
-                    && !(model.selected == HeadersSelection::Meta && model.meta.block_next()) =>
+                if !(self.ctx.disable_root_events
+                    || model.selected == HeadersSelection::Meta && model.meta.block_next()) =>
             {
                 model.selected = model.next();
             }
             _ => {
                 let selected = model.selected.clone();
                 match selected {
-                    HeadersSelection::Addr => match event.code {
-                        _ => model.addr.on_key(event, true),
-                    },
+                    HeadersSelection::Addr => model.addr.on_key(event, true),
                     HeadersSelection::Auth => model.auth.on_key(event),
                     HeadersSelection::Meta => model.meta.on_key(event),
                     HeadersSelection::None => match event.code {
                         KeyCode::Enter => {
                             model.selected = HeadersSelection::Addr;
                         }
-                        KeyCode::Char('h') | KeyCode::Char('a')
-                            if event.modifiers == KeyModifiers::CONTROL =>
-                        {
+                        KeyCode::Char('h' | 'a') if event.modifiers == KeyModifiers::CONTROL => {
                             model.meta.add();
                             model.selected = HeadersSelection::Meta;
                         }
