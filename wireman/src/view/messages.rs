@@ -10,12 +10,12 @@ use ratatui::widgets::Widget;
 use super::theme::THEME;
 
 /// The request and response tab
-pub struct MessagesTab<'a> {
+pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
     pub sub: usize,
 }
 
-impl<'a> MessagesTab<'a> {
+impl<'a> MessagesPage<'a> {
     pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
         vec![
             ("q", "Quit"),
@@ -27,7 +27,7 @@ impl<'a> MessagesTab<'a> {
     }
 }
 
-impl Widget for MessagesTab<'_> {
+impl Widget for MessagesPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         // Layout
         let area = Layout::default()
