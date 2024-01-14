@@ -45,9 +45,11 @@ impl SelectionInput<'_> {
             }
             KeyCode::Enter if tab == SelectionTab::SearchServices => {
                 self.ctx.selection_tab = SelectionTab::Services;
+                self.ctx.disable_root_events = false;
             }
             KeyCode::Enter if tab == SelectionTab::SearchMethods => {
                 self.ctx.selection_tab = SelectionTab::Methods;
+                self.ctx.disable_root_events = false;
             }
             KeyCode::Enter if tab == SelectionTab::Methods => {
                 if self.model.borrow().selected_method().is_none() {
@@ -85,9 +87,11 @@ impl SelectionInput<'_> {
             }
             KeyCode::Esc if tab == SelectionTab::SearchServices => {
                 self.ctx.selection_tab = SelectionTab::Services;
+                self.ctx.disable_root_events = false;
             }
             KeyCode::Esc if tab == SelectionTab::SearchMethods => {
                 self.ctx.selection_tab = SelectionTab::Methods;
+                self.ctx.disable_root_events = false;
             }
             KeyCode::Down if tab == SelectionTab::Services => {
                 self.ctx.selection_tab = SelectionTab::Methods;
@@ -111,9 +115,11 @@ impl SelectionInput<'_> {
             }
             KeyCode::Char('/') if tab == SelectionTab::Services => {
                 self.ctx.selection_tab = SelectionTab::SearchServices;
+                self.ctx.disable_root_events = true;
             }
             KeyCode::Char('/') if tab == SelectionTab::Methods => {
                 self.ctx.selection_tab = SelectionTab::SearchMethods;
+                self.ctx.disable_root_events = true;
             }
             KeyCode::Backspace if tab == SelectionTab::SearchServices => {
                 self.model.borrow_mut().remove_char_services_filter();
