@@ -96,7 +96,7 @@ impl HeadersModel {
         match self.selected {
             HeadersSelection::None => HeadersSelection::Addr,
             HeadersSelection::Auth => {
-                if self.meta.is_shown() {
+                if self.meta.is_hidden() {
                     return HeadersSelection::Addr;
                 }
                 self.meta.select();
@@ -116,10 +116,10 @@ impl HeadersModel {
         match self.selected {
             HeadersSelection::None => HeadersSelection::Addr,
             HeadersSelection::Addr => {
-                if self.meta.is_shown() {
+                if self.meta.is_hidden() {
                     return HeadersSelection::Auth;
                 }
-                self.meta.select();
+                self.meta.select_last();
                 HeadersSelection::Meta
             }
             HeadersSelection::Auth => HeadersSelection::Addr,

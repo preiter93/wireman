@@ -299,6 +299,10 @@ impl RequestModel {
             .map_or("{}".to_string(), |r| try_pretty_format_json(&r));
         self.editor.set_text_raw(&req);
     }
+
+    pub fn set_text_raw(&mut self, text: &str) {
+        self.editor.set_text_raw(text);
+    }
 }
 
 #[derive(Clone)]

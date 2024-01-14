@@ -139,6 +139,9 @@ impl SelectionInput<'_> {
         }
         if let Some(method) = self.model.borrow().selected_method() {
             self.messages_model.borrow_mut().load_method(&method);
+        } else {
+            let msg = "Go back and select a method";
+            self.messages_model.borrow_mut().request.set_text_raw(msg);
         }
     }
 }
@@ -267,13 +270,21 @@ impl HeadersInput<'_> {
             KeyCode::Esc if !self.context.disable_root_events => {
                 model.selected = HeadersSelection::None;
             }
+            KeyCode::Tab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.next();
+            }
+            KeyCode::BackTab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.prev();
+            }
             KeyCode::Char('k') | KeyCode::Up
-                if !self.context.disable_root_events && !model.meta.block_prev() =>
+                if !self.context.disable_root_events
+                    && !(model.selected == HeadersSelection::Meta && model.meta.block_prev()) =>
             {
                 model.selected = model.prev();
             }
             KeyCode::Char('j') | KeyCode::Down
-                if !self.context.disable_root_events && !model.meta.block_next() =>
+                if !self.context.disable_root_events
+                    && !(model.selected == HeadersSelection::Meta && model.meta.block_next()) =>
             {
                 model.selected = model.next();
             }
@@ -281,27 +292,17 @@ impl HeadersInput<'_> {
                 let selected = model.selected.clone();
                 match selected {
                     HeadersSelection::Addr => match event.code {
-                        KeyCode::Tab => {
-                            self.context.tab = self.context.tab.next();
-                        }
-                        KeyCode::BackTab => {
-                            self.context.tab = self.context.tab.prev();
-                        }
                         _ => model.addr.on_key(event, true),
                     },
                     HeadersSelection::Auth => model.auth.on_key(event),
                     HeadersSelection::Meta => model.meta.on_key(event),
                     HeadersSelection::None => match event.code {
-                        KeyCode::Tab => {
-                            self.context.tab = self.context.tab.next();
-                        }
-                        KeyCode::BackTab => {
-                            self.context.tab = self.context.tab.prev();
-                        }
                         KeyCode::Enter => {
                             model.selected = HeadersSelection::Addr;
                         }
-                        KeyCode::Char('h') if event.modifiers == KeyModifiers::CONTROL => {
+                        KeyCode::Char('h') | KeyCode::Char('a')
+                            if event.modifiers == KeyModifiers::CONTROL =>
+                        {
                             model.meta.add();
                             model.selected = HeadersSelection::Meta;
                         }

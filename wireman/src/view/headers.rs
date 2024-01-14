@@ -52,7 +52,7 @@ impl<'a> HeadersPage<'a> {
                     ("Tab", "Switch"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
-                    ("^h", "Add Header"),
+                    ("^h/^a", "Add Header"),
                     ("^d", "Remove Header"),
                 ]
             }
@@ -62,7 +62,7 @@ impl<'a> HeadersPage<'a> {
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
-                    ("^h", "Add Header"),
+                    ("^h/^a", "Add Header"),
                 ]
             }
         }
@@ -101,7 +101,7 @@ impl Widget for HeadersPage<'_> {
         body.render(crop_top(area[3], 4), buf);
 
         // Metadata
-        if !self.model.meta.is_shown() {
+        if !self.model.meta.is_hidden() {
             ListElements::VDivider(String::from("Headers")).render(area[4], buf);
             let headers = &self.model.meta.headers;
             let index = self.model.meta.selected;
