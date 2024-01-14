@@ -11,8 +11,8 @@ pub struct Root<'a> {
 }
 
 impl<'a> Root<'a> {
-    pub fn new(context: &'a AppContext) -> Self {
-        Root { ctx: context }
+    pub fn new(ctx: &'a AppContext) -> Self {
+        Root { ctx }
     }
 }
 impl Root<'_> {

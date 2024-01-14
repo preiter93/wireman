@@ -112,7 +112,7 @@ impl App {
                     SelectionInput {
                         model: self.ctx.selection.clone(),
                         messages_model: self.ctx.messages.clone(),
-                        context: &mut self.ctx,
+                        ctx: &mut self.ctx,
                     }
                     .handle(event.code, event.modifiers);
                 }
@@ -123,7 +123,7 @@ impl App {
                 .handle(event),
                 Tab::Headers => HeadersInput {
                     model: self.ctx.headers.clone(),
-                    context: &mut self.ctx,
+                    ctx: &mut self.ctx,
                 }
                 .handle(event),
             },
