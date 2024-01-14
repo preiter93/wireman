@@ -17,11 +17,11 @@ use tui_widget_list::{List, ListState};
 use super::theme::THEME;
 
 /// The request and response tab
-pub struct HeadersTab<'a> {
+pub struct HeadersPage<'a> {
     model: &'a HeadersModel,
 }
 
-impl<'a> HeadersTab<'a> {
+impl<'a> HeadersPage<'a> {
     pub fn new(model: &'a HeadersModel) -> Self {
         Self { model }
     }
@@ -69,7 +69,7 @@ impl<'a> HeadersTab<'a> {
     }
 }
 
-impl Widget for HeadersTab<'_> {
+impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
 

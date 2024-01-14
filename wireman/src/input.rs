@@ -4,7 +4,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::EditorMode;
 
 use crate::{
-    app::AppContext,
+    app::{AppContext, SelectionTab},
     model::{
         headers::{HeadersModel, HeadersSelection},
         MessagesModel, SelectionModel,
@@ -20,8 +20,8 @@ pub struct SelectionInput<'a> {
 }
 
 impl SelectionInput<'_> {
-    pub fn handle(&mut self, code: KeyCode) {
-        const SUBS: usize = 2;
+    pub fn handle(&mut self, code: KeyCode, modifier: KeyModifiers) {
+        let tab = self.context.selection_tab;
         match code {
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
@@ -29,10 +29,9 @@ impl SelectionInput<'_> {
             }
             KeyCode::Tab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.next();
-                // self.context.sub = 0;
             }
-            KeyCode::Enter if self.context.selection_tab == 0 => {
-                self.context.selection_tab = 1;
+            KeyCode::Enter if tab == SelectionTab::Services => {
+                self.context.selection_tab = SelectionTab::Methods;
                 // Select a method if there is none selected yet.
                 if self.model.borrow().selected_method().is_none() {
                     self.model.borrow_mut().next_method();
@@ -41,7 +40,13 @@ impl SelectionInput<'_> {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Enter if self.context.selection_tab == 1 => {
+            KeyCode::Enter if tab == SelectionTab::SearchServices => {
+                self.context.selection_tab = SelectionTab::Services;
+            }
+            KeyCode::Enter if tab == SelectionTab::SearchMethods => {
+                self.context.selection_tab = SelectionTab::Methods;
+            }
+            KeyCode::Enter if tab == SelectionTab::Methods => {
                 if self.model.borrow().selected_method().is_none() {
                     // Select a method if there is none selected yet.
                     self.model.borrow_mut().next_method();
@@ -50,38 +55,81 @@ impl SelectionInput<'_> {
                     self.context.tab = self.context.tab.next();
                 }
             }
-            KeyCode::Esc if self.context.selection_tab == 1 => {
-                self.context.selection_tab = 0;
-                self.model.borrow_mut().clear_method();
+            KeyCode::Char('c')
+                if modifier == KeyModifiers::CONTROL && tab == SelectionTab::Services =>
+            {
+                self.model.borrow_mut().clear_services_filter();
             }
-            KeyCode::Up => {
-                self.context.selection_tab =
-                    (self.context.selection_tab + SUBS).saturating_sub(1) % SUBS;
+            KeyCode::Char('c')
+                if modifier == KeyModifiers::CONTROL && tab == SelectionTab::Methods =>
+            {
+                self.model.borrow_mut().clear_methods_filter();
             }
-            KeyCode::Down => {
-                self.context.selection_tab = self.context.selection_tab.saturating_add(1) % SUBS;
+            KeyCode::Esc if tab == SelectionTab::Services => {
+                self.model.borrow_mut().clear_services_filter();
             }
-            KeyCode::Char('j') => {
-                if self.context.selection_tab == 0 {
+            KeyCode::Esc if tab == SelectionTab::Methods => {
+                self.context.selection_tab = SelectionTab::Services;
+                self.model.borrow_mut().clear_methods();
+                self.model.borrow_mut().clear_methods_filter();
+            }
+            KeyCode::Esc if tab == SelectionTab::SearchServices => {
+                self.context.selection_tab = SelectionTab::Services;
+            }
+            KeyCode::Esc if tab == SelectionTab::SearchMethods => {
+                self.context.selection_tab = SelectionTab::Methods;
+            }
+            KeyCode::Up if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
+                self.context.selection_tab = tab.prev();
+            }
+            KeyCode::Down if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
+                self.context.selection_tab = tab.next();
+            }
+            KeyCode::Char('j')
+                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
+            {
+                if tab == SelectionTab::Services {
                     self.model.borrow_mut().next_service();
-                    self.model.borrow_mut().clear_method();
-                } else {
+                    self.model.borrow_mut().clear_methods();
+                }
+                if tab == SelectionTab::Methods {
                     self.model.borrow_mut().next_method();
                 }
                 if let Some(method) = self.model.borrow().selected_method() {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
             }
-            KeyCode::Char('k') => {
-                if self.context.selection_tab == 0 {
+            KeyCode::Char('k')
+                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
+            {
+                if tab == SelectionTab::Services {
                     self.model.borrow_mut().previous_service();
-                    self.model.borrow_mut().clear_method();
-                } else {
+                    self.model.borrow_mut().clear_methods();
+                }
+                if tab == SelectionTab::Methods {
                     self.model.borrow_mut().previous_method();
                 }
                 if let Some(method) = self.model.borrow().selected_method() {
                     self.messages_model.borrow_mut().load_method(&method);
                 }
+            }
+            KeyCode::Char('/') if tab == SelectionTab::Services => {
+                self.context.selection_tab = SelectionTab::SearchServices;
+            }
+            KeyCode::Char('/') if tab == SelectionTab::Methods => {
+                self.context.selection_tab = SelectionTab::SearchMethods;
+            }
+            KeyCode::Backspace if tab == SelectionTab::SearchServices => {
+                self.model.borrow_mut().remove_char_services_filter();
+            }
+            KeyCode::Backspace if tab == SelectionTab::SearchMethods => {
+                self.model.borrow_mut().remove_char_methods_filter();
+            }
+            KeyCode::Char(ch) if tab == SelectionTab::SearchServices => {
+                self.model.borrow_mut().push_char_services_filter(ch);
+            }
+            KeyCode::Char(ch) if tab == SelectionTab::SearchMethods => {
+                self.model.borrow_mut().push_char_methods_filter(ch);
             }
             _ => {}
         }
@@ -102,6 +150,9 @@ impl MessagesInput<'_> {
 
         const SUBS: usize = 2;
         match event.code {
+            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
+                self.model.borrow_mut().abort_request();
+            }
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
                 self.context.messages_tab = 0;

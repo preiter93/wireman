@@ -1,9 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use core::{MethodDescriptor, ServiceDescriptor};
-
 use std::cell::RefCell;
 use std::rc::Rc;
-
 use tui_widget_list::ListState;
 
 use super::core_client::CoreClient;
@@ -13,13 +11,17 @@ pub struct SelectionModel {
     /// Core client retrieves proto descriptors
     core_client: Rc<RefCell<CoreClient>>,
     /// a list of services.
-    pub services: Vec<String>,
+    services: Vec<String>,
     /// A list of methods.
-    pub methods: Vec<String>,
+    methods: Vec<String>,
     /// The selection state of the grpc services.
     pub services_state: ListState,
     /// The selection state of the grpc methods.
     pub methods_state: ListState,
+    /// Filters the services
+    pub services_filter: Option<String>,
+    /// Filters the methods
+    pub methods_filter: Option<String>,
 }
 
 /// Each service can hold a list of methods
@@ -30,13 +32,13 @@ pub struct ServiceWithMethods {
 }
 
 impl SelectionModel {
-    /// Returns a selection model. Requires the core client
-    /// which retrieves the proto services and methods.
+    /// Instantiates a [SelectionModel]. Requires the core client to
+    /// retrieve the proto services and methods.
     pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
         let services = list_services(&core_client.borrow());
         let mut methods: Vec<String> = Vec::new();
 
-        // Preselect first service
+        // Preselect the first service
         let mut services_state = ListState::default();
         if !services.is_empty() {
             services_state.select(Some(0));
@@ -49,17 +51,19 @@ impl SelectionModel {
             methods,
             services_state,
             methods_state: ListState::default(),
+            services_filter: None,
+            methods_filter: None,
         }
     }
 
     /// Select the next service.
     pub fn next_service(&mut self) {
-        if self.services.is_empty() {
+        if self.services().is_empty() {
             return;
         }
         let i = match self.services_state.selected() {
             Some(i) => {
-                if i >= self.services.len() - 1 {
+                if i >= self.services().len() - 1 {
                     0
                 } else {
                     i + 1
@@ -69,17 +73,18 @@ impl SelectionModel {
         };
         self.services_state.select(Some(i));
         self.load_methods();
+        self.methods_filter = None;
     }
 
     /// Select the previous service.
     pub fn previous_service(&mut self) {
-        if self.services.is_empty() {
+        if self.services().is_empty() {
             return;
         }
         let i = match self.services_state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.services.len() - 1
+                    self.services().len() - 1
                 } else {
                     i - 1
                 }
@@ -93,19 +98,19 @@ impl SelectionModel {
     /// Load the methods after a services was selected
     pub fn load_methods(&mut self) {
         if let Some(service_index) = self.services_state.selected() {
-            let service_name = &self.services[service_index];
+            let service_name = &self.services()[service_index];
             self.methods = list_methods(&self.core_client.borrow(), service_name);
         }
     }
 
     /// Select the next method.
     pub fn next_method(&mut self) {
-        if self.methods.is_empty() {
+        if self.methods().is_empty() {
             return;
         }
         let i = match self.methods_state.selected() {
             Some(i) => {
-                if i >= self.methods.len() - 1 {
+                if i >= self.methods().len() - 1 {
                     0
                 } else {
                     i + 1
@@ -118,13 +123,13 @@ impl SelectionModel {
 
     /// Select the previous method.
     pub fn previous_method(&mut self) {
-        if self.methods.is_empty() {
+        if self.methods().is_empty() {
             return;
         }
         let i = match self.methods_state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.services.len() - 1
+                    self.methods().len() - 1
                 } else {
                     i - 1
                 }
@@ -149,8 +154,8 @@ impl SelectionModel {
             self.services_state.selected(),
             self.methods_state.selected(),
         ) {
-            let service_name = &self.services[service_index];
-            let method_name = &self.methods[method_index];
+            let service_name = &self.services()[service_index];
+            let method_name = &self.methods()[method_index];
             return self
                 .core_client
                 .borrow()
@@ -160,16 +165,88 @@ impl SelectionModel {
     }
 
     /// Clears the method state
-    pub fn clear_method(&mut self) {
+    pub fn clear_methods(&mut self) {
         self.methods_state.select(None);
     }
 
-    pub fn selected_service_index(&self) -> Option<usize> {
-        self.services_state.selected()
+    pub fn services(&self) -> Vec<String> {
+        let services = self.services.clone();
+        if let Some(filter) = &self.services_filter {
+            return services
+                .into_iter()
+                .filter(|service| service.starts_with(filter))
+                .collect();
+        }
+        services
     }
 
-    pub fn selected_method_index(&self) -> Option<usize> {
-        self.methods_state.selected()
+    pub fn methods(&self) -> Vec<String> {
+        let methods = self.methods.clone();
+        if let Some(filter) = &self.methods_filter {
+            return methods
+                .into_iter()
+                .filter(|method| method.starts_with(filter))
+                .collect();
+        }
+        methods
+    }
+
+    pub fn clear_services_filter(&mut self) {
+        self.services_filter = None;
+        if !self.services().is_empty() {
+            self.services_state.select(Some(0));
+        } else {
+            self.services_state.select(None);
+        }
+        self.load_methods();
+    }
+
+    pub fn clear_methods_filter(&mut self) {
+        self.methods_filter = None;
+        if !self.methods().is_empty() {
+            self.methods_state.select(Some(0));
+        } else {
+            self.methods_state.select(None);
+        }
+    }
+
+    pub fn push_char_services_filter(&mut self, ch: char) {
+        if let Some(filter) = &mut self.services_filter {
+            filter.push(ch);
+        } else {
+            self.services_filter = Some(String::from(ch));
+        }
+        if !self.services().is_empty() {
+            self.services_state.select(Some(0));
+            self.load_methods();
+        } else {
+            self.services_state.select(None);
+        }
+    }
+
+    pub fn push_char_methods_filter(&mut self, ch: char) {
+        if let Some(filter) = &mut self.methods_filter {
+            filter.push(ch);
+        } else {
+            self.methods_filter = Some(String::from(ch));
+        }
+        if !self.methods().is_empty() {
+            self.methods_state.select(Some(0));
+        } else {
+            self.methods_state.select(None);
+        }
+    }
+
+    pub fn remove_char_services_filter(&mut self) {
+        if let Some(filter) = &mut self.services_filter {
+            let _ = filter.pop();
+        }
+    }
+
+    pub fn remove_char_methods_filter(&mut self) {
+        if let Some(filter) = &mut self.methods_filter {
+            let _ = filter.pop();
+        }
     }
 }
 
