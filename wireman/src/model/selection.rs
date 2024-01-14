@@ -168,7 +168,7 @@ impl SelectionModel {
     }
 
     /// Clears the method state
-    pub fn clear_methods(&mut self) {
+    pub fn clear_methods_selection(&mut self) {
         self.methods_state.select(None);
     }
 
