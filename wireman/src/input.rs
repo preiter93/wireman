@@ -25,11 +25,15 @@ impl SelectionInput<'_> {
         match code {
             KeyCode::BackTab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.prev();
-                self.on_navigate_next();
+                self.on_navigate();
             }
             KeyCode::Tab if !self.context.disable_root_events => {
                 self.context.tab = self.context.tab.next();
-                self.on_navigate_next();
+                self.on_navigate();
+            }
+            KeyCode::Tab if !self.context.disable_root_events => {
+                self.context.tab = self.context.tab.next();
+                self.on_navigate();
             }
             KeyCode::Enter if tab == SelectionTab::Services => {
                 self.context.selection_tab = SelectionTab::Methods;
@@ -49,7 +53,7 @@ impl SelectionInput<'_> {
                     self.model.borrow_mut().next_method();
                 } else {
                     self.context.tab = self.context.tab.next();
-                    self.on_navigate_next();
+                    self.on_navigate();
                 }
             }
             KeyCode::Char('c')
@@ -64,7 +68,7 @@ impl SelectionInput<'_> {
                     self.model.borrow_mut().clear_methods_filter();
                 } else {
                     self.context.selection_tab = SelectionTab::Services;
-                    self.model.borrow_mut().clear_methods();
+                    self.model.borrow_mut().clear_methods_selection();
                 }
             }
             KeyCode::Esc if tab == SelectionTab::Services => {
@@ -75,7 +79,7 @@ impl SelectionInput<'_> {
                     self.model.borrow_mut().clear_methods_filter();
                 } else {
                     self.context.selection_tab = SelectionTab::Services;
-                    self.model.borrow_mut().clear_methods();
+                    self.model.borrow_mut().clear_methods_selection();
                 }
             }
             KeyCode::Esc if tab == SelectionTab::SearchServices => {
@@ -90,33 +94,19 @@ impl SelectionInput<'_> {
             KeyCode::Down if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
                 self.context.selection_tab = tab.next();
             }
-            KeyCode::Char('j')
-                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
-            {
-                if tab == SelectionTab::Services {
-                    self.model.borrow_mut().next_service();
-                    self.model.borrow_mut().clear_methods();
-                }
-                if tab == SelectionTab::Methods {
-                    self.model.borrow_mut().next_method();
-                }
-                if let Some(method) = self.model.borrow().selected_method() {
-                    self.messages_model.borrow_mut().load_method(&method);
-                }
+            KeyCode::Char('j') if tab == SelectionTab::Services => {
+                self.model.borrow_mut().next_service();
+                self.model.borrow_mut().clear_methods_selection();
             }
-            KeyCode::Char('k')
-                if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) =>
-            {
-                if tab == SelectionTab::Services {
-                    self.model.borrow_mut().previous_service();
-                    self.model.borrow_mut().clear_methods();
-                }
-                if tab == SelectionTab::Methods {
-                    self.model.borrow_mut().previous_method();
-                }
-                if let Some(method) = self.model.borrow().selected_method() {
-                    self.messages_model.borrow_mut().load_method(&method);
-                }
+            KeyCode::Char('j') if tab == SelectionTab::Methods => {
+                self.model.borrow_mut().next_method();
+            }
+            KeyCode::Char('k') if tab == SelectionTab::Services => {
+                self.model.borrow_mut().previous_service();
+                self.model.borrow_mut().clear_methods_selection();
+            }
+            KeyCode::Char('k') if tab == SelectionTab::Methods => {
+                self.model.borrow_mut().previous_method();
             }
             KeyCode::Char('/') if tab == SelectionTab::Services => {
                 self.context.selection_tab = SelectionTab::SearchServices;
@@ -139,7 +129,8 @@ impl SelectionInput<'_> {
             _ => {}
         }
     }
-    fn on_navigate_next(&mut self) {
+
+    fn on_navigate(&mut self) {
         if self.context.selection_tab == SelectionTab::SearchServices {
             self.context.selection_tab = SelectionTab::Services;
         }
