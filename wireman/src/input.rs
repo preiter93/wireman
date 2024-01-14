@@ -4,7 +4,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::EditorMode;
 
 use crate::{
-    app::{AppContext, SelectionTab},
+    context::{AppContext, MessagesTab, SelectionTab},
     model::{
         headers::{HeadersModel, HeadersSelection},
         MessagesModel, SelectionModel,
@@ -88,11 +88,11 @@ impl SelectionInput<'_> {
             KeyCode::Esc if tab == SelectionTab::SearchMethods => {
                 self.context.selection_tab = SelectionTab::Methods;
             }
-            KeyCode::Up if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
-                self.context.selection_tab = tab.prev();
+            KeyCode::Down if tab == SelectionTab::Services => {
+                self.context.selection_tab = SelectionTab::Methods;
             }
-            KeyCode::Down if [SelectionTab::Services, SelectionTab::Methods].contains(&tab) => {
-                self.context.selection_tab = tab.next();
+            KeyCode::Up if tab == SelectionTab::Methods => {
+                self.context.selection_tab = SelectionTab::Services;
             }
             KeyCode::Char('j') if tab == SelectionTab::Services => {
                 self.model.borrow_mut().next_service();
@@ -149,52 +149,50 @@ impl SelectionInput<'_> {
 /// The input on the messages page.
 pub struct MessagesInput<'a> {
     pub model: Rc<RefCell<MessagesModel>>,
-    pub context: &'a mut AppContext,
+    pub ctx: &'a mut AppContext,
 }
 
 impl MessagesInput<'_> {
     pub fn handle(&mut self, event: KeyEvent) {
-        fn is_control(event: KeyEvent) -> bool {
-            event.modifiers == KeyModifiers::CONTROL
-        }
-
-        const SUBS: usize = 2;
+        let tab = self.ctx.messages_tab;
+        let modifier = event.modifiers;
         match event.code {
-            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
+            KeyCode::Char('c') if modifier == KeyModifiers::CONTROL => {
                 self.model.borrow_mut().abort_request();
             }
-            KeyCode::BackTab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.prev();
-                self.context.messages_tab = 0;
+            KeyCode::BackTab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.prev();
+                self.ctx.messages_tab = MessagesTab::default();
             }
-            KeyCode::Tab if !self.context.disable_root_events => {
-                self.context.tab = self.context.tab.next();
-                self.context.messages_tab = 0;
+            KeyCode::Tab if !self.ctx.disable_root_events => {
+                self.ctx.tab = self.ctx.tab.next();
+                self.ctx.messages_tab = MessagesTab::default();
             }
-            KeyCode::Down if !self.context.disable_root_events => {
-                self.context.messages_tab = self.context.messages_tab.saturating_add(1) % SUBS;
+            KeyCode::Down if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
+                self.ctx.messages_tab = MessagesTab::Response;
             }
-            KeyCode::Up if !self.context.disable_root_events => {
-                self.context.messages_tab =
-                    (self.context.messages_tab + SUBS).saturating_sub(1) % SUBS;
+            KeyCode::Up if tab == MessagesTab::Response && !self.ctx.disable_root_events => {
+                self.ctx.messages_tab = MessagesTab::Request;
             }
-            KeyCode::Enter
-                if self.context.messages_tab == 0 && !self.context.disable_root_events =>
-            {
+            KeyCode::Enter if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
                 self.model.borrow_mut().start_request();
             }
-            KeyCode::Char('y') if is_control(event) && !self.context.disable_root_events => {
+            KeyCode::Char('y')
+                if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
+            {
                 self.model.borrow_mut().yank_grpcurl();
             }
             KeyCode::Char('f')
-                if is_control(event)
-                    && self.context.messages_tab == 0
-                    && !self.context.disable_root_events =>
+                if modifier == KeyModifiers::CONTROL
+                    && tab == MessagesTab::Request
+                    && !self.ctx.disable_root_events =>
             {
                 let request = &mut self.model.borrow_mut().request.editor;
                 request.format_json();
             }
-            KeyCode::Char('d') if is_control(event) && !self.context.disable_root_events => {
+            KeyCode::Char('d')
+                if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
+            {
                 let method = self.model.borrow().selected_method.clone();
                 if let Some(method) = method {
                     self.model.borrow().history_model.delete(&method);
@@ -202,43 +200,47 @@ impl MessagesInput<'_> {
                     self.model.borrow_mut().headers_model.borrow_mut().clear();
                 }
             }
-            KeyCode::Char('s') if is_control(event) && !self.context.disable_root_events => {
+            KeyCode::Char('s')
+                if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
+            {
                 self.model.borrow().history_model.save(&self.model.borrow());
             }
-            KeyCode::Char('l') if is_control(event) && !self.context.disable_root_events => {
+            KeyCode::Char('l')
+                if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
+            {
                 let history_model = self.model.borrow().history_model.clone();
                 history_model.load(&mut self.model.borrow_mut());
             }
-            KeyCode::Char('1') if !self.context.disable_root_events => {
+            KeyCode::Char('1') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(1);
             }
-            KeyCode::Char('2') if !self.context.disable_root_events => {
+            KeyCode::Char('2') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(2);
             }
-            KeyCode::Char('3') if !self.context.disable_root_events => {
+            KeyCode::Char('3') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(3);
             }
-            KeyCode::Char('4') if !self.context.disable_root_events => {
+            KeyCode::Char('4') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(4);
             }
-            KeyCode::Char('5') if !self.context.disable_root_events => {
+            KeyCode::Char('5') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(5);
             }
             _ => {
                 let mut disable_root_events = false;
-                if self.context.messages_tab == 0 {
+                if tab == MessagesTab::Request {
                     let request = &mut self.model.borrow_mut().request.editor;
                     request.on_key(event, false);
                     disable_root_events = request.insert_mode();
                 }
-                if self.context.messages_tab == 1 {
+                if tab == MessagesTab::Response {
                     let response = &mut self.model.borrow_mut().response.editor;
                     response.on_key(event, false);
                     disable_root_events = response.insert_mode();
                 }
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.
-                self.context.disable_root_events = disable_root_events;
+                self.ctx.disable_root_events = disable_root_events;
             }
         }
     }

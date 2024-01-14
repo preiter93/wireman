@@ -1,8 +1,5 @@
 use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage, theme::THEME};
-use crate::{
-    app::{AppContext, Tab},
-    controller::Controller,
-};
+use crate::context::{AppContext, Tab};
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Tabs, Widget},
@@ -10,13 +7,12 @@ use ratatui::{
 use std::rc::Rc;
 
 pub struct Root<'a> {
-    context: &'a AppContext,
-    ctrl: &'a Controller,
+    ctx: &'a AppContext,
 }
 
 impl<'a> Root<'a> {
-    pub fn new(context: &'a AppContext, ctrl: &'a Controller) -> Self {
-        Root { context, ctrl }
+    pub fn new(context: &'a AppContext) -> Self {
+        Root { ctx: context }
     }
 }
 impl Root<'_> {
@@ -28,32 +24,32 @@ impl Root<'_> {
         Tabs::new(titles)
             .style(THEME.tabs)
             .highlight_style(THEME.tabs_selected)
-            .select(self.context.tab.index())
+            .select(self.ctx.tab.index())
             .divider("")
             .render(area[1], buf);
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
-        match self.context.tab {
+        match self.ctx.tab {
             Tab::Selection => SelectionPage {
-                model: &mut self.ctrl.selection.borrow_mut(),
-                sub: self.context.selection_tab,
+                model: &mut self.ctx.selection.borrow_mut(),
+                tab: self.ctx.selection_tab,
             }
             .render(area, buf),
             Tab::Messages => MessagesPage {
-                model: &mut self.ctrl.messages.borrow_mut(),
-                sub: self.context.messages_tab,
+                model: &mut self.ctx.messages.borrow_mut(),
+                tab: self.ctx.messages_tab,
             }
             .render(area, buf),
-            Tab::Headers => HeadersPage::new(&self.ctrl.headers.borrow()).render(area, buf),
+            Tab::Headers => HeadersPage::new(&self.ctx.headers.borrow()).render(area, buf),
         };
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
-        let keys = match self.context.tab {
-            Tab::Selection => SelectionPage::footer_keys(self.context.selection_tab),
+        let keys = match self.ctx.tab {
+            Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
             Tab::Messages => MessagesPage::footer_keys(),
-            Tab::Headers => HeadersPage::new(&self.ctrl.headers.borrow()).footer_keys(),
+            Tab::Headers => HeadersPage::new(&self.ctx.headers.borrow()).footer_keys(),
         };
         let spans: Vec<Span> = keys
             .iter()

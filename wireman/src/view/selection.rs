@@ -1,5 +1,5 @@
 #![allow(clippy::cast_possible_truncation)]
-use crate::app::SelectionTab;
+use crate::context::SelectionTab;
 use crate::model::SelectionModel;
 use crate::widgets::list::ListItem;
 use ratatui::layout::Rect;
@@ -12,7 +12,7 @@ use super::theme::THEME;
 /// The page where to select services and methods.
 pub struct SelectionPage<'a> {
     pub model: &'a mut SelectionModel,
-    pub sub: SelectionTab,
+    pub tab: SelectionTab,
 }
 
 impl<'a> SelectionPage<'a> {
@@ -42,7 +42,7 @@ impl Widget for SelectionPage<'_> {
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
             .split(area);
         let mut show_services_search = 0;
-        if self.model.services_filter.is_some() || self.sub == SelectionTab::SearchServices {
+        if self.model.services_filter.is_some() || self.tab == SelectionTab::SearchServices {
             show_services_search = 1;
         }
         let services_area = Layout::default()
@@ -51,7 +51,7 @@ impl Widget for SelectionPage<'_> {
             .split(area[0]);
 
         let mut show_methods_search = 0;
-        if self.model.methods_filter.is_some() || self.sub == SelectionTab::SearchMethods {
+        if self.model.methods_filter.is_some() || self.tab == SelectionTab::SearchMethods {
             show_methods_search = 1;
         }
         let methods_area = Layout::default()
@@ -74,7 +74,7 @@ impl Widget for SelectionPage<'_> {
             .map(|service| ListItem::new(service.clone()));
         let services_state = &mut self.model.services_state;
         let mut services_block = block.clone().title("Services").bold().white();
-        if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.sub) {
+        if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab) {
             services_block = services_block.border_type(BorderType::Double);
         }
         List::new(services.collect()).block(services_block).render(
@@ -96,7 +96,7 @@ impl Widget for SelectionPage<'_> {
             .map(|method| ListItem::new(method.clone()));
         let methods_state = &mut self.model.methods_state;
         let mut methods_block = block.clone().title("Methods").bold().white();
-        if self.sub == SelectionTab::Methods {
+        if self.tab == SelectionTab::Methods {
             methods_block = methods_block.border_type(BorderType::Double);
         }
         List::new(methods.collect()).block(methods_block).render(
