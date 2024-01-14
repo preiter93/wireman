@@ -40,7 +40,6 @@ impl Widget for SelectionTab<'_> {
             .direction(ratatui::layout::Direction::Vertical)
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
             .split(area);
-        let items = &self.model.items;
 
         // Block
         let block = Block::new()
@@ -50,31 +49,29 @@ impl Widget for SelectionTab<'_> {
             .padding(Padding::new(1, 1, 1, 1));
 
         // Services
-        let svcs = items.iter().map(|e| ListItem::new(e.service.clone()));
-        let index = self.model.selected_service_index();
-        let state = &mut self.model.svc_state;
-        state.select(index);
-        let mut svc_block = block.clone().title("Services").bold().white();
+        let services = (&self.model.services)
+            .iter()
+            .map(|service| ListItem::new(service.clone()));
+        let services_state = &mut self.model.services_state;
+        let mut services_block = block.clone().title("Services").bold().white();
         if self.sub == 0 {
-            svc_block = svc_block.border_type(BorderType::Double);
+            services_block = services_block.border_type(BorderType::Double);
         }
-        List::new(svcs.collect())
-            .block(svc_block)
-            .render(area[0], buf, state);
+        List::new(services.collect())
+            .block(services_block)
+            .render(area[0], buf, services_state);
 
         // Methods
-        if let Some(svc_index) = self.model.selected_service_index() {
-            let mths = &self.model.items[svc_index].methods;
-            let mths = mths.iter().map(|e| ListItem::new(e.to_string()));
-            let state = &mut self.model.mth_state;
-            state.select(self.model.selection.selected_child());
-            let mut block = block.title("Methods").bold().white();
-            if self.sub == 1 {
-                block = block.border_type(BorderType::Double);
-            }
-            List::new(mths.collect())
-                .block(block)
-                .render(area[1], buf, state);
+        let methods = (&self.model.methods)
+            .iter()
+            .map(|method| ListItem::new(method.clone()));
+        let methods_state = &mut self.model.methods_state;
+        let mut methods_block = block.clone().title("Methods").bold().white();
+        if self.sub == 1 {
+            methods_block = methods_block.border_type(BorderType::Double);
         }
+        List::new(methods.collect())
+            .block(methods_block)
+            .render(area[1], buf, methods_state);
     }
 }

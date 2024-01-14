@@ -37,12 +37,12 @@ impl Root<'_> {
         match self.context.tab {
             Tab::Selection => SelectionTab {
                 model: &mut self.ctrl.selection.borrow_mut(),
-                sub: self.context.sub,
+                sub: self.context.selection_tab,
             }
             .render(area, buf),
             Tab::Messages => MessagesTab {
                 model: &mut self.ctrl.messages.borrow_mut(),
-                sub: self.context.sub,
+                sub: self.context.messages_tab,
             }
             .render(area, buf),
             Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).render(area, buf),
@@ -51,7 +51,7 @@ impl Root<'_> {
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
         let keys = match self.context.tab {
-            Tab::Selection => SelectionTab::footer_keys(self.context.sub),
+            Tab::Selection => SelectionTab::footer_keys(self.context.selection_tab),
             Tab::Messages => MessagesTab::footer_keys(),
             Tab::Headers => HeadersTab::new(&self.ctrl.headers.borrow()).footer_keys(),
         };

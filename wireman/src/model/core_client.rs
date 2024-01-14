@@ -39,9 +39,23 @@ impl CoreClient {
         self.desc.get_services()
     }
 
+    /// Return a proto services by its name
+    pub fn get_service_by_name(&self, name: &str) -> Option<ServiceDescriptor> {
+        self.desc.get_service_by_name(name)
+    }
+
     /// Returns the proto methods of a given service
     pub fn get_methods(&self, service: &ServiceDescriptor) -> Vec<MethodDescriptor> {
         self.desc.get_methods(service)
+    }
+
+    /// Returns a proto method by its name
+    pub fn get_method_by_name(
+        &self,
+        service_name: &str,
+        method_name: &str,
+    ) -> Option<MethodDescriptor> {
+        self.desc.get_method_by_name(service_name, method_name)
     }
 
     /// Returns the proto request of a given method
