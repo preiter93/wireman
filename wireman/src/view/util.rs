@@ -66,3 +66,11 @@ pub(super) fn crop_top(area: Rect, size: u16) -> Rect {
         height: size,
     }
 }
+pub(super) fn crop_bot(area: Rect, size: u16) -> Rect {
+    Rect {
+        x: area.x,
+        y: area.y + size,
+        width: area.width,
+        height: size,
+    }
+}
