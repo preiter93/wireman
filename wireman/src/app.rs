@@ -110,6 +110,7 @@ pub enum SelectionTab {
     Services,
     Methods,
     SearchServices,
+    SearchMethods,
 }
 
 impl SelectionTab {
@@ -118,6 +119,7 @@ impl SelectionTab {
             Self::Services => Self::Methods,
             Self::Methods => Self::Services,
             Self::SearchServices => Self::Services,
+            Self::SearchMethods => Self::Methods,
         }
     }
     pub fn prev(self) -> Self {
@@ -125,6 +127,7 @@ impl SelectionTab {
             Self::Services => Self::Methods,
             Self::Methods => Self::Services,
             Self::SearchServices => Self::Services,
+            Self::SearchMethods => Self::Methods,
         }
     }
 }
