@@ -4,6 +4,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use tui_widget_list::ListState;
 
+use crate::commons::debug::log;
+
 use super::core_client::CoreClient;
 
 #[derive(Clone)]
@@ -156,6 +158,7 @@ impl SelectionModel {
         ) {
             let service_name = &self.services()[service_index];
             let method_name = &self.methods()[method_index];
+            log(format!("method name {}", method_name));
             return self
                 .core_client
                 .borrow()
@@ -191,8 +194,8 @@ impl SelectionModel {
         methods
     }
 
-    pub fn clear_services_filter(&mut self) {
-        self.services_filter = None;
+    fn set_services_filter(&mut self, filter: Option<String>) {
+        self.services_filter = filter;
         if !self.services().is_empty() {
             self.services_state.select(Some(0));
         } else {
@@ -201,51 +204,54 @@ impl SelectionModel {
         self.load_methods();
     }
 
-    pub fn clear_methods_filter(&mut self) {
-        self.methods_filter = None;
+    fn set_methods_filter(&mut self, filter: Option<String>) {
+        self.methods_filter = filter;
         if !self.methods().is_empty() {
             self.methods_state.select(Some(0));
         } else {
             self.methods_state.select(None);
         }
+    }
+
+    pub fn clear_services_filter(&mut self) {
+        self.set_services_filter(None);
+    }
+
+    pub fn clear_methods_filter(&mut self) {
+        self.set_methods_filter(None);
     }
 
     pub fn push_char_services_filter(&mut self, ch: char) {
-        if let Some(filter) = &mut self.services_filter {
-            filter.push(ch);
-        } else {
-            self.services_filter = Some(String::from(ch));
-        }
-        if !self.services().is_empty() {
-            self.services_state.select(Some(0));
-            self.load_methods();
-        } else {
-            self.services_state.select(None);
-        }
+        let new_filter = self
+            .services_filter
+            .take()
+            .map_or(Some(String::from(ch)), |prev| {
+                Some(prev + &String::from(ch))
+            });
+        self.set_services_filter(new_filter);
     }
 
     pub fn push_char_methods_filter(&mut self, ch: char) {
-        if let Some(filter) = &mut self.methods_filter {
-            filter.push(ch);
-        } else {
-            self.methods_filter = Some(String::from(ch));
-        }
-        if !self.methods().is_empty() {
-            self.methods_state.select(Some(0));
-        } else {
-            self.methods_state.select(None);
-        }
+        let new_filter = self
+            .methods_filter
+            .take()
+            .map_or(Some(String::from(ch)), |prev| {
+                Some(prev + &String::from(ch))
+            });
+        self.set_methods_filter(new_filter);
     }
 
     pub fn remove_char_services_filter(&mut self) {
-        if let Some(filter) = &mut self.services_filter {
+        if let Some(mut filter) = self.services_filter.take() {
             let _ = filter.pop();
+            self.set_services_filter(Some(filter));
         }
     }
 
     pub fn remove_char_methods_filter(&mut self) {
-        if let Some(filter) = &mut self.methods_filter {
+        if let Some(mut filter) = self.methods_filter.take() {
             let _ = filter.pop();
+            self.set_methods_filter(Some(filter));
         }
     }
 }
