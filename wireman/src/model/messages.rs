@@ -98,6 +98,13 @@ impl MessagesModel {
         self.response.editor.clear();
     }
 
+    /// Dump text into the no method buffer
+    pub fn set_no_method_error(&mut self) {
+        let dump_cache_id = "NO_METHOD_CACHE_ID";
+        self.change_method(dump_cache_id);
+        self.request.set_text("Go back and select a method");
+    }
+
     /// Change method. Check if the response and request are in cache.
     /// Generate a new cache entry if the method has not been visited.
     fn change_method(&mut self, id: &str) {

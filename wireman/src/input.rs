@@ -140,8 +140,7 @@ impl SelectionInput<'_> {
         if let Some(method) = self.model.borrow().selected_method() {
             self.messages_model.borrow_mut().load_method(&method);
         } else {
-            let msg = "Go back and select a method";
-            self.messages_model.borrow_mut().request.set_text(msg);
+            self.messages_model.borrow_mut().set_no_method_error();
         }
     }
 }
