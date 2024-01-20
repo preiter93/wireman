@@ -6,7 +6,6 @@ mod context;
 mod input;
 mod model;
 mod term;
-mod theme;
 mod view;
 mod widgets;
 use app::App;

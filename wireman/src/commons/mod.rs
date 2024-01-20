@@ -1,12 +1,6 @@
 pub mod debug;
 pub mod editor;
 
-use crate::theme;
-use ratatui::{
-    style::Style,
-    text::Span,
-    widgets::{Block, Borders},
-};
 use std::slice::Iter;
 
 #[macro_export]
@@ -14,42 +8,6 @@ macro_rules! control_with_key {
     ($code:expr) => {
         (KeyModifiers::CONTROL, KeyCode::Char($code))
     };
-}
-
-/// Default border window. Highlighted borders can have
-/// a different style.
-pub fn window_border(title: &str, highlighted: bool) -> Block {
-    let (border_style, border_type) = if highlighted {
-        (
-            Style::default()
-                .fg(theme::COL_WINDOW_BORDER_HIGHLIGHTED_FG)
-                .bg(theme::COL_WINDOW_BORDER_HIGHLIGHTED_BG),
-            theme::TYP_BORDER_HIGHLIGHTED,
-        )
-    } else {
-        (
-            Style::default()
-                .fg(theme::COL_WINDOW_BORDER_FG)
-                .bg(theme::COL_WINDOW_BORDER_BG),
-            theme::TYP_BORDER,
-        )
-    };
-
-    Block::default()
-        .title(Span::styled(
-            title,
-            Style::default()
-                .fg(theme::COL_WINDOW_TITLE)
-                .add_modifier(theme::MOD_WINDOW_TITLE),
-        ))
-        .borders(Borders::ALL)
-        .style(
-            Style::default()
-                .fg(theme::COL_TEXT_NORMAL)
-                .bg(theme::COL_BACKGROUND),
-        )
-        .border_type(border_type)
-        .border_style(border_style)
 }
 
 type HelpAction = (&'static str, &'static str);
