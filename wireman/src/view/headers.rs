@@ -127,7 +127,7 @@ impl Widget for HeadersPage<'_> {
         StatusLine::default()
             .style_text(THEME.status_line.0)
             .style_line(THEME.status_line.1)
-            .content(self.model.mode().name())
+            .mode(self.model.mode().name())
             .render(area[6], buf);
     }
 }
