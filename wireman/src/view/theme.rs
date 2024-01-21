@@ -1,3 +1,4 @@
+mod tailwind;
 use ratatui::{prelude::*, widgets::BorderType};
 
 pub struct Theme {
@@ -55,8 +56,11 @@ pub const THEME: Theme = Theme {
         selected: Style::new().fg(DARK_BLUE).bg(WHITE),
     },
     status_line: (
-        Style::new().fg(Color::Indexed(255)).bg(DARK_PURPLE),
-        Style::new().bg(LIGHT_PURPLE),
+        Style::new()
+            .fg(WHITE)
+            .bg(LIGHT_PURPLE)
+            .add_modifier(Modifier::BOLD),
+        Style::new().bg(DARK_PURPLE),
     ),
     divider: Divider {
         title: Style::new()
@@ -68,16 +72,18 @@ pub const THEME: Theme = Theme {
     },
 };
 
-const DARK_BLUE: Color = Color::Rgb(16, 24, 48);
-const DARK_PURPLE: Color = Color::Indexed(55);
-const LIGHT_PURPLE: Color = Color::Indexed(93);
-const LIGHT_BLUE: Color = Color::Rgb(64, 96, 192);
-const LIGHT_YELLOW: Color = Color::Rgb(192, 192, 96);
-const LIGHT_GREEN: Color = Color::Rgb(64, 192, 96);
-const LIGHT_RED: Color = Color::Rgb(192, 96, 96);
-const RED: Color = Color::Indexed(160);
-const BLACK: Color = Color::Indexed(232);
-const DARK_GRAY: Color = Color::Indexed(238);
-const MID_GRAY: Color = Color::Indexed(244);
-const LIGHT_GRAY: Color = Color::Indexed(250);
-const WHITE: Color = Color::Indexed(255);
+// Blue
+const DARK_BLUE: Color = tailwind::SLATE.c900;
+
+// Purple
+const LIGHT_PURPLE: Color = tailwind::PURPLE.c700;
+const DARK_PURPLE: Color = tailwind::PURPLE.c900;
+
+// Gray
+const LIGHT_GRAY: Color = tailwind::SLATE.c400;
+const MID_GRAY: Color = tailwind::SLATE.c600;
+const DARK_GRAY: Color = tailwind::SLATE.c800;
+
+// Black and white
+const WHITE: Color = tailwind::SLATE.c100;
+const BLACK: Color = tailwind::SLATE.c950;
