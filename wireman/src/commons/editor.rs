@@ -100,6 +100,11 @@ impl TextEditor {
         self.state.mode == EditorMode::Insert
     }
 
+    /// Whether the editor is in search mode
+    pub fn search_mode(&self) -> bool {
+        self.state.mode == EditorMode::Search
+    }
+
     /// Insert a str at the current cursor position. Handles newlines.
     fn insert_char(&mut self, ch: char) {
         InsertChar(ch).execute(&mut self.state);

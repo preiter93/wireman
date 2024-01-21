@@ -36,7 +36,7 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
     let theme = EditorTheme::default()
         .block(block)
         .hide_status_line()
-        .hide_cursor();
+        .cursor_style(THEME.content);
     EditorView::new(state).theme(theme)
 }
 
