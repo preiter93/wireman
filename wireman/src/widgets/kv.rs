@@ -1,6 +1,6 @@
 use edtui::EditorState;
 use ratatui::{prelude::*, widgets::Widget};
-use tui_widget_list::Listable;
+use tui_widget_list::ListableWidget;
 
 use crate::view::editor::{view_single_selected, view_single_unselected};
 
@@ -23,8 +23,8 @@ impl KV {
     }
 }
 
-impl Listable for KV {
-    fn height(&self) -> usize {
+impl ListableWidget for KV {
+    fn main_axis_size(&self) -> usize {
         3
     }
 }
