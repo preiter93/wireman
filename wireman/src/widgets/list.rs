@@ -5,7 +5,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
-use tui_widget_list::Listable;
+use tui_widget_list::ListableWidget;
 
 use crate::view::theme::THEME;
 
@@ -34,10 +34,11 @@ impl<'a> ListItem<'a> {
     }
 }
 
-impl Listable for ListItem<'_> {
-    fn height(&self) -> usize {
+impl ListableWidget for ListItem<'_> {
+    fn main_axis_size(&self) -> usize {
         1
     }
+
     fn highlight(self) -> Self {
         let mut item = self;
         let highlight_style = THEME.list.selected;
