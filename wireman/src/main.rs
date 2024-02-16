@@ -18,7 +18,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// This env is used to read the path for the `WireMan` config.
 /// If it is not set, the config is expected in the current
 /// directory.
-const ENV_CONFIG: &str = "WIREMAN_CONFIG";
+const ENV_CONFIG: &str = "WIREMAN_CONFIG_DIR";
 
 /// Debug flag
 const DEBUG: bool = true;
@@ -36,12 +36,12 @@ async fn main() -> Result<()> {
 fn init_env() -> Result<Config> {
     fn env_file() -> String {
         if let Ok(current_dir) = std::env::current_dir() {
-            let config_path = current_dir.join("config.json");
+            let config_path = current_dir.join("config.toml");
             if config_path.exists() && config_path.is_file() {
-                return format!("{}/config.json", current_dir.to_str().unwrap());
+                return format!("{}/config.toml", current_dir.to_str().unwrap());
             }
         }
-        env::var(ENV_CONFIG).unwrap_or("config.json".to_string())
+        env::var(ENV_CONFIG).unwrap_or("config.toml".to_string())
     }
     let cfg_file = env_file();
     let cfg = Config::load(&cfg_file).map_err(|err| {

@@ -1,0 +1,8 @@
+workspace = "/Users/philippreiter/Rust/wireman/test_utils"
+
+files = [
+    "grpc_simple/greeter.proto",
+    "grpc_simple/timekeeper.proto",
+    "grpc_simple/debugger.proto",
+    "grpc_simple/productfinder.proto"
+]

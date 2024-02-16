@@ -16,10 +16,10 @@ pub struct Config {
     pub tls: TlsConfig,
     /// The default server address
     #[serde(default)]
-    pub address: String,
+    pub default_address: String,
     /// The path in which to store the request history
     #[serde(default)]
-    pub history: String,
+    pub history_dir: String,
 }
 
 impl Config {
@@ -34,25 +34,25 @@ impl Config {
             filename: f,
             source: err,
         })?;
-        Self::deserialize(&data)
+        Self::deserialize_toml(&data)
     }
 
-    /// Parses the config from a string.
+    /// Parses the config from a toml-formatted string.
     ///
     /// # Errors
     ///
     /// Returns an error if serde deserialization fails.
-    fn deserialize(data: &str) -> Result<Self> {
-        serde_json::from_str(data).map_err(Error::DeserializeConfigError)
+    fn deserialize_toml(data: &str) -> Result<Self> {
+        toml::from_str(data).map_err(Error::DeserializeConfigError)
     }
 
-    /// Serializes the config to a json string.
+    /// Serializes the config to a toml-formatted string.
     ///
     /// # Errors
     ///
     /// Returns an error if serde serialization fails.
-    pub fn serialize(&self) -> Result<String> {
-        serde_json::to_string(self).map_err(Error::SerializeConfigError)
+    pub fn serialize_toml(&self) -> Result<String> {
+        toml::to_string(self).map_err(Error::SerializeConfigError)
     }
 
     /// Gets the includes directories. Tries to shell expand the path
@@ -79,7 +79,7 @@ impl Config {
     /// environment variables such as $HOME or ~.
     #[must_use]
     pub fn history(&self) -> String {
-        shellexpand::env(&self.history).map_or(self.history.clone(), |x| x.to_string())
+        shellexpand::env(&self.history_dir).map_or(self.history_dir.clone(), |x| x.to_string())
     }
 }
 
@@ -103,67 +103,48 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_deserialize() {
+    fn test_deserialize_toml() {
         let data = r#"
-        {
-            "includes": [
-                "/Users/myworkspace"
-            ],
-            "files": [
-                "api.proto",
-                "internal.proto"
-            ],
-            "address": "http://localhost:50051",
-            "history": "/Users/test"
-        }"#;
-        let cfg = Config::deserialize(&data).unwrap();
-        let expected = Config {
-            includes: vec!["/Users/myworkspace".to_string()],
-            files: vec!["api.proto".to_string(), "internal.proto".to_string()],
-            tls: TlsConfig::default(),
-            address: "http://localhost:50051".to_string(),
-            history: "/Users/test".to_string(),
-        };
-        assert_eq!(cfg, expected);
-    }
-
-    #[test]
-    fn test_deserialize_with_tls() {
-        let data = r#"
-        {
-            "includes": [
-                "/Users/myworkspace"
-            ],
-            "files": [
-                "api.proto",
-                "internal.proto"
-            ],
-            "tls": {
-                "custom_cert": "cert.pem"
-            }
-        }"#;
-        let cfg = Config::deserialize(&data).unwrap();
+        includes = [
+            "/Users/myworkspace"
+        ]
+        files = [
+            "api.proto",
+            "internal.proto"
+        ]
+        default_address = "http://localhost:50051"
+        history_dir = "/Users/test"
+        [tls]
+        custom_cert = "cert.pem"
+        "#;
+        let cfg = Config::deserialize_toml(&data).unwrap();
         let expected = Config {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
-            address: String::new(),
-            history: String::new(),
+            default_address: "http://localhost:50051".to_string(),
+            history_dir: "/Users/test".to_string(),
         };
         assert_eq!(cfg, expected);
     }
 
     #[test]
-    fn test_serialize() {
+    fn test_serialize_toml() {
         let cfg = Config {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
-            address: "http://localhost:50051".to_string(),
-            history: "/Users/test".to_string(),
+            default_address: "http://localhost:50051".to_string(),
+            history_dir: "/Users/test".to_string(),
         };
-        let expected = r#"{"includes":["/Users/myworkspace"],"files":["api.proto","internal.proto"],"tls":{"custom_cert":null},"address":"http://localhost:50051","history":"/Users/test"}"#;
-        assert_eq!(cfg.serialize().unwrap(), expected);
+        let expected = r#"includes = ["/Users/myworkspace"]
+files = ["api.proto", "internal.proto"]
+default_address = "http://localhost:50051"
+history_dir = "/Users/test"
+
+[tls]
+"#;
+        assert_eq!(cfg.serialize_toml().unwrap(), expected);
     }
 
     #[test]
@@ -172,8 +153,8 @@ mod test {
             includes: vec!["$HOME/workspace".to_string()],
             files: vec![],
             tls: TlsConfig::default(),
-            address: String::new(),
-            history: String::new(),
+            default_address: String::new(),
+            history_dir: String::new(),
         };
         let got = cfg.includes();
         let home = std::env::var("HOME").unwrap();
