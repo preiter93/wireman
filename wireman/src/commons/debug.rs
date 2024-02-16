@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-use crate::DEBUG;
+use config::DEBUG;
 
 #[allow(dead_code)]
 pub fn log<T: Debug>(data: T) {

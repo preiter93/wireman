@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use config::AUTOSAVE_HISTORY;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::EditorMode;
 
@@ -9,7 +10,6 @@ use crate::{
         headers::{HeadersModel, HeadersSelection},
         MessagesModel, SelectionModel,
     },
-    AUTOSAVE_HISTORY,
 };
 
 /// The input on the select services and methods page

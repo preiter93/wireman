@@ -11,15 +11,15 @@ pub struct Config {
     pub includes: Vec<String>,
     /// A list of proto files such as [internal.proto, api.proto]
     pub files: Vec<String>,
+    /// The history config
+    #[serde(default)]
+    pub history: HistoryConfig,
+    /// The server config
+    #[serde(default)]
+    pub server: ServerConfig,
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
-    /// The default server address
-    #[serde(default)]
-    pub default_address: String,
-    /// The path in which to store the request history
-    #[serde(default)]
-    pub history_dir: String,
 }
 
 impl Config {
@@ -79,11 +79,41 @@ impl Config {
     /// environment variables such as $HOME or ~.
     #[must_use]
     pub fn history(&self) -> String {
-        shellexpand::env(&self.history_dir).map_or(self.history_dir.clone(), |x| x.to_string())
+        shellexpand::env(&self.history.directory)
+            .map_or(self.history.directory.clone(), |x| x.to_string())
     }
 }
 
 /// The TLS config of the grpc client.
+/// The config for the server values of the grpc client.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct ServerConfig {
+    /// The default address
+    pub default_address: String,
+}
+
+impl ServerConfig {
+    pub fn new(default_address: &str) -> Self {
+        Self {
+            default_address: default_address.to_string(),
+        }
+    }
+}
+/// The history config of the grpc client.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct HistoryConfig {
+    /// The directory where the history is saved
+    pub directory: String,
+}
+
+impl HistoryConfig {
+    pub fn new(directory: &str) -> Self {
+        Self {
+            directory: directory.to_string(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct TlsConfig {
     /// Custom certificates
@@ -112,8 +142,10 @@ mod test {
             "api.proto",
             "internal.proto"
         ]
+        [server]
         default_address = "http://localhost:50051"
-        history_dir = "/Users/test"
+        [history]
+        directory = "/Users/test"
         [tls]
         custom_cert = "cert.pem"
         "#;
@@ -122,8 +154,8 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
-            default_address: "http://localhost:50051".to_string(),
-            history_dir: "/Users/test".to_string(),
+            server: ServerConfig::new("http://localhost:50051"),
+            history: HistoryConfig::new("/Users/test"),
         };
         assert_eq!(cfg, expected);
     }
@@ -134,13 +166,17 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
-            default_address: "http://localhost:50051".to_string(),
-            history_dir: "/Users/test".to_string(),
+            server: ServerConfig::new("http://localhost:50051"),
+            history: HistoryConfig::new("/Users/test"),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
+
+[history]
+directory = "/Users/test"
+
+[server]
 default_address = "http://localhost:50051"
-history_dir = "/Users/test"
 
 [tls]
 "#;
@@ -153,8 +189,8 @@ history_dir = "/Users/test"
             includes: vec!["$HOME/workspace".to_string()],
             files: vec![],
             tls: TlsConfig::default(),
-            default_address: String::new(),
-            history_dir: String::new(),
+            server: ServerConfig::default(),
+            history: HistoryConfig::default(),
         };
         let got = cfg.includes();
         let home = std::env::var("HOME").unwrap();

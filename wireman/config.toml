@@ -1,11 +1,16 @@
 includes = [
     "$HOME/Rust/wireman/test_utils"
 ]
+
 files = [
     "grpc_simple/greeter.proto",
     "grpc_simple/timekeeper.proto",
     "grpc_simple/debugger.proto",
     "grpc_simple/productfinder.proto"
 ]
+
+[server]
 default_address = "http://localhost:50051"
-history_dir = "$HOME/Rust/wireman/wireman/history"
+
+[history]
+directory = "$HOME/Rust/wireman/wireman/history"

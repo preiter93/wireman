@@ -60,8 +60,10 @@ This guide will walk you through the steps to set up and run WireMan.
     files = [
         "a-proto-file-in-your-project.proto"
     ]
+    [server]
     default_address = "http://localhost:50051"
-    history_dir = "$HOME/.config/wireman/history"
+    [history]
+    directory = "$HOME/.config/wireman/history"
     ```
 
     Replace with the appropriate values for your project.
