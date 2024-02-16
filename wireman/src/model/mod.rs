@@ -7,6 +7,4 @@ pub mod selection;
 
 pub use core_client::CoreClient;
 pub use messages::MessagesModel;
-pub use messages::RequestModel;
-pub use messages::ResponseModel;
 pub use selection::SelectionModel;
