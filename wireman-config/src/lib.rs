@@ -7,7 +7,8 @@
 //!
 //! - `includes`: A list of include directories for `gRPC`.
 //! - `files`: A list of .proto files to include.
-//! - `address`: The address of the `gRPC` server.
+//! - `default_address`: The default address of the `gRPC` server.
+//! - `history_dir`: The folder path where the history should be kept
 pub mod config;
 pub mod error;
 pub use config::Config;

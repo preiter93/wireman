@@ -12,21 +12,19 @@ WireMan is an ideal choice for developers testing gRPC endpoints directly from t
 
 At startup, WireMan searches for a configuration file that is specified in the `WIREMAN_CONFIG` environment variable:
 ```
-export WIREMAN_CONFIG="$HOME/.config/wireman/config.json"
+export WIREMAN_CONFIG_DIR="$HOME/.config/wireman/config.tom"
 ```
 The configuration file looks like this:
-```json
-{
-    "address": "http://localhost:50051",
-    "history": "$HOME/.config/wireman/history",
-    "includes": [
-        "$HOME/your-project/protos"
-    ],
-    "files": [
-        "grpc_simple/greeter.proto",
-        "grpc_simple/timekeeper.proto"
-    ]
-}
+```toml
+includes = [
+    "$HOME/your-project/protos"
+]
+files = [
+    "grpc_simple/greeter.proto",
+    "grpc_simple/timekeeper.proto"
+]
+default_address = "http://localhost:50051"
+history_dir = "$HOME/.config/wireman/history"
 ```
 With this configuration, the default host address is `localhost:50051`. The request history is saved in the directory `$HOME/.config/wireman/history`. `Includes` defines a list of directories in which to search for proto files and `files` specifies all `.proto` files to be loaded into WireMan.
 

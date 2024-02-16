@@ -14,11 +14,11 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    /// Error while serializing the config
+    /// Error  serializing toml-formatted config
     #[error("error serializing config")]
-    SerializeConfigError(#[source] serde_json::Error),
+    SerializeConfigError(#[source] toml::ser::Error),
 
-    /// Error while deserializing the config
+    /// Error deserializing toml-formatted config
     #[error("error deserializing config")]
-    DeserializeConfigError(#[source] serde_json::Error),
+    DeserializeConfigError(#[source] toml::de::Error),
 }

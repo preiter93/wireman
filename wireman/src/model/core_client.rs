@@ -67,7 +67,7 @@ impl CoreClient {
 
     /// Returns the default address as defined in the config.json
     pub fn get_default_address(&self) -> String {
-        self.grpc.0.address.clone()
+        self.grpc.0.default_address.clone()
     }
 
     /// Makes a unary grpc call with a given Message and Method which is
