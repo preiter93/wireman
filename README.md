@@ -8,42 +8,79 @@
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
 
-## Configuration Setup
+# Getting Started with [Your Rust gRPC Client Name]
 
-At startup, WireMan searches for a configuration file that is specified in the `WIREMAN_CONFIG` environment variable:
-```
-export WIREMAN_CONFIG_DIR="$HOME/.config/wireman/config.tom"
-```
-The configuration file looks like this:
-```toml
-includes = [
-    "$HOME/your-project/protos"
-]
-files = [
-    "grpc_simple/greeter.proto",
-    "grpc_simple/timekeeper.proto"
-]
-default_address = "http://localhost:50051"
-history_dir = "$HOME/.config/wireman/history"
-```
-With this configuration, the default host address is `localhost:50051`. The request history is saved in the directory `$HOME/.config/wireman/history`. `Includes` defines a list of directories in which to search for proto files and `files` specifies all `.proto` files to be loaded into WireMan.
+This guide will walk you through the steps to set up and run WireMan.
+
+## Prerequisites
+
+- Rust: [Minimum required Rust version = 1.70] ([Installation Guide](https://www.rust-lang.org/tools/install))
+
+## Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/preiter93/wireman.git
+    ```
+
+2. Build in release mode:
+
+    ```bash
+    cd wireman
+    cargo build --release
+    ```
+
+3. Copy the binary to your PATH, e.g.:
+
+    ```bash
+    cp target/release/wireman /usr/local/bin
+    ```
+
+## Configuration
+
+1. Set the `WIREMAN_CONFIG_DIR` environment variable to specify the directory where your configuration file will reside:
+
+    ```bash
+    export WIREMAN_CONFIG_DIR=~/.config/wireman
+    ```
+
+2. Create the directory specified in `wireman_config_dir`:
+
+    ```bash
+    mkdir -p ~/.config/wireman
+    ```
+
+3. Create a `config.toml` file in the specified directory. Here's an example configuration:
+
+    ```toml
+    includes = [
+        "$HOME/your-project"
+    ]
+    files = [
+        "a-proto-file-in-your-project.proto"
+    ]
+    default_address = "http://localhost:50051"
+    history_dir = "$HOME/.config/wireman/history"
+    ```
+
+    Replace with the appropriate values for your gRPC server.
+
+## Usage
+
+1. After adding the protos in the config, the first page of Wireman will list your grpc services and their methods. You can navigate with up/down or j/k, select with enter, then click tab.
+
+2. The second page is the message screen. Edit your request message, you can format it with Ctrl+f. Then click tab.
+ 
+3. The third page is the config screen where you can input the address or metadata. Wireman allows for using bash scripts to get your tokens. Place the name of your script in the bearer token field, which must be in your PATH, between `$()`, e.g. `$(getToken.sh)`. Go back with Shift+Tab or click tab twice.
+
+4. Now you can make the request by clicking Enter. You can save it with Ctrl+s. Saved requests are stored in spots 1 to 5. Switch to a spot by clicking the respective number. You can restore the default request with Ctrl+d, which deletes the history.
+
+5. If you want to get the current request as a gRPCurl command, click Ctrl+Y on the request tab, and it's copied to your clipboard.
 
 ## Demo
 
 ![](resources/demo.gif)
-
-## Features
-
-#### Maintain a Request History
-You can save up to five histories per request and switch between them by typing numbers 1 to 5. Save your preferred history by typing ctrl+s, and delete a history with ctrl+d.
-
-The directory in which the history is saved is defined in the config under "history". If this field is left empty, WireMan does not save a request history.
-
-#### Copy as grpcurl
-WireMan offers the option of copying the request data as a raw `grpcurl` command, which simplifies collaboration with your colleagues. Navigate to the request page and press ctrl+y.
-
-#### Format request
-On the request page, press ctrl+f. This formats the request message as pretty json (if possible).
 
 ## Roadmap
 
@@ -61,6 +98,8 @@ On the request page, press ctrl+f. This formats the request message as pretty js
 Planned
 - [ ] Edit config file in app
 - [ ] Provide installation help
+- [ ] Custom themes
+- [ ] Command line help
 
 Maybe
 - [ ] Streaming gRPC
