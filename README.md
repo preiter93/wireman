@@ -3,7 +3,7 @@
     <img src="https://github.com/preiter93/wireman/blob/main/resources/logo-dark.png?raw=true#gh-dark-mode-only" width="700"/>
 </p>
 
-## What is WireMan?
+# What is WireMan?
 
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
