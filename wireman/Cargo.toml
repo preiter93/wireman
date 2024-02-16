@@ -8,6 +8,7 @@ repository = "https://github.com/preiter93/wireman"
 keywords = ["gRPC", "proto", "TUI"]
 readme = "README.md"
 license = "MIT"
+rust-version = "1.70.0"
 
 [dependencies]
 core = { package = "wireman_core", path = "../wireman-core", version = "0.1.0" }
