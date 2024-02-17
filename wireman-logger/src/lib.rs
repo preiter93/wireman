@@ -29,6 +29,7 @@ impl Logger {
 
     /// Initialize logger with file and log level
     ///
+    ///
     /// # Errors
     /// - Could not set global logger
     pub fn init<S: Into<String>>(file_path: S, log_level: LogLevel) -> Result<(), LoggerError> {

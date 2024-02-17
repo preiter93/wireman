@@ -4,6 +4,7 @@ members = [
     "wireman-core",
     "wireman-config",
     "wireman-logger",
+    "wireman-theme",
     "wireman",
 ]
 

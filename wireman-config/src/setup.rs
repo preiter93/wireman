@@ -7,9 +7,11 @@ use std::path::Path;
 use logger::{Logger, LoggerError};
 
 use crate::config::{HistoryConfig, LoggingConfig};
+use crate::theme::init_theme;
 use crate::{Config, CONFIG_FNAME, ENV_CONFIG_DIR};
 
 use crate::error::{Error, Result};
+use std::result::Result as StdResult;
 
 /// Initializes the `Config` from environment variables
 ///
@@ -36,7 +38,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
             if dry_run {
                 println!("{:<20} Error: {}", "Config:", err);
             }
-            return Err(err);
+            return Err(Error::SetupError(err));
         }
         Ok(config_dir) => config_dir,
     };
@@ -47,7 +49,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
             if dry_run {
                 println!("{:<20} Error: {}", "Config:", err);
             }
-            return Err(err);
+            return Err(Error::SetupError(err));
         }
         Ok(config_dir) => {
             if dry_run {
@@ -75,9 +77,9 @@ pub fn setup(dry_run: bool) -> Result<Config> {
         let history_dir = match history_dir_checked(config_dir_path, &config.history) {
             Err(err) => {
                 if dry_run {
-                    println!("{:<20} Error: {}", "Config:", err);
+                    println!("{:<20} Error: {}", "History:", err.to_string());
                 }
-                return Err(err);
+                return Err(Error::SetupError(err));
             }
             Ok(history_dir) => {
                 if dry_run {
@@ -101,7 +103,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
             if dry_run {
                 println!("{:<20} Error: {}", "Logging:", err);
             }
-            return Err(err);
+            return Err(Error::SetupError(err));
         }
         Ok(logger_dir) => {
             config.logging.directory = logger_dir.clone();
@@ -120,47 +122,54 @@ pub fn setup(dry_run: bool) -> Result<Config> {
         }
     }
 
+    if !dry_run {
+        init_theme(&config.ui)?;
+    }
+
     Ok(config)
 }
 
-fn config_dir_checked() -> Result<String> {
+fn config_dir_checked() -> StdResult<String, SetupError> {
     let config_dir = var(ENV_CONFIG_DIR).map_err(|err| {
-        Error::SetupError(SetupError::new(format!(
+        SetupError::new(format!(
             "Failed to read the environment variable {ENV_CONFIG_DIR}, err: {err}",
-        )))
+        ))
     })?;
 
     if config_dir.is_empty() {
-        return Err(Error::SetupError(SetupError::new(
+        return Err(SetupError::new(
             "The {ENV_CONFIG_DIR} environment variable is empty. \
 Please provide a configuration path.",
-        )));
+        ));
     }
 
     let config_path = Path::new(&config_dir);
     if !config_path.exists() {
-        return Err(Error::SetupError(SetupError::new(format!(
+        return Err(SetupError::new(format!(
             "The directory specified by the env variable '{ENV_CONFIG_DIR}' \
              does not exist: {config_dir}",
-        ))));
+        )));
     }
 
     Ok(config_dir)
 }
 
-fn config_file_checked(config_path: &Path) -> Result<String> {
+fn config_file_checked(config_path: &Path) -> StdResult<String, SetupError> {
     let config_file_path = config_path.join(CONFIG_FNAME);
     let config_file = config_file_path.to_string_lossy();
     if !config_path.exists() {
-        return Err(Error::SetupError(SetupError::new(format!(
+        return Err(SetupError::new(format!(
             "No config file found: {config_file}"
-        ))));
+        )));
     }
 
     Ok(config_file.to_string())
 }
 
-fn history_dir_checked(config_path: &Path, history: &HistoryConfig) -> Result<String> {
+fn history_dir_checked(
+    config_path: &Path,
+    history: &HistoryConfig,
+) -> StdResult<String, SetupError> {
     let mut history_dir_path = history.directory_expanded();
     if history_dir_path.is_empty() {
         let default_history_path = {
@@ -174,15 +183,18 @@ fn history_dir_checked(config_path: &Path, history: &HistoryConfig) -> Result<St
         .parent()
         .map_or(true, |p| !p.exists())
     {
-        return Err(Error::SetupError(SetupError::new(format!(
+        return Err(SetupError::new(format!(
             "Non existant parent of history directory {history_dir_path}.",
-        ))));
+        )));
     }
 
     Ok(history_dir_path)
 }
 
-fn logger_dir_checked(config_path: &Path, logging: &LoggingConfig) -> Result<String> {
+fn logger_dir_checked(
+    config_path: &Path,
+    logging: &LoggingConfig,
+) -> StdResult<String, SetupError> {
     let mut logger_dir = logging.directory_expanded();
     if logger_dir.is_empty() {
         let default_logger_path = config_path.to_string_lossy().to_string();
@@ -190,9 +202,9 @@ fn logger_dir_checked(config_path: &Path, logging: &LoggingConfig) -> Result<Str
     }
 
     if !Path::new(&logger_dir).exists() {
-        return Err(Error::SetupError(SetupError::new(format!(
+        return Err(SetupError::new(format!(
             "Non existant path to log file {logger_dir}.",
-        ))));
+        )));
     }
 
     Ok(logger_dir)
@@ -204,7 +216,7 @@ pub struct SetupError {
 }
 
 impl SetupError {
-    fn new<S: Into<String>>(error_msg: S) -> Self {
+    pub fn new<S: Into<String>>(error_msg: S) -> Self {
         Self {
             error_msg: error_msg.into(),
         }

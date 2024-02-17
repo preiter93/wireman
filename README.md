@@ -66,12 +66,16 @@ This guide will walk you through the steps to set up and run WireMan.
     default_address = "http://localhost:50051"
     
     [history]
-    autosave = true   # Autosaves history on request.
-    # directory = ""  # Defaults to $WIREMAN_CONFIG_DIR/history.
-    # disabled = true # Disables history. History is enabled by default.
+    directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
+    autosave = true                            # Optional. Autosaves history on request. Defaults to true.
+    disabled = false                           # Optional. History is enabled by default.
     
-    # [logging]
-    # level = "Debug" # Defaults to Debug. Use "None" to disable logging.
+    [logging]
+    directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
+    level = "Debug"                            # Optional. Defaults to Debug.
+    
+    [ui]
+    hide_footer_help = false                   # Optional. Defaults to false.
     ```
 
     Replace with the appropriate values for your project.

@@ -1,5 +1,5 @@
 [package]
-name = "wireman_config"
+name = "wireman-config"
 version = "0.1.0"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
@@ -11,7 +11,8 @@ license = "MIT"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
-logger = { package = "wireman_logger", path = "../wireman-logger", version = "0.1.0" }
+logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
+theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
 thiserror = "1.0"
