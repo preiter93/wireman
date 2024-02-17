@@ -1,5 +1,5 @@
 includes = [
-    "$HOME/Ruste/wireman/example",
+    "$HOME/Rust/wireman/example",
 ]
 files = [
     "grpc_simple/debugger.proto",
