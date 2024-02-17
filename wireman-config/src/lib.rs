@@ -23,4 +23,4 @@ pub use init::init_from_env;
 pub const ENV_CONFIG_DIR: &str = "WIREMAN_CONFIG_DIR";
 
 /// The wireman config filename
-pub const CONFIG_FNAME: &str = "config.toml";
+pub const CONFIG_FNAME: &str = "wireman.toml";
