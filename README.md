@@ -36,6 +36,12 @@ This guide will walk you through the steps to set up and run WireMan.
     ```bash
     cp target/release/wireman /usr/local/bin
     ```
+    
+    Alternatively, you can create an alias to the binary in your `.bashrc` or `.zshrc` file:
+
+    ```bash
+    echo "alias wireman='CURRENT_DIRECTORY/target/release/wireman'" >> ~/.zshrc
+    ```
 
 ## Configuration
 
