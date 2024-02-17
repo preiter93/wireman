@@ -4,6 +4,7 @@ use crate::error::Result;
 use logger::LogLevel;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
+use std::path::Path;
 
 /// The top level config.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -78,14 +79,6 @@ impl Config {
             .map(|e| shellexpand::env(e).map_or(e.clone(), |x| x.to_string()))
             .collect()
     }
-
-    /// Gets the history. Tries to shell expand the path if it contains
-    /// environment variables such as $HOME or ~.
-    #[must_use]
-    pub fn history(&self) -> String {
-        shellexpand::env(&self.history.directory)
-            .map_or(self.history.directory.clone(), |x| x.to_string())
-    }
 }
 
 /// The TLS config of the grpc client.
@@ -97,6 +90,7 @@ pub struct ServerConfig {
 }
 
 impl ServerConfig {
+    #[must_use]
     pub fn new(default_address: &str) -> Self {
         Self {
             default_address: default_address.to_string(),
@@ -119,12 +113,21 @@ pub struct HistoryConfig {
 }
 
 impl HistoryConfig {
+    /// Instantiate a new history config
+    #[must_use]
     pub fn new(directory: &str, autosave: bool, disabled: bool) -> Self {
         Self {
             directory: directory.to_string(),
             autosave,
             disabled,
         }
+    }
+
+    /// Returns the path to the history. Tries to shell expand the path if it contains
+    /// environment variables such as $HOME or ~.
+    #[must_use]
+    pub fn directory_expanded(&self) -> String {
+        shellexpand::env(&self.directory).map_or(self.directory.clone(), |x| x.to_string())
     }
 }
 
@@ -134,16 +137,39 @@ pub struct LoggingConfig {
     /// The log level
     #[serde(default)]
     pub level: LogLevel,
-    /// The filepath where the log is stored
-    pub file_path: String,
+    /// The directory to where the log file should be stored
+    pub directory: String,
 }
 
 impl LoggingConfig {
-    pub fn new(level: LogLevel, file_path: &str) -> Result<Self> {
-        Ok(Self {
+    /// Instantiate a new logging config
+    #[must_use]
+    pub fn new(level: LogLevel, file_path: &str) -> Self {
+        Self {
             level,
-            file_path: file_path.to_string(),
-        })
+            directory: file_path.to_string(),
+        }
+    }
+
+    /// Returns the path to the directory of logger file. Tries to shell expand the path if it contains
+    /// environment variables such as $HOME or ~.
+    #[must_use]
+    pub fn directory_expanded(&self) -> String {
+        shellexpand::env(&self.directory).map_or(self.directory.clone(), |x| x.to_string())
+    }
+
+    /// Returns the path to the logger file. Tries to shell expand the path if it contains
+    /// environment variables such as $HOME or ~.
+    #[must_use]
+    pub fn file_path_expanded(&self) -> String {
+        let directory_expanded = self.directory_expanded();
+        let file_path = Path::new(&directory_expanded).join(Self::file_name());
+        file_path.to_string_lossy().to_string()
+    }
+
+    #[must_use]
+    pub(crate) fn file_name() -> String {
+        String::from("wireman.log")
     }
 }
 
@@ -180,7 +206,7 @@ mod test {
         [history]
         directory = "/Users/test"
         [logging]
-        file_path = "/Users/wireman.log"
+        directory = "/Users"
         level = "Debug"
         [tls]
         custom_cert = "cert.pem"
@@ -191,7 +217,7 @@ mod test {
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             server: ServerConfig::new("http://localhost:50051"),
-            logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
+            logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
         };
         assert_eq!(cfg, expected);
@@ -204,7 +230,7 @@ mod test {
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
             server: ServerConfig::new("http://localhost:50051"),
-            logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
+            logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
@@ -220,7 +246,7 @@ default_address = "http://localhost:50051"
 
 [logging]
 level = "Debug"
-file_path = "/Users/wireman.log"
+directory = "/Users"
 
 [tls]
 "#;

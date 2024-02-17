@@ -11,11 +11,12 @@
 //!   - `default_address`: The default address of the `gRPC` server.
 //! - `history`
 //!   - `directory`: The folder path where the history should be kept
+pub mod cli;
 pub mod config;
 pub mod error;
-mod init;
+mod setup;
 pub use config::Config;
-pub use init::init_from_env;
+pub use setup::init_from_env;
 
 /// This env is used to read the path for the `WireMan` config.
 /// If it is not set, the config is expected in the current

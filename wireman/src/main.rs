@@ -9,13 +9,18 @@ mod term;
 mod view;
 mod widgets;
 use app::App;
-use config::init_from_env;
-use std::error::Error;
+use config::{cli, init_from_env};
+use std::{env, error::Error};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    if env::args_os().count() > 1 {
+        cli::parse();
+        return Ok(());
+    }
+
     let cfg = init_from_env()?;
     App::run(cfg).await?;
 

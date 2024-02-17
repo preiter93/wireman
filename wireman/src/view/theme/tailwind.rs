@@ -1,3 +1,4 @@
+#![allow(clippy::unreadable_literal)]
 use ratatui::style::Color;
 
 pub(super) struct Palette {
