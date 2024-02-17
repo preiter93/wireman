@@ -67,8 +67,7 @@ This guide will walk you through the steps to set up and run WireMan.
     
     [history]
     directory = "$HOME/.config/wireman/history"
-    # Autosaves history on request
-    autosave = true 
+    autosave = true  # Autosaves history on request
     
     [logging]
     level = "Debug"
