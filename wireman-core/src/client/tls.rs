@@ -1,8 +1,10 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::error::{Error, Result};
 use hyper::client::HttpConnector;
+use hyper_rustls::HttpsConnector;
 use hyper_rustls::HttpsConnectorBuilder;
-use hyper_rustls::{ConfigBuilderExt, HttpsConnector};
+use rustls::pki_types::CertificateDer;
+use rustls::RootCertStore;
 use serde::{Deserialize, Serialize};
 
 /// The TLS config of the grpc client.
@@ -35,7 +37,7 @@ impl TlsConfig {
     }
 
     /// Get the client's TLS configuration as a `rustls::ClientConfig`.
-    fn get_client_config(&self) -> rustls::ClientConfig {
+    pub fn get_client_config(&self) -> rustls::ClientConfig {
         if let Some(cert) = &self.custom_cert {
             return get_client_config_with_custom_certs(cert).unwrap();
         }
@@ -45,30 +47,38 @@ impl TlsConfig {
 
 /// Defaults TLS client config with native roots.
 fn get_client_config_native_certs() -> rustls::ClientConfig {
+    let root_store = RootCertStore {
+        roots: webpki_roots::TLS_SERVER_ROOTS.into(),
+    };
     rustls::ClientConfig::builder()
-        .with_safe_defaults()
-        .with_native_roots()
+        .with_root_certificates(root_store)
         .with_no_client_auth()
 }
 
 /// Get TLS client configuration with a custom certificate.
 fn get_client_config_with_custom_certs(ca_cert: &str) -> Result<rustls::ClientConfig> {
-    let certs = load_certs(ca_cert)?;
-    let mut roots = rustls::RootCertStore::empty();
-    roots.add_parsable_certificates(&certs);
+    let roots = root_store_from_cert_file(ca_cert)?;
     let config = rustls::ClientConfig::builder()
-        .with_safe_defaults()
         .with_root_certificates(roots)
         .with_no_client_auth();
     Ok(config)
 }
 
 // Load public certificate from file.
-fn load_certs(filename: &str) -> Result<Vec<Vec<u8>>> {
+fn root_store_from_cert_file(filename: &str) -> Result<RootCertStore> {
     // Open certificate file.
     let certfile = std::fs::File::open(filename).map_err(Error::LoadTLSCertificateError)?;
     let mut reader = std::io::BufReader::new(certfile);
 
-    // Load and return certificate.
-    rustls_pemfile::certs(&mut reader).map_err(Error::LoadTLSCertificateError)
+    // Read the certificates
+    let certs: Vec<CertificateDer> = rustls_pemfile::certs(&mut reader)
+        .into_iter()
+        .filter_map(|result| result.ok())
+        .collect();
+
+    // Parse the certificates
+    let mut roots = rustls::RootCertStore::empty();
+    roots.add_parsable_certificates(certs);
+
+    Ok(roots)
 }
