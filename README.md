@@ -95,7 +95,7 @@ This guide will walk you through the steps to set up and run WireMan.
 
 1. After adding the protos in the config, start `wireman`.
  
-2. The first page of Wireman will list your grpc services and their methods. You can navigate with `up`/`down` or `j`/`k`, select with Enter or unselect with Esc, then click tab.
+2. The first page of Wireman will list your grpc services and their methods. You can navigate with `up`/`down` or `j`/`k`, select with `Enter` or unselect with `Esc`, then click `Tab`.
 
 3. The second page is the message screen. Edit your request message, you can format it with `Ctrl+f`. Then click tab. The navigation of the editor is vim-inspired: use `h`, `j`, `k`, `l` for motion, go into insert mode with `i`, and escape insert mode with `Esc`. For more details, refer to [edtui](https://github.com/preiter93/edtui).
  
