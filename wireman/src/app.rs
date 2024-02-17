@@ -6,7 +6,7 @@ use crate::{
     view::root::Root,
 };
 use config::Config;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEvent};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyModifiers};
 use futures::StreamExt;
 use std::error::Error;
 use tokio::{
@@ -99,6 +99,9 @@ impl App {
         let sx = self.internal_stream.sx.clone();
         match event.code {
             KeyCode::Char('q') if !self.ctx.disable_root_events => {
+                self.should_quit = true;
+            }
+            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
                 self.should_quit = true;
             }
             _ => match self.ctx.tab {

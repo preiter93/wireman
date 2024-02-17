@@ -1,5 +1,6 @@
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::fmt::Display;
 use std::fs::File;
 use std::fs::OpenOptions;
@@ -43,11 +44,17 @@ impl Logger {
         }
     }
 
-    /// Log a message in debug level with the global logger. `Logger` must have been
-    /// initialized with `init` beforehand.
-    pub fn debug(message: &str) {
+    /// Log a message in debug level with the global logger.
+    pub fn debug<S: AsRef<str>>(message: S) {
         if let Some(logger) = LOGGER.get() {
             let _ = logger.log(LogLevel::Debug, message);
+        }
+    }
+
+    /// Log a message in critical level with the global logger.
+    pub fn critical<S: AsRef<str>>(message: S) {
+        if let Some(logger) = LOGGER.get() {
+            let _ = logger.log(LogLevel::Critical, message);
         }
     }
 
@@ -65,10 +72,10 @@ impl Logger {
     }
 
     // Log a message
-    fn log(&self, level: LogLevel, message: &str) -> Result<(), LoggerError> {
-        if level <= self.level {
+    fn log<S: AsRef<str>>(&self, level: LogLevel, message: S) -> Result<(), LoggerError> {
+        if level >= self.level {
             let mut file = self.open_log_file()?;
-            writeln!(file, "[{level}] {message}")
+            writeln!(file, "[{level}] {}", message.as_ref())
                 .map_err(|e| LoggerError::new(format!("Failed to write to log file: {e}")))?;
         }
         Ok(())
@@ -80,6 +87,7 @@ impl Logger {
 pub enum LogLevel {
     #[default]
     Debug,
+    Critical,
     None,
 }
 
@@ -88,6 +96,7 @@ impl Display for LogLevel {
         let name = match self {
             Self::None => "None",
             Self::Debug => "Debug",
+            Self::Critical => "Critical",
         };
         write!(f, "{name}")
     }
@@ -106,5 +115,17 @@ impl LoggerError {
         Self {
             error_msg: error_msg.into(),
         }
+    }
+}
+
+impl Display for LoggerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.error_msg)
+    }
+}
+
+impl Error for LoggerError {
+    fn description(&self) -> &str {
+        &self.error_msg
     }
 }

@@ -1,6 +1,8 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
 use thiserror::Error as ThisError;
 
+use crate::init::InitError;
+
 /// The result type for this library
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -14,6 +16,13 @@ pub enum Error {
         source: std::io::Error,
     },
 
+    /// Error while initializing the config file
+    #[error("error initializing config")]
+    InitializeError(#[from] InitError),
+
+    // /// Error while initializing the config file
+    // #[error("error initializing logger")]
+    // InitializeLoggerError(#[source] logger::LoggerError),
     /// Error  serializing toml-formatted config
     #[error("error serializing config")]
     SerializeConfigError(#[source] toml::ser::Error),

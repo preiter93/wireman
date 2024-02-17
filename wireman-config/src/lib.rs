@@ -20,7 +20,7 @@ pub use init::init_from_env;
 /// This env is used to read the path for the `WireMan` config.
 /// If it is not set, the config is expected in the current
 /// directory.
-pub const ENV_CONFIG_DIR: &str = "WIREMAR_CONFIG_DIR";
+pub const ENV_CONFIG_DIR: &str = "WIREMAN_CONFIG_DIR";
 
 /// The wireman config filename
-pub const ENV_CONFIG_FAME: &str = "config.toml";
+pub const CONFIG_FNAME: &str = "config.toml";
