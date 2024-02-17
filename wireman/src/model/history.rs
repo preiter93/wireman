@@ -41,7 +41,7 @@ impl Default for HistoryModel {
 
 impl HistoryModel {
     pub fn new(env: &Config) -> Result<Self> {
-        let path = PathBuf::from_str(&env.history()).map_err(|err| {
+        let path = PathBuf::from_str(&env.history.directory_expanded()).map_err(|err| {
             Term::stop().unwrap();
             err
         })?;
@@ -114,11 +114,11 @@ impl HistoryModel {
         match serde_json::to_string_pretty(&request) {
             Ok(data) => {
                 std::fs::write(path, data).unwrap_or_else(|_| {
-                    Logger::debug("history: unable to write file".to_string());
+                    Logger::debug("history: unable to write file");
                 });
             }
             Err(_) => {
-                Logger::debug("history: unable to convert to json".to_string());
+                Logger::debug("history: unable to convert to json");
             }
         }
     }
@@ -146,7 +146,7 @@ impl HistoryModel {
         let history: HistoryData = if let Ok(history) = serde_json::from_str(&content) {
             history
         } else {
-            Logger::debug("history: failed to parse from str".to_string());
+            Logger::debug("history: failed to parse from str");
             return None;
         };
         history.apply(messages);

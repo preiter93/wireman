@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
 use thiserror::Error as ThisError;
 
-use crate::init::InitError;
+use crate::setup::SetupError;
 
 /// The result type for this library
 pub type Result<T> = std::result::Result<T, Error>;
@@ -17,8 +17,8 @@ pub enum Error {
     },
 
     /// Error while initializing the config file
-    #[error("error initializing config")]
-    InitializeError(#[from] InitError),
+    #[error("error during app setup")]
+    SetupError(#[from] SetupError),
 
     // /// Error while initializing the config file
     // #[error("error initializing logger")]
