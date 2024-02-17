@@ -1,0 +1,14 @@
+[package]
+name = "wireman-logger"
+version = "0.1.0"
+edition = "2021"
+authors = ["preiter <phil.reiter93@gmail.com>"]
+description = "Logger for wireman"
+repository = "https://github.com/preiter93/wireman"
+keywords = ["gRPC", "proto", "TUI"]
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+once_cell = "1.19.0"
+serde = { version = "1.0", features = ["derive"] }
