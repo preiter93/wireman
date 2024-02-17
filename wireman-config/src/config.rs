@@ -108,17 +108,22 @@ impl ServerConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct HistoryConfig {
     /// The directory where the history is saved
+    #[serde(default)]
     pub directory: String,
     /// Wheter autosave should be enables
     #[serde(default)]
     pub autosave: bool,
+    /// Whether the history is disabled
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 impl HistoryConfig {
-    pub fn new(directory: &str, autosave: bool) -> Self {
+    pub fn new(directory: &str, autosave: bool, disabled: bool) -> Self {
         Self {
             directory: directory.to_string(),
             autosave,
+            disabled,
         }
     }
 }
@@ -187,7 +192,7 @@ mod test {
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
-            history: HistoryConfig::new("/Users/test", false),
+            history: HistoryConfig::new("/Users/test", false, false),
         };
         assert_eq!(cfg, expected);
     }
@@ -200,7 +205,7 @@ mod test {
             tls: TlsConfig::default(),
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
-            history: HistoryConfig::new("/Users/test", false),
+            history: HistoryConfig::new("/Users/test", false, false),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
@@ -208,6 +213,7 @@ files = ["api.proto", "internal.proto"]
 [history]
 directory = "/Users/test"
 autosave = false
+disabled = false
 
 [server]
 default_address = "http://localhost:50051"

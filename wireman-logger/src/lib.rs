@@ -1,3 +1,4 @@
+use chrono::Local;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
@@ -58,7 +59,7 @@ impl Logger {
         }
     }
 
-    // Open or create log file
+    /// Open or create log file
     fn open_log_file(&self) -> Result<File, LoggerError> {
         let path = self
             .file_path
@@ -75,7 +76,8 @@ impl Logger {
     fn log<S: AsRef<str>>(&self, level: LogLevel, message: S) -> Result<(), LoggerError> {
         if level >= self.level {
             let mut file = self.open_log_file()?;
-            writeln!(file, "[{level}] {}", message.as_ref())
+            let now = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+            writeln!(file, "[{level}] {} [{now}]", message.as_ref())
                 .map_err(|e| LoggerError::new(format!("Failed to write to log file: {e}")))?;
         }
         Ok(())

@@ -13,7 +13,6 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
         .title(title.into())
         .title_alignment(Alignment::Center)
         .style(THEME.content)
-        .bold()
         .white();
     let theme = EditorTheme::default().block(block).status_line(
         StatusLine::default()
@@ -31,7 +30,6 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
         .title(title.into())
         .title_alignment(Alignment::Center)
         .style(THEME.content)
-        .bold()
         .white();
     let theme = EditorTheme::default()
         .block(block)
@@ -48,7 +46,6 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
         .title(title.into())
         .title_alignment(Alignment::Left)
         .style(THEME.content)
-        .bold()
         .white();
     let theme = EditorTheme::default().block(block).hide_status_line();
     EditorView::new(state).theme(theme)
@@ -62,7 +59,6 @@ pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S
         .title(title.into())
         .title_alignment(Alignment::Left)
         .style(THEME.content)
-        .bold()
         .white();
     let theme = EditorTheme::default()
         .block(block)

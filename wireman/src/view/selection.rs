@@ -73,7 +73,7 @@ impl Widget for SelectionPage<'_> {
             .into_iter()
             .map(|service| ListItem::new(service.clone()));
         let services_state = &mut self.model.services_state;
-        let mut services_block = block.clone().title("Services").bold().white();
+        let mut services_block = block.clone().title("Services").white();
         if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab) {
             services_block = services_block.border_type(BorderType::Double);
         }
@@ -95,7 +95,7 @@ impl Widget for SelectionPage<'_> {
             .into_iter()
             .map(|method| ListItem::new(method.clone()));
         let methods_state = &mut self.model.methods_state;
-        let mut methods_block = block.clone().title("Methods").bold().white();
+        let mut methods_block = block.clone().title("Methods").white();
         if self.tab == SelectionTab::Methods {
             methods_block = methods_block.border_type(BorderType::Double);
         }

@@ -52,7 +52,7 @@ impl Widget for MessagesPage<'_> {
         editor.render(area[0], buf);
 
         // History
-        if self.model.history_model.enabled {
+        if !self.model.history_model.disabled {
             let area_s = crate::view::root::layout(area[1], Direction::Horizontal, &[0, 25]);
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)

@@ -10,6 +10,7 @@ use crate::{Config, CONFIG_FNAME, ENV_CONFIG_DIR};
 use crate::error::{Error, Result};
 
 pub fn init_from_env() -> Result<Config> {
+    // Config
     let config_dir = var(ENV_CONFIG_DIR).map_err(|err| {
         Error::InitializeError(InitError::new(format!(
             "Failed to read the environment variable {ENV_CONFIG_DIR}, err: {}",
@@ -37,8 +38,9 @@ pub fn init_from_env() -> Result<Config> {
         ))));
     }
 
-    let cfg = Config::load(&config_file)?;
+    let mut cfg = Config::load(&config_file)?;
 
+    // Logger
     let mut use_default_logger_path = false;
     let mut logger_file_path = cfg.logging.file_path.clone();
     if logger_file_path.is_empty() {
@@ -67,6 +69,33 @@ pub fn init_from_env() -> Result<Config> {
             ))
         }
     }
+
+    // History
+    let default_history_path = {
+        let path = config_path.join("history").clone();
+        path.to_string_lossy().to_string()
+    };
+    let mut history_dir_path = cfg.history.directory.clone();
+    if history_dir_path.is_empty() {
+        history_dir_path = default_history_path.to_string();
+    }
+    if Path::new(&history_dir_path)
+        .parent()
+        .map_or(true, |p| !p.exists())
+    {
+        Logger::debug(format!(
+            "Non existant parent of history directory {history_dir_path}. Fallback to default.",
+        ));
+        history_dir_path = default_history_path.to_string();
+    }
+    if !Path::new(&history_dir_path).exists() {
+        if let Err(err) = std::fs::create_dir(&history_dir_path) {
+            Logger::debug(format!(
+                "Failed to create the directory {history_dir_path}, err: {err}",
+            ));
+        }
+    }
+    cfg.history.directory = history_dir_path;
 
     Ok(cfg)
 }
