@@ -70,8 +70,8 @@ This guide will walk you through the steps to set up and run WireMan.
     # directory = ""  # Defaults to $WIREMAN_CONFIG_DIR/history.
     # disabled = true # Disables history. History is enabled by default.
     
-    [logging]
-    level = "Debug"
+    # [logging]
+    # level = "Debug" # Defaults to Debug. Use "None" to disable logging.
     ```
 
     Replace with the appropriate values for your project.

@@ -16,7 +16,7 @@ Enter
 Show
 
 # Initialization
-Set TypingSpeed 20ms
+Set TypingSpeed 40ms
 Type "export WIREMAN_CONFIG_DIR=$HOME/Rust/wireman/example"
 Enter
 Sleep 1.5s
@@ -35,7 +35,7 @@ Sleep 0.5s
 
 # Address and token
 Type 'jji'
-Set TypingSpeed 20ms
+Set TypingSpeed 40ms
 Type 'Here we can paste in a token or use a bash script enclosed in $()'
 Sleep 0.5s
 Escape
@@ -66,7 +66,7 @@ Sleep 0.8s
 
 # Show more features
 Type 'jjo'
-Set TypingSpeed 20ms
+Set TypingSpeed 40ms
 Type 'If autosave is enabled, each request is saved after send.'
 Sleep 0.2s
 Enter
@@ -80,10 +80,10 @@ Sleep 0.8s
 Type 'q'
 
 # Reopen and show that previous request is saved
-Sleep 1.0s
+Sleep 0.5s
 Type "wireman"
 Enter
-Sleep 1.5s
+Sleep 0.5s
 Set TypingSpeed 100ms
 Type 'j'
 Enter
