@@ -18,7 +18,6 @@ prost-build = "0.12"
 prost-types = "0.12"
 protox = "0.6"
 http = "0.2"
-webpki = "0.21.0"
 webpki-roots = "0.26"
 
 [dependencies.prost-reflect]
