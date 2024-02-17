@@ -86,7 +86,7 @@ This guide will walk you through the steps to set up and run WireMan.
 
     Replace with the appropriate values for your project.
     
-4. Optional, you can verify the setup configuration
+4. Optionally, you can now verify the setup configuration
     ```bash
     wireman check 
     ```
