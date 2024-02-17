@@ -1,7 +1,8 @@
 use super::MessagesModel;
-use crate::{commons::debug::log, term::Term};
+use crate::term::Term;
 use config::Config;
 use core::MethodDescriptor;
+use logger::Logger;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -22,6 +23,9 @@ pub struct HistoryModel {
 
     /// Whether history is enabled
     pub(crate) enabled: bool,
+
+    /// Whether autosave is enabled
+    pub(crate) autosave: bool,
 }
 
 impl Default for HistoryModel {
@@ -30,6 +34,7 @@ impl Default for HistoryModel {
             base_path: PathBuf::default(),
             save_spot: 1,
             enabled: true,
+            autosave: false,
         }
     }
 }
@@ -45,6 +50,7 @@ impl HistoryModel {
             base_path: path,
             save_spot: 1,
             enabled,
+            autosave: env.history.autosave,
         })
     }
 
@@ -72,12 +78,12 @@ impl HistoryModel {
         }
 
         let Some(method) = &messages.selected_method else {
-            log("history: no method selected");
+            Logger::debug("history: no method selected");
             return;
         };
 
         let Ok(message) = messages.request.editor.get_text_json() else {
-            log("history: failed to parse request");
+            Logger::debug("history: failed to parse request");
             return;
         };
 
@@ -87,11 +93,11 @@ impl HistoryModel {
 
         if let Some(dir) = path.parent() {
             if std::fs::create_dir_all(dir).is_err() {
-                log(format!("history: cannot create dir: {dir:?}"));
+                Logger::debug(format!("history: cannot create dir: {dir:?}"));
                 return;
             }
         } else {
-            log(format!("history: no parent dir found: {path:?}",));
+            Logger::debug(format!("history: no parent dir found: {path:?}",));
             return;
         }
 
@@ -109,11 +115,11 @@ impl HistoryModel {
         match serde_json::to_string_pretty(&request) {
             Ok(data) => {
                 std::fs::write(path, data).unwrap_or_else(|_| {
-                    log("history: unable to write file".to_string());
+                    Logger::debug("history: unable to write file".to_string());
                 });
             }
             Err(_) => {
-                log("history: unable to convert to json".to_string());
+                Logger::debug("history: unable to convert to json".to_string());
             }
         }
     }
@@ -125,7 +131,7 @@ impl HistoryModel {
         }
 
         let Some(method) = &messages.selected_method else {
-            log("history: no method selected");
+            Logger::debug("history: no method selected");
             return None;
         };
         let Some(path) = self.path(self.save_spot(), method).clone() else {
@@ -135,13 +141,13 @@ impl HistoryModel {
             return None;
         }
         let Ok(content) = std::fs::read_to_string(path.clone()) else {
-            log(format!("history: failed to read file {path:?}"));
+            Logger::debug(format!("history: failed to read file {path:?}"));
             return None;
         };
         let history: HistoryData = if let Ok(history) = serde_json::from_str(&content) {
             history
         } else {
-            log("history: failed to parse from str".to_string());
+            Logger::debug("history: failed to parse from str".to_string());
             return None;
         };
         history.apply(messages);
@@ -167,7 +173,7 @@ impl HistoryModel {
     fn path(&self, save_spot: usize, method: &MethodDescriptor) -> Option<PathBuf> {
         if !Path::new(&self.base_path).exists() {
             let p = self.base_path.to_str().unwrap_or("");
-            log(format!("failed to save history: path {p} does not exist"));
+            Logger::debug(format!("failed to save history: path {p} does not exist"));
             return None;
         }
         let path = self.base_path.join(method.full_name());
@@ -201,7 +207,7 @@ impl HistoryData {
 
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap_or_else(|_| {
-            log("history: failed to parse to json");
+            Logger::debug("history: failed to parse to json");
             String::new()
         })
     }

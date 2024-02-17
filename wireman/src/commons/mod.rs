@@ -1,4 +1,3 @@
-pub mod debug;
 pub mod editor;
 
 use std::slice::Iter;

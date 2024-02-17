@@ -1,6 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
 
-use config::AUTOSAVE_HISTORY;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::EditorMode;
 
@@ -163,7 +162,7 @@ impl MessagesInput<'_> {
         let tab = self.ctx.messages_tab;
         let modifier = event.modifiers;
         match event.code {
-            KeyCode::Char('c') if modifier == KeyModifiers::CONTROL => {
+            KeyCode::Esc if !self.ctx.disable_root_events => {
                 self.model.borrow_mut().abort_request();
             }
             KeyCode::BackTab if !self.ctx.disable_root_events => {
@@ -181,6 +180,9 @@ impl MessagesInput<'_> {
                 self.ctx.messages_tab = MessagesTab::Request;
             }
             KeyCode::Enter if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
+                if self.model.borrow().history_model.autosave {
+                    self.model.borrow().history_model.save(&self.model.borrow());
+                }
                 self.model.borrow_mut().start_request();
             }
             KeyCode::Char('y')
@@ -252,10 +254,6 @@ impl MessagesInput<'_> {
     }
 
     fn handle_history_reload(&mut self, index: usize) {
-        if AUTOSAVE_HISTORY {
-            self.model.borrow().history_model.save(&self.model.borrow());
-        }
-
         let mut model = self.model.borrow_mut();
         model.history_model.select(index);
 

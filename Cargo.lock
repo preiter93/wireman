@@ -2358,6 +2358,7 @@ dependencies = [
  "unicode-width",
  "wireman_config",
  "wireman_core",
+ "wireman_logger",
 ]
 
 [[package]]
@@ -2368,6 +2369,7 @@ dependencies = [
  "shellexpand",
  "thiserror",
  "toml",
+ "wireman_logger",
 ]
 
 [[package]]
@@ -2389,6 +2391,14 @@ dependencies = [
  "thiserror",
  "tokio",
  "tonic",
+]
+
+[[package]]
+name = "wireman_logger"
+version = "0.1.0"
+dependencies = [
+ "once_cell",
+ "serde",
 ]
 
 [[package]]

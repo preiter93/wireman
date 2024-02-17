@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::error::Error;
 use crate::error::Result;
+use logger::LogLevel;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 
@@ -17,6 +18,9 @@ pub struct Config {
     /// The server config
     #[serde(default)]
     pub server: ServerConfig,
+    /// The logger config
+    #[serde(default)]
+    pub logging: LoggingConfig,
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
@@ -99,18 +103,42 @@ impl ServerConfig {
         }
     }
 }
+
 /// The history config of the grpc client.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct HistoryConfig {
     /// The directory where the history is saved
     pub directory: String,
+    /// Wheter autosave should be enables
+    #[serde(default)]
+    pub autosave: bool,
 }
 
 impl HistoryConfig {
-    pub fn new(directory: &str) -> Self {
+    pub fn new(directory: &str, autosave: bool) -> Self {
         Self {
             directory: directory.to_string(),
+            autosave,
         }
+    }
+}
+
+/// The logger config for wireman
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct LoggingConfig {
+    /// The log level
+    #[serde(default)]
+    pub level: LogLevel,
+    /// The filepath where the log is stored
+    pub file_path: String,
+}
+
+impl LoggingConfig {
+    pub fn new(level: LogLevel, file_path: &str) -> Result<Self> {
+        Ok(Self {
+            level,
+            file_path: file_path.to_string(),
+        })
     }
 }
 
@@ -146,6 +174,9 @@ mod test {
         default_address = "http://localhost:50051"
         [history]
         directory = "/Users/test"
+        [logging]
+        file_path = "/Users/wireman.log"
+        level = "Debug"
         [tls]
         custom_cert = "cert.pem"
         "#;
@@ -155,7 +186,8 @@ mod test {
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::new(Some("cert.pem".to_string())),
             server: ServerConfig::new("http://localhost:50051"),
-            history: HistoryConfig::new("/Users/test"),
+            logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
+            history: HistoryConfig::new("/Users/test", false),
         };
         assert_eq!(cfg, expected);
     }
@@ -167,16 +199,22 @@ mod test {
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
             server: ServerConfig::new("http://localhost:50051"),
-            history: HistoryConfig::new("/Users/test"),
+            logging: LoggingConfig::new(LogLevel::Debug, "/Users/wireman.log").unwrap(),
+            history: HistoryConfig::new("/Users/test", false),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
 
 [history]
 directory = "/Users/test"
+autosave = false
 
 [server]
 default_address = "http://localhost:50051"
+
+[logging]
+level = "Debug"
+file_path = "/Users/wireman.log"
 
 [tls]
 "#;
@@ -190,6 +228,7 @@ default_address = "http://localhost:50051"
             files: vec![],
             tls: TlsConfig::default(),
             server: ServerConfig::default(),
+            logging: LoggingConfig::default(),
             history: HistoryConfig::default(),
         };
         let got = cfg.includes();
