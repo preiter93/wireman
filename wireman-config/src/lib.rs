@@ -15,6 +15,7 @@ pub mod cli;
 pub mod config;
 pub mod error;
 mod setup;
+pub mod theme;
 pub use config::Config;
 pub use setup::init_from_env;
 

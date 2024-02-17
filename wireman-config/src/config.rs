@@ -22,6 +22,9 @@ pub struct Config {
     /// The logger config
     #[serde(default)]
     pub logging: LoggingConfig,
+    /// The ui config
+    #[serde(default)]
+    pub ui: UiConfig,
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
@@ -99,17 +102,31 @@ impl ServerConfig {
 }
 
 /// The history config of the grpc client.
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
 pub struct HistoryConfig {
     /// The directory where the history is saved
     #[serde(default)]
     pub directory: String,
     /// Wheter autosave should be enables
-    #[serde(default)]
+    #[serde(default = "default_autosave")]
     pub autosave: bool,
     /// Whether the history is disabled
     #[serde(default)]
     pub disabled: bool,
+}
+
+impl Default for HistoryConfig {
+    fn default() -> Self {
+        Self {
+            directory: String::default(),
+            autosave: true,
+            disabled: false,
+        }
+    }
+}
+
+fn default_autosave() -> bool {
+    true
 }
 
 impl HistoryConfig {
@@ -187,6 +204,14 @@ impl TlsConfig {
     }
 }
 
+/// The ui config for wireman
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct UiConfig {
+    /// Whether to hide the footer help bar
+    #[serde(default)]
+    pub hide_footer_help: bool,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -205,6 +230,7 @@ mod test {
         default_address = "http://localhost:50051"
         [history]
         directory = "/Users/test"
+        autosave = false
         [logging]
         directory = "/Users"
         level = "Debug"
@@ -219,6 +245,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
+            ui: UiConfig::default(),
         };
         assert_eq!(cfg, expected);
     }
@@ -232,6 +259,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
+            ui: UiConfig::default(),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
@@ -248,6 +276,9 @@ default_address = "http://localhost:50051"
 level = "Debug"
 directory = "/Users"
 
+[ui]
+hide_footer_help = false
+
 [tls]
 "#;
         assert_eq!(cfg.serialize_toml().unwrap(), expected);
@@ -262,6 +293,7 @@ directory = "/Users"
             server: ServerConfig::default(),
             logging: LoggingConfig::default(),
             history: HistoryConfig::default(),
+            ui: UiConfig::default(),
         };
         let got = cfg.includes();
         let home = std::env::var("HOME").unwrap();

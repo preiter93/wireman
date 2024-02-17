@@ -2642,13 +2642,14 @@ dependencies = [
  "tokio",
  "tui-widget-list",
  "unicode-width",
- "wireman_config",
- "wireman_core",
- "wireman_logger",
+ "wireman-config",
+ "wireman-core",
+ "wireman-logger",
+ "wireman-theme",
 ]
 
 [[package]]
-name = "wireman_config"
+name = "wireman-config"
 version = "0.1.0"
 dependencies = [
  "clap",
@@ -2656,11 +2657,12 @@ dependencies = [
  "shellexpand",
  "thiserror",
  "toml",
- "wireman_logger",
+ "wireman-logger",
+ "wireman-theme",
 ]
 
 [[package]]
-name = "wireman_core"
+name = "wireman-core"
 version = "0.1.0"
 dependencies = [
  "http",
@@ -2682,12 +2684,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "wireman_logger"
+name = "wireman-logger"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "once_cell",
  "serde",
+]
+
+[[package]]
+name = "wireman-theme"
+version = "0.1.0"
+dependencies = [
+ "once_cell",
 ]
 
 [[package]]

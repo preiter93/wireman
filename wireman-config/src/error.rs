@@ -18,7 +18,7 @@ pub enum Error {
 
     /// Error while initializing the config file
     #[error("error during app setup")]
-    SetupError(#[from] SetupError),
+    SetupError(#[source] SetupError),
 
     // /// Error while initializing the config file
     // #[error("error initializing logger")]
