@@ -51,7 +51,7 @@ This guide will walk you through the steps to set up and run WireMan.
     mkdir -p ~/.config/wireman
     ```
 
-3. Create a `config.toml` file in the specified directory. Here's an example configuration:
+3. Create a `wireman.toml` file in the specified directory. Here's an example configuration:
 
     ```toml
     includes = [
