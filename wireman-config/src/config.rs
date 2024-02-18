@@ -5,6 +5,7 @@ use logger::LogLevel;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 use std::path::Path;
+use theme::Config as ThemeConfig;
 
 /// The top level config.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -24,7 +25,7 @@ pub struct Config {
     pub logging: LoggingConfig,
     /// The ui config
     #[serde(default)]
-    pub ui: UiConfig,
+    pub ui: ThemeConfig,
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
@@ -204,14 +205,6 @@ impl TlsConfig {
     }
 }
 
-/// The ui config for wireman
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
-pub struct UiConfig {
-    /// Whether to hide the footer help bar
-    #[serde(default)]
-    pub hide_footer_help: bool,
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -245,7 +238,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: UiConfig::default(),
+            ui: theme::Config::default(),
         };
         assert_eq!(cfg, expected);
     }
@@ -259,7 +252,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: UiConfig::default(),
+            ui: theme::Config::default(),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
@@ -293,7 +286,7 @@ hide_footer_help = false
             server: ServerConfig::default(),
             logging: LoggingConfig::default(),
             history: HistoryConfig::default(),
-            ui: UiConfig::default(),
+            ui: ThemeConfig::default(),
         };
         let got = cfg.includes();
         let home = std::env::var("HOME").unwrap();
