@@ -1,8 +1,7 @@
+use crate::widgets::editor::{view_single_selected, view_single_unselected};
 use edtui::EditorState;
 use ratatui::{prelude::*, widgets::Widget};
 use tui_widget_list::ListableWidget;
-
-use crate::view::editor::{view_single_selected, view_single_unselected};
 
 #[derive(Clone)]
 pub(crate) struct KV {
@@ -31,20 +30,18 @@ impl ListableWidget for KV {
 
 impl Widget for KV {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
-        let area = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(area);
+        use ratatui::layout::Constraint::Percentage;
+        let [left, right] = Layout::horizontal([Percentage(50), Percentage(50)]).areas(area);
 
         if self.key_selected {
-            view_single_selected(&mut self.key, String::new()).render(area[0], buf);
+            view_single_selected(&mut self.key, String::new()).render(left, buf);
         } else {
-            view_single_unselected(&mut self.key, String::new()).render(area[0], buf);
+            view_single_unselected(&mut self.key, String::new()).render(left, buf);
         }
         if self.val_selected {
-            view_single_selected(&mut self.val, String::new()).render(area[1], buf);
+            view_single_selected(&mut self.val, String::new()).render(right, buf);
         } else {
-            view_single_unselected(&mut self.val, String::new()).render(area[1], buf);
+            view_single_unselected(&mut self.val, String::new()).render(right, buf);
         }
     }
 }

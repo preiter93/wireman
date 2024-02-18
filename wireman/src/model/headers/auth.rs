@@ -1,9 +1,7 @@
+use super::try_expand;
+use crate::widgets::editor::TextEditor;
 use crossterm::event::{KeyCode, KeyEvent};
 use edtui::EditorMode;
-
-use crate::commons::editor::TextEditor;
-
-use super::try_expand;
 
 #[derive(Default)]
 pub struct AuthHeader {
@@ -37,10 +35,10 @@ impl AuthHeader {
 
     pub fn on_key(&mut self, event: KeyEvent) {
         match event.code {
-            KeyCode::Left if self.mode() == EditorMode::Normal => {
+            KeyCode::Left | KeyCode::Char('h') if self.mode() == EditorMode::Normal => {
                 self.next();
             }
-            KeyCode::Right if self.mode() == EditorMode::Normal => {
+            KeyCode::Right | KeyCode::Char('l') if self.mode() == EditorMode::Normal => {
                 self.next();
             }
             _ => match self.selected {

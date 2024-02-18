@@ -4,7 +4,6 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Tabs, Widget},
 };
-use std::rc::Rc;
 use theme::{self, Theme};
 
 pub struct Root<'a> {
@@ -18,16 +17,16 @@ impl<'a> Root<'a> {
 }
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Horizontal, &[0, 50]);
+        let [left, right] = layout(area, Direction::Horizontal, &[0, 50]);
 
-        Paragraph::new(Span::styled("WireMan", THEME.app_title)).render(area[0], buf);
+        Paragraph::new(Span::styled("WireMan", THEME.app_title)).render(left, buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
         Tabs::new(titles)
             .style(THEME.tabs)
             .highlight_style(THEME.tabs_selected)
             .select(self.ctx.tab.index())
             .divider("")
-            .render(area[1], buf);
+            .render(right, buf);
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
@@ -73,32 +72,49 @@ impl Widget for Root<'_> {
         let theme = Theme::global();
         Block::new().style(THEME.root).render(area, buf);
         if theme.root.hide_footer_help {
-            let area = layout(area, Direction::Vertical, &[1, 0]);
-            self.render_navbar(area[0], buf);
-            self.render_content(area[1], buf);
+            let [header, content] = layout(area, Direction::Vertical, &[1, 0]);
+            self.render_navbar(header, buf);
+            self.render_content(content, buf);
         } else {
-            let area = layout(area, Direction::Vertical, &[1, 0, 1]);
-            self.render_navbar(area[0], buf);
-            self.render_content(area[1], buf);
-            self.render_footer(area[2], buf);
+            let [header, content, footer] = layout(area, Direction::Vertical, &[1, 0, 1]);
+            self.render_navbar(header, buf);
+            self.render_content(content, buf);
+            self.render_footer(footer, buf);
         }
     }
 }
 
 /// simple helper method to split an area into multiple sub-areas
-pub fn layout(area: Rect, direction: Direction, heights: &[u16]) -> Rc<[Rect]> {
-    let constraints: Vec<Constraint> = heights
+pub fn layout<const N: usize>(area: Rect, direction: Direction, heights: &[u16]) -> [Rect; N] {
+    use ratatui::layout::Constraint::{Length, Min};
+    let constraints = heights
         .iter()
-        .map(|&h| {
-            if h > 0 {
-                Constraint::Length(h)
-            } else {
-                Constraint::Min(0)
-            }
-        })
-        .collect();
-    Layout::default()
-        .direction(direction)
-        .constraints(constraints)
-        .split(area)
+        .map(|&h| if h > 0 { Length(h) } else { Min(0) });
+    if direction == Direction::Vertical {
+        Layout::vertical(constraints).areas(area)
+    } else {
+        Layout::horizontal(constraints).areas(area)
+    }
 }
+
+// /// simple helper method to split an area into multiple sub-areas
+// pub fn layout_margin<const N: usize>(
+//     area: Rect,
+//     direction: Direction,
+//     heights: &[u16],
+//     margin: u16,
+// ) -> [Rect; N] {
+//     use ratatui::layout::Constraint::{Length, Min};
+//     let constraints = heights
+//         .iter()
+//         .map(|&h| if h > 0 { Length(h) } else { Min(0) });
+//     if direction == Direction::Vertical {
+//         Layout::vertical(constraints)
+//             .margin(10)
+//             .areas(area)
+//     } else {
+//         Layout::horizontal(constraints)
+//             .horizontal_margin(margin)
+//             .areas(area)
+//     }
+// }

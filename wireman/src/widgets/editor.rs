@@ -1,13 +1,18 @@
-#![allow(clippy::module_name_repetitions)]
 use arboard::Clipboard;
 use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
     actions::{Execute, InsertChar, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorMode, EditorState, Index2, Input,
+    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, StatusLine,
 };
 use once_cell::sync::Lazy;
+use ratatui::{
+    prelude::*,
+    widgets::{Block, BorderType, Borders},
+};
 use std::sync::Mutex;
+
+use crate::view::theme::THEME;
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -226,4 +231,66 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
     let parsed = serde_json::from_str::<serde_json::Value>(input)?;
     let pretty = serde_json::to_string_pretty(&parsed)?;
     Ok(pretty)
+}
+
+/// Returns the editors view when selected.
+pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Double)
+        .title(title.into())
+        .title_alignment(Alignment::Center)
+        .style(THEME.content)
+        .white();
+    let theme = EditorTheme::default().block(block).status_line(
+        StatusLine::default()
+            .style_text(THEME.status_line.0)
+            .style_line(THEME.status_line.1),
+    );
+    EditorView::new(state).theme(theme)
+}
+
+/// Returns the editors view when unselected
+pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain)
+        .title(title.into())
+        .title_alignment(Alignment::Center)
+        .style(THEME.content)
+        .white();
+    let theme = EditorTheme::default()
+        .block(block)
+        .hide_status_line()
+        .cursor_style(THEME.content);
+    EditorView::new(state).theme(theme)
+}
+
+/// Returns the editors view for a single line editor when selected.
+pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Double)
+        .title(title.into())
+        .title_alignment(Alignment::Left)
+        .style(THEME.content)
+        .white();
+    let theme = EditorTheme::default().block(block).hide_status_line();
+    EditorView::new(state).theme(theme)
+}
+
+/// Returns the editors view for a single line editor when unselected.
+pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain)
+        .title(title.into())
+        .title_alignment(Alignment::Left)
+        .style(THEME.content)
+        .white();
+    let theme = EditorTheme::default()
+        .block(block)
+        .hide_status_line()
+        .hide_cursor();
+    EditorView::new(state).theme(theme)
 }

@@ -1,4 +1,4 @@
-use crate::commons::editor::ErrorKind;
+use crate::widgets::editor::ErrorKind;
 use config::Config;
 use core::{
     descriptor::{RequestMessage, ResponseMessage},

@@ -1,10 +1,9 @@
 pub mod auth;
 pub use auth::{AuthHeader, AuthSelection};
 pub mod meta;
-pub use meta::MetaHeaders;
-
-use crate::commons::editor::TextEditor;
+use crate::widgets::editor::TextEditor;
 use edtui::EditorMode;
+pub use meta::MetaHeaders;
 use std::{collections::HashMap, process::Command};
 
 /// The data model for the `gRPC` headers. Contains authorization
@@ -95,6 +94,7 @@ impl HeadersModel {
     pub fn next(&mut self) -> HeadersSelection {
         match self.selected {
             HeadersSelection::None => HeadersSelection::Addr,
+            HeadersSelection::Addr => HeadersSelection::Auth,
             HeadersSelection::Auth => {
                 if self.meta.is_hidden() {
                     return HeadersSelection::Addr;
@@ -102,7 +102,6 @@ impl HeadersModel {
                 self.meta.select();
                 HeadersSelection::Meta
             }
-            HeadersSelection::Addr => HeadersSelection::Auth,
             HeadersSelection::Meta => {
                 self.meta.unselect();
                 HeadersSelection::Addr
