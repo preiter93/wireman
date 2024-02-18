@@ -132,6 +132,24 @@ impl TextEditor {
         self.state.lines.is_empty()
     }
 
+    /// Check if a given position is the first col.
+    pub fn is_first_col(&self) -> bool {
+        if self.is_empty() {
+            return true;
+        }
+        let index = self.state.cursor;
+        self.state.lines.is_first_col(index)
+    }
+
+    /// Check if a given position is the last col.
+    pub fn is_last_col(&self) -> bool {
+        if self.is_empty() {
+            return true;
+        }
+        let index = self.state.cursor;
+        self.state.lines.is_last_col(index)
+    }
+
     /// Key bindings in normal mode
     pub fn on_key(&mut self, key: KeyEvent, single: bool) {
         match key.code {
