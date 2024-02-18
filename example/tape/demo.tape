@@ -58,8 +58,8 @@ Sleep 1..5s
 # Edit the request
 Type '2'
 Sleep 0.8s
-Type 'hcwdi'
-Type 'Doe'
+Type 'hciwdi'
+Type 'This will be saved'
 Escape
 Enter
 Sleep 0.8s
