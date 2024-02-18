@@ -508,6 +508,7 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84489a519679bef9cee8cbfdb09cb88f8034d29436ec9a136dcfab389e4fecea"
 dependencies = [
+ "arboard",
  "crossterm",
  "edtui-jagged",
  "enum_dispatch",
@@ -2232,6 +2233,8 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 [[package]]
 name = "tui-widget-list"
 version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a390eee206ac0a2dc4c3f76c3d981a07495e3e09be510cf183f4d4601f73b728"
 dependencies = [
  "ratatui",
 ]
