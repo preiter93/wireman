@@ -100,6 +100,11 @@ impl TextEditor {
         self.error = error;
     }
 
+    /// Whether the editor is in normal mode
+    pub fn normal_mode(&self) -> bool {
+        self.state.mode == EditorMode::Normal
+    }
+
     /// Whether the editor is in insert mode
     pub fn insert_mode(&self) -> bool {
         self.state.mode == EditorMode::Insert
@@ -108,6 +113,11 @@ impl TextEditor {
     /// Whether the editor is in search mode
     pub fn search_mode(&self) -> bool {
         self.state.mode == EditorMode::Search
+    }
+
+    /// Whether the editor is in visual mode
+    pub fn visual_mode(&self) -> bool {
+        self.state.mode == EditorMode::Visual
     }
 
     /// Insert a str at the current cursor position. Handles newlines.

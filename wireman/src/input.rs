@@ -239,12 +239,12 @@ impl MessagesInput<'_> {
                 if tab == MessagesTab::Request {
                     let request = &mut self.model.borrow_mut().request.editor;
                     request.on_key(event, false);
-                    disable_root_events = request.insert_mode() || request.search_mode();
+                    disable_root_events = !request.normal_mode();
                 }
                 if tab == MessagesTab::Response {
                     let response = &mut self.model.borrow_mut().response.editor;
                     response.on_key(event, false);
-                    disable_root_events = response.insert_mode() || response.search_mode();
+                    disable_root_events = !response.normal_mode();
                 }
                 // Disable all root key events if one of the editors went into insert mode
                 // to not overwrite keys such as 'q' for quitting.
