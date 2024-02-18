@@ -1,10 +1,7 @@
-use super::{
-    editor::{view_single_selected, view_single_unselected},
-    root::layout,
-    util::crop_top,
-};
+use super::root::layout;
 use crate::{
     model::headers::{AuthSelection, HeadersModel, HeadersSelection},
+    widgets::editor::{view_single_selected, view_single_unselected},
     widgets::kv::KV,
 };
 use edtui::{EditorState, StatusLine};
@@ -71,19 +68,21 @@ impl<'a> HeadersPage<'a> {
 
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
+        // let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
+        let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
+            layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, 1]);
 
         // Address
-        ListElements::VDivider(String::from(" Address ")).render(area[0], buf);
+        ListElements::VDivider(String::from(" Address ")).render(addr_title, buf);
         Address {
             state: self.model.addr.state.clone(),
             title: String::new(),
             selected: self.model.selected == HeadersSelection::Addr,
         }
-        .render(crop_top(area[1], 3), buf);
+        .render(addr_content, buf);
 
         // Authentication
-        ListElements::VDivider(String::from(" Authentication ")).render(area[2], buf);
+        ListElements::VDivider(String::from(" Authentication ")).render(auth_title, buf);
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -98,11 +97,11 @@ impl Widget for HeadersPage<'_> {
                 selected_tag: 1,
             },
         };
-        body.render(crop_top(area[3], 4), buf);
+        body.render(auth_content, buf);
 
         // Metadata
         if !self.model.meta.is_hidden() {
-            ListElements::VDivider(String::from(" Headers ")).render(area[4], buf);
+            ListElements::VDivider(String::from(" Headers ")).render(meta_title, buf);
             let headers = &self.model.meta.headers;
             let index = self.model.meta.selected;
             Metadata {
@@ -120,7 +119,7 @@ impl Widget for HeadersPage<'_> {
                     .collect(),
                 selected_row: index.map(|x| x.row),
             }
-            .render(area[5], buf);
+            .render(meta_content, buf);
         }
 
         // Show a combined status line for all editors
@@ -128,7 +127,7 @@ impl Widget for HeadersPage<'_> {
             .style_text(THEME.status_line.0)
             .style_line(THEME.status_line.1)
             .mode(self.model.mode().name())
-            .render(area[6], buf);
+            .render(status, buf);
     }
 }
 
@@ -183,7 +182,7 @@ struct Authentication {
 
 impl Widget for Authentication {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
-        let area = layout(area, Direction::Vertical, &[1, 0]);
+        let [title, content] = layout(area, Direction::Vertical, &[1, 0]);
 
         let titles = vec![" Bearer ", " Basic "];
         Tabs::new(titles)
@@ -191,12 +190,12 @@ impl Widget for Authentication {
             .highlight_style(THEME.tabs_selected)
             .select(self.selected_tag)
             .divider("")
-            .render(area[0].inner(&Margin::new(0, 0)), buf);
+            .render(title.inner(&Margin::new(0, 0)), buf);
 
         if self.selected {
-            view_single_selected(&mut self.state, self.title).render(area[1], buf);
+            view_single_selected(&mut self.state, self.title).render(content, buf);
         } else {
-            view_single_unselected(&mut self.state, self.title).render(area[1], buf);
+            view_single_unselected(&mut self.state, self.title).render(content, buf);
         }
     }
 }

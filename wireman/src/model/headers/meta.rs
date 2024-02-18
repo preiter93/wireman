@@ -1,11 +1,8 @@
-use std::collections::BTreeMap;
-
+use crate::widgets::editor::TextEditor;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::{EditorMode, Index2};
+use std::collections::BTreeMap;
 
-use crate::commons::editor::TextEditor;
-
-#[derive(Default)]
 pub struct MetaHeaders {
     /// The key value pairs.
     pub(crate) headers: Vec<(TextEditor, TextEditor)>,
@@ -15,18 +12,27 @@ pub struct MetaHeaders {
     pub(crate) selected: Option<Index2>,
 }
 
+impl Default for MetaHeaders {
+    fn default() -> Self {
+        Self {
+            headers: vec![(TextEditor::new(), TextEditor::new())],
+            selected: None,
+        }
+    }
+}
+
 impl MetaHeaders {
     pub fn on_key(&mut self, event: KeyEvent) {
         let navigation_enabled = self.mode() == EditorMode::Normal;
         match event.code {
-            KeyCode::Right if navigation_enabled => {
+            KeyCode::Right | KeyCode::Char('l') if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
                     if selected.col == 0 {
                         selected.col = 1;
                     }
                 }
             }
-            KeyCode::Left if navigation_enabled => {
+            KeyCode::Left | KeyCode::Char('h') if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
                     if selected.col == 1 {
                         selected.col = 0;

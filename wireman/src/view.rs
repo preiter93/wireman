@@ -1,4 +1,3 @@
-pub(super) mod editor;
 pub mod headers;
 pub mod messages;
 pub mod root;

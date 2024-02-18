@@ -1,10 +1,9 @@
 #![allow(clippy::module_name_repetitions)]
-use tokio::task::JoinHandle;
-
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
-use crate::commons::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
+use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use core::{descriptor::RequestMessage, MethodDescriptor};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use tokio::task::JoinHandle;
 
 /// Map from Method to request/response message
 type MessagesCache = HashMap<String, (String, String)>;

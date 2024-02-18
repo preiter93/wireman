@@ -36,28 +36,22 @@ impl<'a> SelectionPage<'a> {
 
 impl Widget for SelectionPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        // Layout
-        let area = Layout::default()
-            .direction(ratatui::layout::Direction::Vertical)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-            .split(area);
+        use ratatui::layout::Constraint::{Length, Min, Percentage};
+        let [top, bottom] = Layout::vertical([Percentage(50), Percentage(50)]).areas(area);
+
         let mut show_services_search = 0;
         if self.model.services_filter.is_some() || self.tab == SelectionTab::SearchServices {
             show_services_search = 1;
         }
-        let services_area = Layout::default()
-            .direction(ratatui::layout::Direction::Vertical)
-            .constraints([Constraint::Min(0), Constraint::Length(show_services_search)].as_ref())
-            .split(area[0]);
+        let [svc_content, svc_search] =
+            Layout::vertical([Min(0), Length(show_services_search)]).areas(top);
 
         let mut show_methods_search = 0;
         if self.model.methods_filter.is_some() || self.tab == SelectionTab::SearchMethods {
             show_methods_search = 1;
         }
-        let methods_area = Layout::default()
-            .direction(ratatui::layout::Direction::Vertical)
-            .constraints([Constraint::Min(0), Constraint::Length(show_methods_search)].as_ref())
-            .split(area[1]);
+        let [mtd_content, mtd_search] =
+            Layout::vertical([Min(0), Length(show_methods_search)]).areas(bottom);
 
         // Block
         let block = Block::new()
@@ -78,14 +72,15 @@ impl Widget for SelectionPage<'_> {
             services_block = services_block.border_type(BorderType::Double);
         }
         List::new(services.collect()).block(services_block).render(
-            services_area[0],
+            svc_content,
             buf,
             services_state,
         );
+
         // Search line for services
         if show_services_search == 1 {
             SearchLine::new(self.model.services_filter.clone().unwrap_or_default())
-                .render(services_area[1], buf);
+                .render(svc_search, buf);
         }
 
         // Methods
@@ -99,15 +94,14 @@ impl Widget for SelectionPage<'_> {
         if self.tab == SelectionTab::Methods {
             methods_block = methods_block.border_type(BorderType::Double);
         }
-        List::new(methods.collect()).block(methods_block).render(
-            methods_area[0],
-            buf,
-            methods_state,
-        );
+        List::new(methods.collect())
+            .block(methods_block)
+            .render(mtd_content, buf, methods_state);
+
         // Search line for methods
         if show_methods_search == 1 {
             SearchLine::new(self.model.methods_filter.clone().unwrap_or_default())
-                .render(methods_area[1], buf);
+                .render(mtd_search, buf);
         }
     }
 }
