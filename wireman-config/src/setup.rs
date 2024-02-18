@@ -7,8 +7,8 @@ use std::path::Path;
 use logger::{Logger, LoggerError};
 
 use crate::config::{HistoryConfig, LoggingConfig};
-use crate::theme::init_theme;
 use crate::{Config, CONFIG_FNAME, ENV_CONFIG_DIR};
+use theme::Theme;
 
 use crate::error::{Error, Result};
 use std::result::Result as StdResult;
@@ -123,7 +123,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
     }
 
     if !dry_run {
-        init_theme(&config.ui)?;
+        Theme::init(&config.ui);
     }
 
     Ok(config)

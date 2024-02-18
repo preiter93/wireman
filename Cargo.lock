@@ -2697,6 +2697,8 @@ name = "wireman-theme"
 version = "0.1.0"
 dependencies = [
  "once_cell",
+ "serde",
+ "wireman-logger",
 ]
 
 [[package]]
