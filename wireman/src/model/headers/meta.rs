@@ -24,19 +24,28 @@ impl Default for MetaHeaders {
 impl MetaHeaders {
     pub fn on_key(&mut self, event: KeyEvent) {
         let navigation_enabled = self.mode() == EditorMode::Normal;
+        let is_empty = self.selected_editor().map_or(true, |e| e.is_empty());
+        let is_first_col = self.selected_editor().map_or(true, |e| e.is_first_col());
+        let is_last_col = self.selected_editor().map_or(true, |e| e.is_last_col());
         match event.code {
-            KeyCode::Right | KeyCode::Char('l') if navigation_enabled => {
+            KeyCode::Right if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
-                    if selected.col == 0 {
-                        selected.col = 1;
-                    }
+                    next(&mut selected.col);
                 }
             }
-            KeyCode::Left | KeyCode::Char('h') if navigation_enabled => {
+            KeyCode::Left if navigation_enabled => {
                 if let Some(selected) = &mut self.selected {
-                    if selected.col == 1 {
-                        selected.col = 0;
-                    }
+                    next(&mut selected.col);
+                }
+            }
+            KeyCode::Char('l') if navigation_enabled && (is_empty || is_last_col) => {
+                if let Some(selected) = &mut self.selected {
+                    next(&mut selected.col);
+                }
+            }
+            KeyCode::Char('h') if navigation_enabled && (is_empty || is_first_col) => {
+                if let Some(selected) = &mut self.selected {
+                    next(&mut selected.col);
                 }
             }
             KeyCode::Up | KeyCode::Char('k') if navigation_enabled => {
@@ -173,4 +182,8 @@ impl MetaHeaders {
         }
         self.selected = None;
     }
+}
+
+fn next(col: &mut usize) {
+    *col = (*col + 1) % 2
 }

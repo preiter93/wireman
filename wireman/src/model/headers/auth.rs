@@ -19,13 +19,6 @@ pub enum AuthSelection {
 }
 
 impl AuthHeader {
-    pub fn is_empty(&self) -> bool {
-        match self.selected {
-            AuthSelection::Bearer => self.bearer.is_empty(),
-            AuthSelection::Basic => self.basic.is_empty(),
-        }
-    }
-
     pub fn next(&mut self) {
         match self.selected {
             AuthSelection::Bearer => self.selected = AuthSelection::Basic,
@@ -35,10 +28,14 @@ impl AuthHeader {
 
     pub fn on_key(&mut self, event: KeyEvent) {
         match event.code {
-            KeyCode::Left | KeyCode::Char('h') if self.mode() == EditorMode::Normal => {
+            KeyCode::Left | KeyCode::Char('h')
+                if self.mode() == EditorMode::Normal && self.is_empty() =>
+            {
                 self.next();
             }
-            KeyCode::Right | KeyCode::Char('l') if self.mode() == EditorMode::Normal => {
+            KeyCode::Right | KeyCode::Char('l')
+                if self.mode() == EditorMode::Normal && self.is_empty() =>
+            {
                 self.next();
             }
             _ => match self.selected {
@@ -113,5 +110,12 @@ impl AuthHeader {
         self.basic.clear();
         self.bearer.clear();
         self.selected = AuthSelection::Bearer;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self.selected {
+            AuthSelection::Bearer => self.bearer.is_empty(),
+            AuthSelection::Basic => self.basic.is_empty(),
+        }
     }
 }
