@@ -133,10 +133,10 @@ If you are unable to resolve the issue on your own or need further assistance, p
 - [x] Vim like editor feeling
 - [x] Show loading indicator
 - [x] Metadata headers
+- [x] Provide installation help
 
 Planned
 - [ ] Edit config file in app
-- [ ] Provide installation help
 - [ ] Custom themes
 - [ ] Command line help
 
