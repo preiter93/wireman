@@ -77,7 +77,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
         let history_dir = match history_dir_checked(config_dir_path, &config.history) {
             Err(err) => {
                 if dry_run {
-                    println!("{:<20} Error: {}", "History:", err.to_string());
+                    println!("{:<20} Error: {}", "History:", err);
                 }
                 return Err(Error::SetupError(err));
             }

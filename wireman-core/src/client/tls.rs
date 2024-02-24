@@ -72,7 +72,6 @@ fn root_store_from_cert_file(filename: &str) -> Result<RootCertStore> {
 
     // Read the certificates
     let certs: Vec<CertificateDer> = rustls_pemfile::certs(&mut reader)
-        .into_iter()
         .filter_map(|result| result.ok())
         .collect();
 
