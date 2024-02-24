@@ -21,6 +21,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
+          args: --workspace --all --verbose
 
   test:
     name: Test Suite
@@ -40,6 +41,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --workspace --all --verbose
 
   lints:
     name: Lints
@@ -60,10 +62,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all -- --check
+          args: --workspace --all -- --check
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: --workspace -- -D warnings
