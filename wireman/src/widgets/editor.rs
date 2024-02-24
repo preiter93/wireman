@@ -8,11 +8,10 @@ use edtui::{
 use once_cell::sync::Lazy;
 use ratatui::{
     prelude::*,
-    widgets::{Block, BorderType, Borders},
+    widgets::{Block, Borders},
 };
 use std::sync::Mutex;
-
-use crate::view::theme::THEME;
+use theme::Theme;
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -263,62 +262,84 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
 
 /// Returns the editors view when selected.
 pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let theme = Theme::global();
     let block = Block::new()
         .borders(Borders::ALL)
-        .border_type(BorderType::Double)
+        .title_style(theme.border.text_focused)
+        .border_type(theme.border.border_type_focused)
+        .border_style(theme.border.border_focused)
         .title(title.into())
-        .title_alignment(Alignment::Center)
-        .style(THEME.content)
-        .white();
-    let theme = EditorTheme::default().block(block).status_line(
-        StatusLine::default()
-            .style_text(THEME.status_line.0)
-            .style_line(THEME.status_line.1),
-    );
-    EditorView::new(state).theme(theme)
+        .title_alignment(Alignment::Center);
+    let mut editor_theme = EditorTheme::default()
+        .block(block)
+        .status_line(
+            StatusLine::default()
+                .style_text(theme.editor.status_text)
+                .style_line(theme.editor.status_line),
+        )
+        .base(theme.editor.text)
+        .cursor_style(theme.editor.cursor)
+        .selection_style(theme.editor.selection);
+    if theme.editor.hide_status_line {
+        editor_theme = editor_theme.hide_status_line();
+    }
+    EditorView::new(state).theme(editor_theme)
 }
 
 /// Returns the editors view when unselected
 pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let theme = Theme::global();
     let block = Block::new()
         .borders(Borders::ALL)
-        .border_type(BorderType::Plain)
+        .title_style(theme.border.text)
+        .border_style(theme.border.border)
         .title(title.into())
-        .title_alignment(Alignment::Center)
-        .style(THEME.content)
-        .white();
+        .title_alignment(Alignment::Center);
     let theme = EditorTheme::default()
         .block(block)
         .hide_status_line()
-        .cursor_style(THEME.content);
+        .base(theme.editor.text)
+        .cursor_style(theme.base.style)
+        .selection_style(theme.editor.selection);
     EditorView::new(state).theme(theme)
 }
 
 /// Returns the editors view for a single line editor when selected.
 pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let theme = Theme::global();
     let block = Block::new()
         .borders(Borders::ALL)
-        .border_type(BorderType::Double)
+        .title_style(theme.border.text_focused)
+        .border_type(theme.border.border_type_focused)
+        .border_style(theme.border.border_focused)
         .title(title.into())
-        .title_alignment(Alignment::Left)
-        .style(THEME.content)
-        .white();
-    let theme = EditorTheme::default().block(block).hide_status_line();
+        .title_alignment(Alignment::Left);
+    let theme = EditorTheme::default()
+        .block(block)
+        .hide_status_line()
+        .base(theme.editor.text)
+        .cursor_style(theme.editor.cursor)
+        .selection_style(theme.editor.selection);
     EditorView::new(state).theme(theme)
 }
 
 /// Returns the editors view for a single line editor when unselected.
 pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+    let theme = Theme::global();
     let block = Block::new()
         .borders(Borders::ALL)
-        .border_type(BorderType::Plain)
+        .title_style(theme.border.text)
+        .border_type(theme.border.border_type)
+        .border_style(theme.border.border)
+        .style(theme.editor.text)
         .title(title.into())
-        .title_alignment(Alignment::Left)
-        .style(THEME.content)
-        .white();
+        .title_alignment(Alignment::Left);
     let theme = EditorTheme::default()
         .block(block)
         .hide_status_line()
-        .hide_cursor();
+        .hide_cursor()
+        .base(theme.editor.text)
+        .cursor_style(theme.base.style)
+        .selection_style(theme.editor.selection);
     EditorView::new(state).theme(theme)
 }

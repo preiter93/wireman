@@ -5,9 +5,8 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
+use theme::Theme;
 use tui_widget_list::{ListableWidget, ScrollAxis};
-
-use crate::view::theme::THEME;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
@@ -16,6 +15,9 @@ pub struct ListItem<'a> {
 
     /// The items style
     pub style: Style,
+
+    /// The highlight style
+    pub highlight_style: Style,
 
     /// The current prefix. Changes when the item is selected.
     pub prefix: Option<&'a str>,
@@ -26,9 +28,11 @@ impl<'a> ListItem<'a> {
     where
         T: Into<Line<'a>>,
     {
+        let theme = Theme::global();
         Self {
             text: text.into(),
-            style: Style::default(),
+            style: theme.list.text,
+            highlight_style: theme.list.focused,
             prefix: None,
         }
     }
@@ -40,8 +44,8 @@ impl ListableWidget for ListItem<'_> {
     }
 
     fn highlight(self) -> Self {
+        let highlight_style = self.highlight_style;
         let mut item = self;
-        let highlight_style = THEME.list.selected;
         item.prefix = Some(">>");
         item.style = highlight_style;
         item

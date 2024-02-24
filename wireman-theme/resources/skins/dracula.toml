@@ -1,0 +1,32 @@
+[base]
+background = "#282a36"
+#
+[border]
+text = "#ff79C6"
+text_focused = "#ff79C6"
+border = "#f8f8f2"
+border_focused = "#f8f8f2"
+
+[navbar]
+title = "#ff79C6"
+tab_foreground = "#f8f8f2"
+tab_focused_foreground = "#282a36"
+tab_focused_background = "#8be9df"
+
+[editor]
+hide_status_line = true
+selection_foreground = "#282a36"
+selection_background = "#F1FA8C"
+
+[list]
+focused_foreground = "#282a36"
+focused_background = "#8be9df"
+
+[headers]
+section_foreground = "#ff79C6"
+section_background = "#282a36"
+tabs_focused_background = "#8be9df"
+section_bold = true 
+
+[help]
+hide = true
