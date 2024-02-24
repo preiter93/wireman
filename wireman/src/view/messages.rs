@@ -8,8 +8,6 @@ use crate::widgets::{
 };
 use ratatui::prelude::*;
 
-use super::theme::THEME;
-
 /// The request and response tab
 pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
@@ -33,6 +31,7 @@ impl Widget for MessagesPage<'_> {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let [top, center, bottom] =
             Layout::vertical([Percentage(50), Length(1), Min(0)]).areas(area);
+        let theme = theme::Theme::global();
 
         // Request
         let editor = if self.tab == MessagesTab::Request {
@@ -47,9 +46,9 @@ impl Widget for MessagesPage<'_> {
             let [_, right] = layout(center, Direction::Horizontal, &[0, 25]);
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
-                .style(THEME.tabs)
-                .active_style(THEME.tabs_active)
-                .highlight_style(THEME.tabs_selected)
+                .style(theme.history.disabled)
+                .active_style(theme.history.enabled)
+                .highlight_style(theme.history.focused)
                 .select(self.model.history_model.save_spot().saturating_sub(1))
                 .divider("");
             if let Some(method) = &self.model.selected_method {
