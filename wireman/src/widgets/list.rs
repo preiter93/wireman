@@ -5,7 +5,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
-use tui_widget_list::ListableWidget;
+use tui_widget_list::{ListableWidget, ScrollAxis};
 
 use crate::view::theme::THEME;
 
@@ -35,7 +35,7 @@ impl<'a> ListItem<'a> {
 }
 
 impl ListableWidget for ListItem<'_> {
-    fn main_axis_size(&self) -> usize {
+    fn size(&self, _: &ScrollAxis) -> usize {
         1
     }
 

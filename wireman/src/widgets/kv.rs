@@ -1,7 +1,7 @@
 use crate::widgets::editor::{view_single_selected, view_single_unselected};
 use edtui::EditorState;
 use ratatui::{prelude::*, widgets::Widget};
-use tui_widget_list::ListableWidget;
+use tui_widget_list::{ListableWidget, ScrollAxis};
 
 #[derive(Clone)]
 pub(crate) struct KV {
@@ -23,7 +23,7 @@ impl KV {
 }
 
 impl ListableWidget for KV {
-    fn main_axis_size(&self) -> usize {
+    fn size(&self, _: &ScrollAxis) -> usize {
         3
     }
 }
