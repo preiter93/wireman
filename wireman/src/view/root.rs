@@ -18,7 +18,7 @@ impl<'a> Root<'a> {
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        let [left, right] = layout(area, Direction::Horizontal, &[0, 50]);
+        let [left, right] = layout(area, Direction::Horizontal, &[0, 45]);
         Block::new().style(theme.base.style).render(area, buf);
 
         Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
@@ -57,8 +57,8 @@ impl Root<'_> {
         let spans: Vec<Span> = keys
             .iter()
             .flat_map(|(key, desc)| {
-                let key = Span::styled(format!(" {key} "), theme.help.key);
-                let desc = Span::styled(format!(" {desc} "), theme.help.description);
+                let key = Span::styled(format!(" {key} "), theme.footer.tabs);
+                let desc = Span::styled(format!(" {desc} "), theme.footer.text);
                 [key, desc]
             })
             .collect();
@@ -73,7 +73,7 @@ impl Widget for Root<'_> {
         let theme = Theme::global();
         Block::new().style(theme.base.style).render(area, buf);
 
-        if theme.help.hide {
+        if theme.footer.hide {
             let [header, content] = layout(area, Direction::Vertical, &[1, 0]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);

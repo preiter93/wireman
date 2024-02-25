@@ -1,40 +1,57 @@
 [base]
 background = "#282a36"
-#
-[border]
+foreground = "#f8f8f2"
+
+[border.unfocused]
 text = "#ff79C6"
-text_focused = "#ff79C6"
-border = "#f8f8f2"
-border_focused = "#f8f8f2"
 
-[navbar]
-title = "#ff79C6"
-tabs_foreground = "#f8f8f2"
-tabs_focused_foreground = "#282a36"
-tabs_focused_background = "#8be9df"
+[border.focused]
+text = "#ff79C6"
 
-[editor]
-hide_status_line = true
-selection_foreground = "#282a36"
-selection_background = "#F1FA8C"
+[navbar.title]
+foreground = "#ff79C6"
+bold = true
 
-[list]
-focused_foreground = "#282a36"
-focused_background = "#8be9df"
+[navbar.tabs.focused]
+foreground = "#282a36"
+background = "#8be9df"
 
-[headers]
-titles_foreground = "#ff79C6"
-titles_background = "#282a36"
-titles_bold = true 
-tabs_focused_foreground = "#282a36"
-tabs_focused_background = "#8be9df"
+[list.focused]
+foreground = "#282a36"
+background = "#8be9df"
 
-[history]
-enabled = "#FFB86C"
-disabled = "#44475A"
+[headers.titles]
+foreground = "#ff79C6"
+background = "#282a36"
+bold = true
 
-[help]
+[headers.tabs.focused]
+foreground = "#282a36"
+background = "#FFB86C"
+
+[history.active]
+foreground = "#ffb86c"
+
+[history.inactive]
+foreground = "#44475A"
+
+[history.focused]
+foreground = "#282a36"
+background = "#FFB86C"
+
+[editor.selection]
+foreground = "#282a36"
+background = "#f1fa8c"
+
+[editor.status_line]
+foreground = "#282a36"
+background = "#ff79C6"
+secondary = "#44475A"
+bold = true
+
+[footer]
 hide = true
-# key_foreground = "#44475A"
-# key_background = "#f8f8f2"
-# description_foreground = "#f8f8f2"
+# [footer.tabs]
+# background = "#6272A4"
+# [footer.text]
+# foreground = "#44475A"

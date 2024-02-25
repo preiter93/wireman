@@ -11,12 +11,5 @@ files = [
 [server]
 default_address = "http://localhost:50051"
 
-# [history]
-# autosave = true
-# directory = "$WIREMAN_CONFIG_DIR/history"
-
-# [logging]
-# directory = "$WIREMAN_CONFIG_DIR"
-
 # [ui]
-# hide_footer_help = false
+# skin = "$PWD/../wireman-theme/resources/skins/dracula.toml"
