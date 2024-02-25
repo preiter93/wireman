@@ -121,10 +121,10 @@ If you are unable to resolve the issue on your own or need further assistance, p
 
 Wireman allows users to customize the appearance of the UI by adding custom skins. To do this, simply specify the desired skin file in the `wireman.toml` file config:
 
-    ```toml
-    [ui]
-    skin = "path_to_file/my_skin.toml"
-    ```
+```toml
+[ui]
+skin = "path_to_file/my_skin.toml"
+```
     
 For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins).
 
