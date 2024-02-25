@@ -86,8 +86,8 @@ This guide will walk you through the steps to set up and run WireMan.
     directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
     level = "Debug"                            # Optional. Defaults to Debug.
     
-    [ui]
-    hide_footer_help = false                   # Optional. Defaults to false.
+    # [ui]
+    # skin = "$WIREMAN_CONFIG_DIR/skins/dracula.toml"  # Optional. Set a UI theme.
     ```
 
     Replace with the appropriate values for your project.
@@ -116,6 +116,18 @@ This guide will walk you through the steps to set up and run WireMan.
 Wireman logs important information and errors to assist in troubleshooting. By default, logs are stored in `$WIREMAN_CONFIG_DIR/wireman.log`.Make sure to check this log file if you encounter any unexpected behavior or errors while using the application.
 
 If you are unable to resolve the issue on your own or need further assistance, please don't hesitate to [open an issue](https://github.com/preiter93/wireman/issues).
+
+## Custom Skins
+
+Wireman allows users to customize the appearance of the UI by adding custom skins. To do this, simply specify the desired skin file in the `wireman.toml` file config:
+
+    ```toml
+    [ui]
+    skin = "path_to_file/my_skin.toml"
+    ```
+For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins).
+
+
 
 ## Demo
 
