@@ -68,8 +68,9 @@ impl<'a> HeadersPage<'a> {
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let theme = theme::Theme::global();
-        let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
-            layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, 1]);
+        let sl = if theme.editor.hide_status_line { 0 } else { 1 };
+        let [_, addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
+            layout(area, Direction::Vertical, &[1, 1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
         // Address
         ListElements::VDivider(String::from(" Address ")).render(addr_title, buf);

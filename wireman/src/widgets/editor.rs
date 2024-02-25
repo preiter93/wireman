@@ -263,83 +263,84 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
 /// Returns the editors view when selected.
 pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    let block = Block::new()
-        .borders(Borders::ALL)
-        .title_style(theme.border.text_focused)
-        .border_type(theme.border.border_type_focused)
-        .border_style(theme.border.border_focused)
-        .title(title.into())
-        .title_alignment(Alignment::Center);
-    let mut editor_theme = EditorTheme::default()
-        .block(block)
-        .status_line(
-            StatusLine::default()
-                .style_text(theme.editor.status_text)
-                .style_line(theme.editor.status_line),
-        )
-        .base(theme.editor.text)
-        .cursor_style(theme.editor.cursor)
-        .selection_style(theme.editor.selection);
-    if theme.editor.hide_status_line {
-        editor_theme = editor_theme.hide_status_line();
-    }
-    EditorView::new(state).theme(editor_theme)
+    EditorView::new(state).theme(
+        EditorTheme::default()
+            .block(
+                Block::new()
+                    .borders(Borders::ALL)
+                    .title_style(theme.border.text_focused)
+                    .border_type(theme.border.border_type_focused)
+                    .border_style(theme.border.border_focused)
+                    .title(title.into())
+                    .title_alignment(Alignment::Center),
+            )
+            .base(theme.editor.text)
+            .cursor_style(theme.editor.cursor)
+            .selection_style(theme.editor.selection)
+            .hide_status_line(),
+    )
 }
 
 /// Returns the editors view when unselected
 pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    let block = Block::new()
-        .borders(Borders::ALL)
-        .title_style(theme.border.text)
-        .border_style(theme.border.border)
-        .title(title.into())
-        .title_alignment(Alignment::Center);
-    let theme = EditorTheme::default()
-        .block(block)
-        .hide_status_line()
-        .base(theme.editor.text)
-        .cursor_style(theme.base.style)
-        .selection_style(theme.editor.selection);
-    EditorView::new(state).theme(theme)
+    EditorView::new(state).theme(
+        EditorTheme::default()
+            .block(
+                Block::new()
+                    .borders(Borders::ALL)
+                    .title_style(theme.border.text)
+                    .border_style(theme.border.border)
+                    .title(title.into())
+                    .title_alignment(Alignment::Center),
+            )
+            .hide_status_line()
+            .base(theme.editor.text)
+            .cursor_style(theme.base.style)
+            .selection_style(theme.editor.selection),
+    )
 }
 
 /// Returns the editors view for a single line editor when selected.
 pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    let block = Block::new()
-        .borders(Borders::ALL)
-        .title_style(theme.border.text_focused)
-        .border_type(theme.border.border_type_focused)
-        .border_style(theme.border.border_focused)
-        .title(title.into())
-        .title_alignment(Alignment::Left);
-    let theme = EditorTheme::default()
-        .block(block)
-        .hide_status_line()
-        .base(theme.editor.text)
-        .cursor_style(theme.editor.cursor)
-        .selection_style(theme.editor.selection);
-    EditorView::new(state).theme(theme)
+    EditorView::new(state).theme(
+        EditorTheme::default()
+            .block(
+                Block::new()
+                    .borders(Borders::ALL)
+                    .title_style(theme.border.text_focused)
+                    .border_type(theme.border.border_type_focused)
+                    .border_style(theme.border.border_focused)
+                    .title(title.into())
+                    .title_alignment(Alignment::Left),
+            )
+            .hide_status_line()
+            .base(theme.editor.text)
+            .cursor_style(theme.editor.cursor)
+            .selection_style(theme.editor.selection),
+    )
 }
 
 /// Returns the editors view for a single line editor when unselected.
 pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    let block = Block::new()
-        .borders(Borders::ALL)
-        .title_style(theme.border.text)
-        .border_type(theme.border.border_type)
-        .border_style(theme.border.border)
-        .style(theme.editor.text)
-        .title(title.into())
-        .title_alignment(Alignment::Left);
-    let theme = EditorTheme::default()
-        .block(block)
-        .hide_status_line()
-        .hide_cursor()
-        .base(theme.editor.text)
-        .cursor_style(theme.base.style)
-        .selection_style(theme.editor.selection);
-    EditorView::new(state).theme(theme)
+    EditorView::new(state).theme(
+        EditorTheme::default()
+            .block(
+                Block::new()
+                    .borders(Borders::ALL)
+                    .title_style(theme.border.text)
+                    .border_type(theme.border.border_type)
+                    .border_style(theme.border.border)
+                    .style(theme.editor.text)
+                    .title(title.into())
+                    .title_alignment(Alignment::Left),
+            )
+            .hide_status_line()
+            .hide_cursor()
+            .base(theme.editor.text)
+            .cursor_style(theme.base.style)
+            .selection_style(theme.editor.selection),
+    )
 }
