@@ -11,5 +11,8 @@ files = [
 [server]
 default_address = "http://localhost:50051"
 
-# [ui]
-# skin = "$PWD/../wireman-theme/resources/skins/dracula.toml"
+[history]
+directory = "$HOME/Rust/wireman/example/history"
+
+[ui]
+skin = "$PWD/../wireman-theme/resources/skins/dracula.toml"
