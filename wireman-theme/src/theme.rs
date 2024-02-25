@@ -195,7 +195,7 @@ impl Help {
             .key
             .fg(skin.key_foreground.into())
             .bg(skin.key_background.into());
-        self.description = self.description.fg(skin.description.into());
+        self.description = self.description.fg(skin.description_foreground.into());
         self.hide = skin.hide;
     }
 }
