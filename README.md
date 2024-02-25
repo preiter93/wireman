@@ -147,11 +147,10 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 - [x] Show loading indicator
 - [x] Metadata headers
 - [x] Provide installation help
+- [x] Custom themes
 
 Planned
 - [ ] Edit config file in app
-- [ ] Custom themes
-- [ ] Command line help
 
 Maybe
 - [ ] Streaming gRPC

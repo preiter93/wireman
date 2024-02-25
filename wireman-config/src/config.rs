@@ -229,6 +229,8 @@ mod test {
         level = "Debug"
         [tls]
         custom_cert = "cert.pem"
+        [ui]
+        skin = "skin.toml"
         "#;
         let cfg = Config::deserialize_toml(&data).unwrap();
         let expected = Config {
@@ -238,7 +240,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: theme::Config::default(),
+            ui: theme::Config::new(Some(String::from("skin.toml"))),
         };
         assert_eq!(cfg, expected);
     }
@@ -252,7 +254,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: theme::Config::default(),
+            ui: theme::Config::new(Some(String::from("skin.toml"))),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
@@ -270,7 +272,7 @@ level = "Debug"
 directory = "/Users"
 
 [ui]
-hide_footer_help = false
+skin = "skin.toml"
 
 [tls]
 "#;
