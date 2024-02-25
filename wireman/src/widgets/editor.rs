@@ -3,7 +3,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
     actions::{Execute, InsertChar, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, StatusLine,
+    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input,
 };
 use once_cell::sync::Lazy;
 use ratatui::{

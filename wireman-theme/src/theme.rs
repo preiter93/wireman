@@ -14,7 +14,7 @@ pub struct Theme {
     pub editor: Editor,
     pub history: History,
     pub headers: Headers,
-    pub help: Help,
+    pub footer: Footer,
 }
 
 impl Theme {
@@ -102,8 +102,8 @@ pub struct Editor {
 
 #[derive(Debug, Clone, Default)]
 pub struct History {
-    pub enabled: Style,
-    pub disabled: Style,
+    pub active: Style,
+    pub inactive: Style,
     pub focused: Style,
 }
 
@@ -115,22 +115,11 @@ pub struct Headers {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Help {
-    pub key: Style,
-    pub description: Style,
+pub struct Footer {
+    pub tabs: Style,
+    pub text: Style,
     pub hide: bool,
 }
-
-// impl Help {
-//     fn update_from_skin(&mut self, skin: &skin::Footer) {
-//         self.key = self
-//             .key
-//             .fg(skin.key_foreground.into())
-//             .bg(skin.key_background.into());
-//         self.description = self.description.fg(skin.description_foreground.into());
-//         self.hide = skin.hide;
-//     }
-// }
 
 impl Theme {
     /// Initializes the `Theme` from a config.
