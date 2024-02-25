@@ -209,7 +209,7 @@ pub struct Help {
     #[serde(default = "default_text_disabled_color")]
     pub key_background: Color,
     #[serde(default = "default_text_disabled_color")]
-    pub description: Color,
+    pub description_foreground: Color,
     #[serde(default = "default_false")]
     pub hide: bool,
 }
@@ -219,7 +219,7 @@ impl Default for Help {
         Self {
             key_foreground: default_background_color(),
             key_background: default_text_disabled_color(),
-            description: default_text_disabled_color(),
+            description_foreground: default_text_disabled_color(),
             hide: default_false(),
         }
     }

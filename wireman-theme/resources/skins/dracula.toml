@@ -34,3 +34,6 @@ disabled = "#44475A"
 
 [help]
 hide = true
+# key_foreground = "#44475A"
+# key_background = "#f8f8f2"
+# description_foreground = "#f8f8f2"
