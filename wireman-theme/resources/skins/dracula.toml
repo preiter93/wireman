@@ -9,9 +9,9 @@ border_focused = "#f8f8f2"
 
 [navbar]
 title = "#ff79C6"
-tab_foreground = "#f8f8f2"
-tab_focused_foreground = "#282a36"
-tab_focused_background = "#8be9df"
+tabs_foreground = "#f8f8f2"
+tabs_focused_foreground = "#282a36"
+tabs_focused_background = "#8be9df"
 
 [editor]
 hide_status_line = true
@@ -23,13 +23,14 @@ focused_foreground = "#282a36"
 focused_background = "#8be9df"
 
 [headers]
-section_foreground = "#ff79C6"
-section_background = "#282a36"
+titles_foreground = "#ff79C6"
+titles_background = "#282a36"
+titles_bold = true 
+tabs_focused_foreground = "#282a36"
 tabs_focused_background = "#8be9df"
-section_bold = true 
 
 [history]
-enabled = "#F1FA8C"
+enabled = "#FFB86C"
 disabled = "#44475A"
 
 [help]

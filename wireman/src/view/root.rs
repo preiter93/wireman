@@ -24,8 +24,8 @@ impl Root<'_> {
         Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
         Tabs::new(titles)
-            .style(theme.navbar.tab)
-            .highlight_style(theme.navbar.tab_focused)
+            .style(theme.navbar.tabs)
+            .highlight_style(theme.navbar.tabs_focused)
             .select(self.ctx.tab.index())
             .divider("")
             .render(right, buf);

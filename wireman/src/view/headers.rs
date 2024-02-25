@@ -147,7 +147,7 @@ impl Widget for ListElements {
                 Block::default()
                     .title(title)
                     .title_alignment(Alignment::Center)
-                    .title_style(theme.headers.section)
+                    .title_style(theme.headers.titles)
                     .render(area, buf);
             }
         };
