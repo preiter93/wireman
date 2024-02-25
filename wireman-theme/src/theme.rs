@@ -79,18 +79,18 @@ impl Border {
 #[derive(Debug, Clone, Default)]
 pub struct Navbar {
     pub title: Style,
-    pub tab: Style,
-    pub tab_focused: Style,
+    pub tabs: Style,
+    pub tabs_focused: Style,
 }
 
 impl Navbar {
     fn update_from_skin(&mut self, skin: &skin::Navbar) {
         self.title = self.title.fg(skin.title.into()).bold();
-        self.tab = self.tab.fg(skin.tab_foreground.into());
-        self.tab_focused = self
-            .tab_focused
-            .fg(skin.tab_focused_foreground.into())
-            .bg(skin.tab_focused_background.into());
+        self.tabs = self.tabs.fg(skin.tabs_foreground.into());
+        self.tabs_focused = self
+            .tabs_focused
+            .fg(skin.tabs_focused_foreground.into())
+            .bg(skin.tabs_focused_background.into());
     }
 }
 
@@ -160,19 +160,19 @@ impl History {
 
 #[derive(Debug, Clone, Default)]
 pub struct Headers {
-    pub section: Style,
+    pub titles: Style,
     pub tabs: Style,
     pub tabs_focused: Style,
 }
 
 impl Headers {
     fn update_from_skin(&mut self, skin: &skin::Headers) {
-        self.section = self
-            .section
-            .fg(skin.section_foreground.into())
-            .bg(skin.section_background.into());
-        if skin.section_bold {
-            self.section = self.section.bold();
+        self.titles = self
+            .titles
+            .fg(skin.titles_foreground.into())
+            .bg(skin.titles_background.into());
+        if skin.titles_bold {
+            self.titles = self.titles.bold();
         }
         self.tabs = self.tabs.fg(skin.tabs_foreground.into());
         self.tabs_focused = self

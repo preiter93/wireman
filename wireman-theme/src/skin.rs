@@ -74,20 +74,20 @@ pub struct Navbar {
     #[serde(default = "default_foreground_color")]
     pub title: Color,
     #[serde(default = "default_foreground_color")]
-    pub tab_foreground: Color,
+    pub tabs_foreground: Color,
     #[serde(default = "default_background_color")]
-    pub tab_focused_foreground: Color,
+    pub tabs_focused_foreground: Color,
     #[serde(default = "default_foreground_color")]
-    pub tab_focused_background: Color,
+    pub tabs_focused_background: Color,
 }
 
 impl Default for Navbar {
     fn default() -> Self {
         Self {
             title: default_foreground_color(),
-            tab_foreground: default_foreground_color(),
-            tab_focused_foreground: default_background_color(),
-            tab_focused_background: default_foreground_color(),
+            tabs_foreground: default_foreground_color(),
+            tabs_focused_foreground: default_background_color(),
+            tabs_focused_background: default_foreground_color(),
         }
     }
 }
@@ -176,11 +176,11 @@ impl Default for History {
 #[derive(Debug, Deserialize)]
 pub struct Headers {
     #[serde(default = "default_foreground_color")]
-    pub section_foreground: Color,
+    pub titles_foreground: Color,
     #[serde(default = "default_section_color")]
-    pub section_background: Color,
+    pub titles_background: Color,
     #[serde(default = "default_true")]
-    pub section_bold: bool,
+    pub titles_bold: bool,
     #[serde(default = "default_foreground_color")]
     pub tabs_foreground: Color,
     #[serde(default = "default_background_color")]
@@ -192,9 +192,9 @@ pub struct Headers {
 impl Default for Headers {
     fn default() -> Self {
         Self {
-            section_foreground: default_foreground_color(),
-            section_background: default_section_color(),
-            section_bold: default_true(),
+            titles_foreground: default_foreground_color(),
+            titles_background: default_section_color(),
+            titles_bold: default_true(),
             tabs_foreground: default_foreground_color(),
             tabs_focused_foreground: default_background_color(),
             tabs_focused_background: default_foreground_color(),
