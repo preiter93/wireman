@@ -28,5 +28,9 @@ section_background = "#282a36"
 tabs_focused_background = "#8be9df"
 section_bold = true 
 
+[history]
+enabled = "#F1FA8C"
+disabled = "#44475A"
+
 [help]
 hide = true
