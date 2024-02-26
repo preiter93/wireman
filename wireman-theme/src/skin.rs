@@ -57,131 +57,107 @@ impl Skin {
         // Border
         let unfocused = self.border.unfocused.as_ref();
         let focused = self.border.focused.as_ref();
-        set_fg!(theme.border.text, unfocused.map(|x| x.text).flatten(), fc);
-        set_fg!(
-            theme.border.text_focused,
-            focused.map(|x| x.text).flatten(),
-            fc
-        );
+        set_fg!(theme.border.text, unfocused.and_then(|x| x.text), fc);
+        set_fg!(theme.border.text_focused, focused.and_then(|x| x.text), fc);
         set_fg!(
             theme.border.border,
-            unfocused.map(|x| x.foreground).flatten(),
+            unfocused.and_then(|x| x.foreground),
             fc
         );
         set_fg!(
             theme.border.border_focused,
-            focused.map(|x| x.foreground).flatten(),
+            focused.and_then(|x| x.foreground),
             fc
         );
 
         // Navbar
         let title = self.navbar.title.as_ref();
-        set_fg!(
-            theme.navbar.title,
-            title.map(|x| x.foreground).flatten(),
-            hc
-        );
-        set_bg!(
-            theme.navbar.title,
-            title.map(|x| x.background).flatten(),
-            bc
-        );
-        if title.map(|x| x.bold).flatten().unwrap_or(true) {
+        set_fg!(theme.navbar.title, title.and_then(|x| x.foreground), hc);
+        set_bg!(theme.navbar.title, title.and_then(|x| x.background), bc);
+        if title.and_then(|x| x.bold).unwrap_or(true) {
             theme.navbar.title = theme.navbar.title.bold();
         }
         let tabs = self.navbar.tabs.as_ref();
         set_fg!(
             theme.navbar.tabs,
-            tabs.and_then(|x| x.unfocused.as_ref().map(|x| x.foreground))
-                .flatten(),
+            tabs.and_then(|x| x.unfocused.as_ref().and_then(|x| x.foreground)),
             fc
         );
         set_bg!(
             theme.navbar.tabs,
-            tabs.and_then(|x| x.unfocused.as_ref().map(|x| x.background))
-                .flatten(),
+            tabs.and_then(|x| x.unfocused.as_ref().and_then(|x| x.background)),
             bc
         );
         set_fg!(
             theme.navbar.tabs_focused,
-            tabs.and_then(|x| x.focused.as_ref().map(|x| x.foreground))
-                .flatten(),
+            tabs.and_then(|x| x.focused.as_ref().and_then(|x| x.foreground)),
             bc
         );
         set_bg!(
             theme.navbar.tabs_focused,
-            tabs.and_then(|x| x.focused.as_ref().map(|x| x.background))
-                .flatten(),
+            tabs.and_then(|x| x.focused.as_ref().and_then(|x| x.background)),
             hc
         );
 
         // List
         set_fg!(
             theme.list.text,
-            self.list.unfocused.as_ref().map(|x| x.foreground).flatten(),
+            self.list.unfocused.as_ref().and_then(|x| x.foreground),
             fc
         );
         set_bg!(
             theme.list.text,
-            self.list.unfocused.as_ref().map(|x| x.background).flatten(),
+            self.list.unfocused.as_ref().and_then(|x| x.background),
             bc
         );
         set_fg!(
             theme.list.focused,
-            self.list.focused.as_ref().map(|x| x.foreground).flatten(),
+            self.list.focused.as_ref().and_then(|x| x.foreground),
             bc
         );
         set_bg!(
             theme.list.focused,
-            self.list.focused.as_ref().map(|x| x.background).flatten(),
+            self.list.focused.as_ref().and_then(|x| x.background),
             fc
         );
 
         // Editor
         set_fg!(theme.editor.text, self.editor.text, fc);
         let cursor = self.editor.cursor.as_ref();
-        set_fg!(
-            theme.editor.cursor,
-            cursor.map(|x| x.foreground).flatten(),
-            bc
-        );
-        set_bg!(
-            theme.editor.cursor,
-            cursor.map(|x| x.background).flatten(),
-            fc
-        );
+        set_fg!(theme.editor.cursor, cursor.and_then(|x| x.foreground), bc);
+        set_bg!(theme.editor.cursor, cursor.and_then(|x| x.background), fc);
         let selection = self.editor.selection.as_ref();
         set_fg!(
             theme.editor.selection,
-            selection.map(|x| x.foreground).flatten(),
+            selection.and_then(|x| x.foreground),
             bc
         );
         set_bg!(
             theme.editor.selection,
-            selection.map(|x| x.background).flatten(),
+            selection.and_then(|x| x.background),
             fc
         );
         let status_line = self.editor.status_line.as_ref();
         let (sc1, sc2) = default_editor_status_line_colors();
         set_fg!(
             theme.editor.status_text,
-            status_line.map(|x| x.foreground).flatten(),
+            status_line.and_then(|x| x.foreground),
             fc
         );
         set_bg!(
             theme.editor.status_text,
-            status_line.map(|x| x.background).flatten(),
+            status_line.and_then(|x| x.background),
             sc1
         );
         set_bg!(
             theme.editor.status_line,
-            status_line.map(|x| x.secondary).flatten(),
+            status_line.and_then(|x| x.secondary),
             sc2
         );
-        if status_line.map(|x| x.bold).flatten().unwrap_or(false) {
+        if status_line.and_then(|x| x.bold).unwrap_or(false) {
             theme.editor.status_text = theme.editor.status_text.bold();
         }
-        if let Some(hide_status_line) = status_line.map(|x| x.hide).flatten() {
+        if let Some(hide_status_line) = status_line.and_then(|x| x.hide) {
             theme.editor.hide_status_line = hide_status_line;
         }
 
@@ -191,83 +167,71 @@ impl Skin {
         let focused = self.history.focused.as_ref();
         set_fg!(
             theme.history.inactive,
-            inactive.as_ref().map(|x| x.foreground).flatten(),
+            inactive.as_ref().and_then(|x| x.foreground),
             dc
         );
         set_bg!(
             theme.history.inactive,
-            inactive.as_ref().map(|x| x.background).flatten(),
+            inactive.as_ref().and_then(|x| x.background),
             bc
         );
         set_fg!(
             theme.history.active,
-            active.as_ref().map(|x| x.foreground).flatten(),
+            active.as_ref().and_then(|x| x.foreground),
             hc
         );
         set_bg!(
             theme.history.active,
-            active.as_ref().map(|x| x.background).flatten(),
+            active.as_ref().and_then(|x| x.background),
             bc
         );
         set_fg!(
             theme.history.focused,
-            focused.as_ref().map(|x| x.foreground).flatten(),
+            focused.as_ref().and_then(|x| x.foreground),
             bc
         );
         set_bg!(
             theme.history.focused,
-            focused.as_ref().map(|x| x.background).flatten(),
+            focused.as_ref().and_then(|x| x.background),
             hc
         );
 
         // Headers
         let title = self.headers.titles.as_ref();
-        set_fg!(
-            theme.headers.titles,
-            title.map(|x| x.foreground).flatten(),
-            hc
-        );
-        set_bg!(
-            theme.headers.titles,
-            title.map(|x| x.background).flatten(),
-            bc
-        );
-        if title.map(|x| x.bold).flatten().unwrap_or(false) {
+        set_fg!(theme.headers.titles, title.and_then(|x| x.foreground), hc);
+        set_bg!(theme.headers.titles, title.and_then(|x| x.background), bc);
+        if title.and_then(|x| x.bold).unwrap_or(false) {
             theme.headers.titles = theme.headers.titles.bold();
         }
         let tabs = self.headers.tabs.as_ref();
         set_fg!(
             theme.headers.tabs,
-            tabs.and_then(|x| x.unfocused.as_ref().map(|x| x.foreground))
-                .flatten(),
+            tabs.and_then(|x| x.unfocused.as_ref().and_then(|x| x.foreground)),
             fc
         );
         set_bg!(
             theme.headers.tabs,
-            tabs.and_then(|x| x.unfocused.as_ref().map(|x| x.background))
-                .flatten(),
+            tabs.and_then(|x| x.unfocused.as_ref().and_then(|x| x.background)),
             bc
         );
         set_fg!(
             theme.headers.tabs_focused,
-            tabs.and_then(|x| x.focused.as_ref().map(|x| x.foreground))
-                .flatten(),
+            tabs.and_then(|x| x.focused.as_ref().and_then(|x| x.foreground)),
             bc
         );
         set_bg!(
             theme.headers.tabs_focused,
-            tabs.and_then(|x| x.focused.as_ref().map(|x| x.background))
-                .flatten(),
+            tabs.and_then(|x| x.focused.as_ref().and_then(|x| x.background)),
             fc
         );
 
         // Footer
         let tabs = self.footer.tabs.as_ref();
-        set_fg!(theme.footer.tabs, tabs.map(|x| x.foreground).flatten(), bc);
-        set_bg!(theme.footer.tabs, tabs.map(|x| x.background).flatten(), dc);
+        set_fg!(theme.footer.tabs, tabs.and_then(|x| x.foreground), bc);
+        set_bg!(theme.footer.tabs, tabs.and_then(|x| x.background), dc);
         let text = self.footer.text.as_ref();
-        set_fg!(theme.footer.text, text.map(|x| x.foreground).flatten(), dc);
-        set_bg!(theme.footer.text, text.map(|x| x.background).flatten(), bc);
+        set_fg!(theme.footer.text, text.and_then(|x| x.foreground), dc);
+        set_bg!(theme.footer.text, text.and_then(|x| x.background), bc);
         if let Some(hide_footer) = self.footer.hide {
             theme.footer.hide = hide_footer;
         }
