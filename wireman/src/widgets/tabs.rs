@@ -24,6 +24,8 @@ pub struct ActivatableTabs<'a> {
     active_style: Style,
     /// Style to apply to the selected item
     highlight_style: Style,
+    /// Style to apply to the selected item
+    active_highlight_style: Style,
     /// Tab divider
     divider: Span<'a>,
 }
@@ -41,6 +43,7 @@ impl<'a> ActivatableTabs<'a> {
             style: Style::default(),
             active_style: Style::default(),
             highlight_style: Style::default(),
+            active_highlight_style: Style::default(),
             divider: Span::raw(symbols::line::VERTICAL),
         }
     }
@@ -90,6 +93,14 @@ impl<'a> ActivatableTabs<'a> {
     /// Highlighted tab can be selected with [`Tabs::select`].
     pub fn active_style(mut self, style: Style) -> ActivatableTabs<'a> {
         self.active_style = style;
+        self
+    }
+
+    /// Sets the style for the actice but not hightlighted tab.
+    ///
+    /// Highlighted tab can be selected with [`Tabs::select`].
+    pub fn active_highlight_style(mut self, style: Style) -> ActivatableTabs<'a> {
+        self.active_highlight_style = style;
         self
     }
 
@@ -162,13 +173,19 @@ impl<'a> Widget for ActivatableTabs<'a> {
                 width: pos.0.saturating_sub(x),
                 height: 1,
             };
+            let mut is_active = false;
             if let Some(ref active) = self.active {
                 if active[i] {
                     buf.set_style(area, self.active_style);
+                    is_active = true;
                 }
             }
             if i == self.selected {
-                buf.set_style(area, self.highlight_style);
+                if is_active {
+                    buf.set_style(area, self.active_highlight_style);
+                } else {
+                    buf.set_style(area, self.highlight_style);
+                }
             }
             x = pos.0.saturating_add(1);
             let remaining_width = total_area.right().saturating_sub(x);

@@ -187,8 +187,8 @@ impl Widget for Authentication {
 
         let titles = vec![" Bearer ", " Basic "];
         Tabs::new(titles)
-            .style(theme.headers.tabs)
-            .highlight_style(theme.headers.tabs_focused)
+            .style(theme.headers.tabs.0)
+            .highlight_style(theme.headers.tabs.1)
             .select(self.selected_tag)
             .divider("")
             .render(title.inner(&Margin::new(0, 0)), buf);

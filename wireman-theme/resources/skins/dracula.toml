@@ -12,6 +12,10 @@ text = "#ff79C6"
 foreground = "#ff79C6"
 bold = true
 
+[navbar.tabs.unfocused]
+foreground = "#f8f8f2"
+background = "#282a36"
+
 [navbar.tabs.focused]
 foreground = "#282a36"
 background = "#8be9df"
@@ -29,11 +33,21 @@ bold = true
 foreground = "#282a36"
 background = "#FFB86C"
 
-[history.active]
-foreground = "#ffb86c"
-
-[history.inactive]
+[history.inactive.unfocused]
 foreground = "#44475A"
+background = "#282a36"
+
+[history.inactive.focused]
+foreground = "#282a36"
+background = "#44475A"
+
+[history.active.unfocused]
+foreground = "#ffb86c"
+background = "#282a36"
+
+[history.active.focused]
+foreground = "#282a36"
+background = "#ffb86c"
 
 [history.focused]
 foreground = "#282a36"
