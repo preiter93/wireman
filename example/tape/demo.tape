@@ -19,7 +19,7 @@ Show
 Set TypingSpeed 40ms
 Type "export WIREMAN_CONFIG_DIR=$PWD/config_default"
 Enter
-Sleep 1.5s
+Sleep 0.5s
 Type "wireman"
 Enter
 Sleep 1.5s
@@ -43,9 +43,9 @@ Type 'ddi'
 Set TypingSpeed 60ms
 Type '$(getToken.sh)'
 Escape
-Sleep 0.8s
+Sleep 0.5s
 Shift+Tab
-Sleep 0.8s
+Sleep 0.5s
 
 # Make the request
 Type 'jwwwwa'
@@ -53,16 +53,16 @@ Type 'John'
 Escape
 Sleep 0.5s
 Enter
-Sleep 1..5s
+Sleep 1s
 
 # Edit the request
 Type '2'
-Sleep 0.8s
+Sleep 0.5s
 Type 'hciwdi'
 Type 'This will be saved'
 Escape
 Enter
-Sleep 0.8s
+Sleep 0.5s
 
 # Show more features
 Type 'jjo'
@@ -75,7 +75,7 @@ Sleep 0.2s
 Enter
 Type 'Or copy the request as grpCurl command with Ctrl+y.'
 Escape
-Sleep 0.8s
+Sleep 0.5s
 Type 'q'
 
 Type "You can also change the theme..."
@@ -88,7 +88,7 @@ Type "export WIREMAN_CONFIG_DIR=$PWD/config_dracula"
 Enter
 Type 'tail -n 2 config_dracula/wireman.toml'
 Enter
-Sleep 1.0s
+Sleep 1.5s
 
 # Reopen and show that previous request is saved
 Type "wireman"
