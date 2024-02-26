@@ -202,7 +202,7 @@ impl Skin {
         set_fg!(
             theme.history.active,
             active.as_ref().map(|x| x.foreground).flatten(),
-            fc
+            hc
         );
         set_bg!(
             theme.history.active,
@@ -217,7 +217,7 @@ impl Skin {
         set_bg!(
             theme.history.focused,
             focused.as_ref().map(|x| x.background).flatten(),
-            fc
+            hc
         );
 
         // Headers
@@ -225,12 +225,12 @@ impl Skin {
         set_fg!(
             theme.headers.titles,
             title.map(|x| x.foreground).flatten(),
-            fc
+            hc
         );
         set_bg!(
             theme.headers.titles,
             title.map(|x| x.background).flatten(),
-            hc
+            bc
         );
         if title.map(|x| x.bold).flatten().unwrap_or(false) {
             theme.headers.titles = theme.headers.titles.bold();
@@ -346,7 +346,7 @@ pub fn default_foreground_color() -> Color {
 }
 
 pub fn default_highlight_color() -> Color {
-    PURPLE
+    LIGHT_PURPLE
 }
 
 pub fn default_editor_status_line_colors() -> (Color, Color) {
@@ -394,8 +394,8 @@ pub(crate) struct BorderSkin {
 const SLATE_BLUE: Color = Color::rgb(15, 23, 42);
 // const SLATE_WHITE: Color = Color::rgb(241, 245, 249);
 const WHITE: Color = Color::rgb(255, 255, 255);
-const LIGHT_PURPLE: Color = Color::rgb(126, 34, 206);
-const PURPLE: Color = Color::rgb(88, 28, 135);
+const LIGHT_PURPLE: Color = Color::rgb(160, 76, 186);
+const PURPLE: Color = Color::rgb(120, 5, 156);
 const GRAY: Color = Color::rgb(71, 85, 105);
 
 #[cfg(test)]
