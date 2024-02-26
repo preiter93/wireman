@@ -11,12 +11,8 @@ files = [
 [server]
 default_address = "http://localhost:50051"
 
-# [history]
-# autosave = true
-# directory = "$WIREMAN_CONFIG_DIR/history"
+[history]
+directory = "$HOME/Rust/wireman/example/history"
 
-# [logging]
-# directory = "$WIREMAN_CONFIG_DIR"
-
-# [ui]
-# hide_footer_help = false
+[ui]
+skin = "$PWD/../wireman-theme/resources/skins/dracula.toml"
