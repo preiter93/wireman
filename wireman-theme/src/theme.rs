@@ -80,8 +80,7 @@ impl Default for Border {
 #[derive(Debug, Clone, Default)]
 pub struct Navbar {
     pub title: Style,
-    pub tabs: Style,
-    pub tabs_focused: Style,
+    pub tabs: (Style, Style),
 }
 
 #[derive(Debug, Clone, Default)]
@@ -102,16 +101,14 @@ pub struct Editor {
 
 #[derive(Debug, Clone, Default)]
 pub struct History {
-    pub active: Style,
-    pub inactive: Style,
-    pub focused: Style,
+    pub active: (Style, Style),
+    pub inactive: (Style, Style),
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct Headers {
     pub titles: Style,
-    pub tabs: Style,
-    pub tabs_focused: Style,
+    pub tabs: (Style, Style),
 }
 
 #[derive(Debug, Clone, Default)]

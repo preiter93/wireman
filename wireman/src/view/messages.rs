@@ -48,9 +48,10 @@ impl Widget for MessagesPage<'_> {
             let [_, right] = layout(center, Direction::Horizontal, &[0, 25]);
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
-                .style(theme.history.inactive)
-                .active_style(theme.history.active)
-                .highlight_style(theme.history.focused)
+                .style(theme.history.inactive.0)
+                .active_style(theme.history.active.0)
+                .highlight_style(theme.history.inactive.1)
+                .active_highlight_style(theme.history.active.1)
                 .select(self.model.history_model.save_spot().saturating_sub(1))
                 .divider("");
             if let Some(method) = &self.model.selected_method {
