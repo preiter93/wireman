@@ -1,0 +1,57 @@
+[base]
+background = "#282a36"
+foreground = "#f8f8f2"
+
+[border.unfocused]
+text = "#ff79C6"
+
+[border.focused]
+text = "#ff79C6"
+
+[navbar.title]
+foreground = "#ff79C6"
+bold = true
+
+[navbar.tabs.focused]
+foreground = "#282a36"
+background = "#8be9df"
+
+[list.focused]
+foreground = "#282a36"
+background = "#8be9df"
+
+[headers.titles]
+foreground = "#ff79C6"
+background = "#282a36"
+bold = true
+
+[headers.tabs.focused]
+foreground = "#282a36"
+background = "#FFB86C"
+
+[history.active]
+foreground = "#ffb86c"
+
+[history.inactive]
+foreground = "#44475A"
+
+[history.focused]
+foreground = "#282a36"
+background = "#FFB86C"
+
+[editor.selection]
+foreground = "#282a36"
+background = "#f1fa8c"
+
+[editor.status_line]
+foreground = "#282a36"
+background = "#ff79C6"
+secondary = "#44475A"
+bold = true
+
+[footer]
+hide = true
+# [footer.tabs]
+# background = "#6272A4"
+# [footer.text]
+# foreground = "#44475A"

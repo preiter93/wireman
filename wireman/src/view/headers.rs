@@ -7,11 +7,10 @@ use crate::{
 use edtui::{EditorState, StatusLine};
 use ratatui::{
     prelude::*,
-    widgets::{Block, Borders, StatefulWidget, Tabs, Widget},
+    widgets::{Block, StatefulWidget, Tabs, Widget},
 };
+use theme::Theme;
 use tui_widget_list::{List, ListState};
-
-use super::theme::THEME;
 
 /// The request and response tab
 pub struct HeadersPage<'a> {
@@ -68,9 +67,10 @@ impl<'a> HeadersPage<'a> {
 
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        // let area = layout(area, Direction::Vertical, &[1, 4, 1, 5, 1, 0, 1]);
-        let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
-            layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, 1]);
+        let theme = theme::Theme::global();
+        let sl = if theme.editor.hide_status_line { 0 } else { 1 };
+        let [_, addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
+            layout(area, Direction::Vertical, &[1, 1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
         // Address
         ListElements::VDivider(String::from(" Address ")).render(addr_title, buf);
@@ -123,11 +123,13 @@ impl Widget for HeadersPage<'_> {
         }
 
         // Show a combined status line for all editors
-        StatusLine::default()
-            .style_text(THEME.status_line.0)
-            .style_line(THEME.status_line.1)
-            .mode(self.model.mode().name())
-            .render(status, buf);
+        if !theme.editor.hide_status_line {
+            StatusLine::default()
+                .style_text(theme.editor.status_text)
+                .style_line(theme.editor.status_line)
+                .mode(self.model.mode().name())
+                .render(status, buf);
+        }
     }
 }
 
@@ -139,16 +141,14 @@ enum ListElements {
 
 impl Widget for ListElements {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        let theme = theme::Theme::global();
         match self {
             Self::VSpace(_) => {}
             Self::VDivider(title) => {
                 Block::default()
                     .title(title)
-                    .borders(Borders::TOP)
                     .title_alignment(Alignment::Center)
-                    .title_style(THEME.divider.title)
-                    .border_style(THEME.divider.border_style)
-                    .border_type(THEME.divider.border_type)
+                    .title_style(theme.headers.titles)
                     .render(area, buf);
             }
         };
@@ -182,12 +182,13 @@ struct Authentication {
 
 impl Widget for Authentication {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
+        let theme = Theme::global();
         let [title, content] = layout(area, Direction::Vertical, &[1, 0]);
 
         let titles = vec![" Bearer ", " Basic "];
         Tabs::new(titles)
-            .style(THEME.tabs)
-            .highlight_style(THEME.tabs_selected)
+            .style(theme.headers.tabs)
+            .highlight_style(theme.headers.tabs_focused)
             .select(self.selected_tag)
             .divider("")
             .render(title.inner(&Margin::new(0, 0)), buf);

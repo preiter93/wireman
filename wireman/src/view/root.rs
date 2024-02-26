@@ -1,4 +1,4 @@
-use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage, theme::THEME};
+use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage};
 use crate::context::{AppContext, Tab};
 use ratatui::{
     prelude::*,
@@ -17,13 +17,15 @@ impl<'a> Root<'a> {
 }
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
-        let [left, right] = layout(area, Direction::Horizontal, &[0, 50]);
+        let theme = Theme::global();
+        let [left, right] = layout(area, Direction::Horizontal, &[0, 45]);
+        Block::new().style(theme.base.style).render(area, buf);
 
-        Paragraph::new(Span::styled("WireMan", THEME.app_title)).render(left, buf);
+        Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
         let titles = vec![" Selection ", " Messages ", " Address & Headers "];
         Tabs::new(titles)
-            .style(THEME.tabs)
-            .highlight_style(THEME.tabs_selected)
+            .style(theme.navbar.tabs)
+            .highlight_style(theme.navbar.tabs_focused)
             .select(self.ctx.tab.index())
             .divider("")
             .render(right, buf);
@@ -46,6 +48,7 @@ impl Root<'_> {
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
+        let theme = Theme::global();
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
             Tab::Messages => MessagesPage::footer_keys(),
@@ -54,15 +57,13 @@ impl Root<'_> {
         let spans: Vec<Span> = keys
             .iter()
             .flat_map(|(key, desc)| {
-                let key = Span::styled(format!(" {key} "), THEME.key_binding.key);
-                let desc = Span::styled(format!(" {desc} "), THEME.key_binding.description);
+                let key = Span::styled(format!(" {key} "), theme.footer.tabs);
+                let desc = Span::styled(format!(" {desc} "), theme.footer.text);
                 [key, desc]
             })
             .collect();
         Paragraph::new(Line::from(spans))
             .alignment(Alignment::Center)
-            .fg(Color::Indexed(236))
-            .bg(Color::Indexed(232))
             .render(area, buf);
     }
 }
@@ -70,8 +71,9 @@ impl Root<'_> {
 impl Widget for Root<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        Block::new().style(THEME.root).render(area, buf);
-        if theme.root.hide_footer_help {
+        Block::new().style(theme.base.style).render(area, buf);
+
+        if theme.footer.hide {
             let [header, content] = layout(area, Direction::Vertical, &[1, 0]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);

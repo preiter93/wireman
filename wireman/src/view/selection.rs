@@ -4,10 +4,9 @@ use crate::model::SelectionModel;
 use crate::widgets::list::ListItem;
 use ratatui::layout::Rect;
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, BorderType, Borders, Padding, Paragraph, StatefulWidget, Widget};
+use ratatui::widgets::{Block, Borders, Padding, Paragraph, StatefulWidget, Widget};
+use theme::Theme;
 use tui_widget_list::List;
-
-use super::theme::THEME;
 
 /// The page where to select services and methods.
 pub struct SelectionPage<'a> {
@@ -36,6 +35,7 @@ impl<'a> SelectionPage<'a> {
 
 impl Widget for SelectionPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
+        let theme = Theme::global();
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let [top, bottom] = Layout::vertical([Percentage(50), Percentage(50)]).areas(area);
 
@@ -57,7 +57,6 @@ impl Widget for SelectionPage<'_> {
         let block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)
-            .style(THEME.content)
             .padding(Padding::new(1, 1, 1, 1));
 
         // Services
@@ -67,9 +66,17 @@ impl Widget for SelectionPage<'_> {
             .into_iter()
             .map(|service| ListItem::new(service.clone()));
         let services_state = &mut self.model.services_state;
-        let mut services_block = block.clone().title("Services").white();
+        let mut services_block = block
+            .clone()
+            .title("Services")
+            .title_style(theme.border.text)
+            .border_style(theme.border.border)
+            .border_type(theme.border.border_type);
         if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab) {
-            services_block = services_block.border_type(BorderType::Double);
+            services_block = services_block
+                .title_style(theme.border.text_focused)
+                .border_style(theme.border.border_focused)
+                .border_type(theme.border.border_type_focused);
         }
         List::new(services.collect()).block(services_block).render(
             svc_content,
@@ -90,9 +97,17 @@ impl Widget for SelectionPage<'_> {
             .into_iter()
             .map(|method| ListItem::new(method.clone()));
         let methods_state = &mut self.model.methods_state;
-        let mut methods_block = block.clone().title("Methods").white();
-        if self.tab == SelectionTab::Methods {
-            methods_block = methods_block.border_type(BorderType::Double);
+        let mut methods_block = block
+            .clone()
+            .title("Methods")
+            .title_style(theme.border.text)
+            .border_style(theme.border.border)
+            .border_type(theme.border.border_type);
+        if [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab) {
+            methods_block = methods_block
+                .title_style(theme.border.text_focused)
+                .border_style(theme.border.border_focused)
+                .border_type(theme.border.border_type_focused);
         }
         List::new(methods.collect())
             .block(methods_block)
