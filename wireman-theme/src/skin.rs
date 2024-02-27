@@ -3,7 +3,7 @@ use std::error::Error;
 use ratatui::style::Stylize;
 use serde::Deserialize;
 
-use crate::{color::Color, set_bg, set_fg, set_fg2, set_fg_bg, set_tab, Theme};
+use crate::{color::Color, set_fg_bg, set_focusable, Theme};
 
 #[derive(Debug, Deserialize, Default)]
 pub struct Skin {
@@ -45,10 +45,9 @@ impl Skin {
         // Border
         let unfocused = self.border.unfocused.as_ref();
         let focused = self.border.focused.as_ref();
-        set_fg!(theme.border.text, unfocused.and_then(|x| x.text), fc);
-        set_fg!(theme.border.text_focused, focused.and_then(|x| x.text), fc);
-        set_fg2!(theme.border.border, unfocused, fc);
-        set_fg2!(theme.border.border_focused, focused, fc);
+        set_focusable!(theme.border.text, self.border.text, fc, bc, fc, bc);
+        set_fg_bg!(theme.border.border.0, unfocused, fc, bc);
+        set_fg_bg!(theme.border.border.1, focused, fc, bc);
 
         // Navbar
         set_fg_bg!(theme.navbar.title, self.navbar.title, hc, bc);
@@ -56,7 +55,7 @@ impl Skin {
         if title.and_then(|x| x.bold).unwrap_or(true) {
             theme.navbar.title = theme.navbar.title.bold();
         }
-        set_tab!(theme.navbar.tabs, self.navbar.tabs, fc, bc, bc, hc);
+        set_focusable!(theme.navbar.tabs, self.navbar.tabs, fc, bc, bc, hc);
 
         // List
         set_fg_bg!(theme.list.text, self.list.unfocused, fc, bc);
@@ -67,13 +66,20 @@ impl Skin {
         set_fg_bg!(theme.editor.cursor, self.editor.cursor, bc, fc);
         set_fg_bg!(theme.editor.selection, self.editor.selection, bc, fc);
         let (sc1, sc2) = default_editor_status_line_colors();
-        set_fg_bg!(theme.editor.status_text, self.editor.status_line, fc, sc1);
-        set_bg!(
+        let status_line = self.editor.status_line.as_ref();
+        set_fg_bg!(
+            theme.editor.status_text,
+            status_line.and_then(|x| x.primary.as_ref()),
+            fc,
+            sc1
+        );
+
+        set_fg_bg!(
             theme.editor.status_line,
-            self.editor.status_line.as_ref().and_then(|x| x.secondary),
+            status_line.and_then(|x| x.secondary.as_ref()),
+            fc,
             sc2
         );
-        let status_line = self.editor.status_line.as_ref();
         if status_line.and_then(|x| x.bold).unwrap_or(false) {
             theme.editor.status_text = theme.editor.status_text.bold();
         }
@@ -84,12 +90,12 @@ impl Skin {
         // History
         let inactive = self.history.inactive.as_ref();
         let active = self.history.active.as_ref();
-        set_tab!(theme.history.inactive, inactive, dc, bc, bc, dc);
-        set_tab!(theme.history.active, active, hc, bc, bc, hc);
+        set_focusable!(theme.history.inactive, inactive, dc, bc, bc, dc);
+        set_focusable!(theme.history.active, active, hc, bc, bc, hc);
 
         // Headers
         set_fg_bg!(theme.headers.titles, self.headers.titles, hc, bc);
-        set_tab!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, fc);
+        set_focusable!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, fc);
 
         // Footer
         set_fg_bg!(theme.footer.tabs, self.footer.tabs, bc, dc);
@@ -119,14 +125,15 @@ impl Default for Base {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Border {
-    pub focused: Option<BorderSkin>,
-    pub unfocused: Option<BorderSkin>,
+    pub focused: Option<FgBg>,
+    pub unfocused: Option<FgBg>,
+    pub text: Option<Focusable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Navbar {
     title: Option<Title>,
-    tabs: Option<Tabs>,
+    tabs: Option<Focusable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -145,14 +152,14 @@ pub(crate) struct Editor {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct History {
-    active: Option<Tabs>,
-    inactive: Option<Tabs>,
+    active: Option<Focusable>,
+    inactive: Option<Focusable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Headers {
     titles: Option<Title>,
-    tabs: Option<Tabs>,
+    tabs: Option<Focusable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -190,7 +197,7 @@ pub(crate) struct Title {
 }
 
 #[derive(Debug, Deserialize, Default)]
-pub(crate) struct Tabs {
+pub(crate) struct Focusable {
     pub unfocused: Option<FgBg>,
     pub focused: Option<FgBg>,
 }
@@ -203,17 +210,10 @@ pub(crate) struct FgBg {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct StatusLine {
-    pub foreground: Option<Color>,
-    pub background: Option<Color>,
-    pub secondary: Option<Color>,
+    pub primary: Option<FgBg>,
+    pub secondary: Option<FgBg>,
     pub bold: Option<bool>,
     pub hide: Option<bool>,
-}
-
-#[derive(Debug, Deserialize, Default)]
-pub(crate) struct BorderSkin {
-    pub foreground: Option<Color>,
-    pub text: Option<Color>,
 }
 
 const SLATE_BLUE: Color = Color::rgb(15, 23, 42);
@@ -225,22 +225,6 @@ const GRAY: Color = Color::rgb(71, 85, 105);
 
 pub(crate) mod macros {
     #[macro_export]
-    macro_rules! set_fg {
-        ($theme:expr, $skin:expr, $default:expr) => {
-            $theme = $theme.fg($skin.unwrap_or($default).0);
-        };
-    }
-    #[macro_export]
-    macro_rules! set_fg2 {
-        ($theme:expr, $skin:expr, $default:expr) => {
-            $theme = $theme.fg($skin
-                .as_ref()
-                .and_then(|x| x.foreground)
-                .unwrap_or($default)
-                .0);
-        };
-    }
-    #[macro_export]
     macro_rules! set_fg_bg {
         ($theme:expr, $skin:expr, $fg:expr, $bg:expr) => {
             $theme = $theme.fg($skin.as_ref().and_then(|x| x.foreground).unwrap_or($fg).0);
@@ -248,13 +232,7 @@ pub(crate) mod macros {
         };
     }
     #[macro_export]
-    macro_rules! set_bg {
-        ($theme:expr, $skin:expr, $default:expr) => {
-            $theme = $theme.bg($skin.unwrap_or($default).0);
-        };
-    }
-    #[macro_export]
-    macro_rules! set_tab {
+    macro_rules! set_focusable {
         ($theme:expr, $skin:expr, $fg_unfocused:expr, $bg_unfocused:expr, $fg_focused:expr, $bg_focused:expr) => {
             $theme.0 = $theme.0.fg($skin
                 .as_ref()
