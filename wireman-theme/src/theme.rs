@@ -47,23 +47,17 @@ pub struct Base {
 
 #[derive(Debug, Clone)]
 pub struct Border {
-    pub border: Style,
-    pub border_focused: Style,
-    pub text: Style,
-    pub text_focused: Style,
-    pub border_type: BorderType,
-    pub border_type_focused: BorderType,
+    pub border: (Style, Style),
+    pub text: (Style, Style),
+    pub border_type: (BorderType, BorderType),
 }
 
 impl Default for Border {
     fn default() -> Self {
         Self {
-            border: Style::default(),
-            border_focused: Style::default(),
-            text: Style::default(),
-            text_focused: Style::default(),
-            border_type: BorderType::Plain,
-            border_type_focused: BorderType::Double,
+            border: (Style::default(), Style::default()),
+            text: (Style::default(), Style::default()),
+            border_type: (BorderType::Plain, BorderType::Double),
         }
     }
 }

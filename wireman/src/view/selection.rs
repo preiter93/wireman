@@ -69,14 +69,14 @@ impl Widget for SelectionPage<'_> {
         let mut services_block = block
             .clone()
             .title("Services")
-            .title_style(theme.border.text)
-            .border_style(theme.border.border)
-            .border_type(theme.border.border_type);
+            .title_style(theme.border.text.0)
+            .border_style(theme.border.border.0)
+            .border_type(theme.border.border_type.0);
         if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab) {
             services_block = services_block
-                .title_style(theme.border.text_focused)
-                .border_style(theme.border.border_focused)
-                .border_type(theme.border.border_type_focused);
+                .title_style(theme.border.text.1)
+                .border_style(theme.border.border.1)
+                .border_type(theme.border.border_type.1);
         }
         List::new(services.collect()).block(services_block).render(
             svc_content,
@@ -100,14 +100,14 @@ impl Widget for SelectionPage<'_> {
         let mut methods_block = block
             .clone()
             .title("Methods")
-            .title_style(theme.border.text)
-            .border_style(theme.border.border)
-            .border_type(theme.border.border_type);
+            .title_style(theme.border.text.0)
+            .border_style(theme.border.border.0)
+            .border_type(theme.border.border_type.0);
         if [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab) {
             methods_block = methods_block
-                .title_style(theme.border.text_focused)
-                .border_style(theme.border.border_focused)
-                .border_type(theme.border.border_type_focused);
+                .title_style(theme.border.text.1)
+                .border_style(theme.border.border.1)
+                .border_type(theme.border.border_type.1);
         }
         List::new(methods.collect())
             .block(methods_block)

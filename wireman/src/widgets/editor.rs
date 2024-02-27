@@ -268,9 +268,9 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text_focused)
-                    .border_type(theme.border.border_type_focused)
-                    .border_style(theme.border.border_focused)
+                    .title_style(theme.border.text.1)
+                    .border_style(theme.border.border.1)
+                    .border_type(theme.border.border_type.1)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
@@ -289,8 +289,9 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text)
-                    .border_style(theme.border.border)
+                    .title_style(theme.border.text.0)
+                    .border_style(theme.border.border.0)
+                    .border_type(theme.border.border_type.0)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
@@ -309,9 +310,9 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text_focused)
-                    .border_type(theme.border.border_type_focused)
-                    .border_style(theme.border.border_focused)
+                    .title_style(theme.border.text.1)
+                    .border_style(theme.border.border.1)
+                    .border_type(theme.border.border_type.1)
                     .title(title.into())
                     .title_alignment(Alignment::Left),
             )
@@ -330,9 +331,9 @@ pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text)
-                    .border_type(theme.border.border_type)
-                    .border_style(theme.border.border)
+                    .title_style(theme.border.text.0)
+                    .border_style(theme.border.border.0)
+                    .border_type(theme.border.border_type.0)
                     .style(theme.editor.text)
                     .title(title.into())
                     .title_alignment(Alignment::Left),

@@ -2,11 +2,11 @@
 background = "#282a36"
 foreground = "#f8f8f2"
 
-[border.unfocused]
-text = "#ff79C6"
+[border.text.unfocused]
+foreground = "#ff79C6"
 
-[border.focused]
-text = "#ff79C6"
+[border.text.focused]
+foreground = "#ff79C6"
 
 [navbar.title]
 foreground = "#ff79C6"
@@ -18,11 +18,41 @@ background = "#282a36"
 
 [navbar.tabs.focused]
 foreground = "#282a36"
-background = "#8be9df"
+background = "#ffb86c"
 
 [list.focused]
 foreground = "#282a36"
 background = "#8be9df"
+
+[history.inactive.unfocused]
+foreground = "#44475a"
+background = "#282a36"
+
+[history.inactive.focused]
+foreground = "#282a36"
+background = "#44475a"
+
+[history.active.unfocused]
+foreground = "#8be9df"
+background = "#282a36"
+
+[history.active.focused]
+foreground = "#282a36"
+background = "#8be9df"
+
+[editor.selection]
+foreground = "#282a36"
+background = "#f1fa8c"
+
+[editor.status_line]
+bold = true
+
+[editor.status_line.primary]
+foreground = "#282a36"
+background = "#ff79C6"
+
+[editor.status_line.secondary]
+background = "#44475A"
 
 [headers.titles]
 foreground = "#ff79C6"
@@ -31,37 +61,7 @@ bold = true
 
 [headers.tabs.focused]
 foreground = "#282a36"
-background = "#FFB86C"
-
-[history.inactive.unfocused]
-foreground = "#44475A"
-background = "#282a36"
-
-[history.inactive.focused]
-foreground = "#282a36"
-background = "#44475A"
-
-[history.active.unfocused]
-foreground = "#ffb86c"
-background = "#282a36"
-
-[history.active.focused]
-foreground = "#282a36"
-background = "#ffb86c"
-
-[history.focused]
-foreground = "#282a36"
-background = "#FFB86C"
-
-[editor.selection]
-foreground = "#282a36"
-background = "#f1fa8c"
-
-[editor.status_line]
-foreground = "#282a36"
-background = "#ff79C6"
-secondary = "#44475A"
-bold = true
+background = "#8be9df"
 
 [footer]
 hide = true
