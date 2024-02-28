@@ -238,12 +238,12 @@ impl MessagesInput<'_> {
                 let mut disable_root_events = false;
                 if tab == MessagesTab::Request {
                     let request = &mut self.model.borrow_mut().request.editor;
-                    request.on_key(event, false);
+                    request.on_key(event);
                     disable_root_events = !request.normal_mode();
                 }
                 if tab == MessagesTab::Response {
                     let response = &mut self.model.borrow_mut().response.editor;
-                    response.on_key(event, false);
+                    response.on_key(event);
                     disable_root_events = !response.normal_mode();
                 }
                 // Disable all root key events if one of the editors went into insert mode
@@ -294,12 +294,17 @@ impl HeadersInput<'_> {
             {
                 model.selected = model.next();
             }
+            KeyCode::Enter if model.selected != HeadersSelection::None => {
+                if let Some(editor) = model.selected_editor_mut() {
+                    editor.state.mode = EditorMode::Normal;
+                }
+            }
             // Prevent editors going into search mode
             KeyCode::Char('/') => {}
             _ => {
                 let selected = model.selected.clone();
                 match selected {
-                    HeadersSelection::Addr => model.addr.on_key(event, true),
+                    HeadersSelection::Addr => model.addr.on_key(event),
                     HeadersSelection::Auth => model.auth.on_key(event),
                     HeadersSelection::Meta => model.meta.on_key(event),
                     HeadersSelection::None => match event.code {

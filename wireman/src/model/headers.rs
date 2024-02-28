@@ -31,7 +31,7 @@ impl Default for HeadersModel {
 impl HeadersModel {
     /// Create a new `HeadersModel` instance
     pub fn new(default_address: &str) -> Self {
-        let mut address = TextEditor::new();
+        let mut address = TextEditor::single();
         address.set_text_raw(default_address);
         Self {
             addr: address,
@@ -43,6 +43,16 @@ impl HeadersModel {
     /// Get the address as a string
     pub fn address(&self) -> String {
         self.addr.get_text_raw()
+    }
+
+    /// Get the selected editor
+    pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> Option<&'b mut TextEditor> {
+        match self.selected {
+            HeadersSelection::Addr => Some(&mut self.addr),
+            HeadersSelection::Auth => Some(self.auth.selected_editor_mut()),
+            HeadersSelection::Meta => self.meta.selected_editor_mut(),
+            _ => None,
+        }
     }
 
     /// Returns the editor mode

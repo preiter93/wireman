@@ -3,11 +3,20 @@ use crate::widgets::editor::TextEditor;
 use crossterm::event::{KeyCode, KeyEvent};
 use edtui::EditorMode;
 
-#[derive(Default)]
 pub struct AuthHeader {
     pub(crate) bearer: TextEditor,
     pub(crate) basic: TextEditor,
     pub(crate) selected: AuthSelection,
+}
+
+impl Default for AuthHeader {
+    fn default() -> Self {
+        Self {
+            bearer: TextEditor::single(),
+            basic: TextEditor::single(),
+            selected: AuthSelection::Bearer,
+        }
+    }
 }
 
 /// The selection state of `HeadersModel`.
@@ -39,8 +48,8 @@ impl AuthHeader {
                 self.next();
             }
             _ => match self.selected {
-                AuthSelection::Bearer => self.bearer.on_key(event, true),
-                AuthSelection::Basic => self.basic.on_key(event, true),
+                AuthSelection::Bearer => self.bearer.on_key(event),
+                AuthSelection::Basic => self.basic.on_key(event),
             },
         }
     }
@@ -116,6 +125,14 @@ impl AuthHeader {
         match self.selected {
             AuthSelection::Bearer => self.bearer.is_empty(),
             AuthSelection::Basic => self.basic.is_empty(),
+        }
+    }
+
+    /// Get the selected editor
+    pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> &'b mut TextEditor {
+        match self.selected {
+            AuthSelection::Bearer => &mut self.bearer,
+            AuthSelection::Basic => &mut self.basic,
         }
     }
 }

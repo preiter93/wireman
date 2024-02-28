@@ -15,7 +15,7 @@ pub struct MetaHeaders {
 impl Default for MetaHeaders {
     fn default() -> Self {
         Self {
-            headers: vec![(TextEditor::new(), TextEditor::new())],
+            headers: vec![(TextEditor::single(), TextEditor::single())],
             selected: None,
         }
     }
@@ -73,7 +73,7 @@ impl MetaHeaders {
             }
             _ => {
                 if let Some(input) = self.selected_editor_mut() {
-                    input.on_key(event, true);
+                    input.on_key(event);
                 }
             }
         }
@@ -130,7 +130,7 @@ impl MetaHeaders {
         None
     }
 
-    fn selected_editor_mut(&mut self) -> Option<&mut TextEditor> {
+    pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> Option<&'b mut TextEditor> {
         if let Some(selected) = self.selected {
             let pair = &mut self.headers[selected.row];
             if selected.col == 1 {
@@ -143,7 +143,8 @@ impl MetaHeaders {
 
     /// Adds an empty header key value pair
     pub(crate) fn add(&mut self) {
-        self.headers.push((TextEditor::new(), TextEditor::new()));
+        self.headers
+            .push((TextEditor::single(), TextEditor::single()));
         self.select();
     }
 
@@ -174,8 +175,8 @@ impl MetaHeaders {
 
     pub(crate) fn set_btree(&mut self, data: &BTreeMap<String, String>) {
         for (key, val) in data {
-            let mut k = TextEditor::new();
-            let mut v = TextEditor::new();
+            let mut k = TextEditor::single();
+            let mut v = TextEditor::single();
             k.set_text_raw(key);
             v.set_text_raw(val);
             self.headers.push((k, v));
