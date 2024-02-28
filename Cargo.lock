@@ -2726,6 +2726,7 @@ dependencies = [
  "arboard",
  "crossterm",
  "edtui",
+ "edtui-jagged",
  "futures",
  "http",
  "once_cell",

@@ -1,10 +1,11 @@
 use arboard::Clipboard;
 use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
-    actions::{Execute, InsertChar, SwitchMode},
+    actions::{Execute, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input,
+    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, Lines,
 };
+use edtui_jagged::index::RowIndex;
 use once_cell::sync::Lazy;
 use ratatui::{
     prelude::*,
@@ -28,6 +29,9 @@ pub struct TextEditor {
 
     /// Whether the editor is focused.
     focus: bool,
+
+    /// Whether this is a single line editor.
+    single_line: bool,
 }
 
 impl Default for TextEditor {
@@ -46,6 +50,19 @@ impl TextEditor {
             input: Input::default(),
             error: None,
             focus: false,
+            single_line: false,
+        }
+    }
+    /// Returns an empty single line editor
+    pub fn single() -> Self {
+        let mut state = EditorState::default();
+        state.set_clipboard(Lazy::force(&CLIPBOARD));
+        Self {
+            state,
+            input: Input::default(),
+            error: None,
+            focus: false,
+            single_line: true,
         }
     }
 
@@ -119,11 +136,6 @@ impl TextEditor {
         self.state.mode == EditorMode::Visual
     }
 
-    /// Insert a str at the current cursor position. Handles newlines.
-    fn insert_char(&mut self, ch: char) {
-        InsertChar(ch).execute(&mut self.state);
-    }
-
     /// Pretty formats the editors text. The error is stored
     /// internall in the error buffer.
     pub fn format_json(&mut self) {
@@ -159,15 +171,31 @@ impl TextEditor {
         self.state.lines.is_last_col(index)
     }
 
+    /// Truncate after the first line
+    pub fn truncate_first_line(&mut self) {
+        if self.state.lines.len() <= 1 {
+            return;
+        }
+        if let Some(first_line) = self.state.lines.get(RowIndex::new(0)) {
+            let last_column = first_line.len().saturating_sub(1);
+            self.state.cursor = Index2::new(0, last_column);
+            self.state.lines = Lines::new(vec![first_line.clone()]);
+        }
+    }
+
     /// Key bindings in normal mode
-    pub fn on_key(&mut self, key: KeyEvent, single: bool) {
+    pub fn on_key(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Tab | KeyCode::BackTab if single && self.insert_mode() => {
+            KeyCode::Tab | KeyCode::BackTab if self.single_line && self.insert_mode() => {
                 SwitchMode(EditorMode::Normal).execute(&mut self.state);
             }
             _ => {
                 self.input.on_key(key, &mut self.state);
             }
+        }
+
+        if self.single_line {
+            self.truncate_first_line();
         }
     }
 }
