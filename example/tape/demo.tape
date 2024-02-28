@@ -5,7 +5,7 @@ Set Margin 10
 Set Padding 2
 Set BorderRadius 10
 Set Width 1200
-Set Height 700
+Set Height 750
 Set PlaybackSpeed 0.5
 
 Hide
@@ -16,8 +16,9 @@ Enter
 Show
 
 # Initialization
-Set TypingSpeed 40ms
+Set TypingSpeed 30ms
 Type "export WIREMAN_CONFIG_DIR=$PWD/config_default"
+Set TypingSpeed 40ms
 Enter
 Sleep 0.5s
 Type "wireman"
@@ -86,8 +87,8 @@ Show
 
 Type "export WIREMAN_CONFIG_DIR=$PWD/config_dracula"
 Enter
-Type 'tail -n 2 config_dracula/wireman.toml'
-Enter
+# Type 'tail -n 2 config_dracula/wireman.toml'
+# Enter
 Sleep 1.5s
 
 # Reopen and show that previous request is saved
@@ -100,4 +101,4 @@ Enter
 Enter
 Sleep 1.5s
 Type '2'
-Sleep 2.0s
+Sleep 3.0s

@@ -1,28 +1,40 @@
+# https://draculatheme.com/contribute
+# black: #282a36
+# white: f8f8f2
+# gray: #44475a
+# orange: #ffb86c
+# purple: #bd93f9
+# yellow: #f1fa8c
+# green: #50fa7b
+# red: #ff5555
+# cyan: 8be9fd
+# pink: #ff79c6
+
 [base]
 background = "#282a36"
 foreground = "#f8f8f2"
 
 [border.text.unfocused]
-foreground = "#ff79C6"
+foreground = "#8be9df"
 
 [border.text.focused]
-foreground = "#ff79C6"
+foreground = "#8be9df"
 
 [navbar.title]
-foreground = "#ff79C6"
+foreground = "#bd93f9"
 bold = true
 
 [navbar.tabs.unfocused]
-foreground = "#f8f8f2"
+foreground = "#ff79c6"
 background = "#282a36"
 
 [navbar.tabs.focused]
 foreground = "#282a36"
-background = "#ffb86c"
+background = "#ff79c6"
 
 [list.focused]
 foreground = "#282a36"
-background = "#8be9df"
+background = "#ffb86c"
 
 [history.inactive.unfocused]
 foreground = "#44475a"
@@ -33,12 +45,12 @@ foreground = "#282a36"
 background = "#44475a"
 
 [history.active.unfocused]
-foreground = "#8be9df"
+foreground = "#ffb86c"
 background = "#282a36"
 
 [history.active.focused]
 foreground = "#282a36"
-background = "#8be9df"
+background = "#ffb86c"
 
 [editor.selection]
 foreground = "#282a36"
@@ -55,13 +67,13 @@ background = "#ff79C6"
 background = "#44475A"
 
 [headers.titles]
-foreground = "#ff79C6"
+foreground = "#8be9df"
 background = "#282a36"
 bold = true
 
 [headers.tabs.focused]
 foreground = "#282a36"
-background = "#8be9df"
+background = "#ffb86c"
 
 [footer]
 hide = true
