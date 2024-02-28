@@ -74,11 +74,11 @@ impl Widget for Root<'_> {
         Block::new().style(theme.base.style).render(area, buf);
 
         if theme.footer.hide {
-            let [header, content] = layout(area, Direction::Vertical, &[1, 0]);
+            let [header, content] = layout(area, Direction::Vertical, &[2, 0]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);
         } else {
-            let [header, content, footer] = layout(area, Direction::Vertical, &[1, 0, 1]);
+            let [header, content, footer] = layout(area, Direction::Vertical, &[2, 0, 1]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);
             self.render_footer(footer, buf);
