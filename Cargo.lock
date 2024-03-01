@@ -542,9 +542,7 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84489a519679bef9cee8cbfdb09cb88f8034d29436ec9a136dcfab389e4fecea"
+version = "0.3.3"
 dependencies = [
  "arboard",
  "crossterm",
@@ -555,9 +553,7 @@ dependencies = [
 
 [[package]]
 name = "edtui-jagged"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d5562546ea7ad3711a9cd67548f09488c59e0cd9bafa6871dd8a426158dce05"
+version = "0.1.3"
 
 [[package]]
 name = "either"
@@ -2318,9 +2314,9 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 
 [[package]]
 name = "tui-widget-list"
-version = "0.8.1"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d2c440b926cc1fdd111765844b9cc7c81cab9fda7dfb6b2c38bb546fce7f4ec"
+checksum = "93664061847aafb22d1a619484c4ff01ece46f4446d7c3caac95b61001c6f6e8"
 dependencies = [
  "ratatui",
 ]
@@ -2726,7 +2722,6 @@ dependencies = [
  "arboard",
  "crossterm",
  "edtui",
- "edtui-jagged",
  "futures",
  "http",
  "once_cell",
