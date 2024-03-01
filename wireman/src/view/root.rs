@@ -51,7 +51,7 @@ impl Root<'_> {
         let theme = Theme::global();
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
-            Tab::Messages => MessagesPage::footer_keys(),
+            Tab::Messages => MessagesPage::footer_keys(self.ctx.messages_tab),
             Tab::Headers => HeadersPage::new(&self.ctx.headers.borrow()).footer_keys(),
         };
         let spans: Vec<Span> = keys

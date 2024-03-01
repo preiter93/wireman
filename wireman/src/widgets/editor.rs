@@ -3,9 +3,8 @@ use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
     actions::{Execute, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, Lines,
+    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, Lines, RowIndex,
 };
-use edtui_jagged::index::RowIndex;
 use once_cell::sync::Lazy;
 use ratatui::{
     prelude::*,
