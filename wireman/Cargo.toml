@@ -16,7 +16,8 @@ config = { package = "wireman-config", path = "../wireman-config", version = "0.
 logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
 theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
 tui-widget-list = { version = "0.8.2" }
-edtui = { version = "0.3.3", path = "../../edtui" }
+edtui = "0.3.3"
+# edtui = { version = "0.3.3", path = "../../edtui" }
 crossterm = { version = "0.27", features = ["events", "event-stream"] }
 ratatui = "0.26"
 serde = { version = "1.0", features = ["derive"] }
