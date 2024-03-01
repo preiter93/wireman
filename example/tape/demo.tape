@@ -31,7 +31,7 @@ Type 'j'
 Sleep 0.5s
 Enter
 Sleep 0.5s
-Shift+Tab
+Tab
 Sleep 0.5s
 
 # Address and token
@@ -45,7 +45,7 @@ Set TypingSpeed 60ms
 Type '$(getToken.sh)'
 Escape
 Sleep 0.5s
-Shift+Tab
+Tab
 Sleep 0.5s
 
 # Make the request
@@ -98,7 +98,9 @@ Sleep 1.5s
 Set TypingSpeed 100ms
 Type 'j'
 Enter
-Enter
+Tab
+Sleep 1.5s
+Tab
 Sleep 1.5s
 Type '2'
 Sleep 3.0s
