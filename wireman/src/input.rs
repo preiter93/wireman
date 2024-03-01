@@ -22,16 +22,13 @@ impl SelectionInput<'_> {
     #[allow(clippy::too_many_lines)]
     pub fn handle(&mut self, code: KeyCode, modifier: KeyModifiers) {
         let tab = self.ctx.selection_tab;
+        let method_selected = self.model.borrow().selected_method().is_some();
         match code {
-            KeyCode::BackTab if !self.ctx.disable_root_events => {
+            KeyCode::BackTab if !self.ctx.disable_root_events && method_selected => {
                 self.ctx.tab = self.ctx.tab.prev();
                 self.on_navigate();
             }
-            KeyCode::Tab if !self.ctx.disable_root_events => {
-                self.ctx.tab = self.ctx.tab.next();
-                self.on_navigate();
-            }
-            KeyCode::Tab if !self.ctx.disable_root_events => {
+            KeyCode::Tab if !self.ctx.disable_root_events && method_selected => {
                 self.ctx.tab = self.ctx.tab.next();
                 self.on_navigate();
             }
