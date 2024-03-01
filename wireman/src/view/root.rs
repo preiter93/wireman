@@ -22,7 +22,7 @@ impl Root<'_> {
         Block::new().style(theme.base.style).render(area, buf);
 
         Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
-        let titles = vec![" Selection ", " Messages ", " Address & Headers "];
+        let titles = vec![" Selection ", " Address & Headers ", " Messages "];
         Tabs::new(titles)
             .style(theme.navbar.tabs.0)
             .highlight_style(theme.navbar.tabs.1)

@@ -78,23 +78,23 @@ pub enum Tab {
 impl Tab {
     pub fn next(self) -> Self {
         match &self {
-            Self::Selection => Self::Messages,
-            Self::Messages => Self::Headers,
-            Self::Headers => Self::Selection,
-        }
-    }
-    pub fn prev(self) -> Self {
-        match &self {
             Self::Selection => Self::Headers,
             Self::Headers => Self::Messages,
             Self::Messages => Self::Selection,
         }
     }
+    pub fn prev(self) -> Self {
+        match &self {
+            Self::Selection => Self::Messages,
+            Self::Headers => Self::Selection,
+            Self::Messages => Self::Headers,
+        }
+    }
     pub fn index(self) -> usize {
         match &self {
             Self::Selection => 0,
-            Self::Messages => 1,
-            Self::Headers => 2,
+            Self::Headers => 1,
+            Self::Messages => 2,
         }
     }
 }
