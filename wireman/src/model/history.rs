@@ -1,4 +1,4 @@
-use super::MessagesModel;
+use super::{headers::MetaHeaders, MessagesModel};
 use crate::term::Term;
 use config::Config;
 use core::MethodDescriptor;
@@ -222,6 +222,9 @@ impl HistoryData {
             headers_model.auth.set_text("");
         }
         headers_model.meta.set_btree(&self.metadata);
+        if headers_model.meta.headers.is_empty() {
+            headers_model.meta = MetaHeaders::default();
+        }
         messages.request.editor.set_text_raw(&self.message);
     }
 }
