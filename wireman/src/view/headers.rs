@@ -26,7 +26,8 @@ impl<'a> HeadersPage<'a> {
         match self.model.selected {
             HeadersSelection::Addr => {
                 vec![
-                    ("q", "Quit"),
+                    ("q/^c", "Quit"),
+                    ("Tab", "Next Tab"),
                     ("Esc", "Unselect"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
@@ -34,27 +35,27 @@ impl<'a> HeadersPage<'a> {
             }
             HeadersSelection::Auth => {
                 vec![
-                    ("q", "Quit"),
+                    ("q/^c", "Quit"),
+                    ("Tab", "Next Tab"),
                     ("Esc", "Unselect"),
-                    ("Tab", "Switch"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
                 ]
             }
             HeadersSelection::Meta => {
                 vec![
-                    ("q", "Quit"),
+                    ("q/^c", "Quit"),
+                    ("Tab", "Next Tab"),
                     ("Esc", "Unselect"),
-                    ("Tab", "Switch"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
-                    ("^h/^a", "Add Header"),
+                    ("^a", "Add Header"),
                     ("^d", "Remove Header"),
                 ]
             }
             HeadersSelection::None => {
                 vec![
-                    ("q", "Quit"),
+                    ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),

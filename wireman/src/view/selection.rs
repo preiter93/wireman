@@ -16,20 +16,17 @@ pub struct SelectionPage<'a> {
 
 impl<'a> SelectionPage<'a> {
     pub fn footer_keys(sub: SelectionTab) -> Vec<(&'static str, &'static str)> {
-        let last = if sub == SelectionTab::Services {
-            ("Enter", "Select")
-        } else {
-            ("Esc", "Unselect")
-        };
-        vec![
-            ("q", "Quit"),
+        let mut keys = vec![
+            ("q/^c", "Quit"),
             ("Tab", "Next Tab"),
-            ("j", "Next"),
-            ("k", "Prev"),
-            ("↑", "Up"),
-            ("↓", "Down"),
-            last,
-        ]
+            ("j/↓", "Next"),
+            ("k/↑", "Prev"),
+            ("Enter", "Select"),
+        ];
+        if sub == SelectionTab::Methods {
+            keys.push(("Esc", "Unselect"));
+        }
+        keys
     }
 }
 

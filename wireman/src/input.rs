@@ -92,24 +92,24 @@ impl SelectionInput<'_> {
                 self.ctx.selection_tab = SelectionTab::Methods;
                 self.ctx.disable_root_events = false;
             }
-            KeyCode::Down if tab == SelectionTab::Services => {
+            KeyCode::Char('J') if tab == SelectionTab::Services => {
                 self.ctx.selection_tab = SelectionTab::Methods;
             }
-            KeyCode::Up if tab == SelectionTab::Methods => {
+            KeyCode::Char('K') if tab == SelectionTab::Methods => {
                 self.ctx.selection_tab = SelectionTab::Services;
             }
-            KeyCode::Char('j') if tab == SelectionTab::Services => {
+            KeyCode::Char('j') | KeyCode::Down if tab == SelectionTab::Services => {
                 self.model.borrow_mut().next_service();
                 self.model.borrow_mut().clear_methods_selection();
             }
-            KeyCode::Char('j') if tab == SelectionTab::Methods => {
+            KeyCode::Char('j') | KeyCode::Down if tab == SelectionTab::Methods => {
                 self.model.borrow_mut().next_method();
             }
-            KeyCode::Char('k') if tab == SelectionTab::Services => {
+            KeyCode::Char('k') | KeyCode::Up if tab == SelectionTab::Services => {
                 self.model.borrow_mut().previous_service();
                 self.model.borrow_mut().clear_methods_selection();
             }
-            KeyCode::Char('k') if tab == SelectionTab::Methods => {
+            KeyCode::Char('k') | KeyCode::Up if tab == SelectionTab::Methods => {
                 self.model.borrow_mut().previous_method();
             }
             KeyCode::Char('/') if tab == SelectionTab::Services => {
@@ -173,10 +173,10 @@ impl MessagesInput<'_> {
                 self.ctx.tab = self.ctx.tab.next();
                 self.ctx.messages_tab = MessagesTab::default();
             }
-            KeyCode::Down if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
+            KeyCode::Char('J') if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
                 self.ctx.messages_tab = MessagesTab::Response;
             }
-            KeyCode::Up if tab == MessagesTab::Response && !self.ctx.disable_root_events => {
+            KeyCode::Char('K') if tab == MessagesTab::Response && !self.ctx.disable_root_events => {
                 self.ctx.messages_tab = MessagesTab::Request;
             }
             KeyCode::Enter if tab == MessagesTab::Request && !self.ctx.disable_root_events => {
@@ -212,12 +212,6 @@ impl MessagesInput<'_> {
                 if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
             {
                 self.model.borrow().history_model.save(&self.model.borrow());
-            }
-            KeyCode::Char('l')
-                if modifier == KeyModifiers::CONTROL && !self.ctx.disable_root_events =>
-            {
-                let history_model = self.model.borrow().history_model.clone();
-                history_model.load(&mut self.model.borrow_mut());
             }
             KeyCode::Char('1') if !self.ctx.disable_root_events => {
                 self.handle_history_reload(1);
