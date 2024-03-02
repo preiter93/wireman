@@ -1,18 +1,9 @@
-use crate::{
-    context::{AppContext, Tab},
-    input::{HeadersInput, MessagesInput, SelectionInput},
-    model::messages::{do_request, RequestResult},
-    term::Term,
-    view::root::Root,
-};
+use crate::{context::AppContext, events::InternalStream, term::Term, view::root::Root};
 use config::Config;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, EventStream};
 use futures::StreamExt;
 use std::error::Error;
-use tokio::{
-    select,
-    sync::mpsc::{self, Receiver, Sender},
-};
+use tokio::select;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -20,32 +11,19 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// and control flow.
 pub struct App {
     /// The terminal instance.
-    term: Term,
+    pub(crate) term: Term,
 
     /// The context containing app-specific data.
-    ctx: AppContext,
+    pub(crate) ctx: AppContext,
 
     /// Indicating whether the application should quit or not.
-    should_quit: bool,
+    pub(crate) should_quit: bool,
 
     /// The crossterm event stream
-    crossterm_stream: EventStream,
+    pub(crate) crossterm_stream: EventStream,
 
     /// The internal event stream
-    internal_stream: InternalStream,
-}
-
-type InternalStreamData = RequestResult;
-struct InternalStream {
-    sx: Sender<InternalStreamData>,
-    rx: Receiver<InternalStreamData>,
-}
-
-impl InternalStream {
-    fn new() -> Self {
-        let (sx, rx) = mpsc::channel::<RequestResult>(10);
-        Self { sx, rx }
-    }
+    pub(crate) internal_stream: InternalStream,
 }
 
 impl App {
@@ -93,61 +71,5 @@ impl App {
             }
         };
         Ok(())
-    }
-
-    fn handle_crossterm_event(&mut self, event: KeyEvent) {
-        let sx = self.internal_stream.sx.clone();
-        match event.code {
-            KeyCode::Char('q') if !self.ctx.disable_root_events => {
-                self.should_quit = true;
-            }
-            KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
-                self.should_quit = true;
-            }
-            _ => match self.ctx.tab {
-                Tab::Selection => {
-                    SelectionInput {
-                        model: self.ctx.selection.clone(),
-                        messages_model: self.ctx.messages.clone(),
-                        ctx: &mut self.ctx,
-                    }
-                    .handle(event.code, event.modifiers);
-                }
-                Tab::Messages => MessagesInput {
-                    model: self.ctx.messages.clone(),
-                    ctx: &mut self.ctx,
-                }
-                .handle(event),
-                Tab::Headers => HeadersInput {
-                    model: self.ctx.headers.clone(),
-                    ctx: &mut self.ctx,
-                }
-                .handle(event),
-            },
-        }
-
-        // Dispatch the grpc request in a seperate thread.
-        if self.ctx.messages.borrow().dispatch {
-            let mut messages_model = self.ctx.messages.borrow_mut();
-            messages_model.dispatch = false;
-            match messages_model.collect_request() {
-                Ok(req) => {
-                    let handler = tokio::spawn(async move {
-                        let resp = do_request(req).await;
-                        let _ = sx.send(resp).await;
-                    });
-                    messages_model.handler = Some(handler);
-                }
-                Err(err) => {
-                    messages_model.response.set_text(&err.string());
-                    messages_model.response.set_error(err);
-                }
-            }
-        }
-    }
-
-    fn handle_internal_event(&mut self, result: &RequestResult) {
-        result.set(&mut self.ctx.messages.borrow_mut().response.editor);
-        self.ctx.messages.borrow_mut().handler.take();
     }
 }

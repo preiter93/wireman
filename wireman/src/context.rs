@@ -93,8 +93,8 @@ impl Tab {
     pub fn index(self) -> usize {
         match &self {
             Self::Selection => 0,
-            Self::Headers => 1,
             Self::Messages => 2,
+            Self::Headers => 1,
         }
     }
 }

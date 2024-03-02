@@ -1,5 +1,4 @@
 use crate::widgets::editor::TextEditor;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use edtui::{EditorMode, Index2};
 use std::collections::BTreeMap;
 
@@ -22,60 +21,52 @@ impl Default for MetaHeaders {
 }
 
 impl MetaHeaders {
-    pub fn on_key(&mut self, event: KeyEvent) {
-        let navigation_enabled = self.mode() == EditorMode::Normal;
-        let is_empty = self.selected_editor().map_or(true, |e| e.is_empty());
-        let is_first_col = self.selected_editor().map_or(true, |e| e.is_first_col());
-        let is_last_col = self.selected_editor().map_or(true, |e| e.is_last_col());
-        match event.code {
-            KeyCode::Right if navigation_enabled => {
-                if let Some(selected) = &mut self.selected {
-                    next(&mut selected.col);
-                }
-            }
-            KeyCode::Left if navigation_enabled => {
-                if let Some(selected) = &mut self.selected {
-                    next(&mut selected.col);
-                }
-            }
-            KeyCode::Char('l') if navigation_enabled && (is_empty || is_last_col) => {
-                if let Some(selected) = &mut self.selected {
-                    next(&mut selected.col);
-                }
-            }
-            KeyCode::Char('h') if navigation_enabled && (is_empty || is_first_col) => {
-                if let Some(selected) = &mut self.selected {
-                    next(&mut selected.col);
-                }
-            }
-            KeyCode::Up | KeyCode::Char('k') if navigation_enabled => {
-                if let Some(selected) = &mut self.selected {
-                    selected.row = selected.row.saturating_sub(1);
-                }
-            }
-            KeyCode::Down | KeyCode::Char('j') if navigation_enabled => {
-                if let Some(selected) = &mut self.selected {
-                    selected.row += 1;
-                    selected.row = selected.row.min(self.headers.len().saturating_sub(1));
-                }
-            }
-            KeyCode::Char('h' | 'a')
-                if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
-            {
-                self.add();
-            }
-            KeyCode::Char('d')
-                if event.modifiers == KeyModifiers::CONTROL && navigation_enabled =>
-            {
-                if let Some(index) = self.selected {
-                    self.remove(index.row);
-                }
-            }
-            _ => {
-                if let Some(input) = self.selected_editor_mut() {
-                    input.on_key(event);
-                }
-            }
+    pub fn is_empty(&self) -> bool {
+        self.headers.is_empty()
+    }
+
+    pub fn first_row_selected(&self) -> bool {
+        if self.headers.is_empty() {
+            return true;
+        }
+        let Some(selected) = self.selected else {
+            return false;
+        };
+        selected.row == 0
+    }
+
+    pub fn last_row_selected(&self) -> bool {
+        if self.headers.is_empty() {
+            return true;
+        }
+        let Some(selected) = self.selected else {
+            return false;
+        };
+        selected.row == self.headers.len().saturating_sub(1)
+    }
+
+    pub fn next_row(&mut self) {
+        if let Some(selected) = &mut self.selected {
+            selected.row += 1;
+            selected.row = selected.row.min(self.headers.len().saturating_sub(1));
+        }
+    }
+
+    pub fn prev_row(&mut self) {
+        if let Some(selected) = &mut self.selected {
+            selected.row = selected.row.saturating_sub(1);
+        }
+    }
+
+    pub fn next_col(&mut self) {
+        if let Some(selected) = &mut self.selected {
+            next_col(&mut selected.col);
+        }
+    }
+
+    pub fn prev_col(&mut self) {
+        if let Some(selected) = &mut self.selected {
+            next_col(&mut selected.col);
         }
     }
 
@@ -119,7 +110,7 @@ impl MetaHeaders {
         false
     }
 
-    fn selected_editor(&self) -> Option<&TextEditor> {
+    pub fn selected_editor(&self) -> Option<&TextEditor> {
         if let Some(selected) = self.selected {
             let pair = &self.headers[selected.row];
             if selected.col == 1 {
@@ -185,6 +176,6 @@ impl MetaHeaders {
     }
 }
 
-fn next(col: &mut usize) {
+fn next_col(col: &mut usize) {
     *col = (*col + 1) % 2
 }

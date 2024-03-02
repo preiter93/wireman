@@ -216,6 +216,13 @@ impl MessagesModel {
             }
         }
     }
+
+    pub fn handle_history_reload(&mut self, index: usize) {
+        self.history_model.select(index);
+
+        let history_model = self.history_model.clone();
+        let _ = history_model.load(self);
+    }
 }
 
 /// Make a grpc call and set response or error.
