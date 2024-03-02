@@ -19,7 +19,7 @@ pub struct HeadersModel {
     pub meta: MetaHeaders,
 
     /// The selection state.
-    pub selected: HeadersSelection,
+    pub tab: HeadersTab,
 }
 
 impl Default for HeadersModel {
@@ -37,7 +37,7 @@ impl HeadersModel {
             addr: address,
             auth: AuthHeader::default(),
             meta: MetaHeaders::default(),
-            selected: HeadersSelection::default(),
+            tab: HeadersTab::default(),
         }
     }
     /// Get the address as a string
@@ -46,13 +46,28 @@ impl HeadersModel {
     }
 
     /// Get the selected editor
-    pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> Option<&'b mut TextEditor> {
-        match self.selected {
-            HeadersSelection::Addr => Some(&mut self.addr),
-            HeadersSelection::Auth => Some(self.auth.selected_editor_mut()),
-            HeadersSelection::Meta => self.meta.selected_editor_mut(),
+    pub fn selected_editor<'b, 'a: 'b>(&'a self) -> Option<&'b TextEditor> {
+        match self.tab {
+            HeadersTab::Addr => Some(&self.addr),
+            HeadersTab::Auth => Some(self.auth.selected_editor()),
+            HeadersTab::Meta => self.meta.selected_editor(),
             _ => None,
         }
+    }
+
+    /// Get the selected editor
+    pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> Option<&'b mut TextEditor> {
+        match self.tab {
+            HeadersTab::Addr => Some(&mut self.addr),
+            HeadersTab::Auth => Some(self.auth.selected_editor_mut()),
+            HeadersTab::Meta => self.meta.selected_editor_mut(),
+            _ => None,
+        }
+    }
+    /// Whether any editor is currently in insert mode
+    pub fn disabled_root_events(&self) -> bool {
+        self.selected_editor()
+            .map_or(false, |editor| editor.state.mode != EditorMode::Normal)
     }
 
     /// Returns the editor mode
@@ -101,40 +116,80 @@ impl HeadersModel {
 
     /// Get the next header tab
     /// TODO: Simplify
-    pub fn next(&mut self) -> HeadersSelection {
-        match self.selected {
-            HeadersSelection::None => HeadersSelection::Addr,
-            HeadersSelection::Addr => HeadersSelection::Auth,
-            HeadersSelection::Auth => {
+    pub fn next_tab(&mut self) -> HeadersTab {
+        match self.tab {
+            HeadersTab::None => HeadersTab::Addr,
+            HeadersTab::Addr => HeadersTab::Auth,
+            HeadersTab::Auth => {
                 if self.meta.is_hidden() {
-                    return HeadersSelection::Addr;
+                    return HeadersTab::Addr;
                 }
                 self.meta.select();
-                HeadersSelection::Meta
+                HeadersTab::Meta
             }
-            HeadersSelection::Meta => {
+            HeadersTab::Meta => {
                 self.meta.unselect();
-                HeadersSelection::Addr
+                HeadersTab::Addr
             }
         }
     }
 
     /// Get the previous header tab.
     /// TODO: Simplify
-    pub fn prev(&mut self) -> HeadersSelection {
-        match self.selected {
-            HeadersSelection::None | HeadersSelection::Auth => HeadersSelection::Addr,
-            HeadersSelection::Addr => {
+    pub fn prev_tab(&mut self) -> HeadersTab {
+        match self.tab {
+            HeadersTab::None | HeadersTab::Auth => HeadersTab::Addr,
+            HeadersTab::Addr => {
                 if self.meta.is_hidden() {
-                    return HeadersSelection::Auth;
+                    return HeadersTab::Auth;
                 }
                 self.meta.select_last();
-                HeadersSelection::Meta
+                HeadersTab::Meta
             }
-            HeadersSelection::Meta => {
+            HeadersTab::Meta => {
                 self.meta.unselect();
-                HeadersSelection::Auth
+                HeadersTab::Auth
             }
+        }
+    }
+
+    pub fn next_row(&mut self) {
+        if self.tab == HeadersTab::Meta && !self.meta.last_row_selected() {
+            self.meta.next_row();
+        } else {
+            self.tab = self.next_tab();
+        }
+    }
+
+    pub fn prev_row(&mut self) {
+        if self.tab == HeadersTab::Meta && !self.meta.first_row_selected() {
+            self.meta.prev_row();
+        } else {
+            self.tab = self.prev_tab();
+        }
+    }
+
+    pub fn next_col(&mut self) {
+        match self.tab {
+            HeadersTab::Meta => self.meta.next_col(),
+            HeadersTab::Auth => {
+                if self.auth.is_empty() {
+                    self.auth.next();
+                }
+            }
+            _ => (),
+        }
+    }
+
+    pub fn prev_col(&mut self) {
+        match self.tab {
+            HeadersTab::Meta => self.meta.prev_col(),
+            HeadersTab::Auth => {
+                if self.auth.is_empty() {
+                    self.auth.next();
+                }
+            }
+            _ => (),
         }
     }
 
@@ -142,13 +197,13 @@ impl HeadersModel {
     pub fn clear(&mut self) {
         self.auth.clear();
         self.meta.clear();
-        self.selected = HeadersSelection::None;
+        self.tab = HeadersTab::None;
     }
 }
 
 /// The selection state of `HeadersModel`.
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
-pub enum HeadersSelection {
+pub enum HeadersTab {
     #[default]
     None,
     Addr,

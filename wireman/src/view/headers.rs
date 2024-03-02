@@ -1,6 +1,6 @@
 use super::root::layout;
 use crate::{
-    model::headers::{AuthSelection, HeadersModel, HeadersSelection},
+    model::headers::{AuthSelection, HeadersModel, HeadersTab},
     widgets::editor::{view_single_selected, view_single_unselected},
     widgets::kv::KV,
 };
@@ -23,8 +23,8 @@ impl<'a> HeadersPage<'a> {
     }
 
     pub fn footer_keys(&self) -> Vec<(&'static str, &'static str)> {
-        match self.model.selected {
-            HeadersSelection::Addr => {
+        match self.model.tab {
+            HeadersTab::Addr => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
@@ -33,7 +33,7 @@ impl<'a> HeadersPage<'a> {
                     ("↓/j", "Down"),
                 ]
             }
-            HeadersSelection::Auth => {
+            HeadersTab::Auth => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
@@ -42,7 +42,7 @@ impl<'a> HeadersPage<'a> {
                     ("↓/j", "Down"),
                 ]
             }
-            HeadersSelection::Meta => {
+            HeadersTab::Meta => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
@@ -53,7 +53,7 @@ impl<'a> HeadersPage<'a> {
                     ("^d", "Remove Header"),
                 ]
             }
-            HeadersSelection::None => {
+            HeadersTab::None => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
@@ -78,7 +78,7 @@ impl Widget for HeadersPage<'_> {
         Address {
             state: self.model.addr.state.clone(),
             title: String::new(),
-            selected: self.model.selected == HeadersSelection::Addr,
+            selected: self.model.tab == HeadersTab::Addr,
         }
         .render(addr_content, buf);
 
@@ -88,13 +88,13 @@ impl Widget for HeadersPage<'_> {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
                 title: String::new(),
-                selected: self.model.selected == HeadersSelection::Auth,
+                selected: self.model.tab == HeadersTab::Auth,
                 selected_tag: 0,
             },
             AuthSelection::Basic => Authentication {
                 state: self.model.auth.basic.state.clone(),
                 title: String::new(),
-                selected: self.model.selected == HeadersSelection::Auth,
+                selected: self.model.tab == HeadersTab::Auth,
                 selected_tag: 1,
             },
         };
@@ -112,9 +112,9 @@ impl Widget for HeadersPage<'_> {
                     .map(|(i, x)| KV {
                         key: x.0.state.clone(),
                         val: x.1.state.clone(),
-                        key_selected: (self.model.selected == HeadersSelection::Meta)
+                        key_selected: (self.model.tab == HeadersTab::Meta)
                             && index.map_or(false, |x| x.row == i && x.col == 0),
-                        val_selected: (self.model.selected == HeadersSelection::Meta)
+                        val_selected: (self.model.tab == HeadersTab::Meta)
                             && index.map_or(false, |x| x.row == i && x.col == 1),
                     })
                     .collect(),

@@ -1,6 +1,5 @@
 use super::try_expand;
 use crate::widgets::editor::TextEditor;
-use crossterm::event::{KeyCode, KeyEvent};
 use edtui::EditorMode;
 
 pub struct AuthHeader {
@@ -32,25 +31,6 @@ impl AuthHeader {
         match self.selected {
             AuthSelection::Bearer => self.selected = AuthSelection::Basic,
             AuthSelection::Basic => self.selected = AuthSelection::Bearer,
-        }
-    }
-
-    pub fn on_key(&mut self, event: KeyEvent) {
-        match event.code {
-            KeyCode::Left | KeyCode::Char('h')
-                if self.mode() == EditorMode::Normal && self.is_empty() =>
-            {
-                self.next();
-            }
-            KeyCode::Right | KeyCode::Char('l')
-                if self.mode() == EditorMode::Normal && self.is_empty() =>
-            {
-                self.next();
-            }
-            _ => match self.selected {
-                AuthSelection::Bearer => self.bearer.on_key(event),
-                AuthSelection::Basic => self.basic.on_key(event),
-            },
         }
     }
 
@@ -128,6 +108,13 @@ impl AuthHeader {
         }
     }
 
+    /// Get the selected editor
+    pub fn selected_editor<'b, 'a: 'b>(&'a self) -> &'b TextEditor {
+        match self.selected {
+            AuthSelection::Bearer => &self.bearer,
+            AuthSelection::Basic => &self.basic,
+        }
+    }
     /// Get the selected editor
     pub fn selected_editor_mut<'b, 'a: 'b>(&'a mut self) -> &'b mut TextEditor {
         match self.selected {

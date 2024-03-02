@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 mod app;
 mod context;
-mod input;
+mod events;
 mod model;
 mod term;
 mod view;
