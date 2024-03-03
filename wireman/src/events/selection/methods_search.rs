@@ -3,31 +3,31 @@ use std::collections::HashMap;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MethodsSearchEvent {
+pub enum MethodsSearchEvents {
     Finish,
     RemoveChar,
 }
 
-pub struct MethodsSearchEventHandler {}
+pub struct MethodsSearchEventsHandler {}
 
-impl MethodsSearchEventHandler {
+impl MethodsSearchEventsHandler {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl EventHandler for MethodsSearchEventHandler {
+impl EventHandler for MethodsSearchEventsHandler {
     type Context = AppContext;
 
-    type Event = MethodsSearchEvent;
+    type Event = MethodsSearchEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &MethodsSearchEvents, ctx: &mut Self::Context) {
         match event {
-            MethodsSearchEvent::Finish => {
+            MethodsSearchEvents::Finish => {
                 ctx.selection_tab = SelectionTab::Methods;
                 ctx.disable_root_events = false;
             }
-            MethodsSearchEvent::RemoveChar => {
+            MethodsSearchEvents::RemoveChar => {
                 ctx.selection.borrow_mut().remove_char_methods_filter();
             }
         }
@@ -39,11 +39,14 @@ impl EventHandler for MethodsSearchEventHandler {
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, MethodsSearchEvents> {
         HashMap::from([
-            (KeyEvent::new(KeyCode::Enter), Self::Event::Finish),
-            (KeyEvent::new(KeyCode::Esc), Self::Event::Finish),
-            (KeyEvent::new(KeyCode::Backspace), Self::Event::RemoveChar),
+            (KeyEvent::new(KeyCode::Enter), MethodsSearchEvents::Finish),
+            (KeyEvent::new(KeyCode::Esc), MethodsSearchEvents::Finish),
+            (
+                KeyEvent::new(KeyCode::Backspace),
+                MethodsSearchEvents::RemoveChar,
+            ),
         ])
     }
 }

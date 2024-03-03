@@ -1,14 +1,5 @@
-// pub enum KeyEventExt {
-//     KeyEvent(KeyEvent),
-//     AnyChar(char),
-// }
-//
-// impl From<KeyEvent> for KeyEventExt {
-//     fn from(value: KeyEvent) -> Self {
-//         Self::KeyEvent(value)
-//     }
-// }
-//
+use std::fmt;
+
 /// A key event.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
@@ -19,6 +10,23 @@ pub struct KeyEvent {
     pub modifiers: KeyModifiers,
 }
 
+impl fmt::Display for KeyEvent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let code = format!("{}", self.code);
+        let modifiers = self.modifiers.iter().map(|m| match m {
+            KeyModifier::Shift => "S-",
+            KeyModifier::Control => "C-",
+            KeyModifier::Alt => "A-",
+            KeyModifier::Super => "Su-",
+            KeyModifier::Hyper => "H-",
+            KeyModifier::Meta => "M-",
+        });
+        let mods = modifiers.collect::<String>();
+
+        write!(f, "{mods}{code}",)
+    }
+}
+
 impl KeyEvent {
     /// Creates a new `KeyEvent` instance.
     pub fn new(code: KeyCode) -> Self {
@@ -27,10 +35,25 @@ impl KeyEvent {
             modifiers: KeyModifiers::new(),
         }
     }
+    /// Creates a new `KeyEvent` instance with the shift modifier.
+    pub fn shift(code: KeyCode) -> Self {
+        Self {
+            modifiers: KeyModifiers::shift(),
+            code,
+        }
+    }
+
+    /// Creates a new `KeyEvent` instance with the ctrl modifier.
+    pub fn ctrl(code: KeyCode) -> Self {
+        Self {
+            modifiers: KeyModifiers::ctrl(),
+            code,
+        }
+    }
 
     /// Creates a new `KeyEvent` instance from a KeyCode.
     pub fn modifier(mut self, modifier: KeyModifier) -> Self {
-        self.modifiers.add_modifier(modifier);
+        self.modifiers = self.modifiers.add(modifier);
         self
     }
 }
@@ -38,7 +61,7 @@ impl KeyEvent {
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyModifier {
-    // Shift,
+    Shift,
     Control,
     Alt,
     Super,
@@ -46,45 +69,105 @@ pub enum KeyModifier {
     Meta,
 }
 
+impl fmt::Display for KeyModifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            KeyModifier::Shift => write!(f, "Shift"),
+            KeyModifier::Control => write!(f, "Ctrl"),
+            KeyModifier::Alt => write!(f, "Alt"),
+            KeyModifier::Super => write!(f, "Super"),
+            KeyModifier::Hyper => write!(f, "Hyper"),
+            KeyModifier::Meta => write!(f, "Meta"),
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq, Eq, Hash, Default)]
 pub struct KeyModifiers(u32);
 
 impl KeyModifiers {
+    /// Creates a new `KeyModifiers` instance with no modifiers.
     pub fn new() -> Self {
         KeyModifiers(0)
     }
 
-    pub fn add_modifier(&mut self, modifier: KeyModifier) {
+    /// Creates a new `KeyModifiers` instance with the shift modifier.
+    pub fn shift() -> Self {
+        KeyModifiers(0).add(KeyModifier::Shift)
+    }
+
+    /// Creates a new `KeyModifiers` instance with the ctrl modifier.
+    pub fn ctrl() -> Self {
+        KeyModifiers(0).add(KeyModifier::Control)
+    }
+
+    pub fn add(mut self, modifier: KeyModifier) -> Self {
         match modifier {
-            // KeyModifier::Shift => self.0 |= 0b0000_0001,
+            KeyModifier::Shift => self.0 |= 0b0000_0001,
             KeyModifier::Control => self.0 |= 0b0000_0010,
             KeyModifier::Alt => self.0 |= 0b0000_0100,
             KeyModifier::Super => self.0 |= 0b0000_1000,
             KeyModifier::Hyper => self.0 |= 0b0001_0000,
             KeyModifier::Meta => self.0 |= 0b0010_0000,
-        }
+        };
+        self
     }
 
-    pub fn remove_modifier(&mut self, modifier: KeyModifier) {
+    pub fn remove(mut self, modifier: KeyModifier) -> Self {
         match modifier {
-            // KeyModifier::Shift => self.0 &= !0b0000_0001,
+            KeyModifier::Shift => self.0 &= !0b0000_0001,
             KeyModifier::Control => self.0 &= !0b0000_0010,
             KeyModifier::Alt => self.0 &= !0b0000_0100,
             KeyModifier::Super => self.0 &= !0b0000_1000,
             KeyModifier::Hyper => self.0 &= !0b0001_0000,
             KeyModifier::Meta => self.0 &= !0b0010_0000,
-        }
+        };
+        self
     }
 
     pub fn contains(&self, modifier: KeyModifier) -> bool {
         match modifier {
-            // KeyModifier::Shift => self.0 & 0b0000_0001 != 0,
+            KeyModifier::Shift => self.0 & 0b0000_0001 != 0,
             KeyModifier::Control => self.0 & 0b0000_0010 != 0,
             KeyModifier::Alt => self.0 & 0b0000_0100 != 0,
             KeyModifier::Super => self.0 & 0b0000_1000 != 0,
             KeyModifier::Hyper => self.0 & 0b0001_0000 != 0,
             KeyModifier::Meta => self.0 & 0b0010_0000 != 0,
         }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = KeyModifier> + '_ {
+        [
+            KeyModifier::Shift,
+            KeyModifier::Control,
+            KeyModifier::Alt,
+            KeyModifier::Super,
+            KeyModifier::Hyper,
+            KeyModifier::Meta,
+        ]
+        .into_iter()
+        .filter(|&m| self.contains(m))
+    }
+}
+
+pub struct KeyModifierIterator {
+    current: KeyModifier,
+}
+
+impl Iterator for KeyModifierIterator {
+    type Item = KeyModifier;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next_modifier = match self.current {
+            KeyModifier::Shift => KeyModifier::Control,
+            KeyModifier::Control => KeyModifier::Alt,
+            KeyModifier::Alt => KeyModifier::Super,
+            KeyModifier::Super => KeyModifier::Hyper,
+            KeyModifier::Hyper => KeyModifier::Meta,
+            KeyModifier::Meta => return None,
+        };
+        self.current = next_modifier;
+        Some(next_modifier)
     }
 }
 
@@ -111,4 +194,30 @@ pub enum KeyCode {
     Null,
     Esc,
     Unknown,
+}
+
+impl fmt::Display for KeyCode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            KeyCode::Backspace => write!(f, "Backspace"),
+            KeyCode::Enter => write!(f, "Enter"),
+            KeyCode::Left => write!(f, "Left"),
+            KeyCode::Right => write!(f, "Right"),
+            KeyCode::Up => write!(f, "Up"),
+            KeyCode::Down => write!(f, "Down"),
+            KeyCode::Home => write!(f, "Home"),
+            KeyCode::End => write!(f, "End"),
+            KeyCode::PageUp => write!(f, "PageUp"),
+            KeyCode::PageDown => write!(f, "PageDown"),
+            KeyCode::Tab => write!(f, "Tab"),
+            KeyCode::BackTab => write!(f, "BackTab"),
+            KeyCode::Delete => write!(f, "Delete"),
+            KeyCode::Insert => write!(f, "Insert"),
+            KeyCode::F(n) => write!(f, "F{}", n),
+            KeyCode::Char(c) => write!(f, "{}", c),
+            KeyCode::Null => write!(f, "Null"),
+            KeyCode::Esc => write!(f, "Esc"),
+            KeyCode::Unknown => write!(f, "Unknown"),
+        }
+    }
 }

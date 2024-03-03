@@ -31,7 +31,7 @@ impl From<KeyEvent> for CTKeyEvent {
 impl From<CTKeyModifiers> for KeyModifiers {
     fn from(value: CTKeyModifiers) -> Self {
         let ct_modifiers = vec![
-            // (CTKeyModifiers::SHIFT, KeyModifier::Shift),
+            (CTKeyModifiers::SHIFT, KeyModifier::Shift),
             (CTKeyModifiers::CONTROL, KeyModifier::Control),
             (CTKeyModifiers::ALT, KeyModifier::Alt),
             (CTKeyModifiers::SUPER, KeyModifier::Super),
@@ -41,7 +41,7 @@ impl From<CTKeyModifiers> for KeyModifiers {
         let mut modifiers = Self::new();
         for modifier in ct_modifiers {
             if value.contains(modifier.0) {
-                modifiers.add_modifier(modifier.1);
+                modifiers = modifiers.add(modifier.1);
             }
         }
         modifiers
@@ -51,7 +51,7 @@ impl From<CTKeyModifiers> for KeyModifiers {
 impl From<KeyModifiers> for CTKeyModifiers {
     fn from(value: KeyModifiers) -> Self {
         let ct_modifiers = vec![
-            // (CTKeyModifiers::SHIFT, KeyModifier::Shift),
+            (CTKeyModifiers::SHIFT, KeyModifier::Shift),
             (CTKeyModifiers::CONTROL, KeyModifier::Control),
             (CTKeyModifiers::ALT, KeyModifier::Alt),
             (CTKeyModifiers::SUPER, KeyModifier::Super),
