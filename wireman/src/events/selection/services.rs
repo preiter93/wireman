@@ -1,5 +1,5 @@
 use crate::context::{AppContext, SelectionTab};
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt};
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
