@@ -1,8 +1,11 @@
 use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage};
-use crate::context::{AppContext, Tab};
+use crate::{
+    context::{AppContext, Tab},
+    widgets::{help::HelpDialog, modal::centered_rect},
+};
 use ratatui::{
     prelude::*,
-    widgets::{Block, Paragraph, Tabs, Widget},
+    widgets::{Block, Clear, Paragraph, Tabs, Widget},
 };
 use theme::{self, Theme};
 
@@ -82,6 +85,12 @@ impl Widget for Root<'_> {
             self.render_navbar(header, buf);
             self.render_content(content, buf);
             self.render_footer(footer, buf);
+        }
+
+        if self.ctx.show_help {
+            let popup_area = centered_rect(70, 50, area);
+            Clear.render(popup_area, buf);
+            HelpDialog::from_ctx(self.ctx).render(popup_area, buf);
         }
     }
 }
