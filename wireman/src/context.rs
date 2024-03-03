@@ -18,6 +18,9 @@ pub struct AppContext {
     /// The index of the messages sub window.
     pub messages_tab: MessagesTab,
 
+    /// Whether to show the help dialog.
+    pub show_help: bool,
+
     /// Disable root key events. Disables keys such as
     /// quit when an editor is in insert mode.
     pub disable_root_events: bool,
@@ -61,6 +64,7 @@ impl AppContext {
             selection_tab: SelectionTab::default(),
             messages_tab: MessagesTab::default(),
             disable_root_events: false,
+            show_help: false,
             selection,
             messages,
             headers,
