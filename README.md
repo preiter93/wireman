@@ -134,7 +134,7 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 
 ## Demo
 
-![](example/tape/demo.gif?v=1)
+![](example/tape/demo.gif?v=2)
 
 ## Roadmap
 
