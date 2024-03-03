@@ -25,8 +25,14 @@ Type "wireman"
 Enter
 Sleep 1.5s
 
+# Help
+Type '?'
+Sleep 2.0s
+Type '?'
+
 # Selection
 Set TypingSpeed 100ms
+Sleep 0.5s
 Type 'j'
 Sleep 0.5s
 Enter
