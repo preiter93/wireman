@@ -23,6 +23,8 @@ pub struct Skin {
     pub headers: Headers,
     #[serde(default)]
     pub footer: Footer,
+    #[serde(default)]
+    pub help_dialog: HelpDialog,
 }
 
 impl Skin {
@@ -103,6 +105,13 @@ impl Skin {
         if let Some(hide_footer) = self.footer.hide {
             theme.footer.hide = hide_footer;
         }
+
+        // Help dialog
+        let foreground = self.help_dialog.foreground;
+        let background = self.help_dialog.background;
+        let bl = default_help_dialog_background_color();
+        theme.help_dialog.style = theme.help_dialog.style.fg(foreground.unwrap_or(fc).0);
+        theme.help_dialog.style = theme.help_dialog.style.bg(background.unwrap_or(bl).0);
     }
 }
 
@@ -169,6 +178,12 @@ pub(crate) struct Footer {
     hide: Option<bool>,
 }
 
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct HelpDialog {
+    pub foreground: Option<Color>,
+    pub background: Option<Color>,
+}
+
 pub fn default_background_color() -> Color {
     SLATE_BLUE
 }
@@ -187,6 +202,10 @@ pub fn default_editor_status_line_colors() -> (Color, Color) {
 
 pub fn default_text_disabled_color() -> Color {
     GRAY
+}
+
+pub fn default_help_dialog_background_color() -> Color {
+    BLACK
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -222,6 +241,7 @@ const WHITE: Color = Color::rgb(255, 255, 255);
 const LIGHT_PURPLE: Color = Color::rgb(160, 76, 186);
 const PURPLE: Color = Color::rgb(120, 5, 156);
 const GRAY: Color = Color::rgb(71, 85, 105);
+const BLACK: Color = Color::rgb(2, 6, 23);
 
 pub(crate) mod macros {
     #[macro_export]

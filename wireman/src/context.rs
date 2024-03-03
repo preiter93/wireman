@@ -18,8 +18,9 @@ pub struct AppContext {
     /// The index of the messages sub window.
     pub messages_tab: MessagesTab,
 
-    /// Whether to show the help dialog.
-    pub show_help: bool,
+    /// Holds the data for the help modal dialog. Only non-None
+    /// if the help modal dialog is open.
+    pub help: Option<HelpContext>,
 
     /// Disable root key events. Disables keys such as
     /// quit when an editor is in insert mode.
@@ -33,6 +34,16 @@ pub struct AppContext {
 
     /// The model for the headers
     pub headers: Rc<RefCell<HeadersModel>>,
+}
+
+pub struct HelpContext {
+    pub(crate) key_mappings: Vec<(String, String)>,
+}
+
+impl HelpContext {
+    pub fn new(key_mappings: Vec<(String, String)>) -> Self {
+        Self { key_mappings }
+    }
 }
 
 impl AppContext {
@@ -64,7 +75,7 @@ impl AppContext {
             selection_tab: SelectionTab::default(),
             messages_tab: MessagesTab::default(),
             disable_root_events: false,
-            show_help: false,
+            help: None,
             selection,
             messages,
             headers,

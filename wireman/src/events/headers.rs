@@ -4,7 +4,6 @@ use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeadersEvents {
-    Confirm,
     NextTab,
     PrevTab,
     NextRow,
@@ -21,7 +20,6 @@ pub enum HeadersEvents {
 impl fmt::Display for HeadersEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
-            HeadersEvents::Confirm => "Confirm",
             HeadersEvents::NextTab => "Next Tab",
             HeadersEvents::PrevTab => "Previous Tab",
             HeadersEvents::NextRow => "Next Row",
@@ -53,13 +51,6 @@ impl EventHandler for HeadersEventHandler {
 
     fn handle_event(event: &HeadersEvents, ctx: &mut Self::Context) {
         match event {
-            HeadersEvents::Confirm => {
-                if ctx.headers.borrow().tab == HeadersTab::None {
-                    ctx.tab = ctx.tab.next();
-                } else {
-                    ctx.headers.borrow_mut().tab = HeadersTab::None;
-                }
-            }
             HeadersEvents::NextTab => {
                 ctx.tab = ctx.tab.next();
             }
@@ -109,29 +100,22 @@ impl EventHandler for HeadersEventHandler {
             None => (true, true),
         };
         let is_meta_tab = ctx.headers.borrow().tab == HeadersTab::Meta;
+        let none_selected = ctx.headers.borrow().tab == HeadersTab::None;
         let mut map = Vec::new();
+        if none_selected {
+            map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
+        } else {
+            map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::Unselect)]);
+        }
         if !disabled_root_events {
             map.extend([
                 (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
-                (KeyEvent::new(KeyCode::Enter), HeadersEvents::Confirm),
                 (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
                 (KeyEvent::new(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Char('j')), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Up), HeadersEvents::PrevRow),
                 (KeyEvent::new(KeyCode::Char('k')), HeadersEvents::PrevRow),
-                (
-                    KeyEvent::shift(KeyCode::Char('L')),
-                    HeadersEvents::NextColForce,
-                ),
-                (
-                    KeyEvent::shift(KeyCode::Char('H')),
-                    HeadersEvents::PrevColForce,
-                ),
-                (
-                    KeyEvent::ctrl(KeyCode::Char('a')),
-                    HeadersEvents::AddHeaders,
-                ),
             ]);
         }
         if !disabled_root_events && is_first_col {
@@ -142,10 +126,26 @@ impl EventHandler for HeadersEventHandler {
         }
         if !disabled_root_events && is_last_col {
             map.extend([
-                (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextCol),
                 (KeyEvent::new(KeyCode::Right), HeadersEvents::NextCol),
+                (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextCol),
             ]);
         }
+        if is_meta_tab {
+            map.extend([
+                (
+                    KeyEvent::shift(KeyCode::Char('L')),
+                    HeadersEvents::NextColForce,
+                ),
+                (
+                    KeyEvent::shift(KeyCode::Char('H')),
+                    HeadersEvents::PrevColForce,
+                ),
+            ]);
+        }
+        map.extend([(
+            KeyEvent::ctrl(KeyCode::Char('a')),
+            HeadersEvents::AddHeaders,
+        )]);
         if is_meta_tab {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('d')),

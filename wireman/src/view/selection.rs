@@ -25,6 +25,7 @@ impl<'a> SelectionPage<'a> {
         if sub == SelectionTab::Methods {
             keys.push(("Esc", "Unselect"));
         }
+        keys.push(("?", "Show help"));
         keys
     }
 }

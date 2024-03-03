@@ -11,6 +11,7 @@ pub enum MethodsSelectionEvents {
     PrevTab,
     Search,
     Unselect,
+    ClearSearch,
     GoToServices,
 }
 
@@ -23,7 +24,8 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::PrevTab => "Previous Tab",
             MethodsSelectionEvents::Select => "Select",
             MethodsSelectionEvents::Search => "Search",
-            MethodsSelectionEvents::Unselect => "Clear Search / Unselect",
+            MethodsSelectionEvents::Unselect => "Unselect",
+            MethodsSelectionEvents::ClearSearch => "Clear Search",
             MethodsSelectionEvents::GoToServices => "Go to Services",
         };
         write!(f, "{}", display_str)
@@ -78,6 +80,9 @@ impl EventHandler for MethodsSelectionEventsHandler {
                     ctx.selection.borrow_mut().clear_methods_selection();
                 }
             }
+            MethodsSelectionEvents::ClearSearch => {
+                ctx.selection.borrow_mut().clear_methods_filter();
+            }
             MethodsSelectionEvents::GoToServices => {
                 ctx.selection_tab = SelectionTab::Services;
             }
@@ -86,30 +91,8 @@ impl EventHandler for MethodsSelectionEventsHandler {
 
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, MethodsSelectionEvents)> {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
-        let mut map = vec![
-            (KeyEvent::new(KeyCode::Down), MethodsSelectionEvents::Next),
-            (
-                KeyEvent::new(KeyCode::Char('j')),
-                MethodsSelectionEvents::Next,
-            ),
-            (KeyEvent::new(KeyCode::Up), MethodsSelectionEvents::Prev),
-            (
-                KeyEvent::new(KeyCode::Char('k')),
-                MethodsSelectionEvents::Prev,
-            ),
-            (
-                KeyEvent::new(KeyCode::Char('/')),
-                MethodsSelectionEvents::Search,
-            ),
-            (
-                KeyEvent::new(KeyCode::Esc),
-                MethodsSelectionEvents::Unselect,
-            ),
-            (
-                KeyEvent::shift(KeyCode::Char('K')),
-                MethodsSelectionEvents::GoToServices,
-            ),
-        ];
+        let filter_active = ctx.selection.borrow_mut().methods_filter.is_some();
+        let mut map = Vec::new();
         if !method_selected {
             map.extend([(
                 KeyEvent::new(KeyCode::Enter),
@@ -128,6 +111,37 @@ impl EventHandler for MethodsSelectionEventsHandler {
                 ),
             ]);
         }
+        if !filter_active {
+            map.extend([(
+                KeyEvent::new(KeyCode::Esc),
+                MethodsSelectionEvents::Unselect,
+            )]);
+        } else {
+            map.extend([(
+                KeyEvent::new(KeyCode::Esc),
+                MethodsSelectionEvents::ClearSearch,
+            )]);
+        }
+        map.extend(vec![
+            (KeyEvent::new(KeyCode::Down), MethodsSelectionEvents::Next),
+            (
+                KeyEvent::new(KeyCode::Char('j')),
+                MethodsSelectionEvents::Next,
+            ),
+            (KeyEvent::new(KeyCode::Up), MethodsSelectionEvents::Prev),
+            (
+                KeyEvent::new(KeyCode::Char('k')),
+                MethodsSelectionEvents::Prev,
+            ),
+            (
+                KeyEvent::new(KeyCode::Char('/')),
+                MethodsSelectionEvents::Search,
+            ),
+            (
+                KeyEvent::shift(KeyCode::Char('K')),
+                MethodsSelectionEvents::GoToServices,
+            ),
+        ]);
         map
     }
 }
