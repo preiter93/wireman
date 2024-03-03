@@ -1,5 +1,5 @@
 use crate::context::{AppContext, MessagesTab};
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,9 +52,9 @@ impl EventHandler for ResponseEventHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, ResponseEvents> {
+    fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, ResponseEvents)> {
         let disabled_root_events = ctx.disable_root_events;
-        let mut map = HashMap::new();
+        let mut map = Vec::new();
         if !disabled_root_events {
             map.extend([
                 (KeyEvent::new(KeyCode::Tab), ResponseEvents::NextTab),

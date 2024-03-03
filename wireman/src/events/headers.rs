@@ -1,5 +1,5 @@
 use crate::{context::AppContext, model::headers::HeadersTab};
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -102,14 +102,14 @@ impl EventHandler for HeadersEventHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, HeadersEvents> {
+    fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, HeadersEvents)> {
         let disabled_root_events = ctx.headers.borrow().disabled_root_events();
         let (is_first_col, is_last_col) = match ctx.headers.borrow().selected_editor() {
             Some(e) => (e.is_first_col(), e.is_last_col()),
             None => (true, true),
         };
         let is_meta_tab = ctx.headers.borrow().tab == HeadersTab::Meta;
-        let mut map = HashMap::new();
+        let mut map = Vec::new();
         if !disabled_root_events {
             map.extend([
                 (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
