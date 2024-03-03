@@ -1,5 +1,5 @@
 use crate::context::{AppContext, SelectionTab};
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,9 +84,9 @@ impl EventHandler for MethodsSelectionEventsHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, MethodsSelectionEvents> {
+    fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, MethodsSelectionEvents)> {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
-        let mut map = HashMap::from([
+        let mut map = vec![
             (KeyEvent::new(KeyCode::Down), MethodsSelectionEvents::Next),
             (
                 KeyEvent::new(KeyCode::Char('j')),
@@ -109,7 +109,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
                 KeyEvent::shift(KeyCode::Char('K')),
                 MethodsSelectionEvents::GoToServices,
             ),
-        ]);
+        ];
         if !method_selected {
             map.extend([(
                 KeyEvent::new(KeyCode::Enter),

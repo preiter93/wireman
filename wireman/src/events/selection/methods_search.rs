@@ -1,5 +1,5 @@
 use crate::context::{AppContext, SelectionTab};
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -43,8 +43,8 @@ impl EventHandler for MethodsSearchEventsHandler {
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, MethodsSearchEvents> {
-        HashMap::from([
+    fn key_event_mappings(_: &Self::Context) -> Vec<(KeyEvent, MethodsSearchEvents)> {
+        Vec::from([
             (KeyEvent::new(KeyCode::Enter), MethodsSearchEvents::Finish),
             (KeyEvent::new(KeyCode::Esc), MethodsSearchEvents::Finish),
             (

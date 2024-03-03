@@ -1,5 +1,5 @@
 use crate::context::{AppContext, SelectionTab};
-use std::{collections::HashMap, fmt};
+use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -64,8 +64,8 @@ impl EventHandler for ServicesSelectionEventsHandler {
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, ServicesSelectionEvents> {
-        HashMap::from([
+    fn key_event_mappings(_: &Self::Context) -> Vec<(KeyEvent, ServicesSelectionEvents)> {
+        Vec::from([
             (KeyEvent::new(KeyCode::Down), ServicesSelectionEvents::Next),
             (
                 KeyEvent::new(KeyCode::Char('j')),
