@@ -8,13 +8,17 @@ pub enum MethodsSearchEvents {
     RemoveChar,
 }
 
-pub struct MethodsSearchEventsHandler {}
-
-impl MethodsSearchEventsHandler {
-    pub fn new() -> Self {
-        Self {}
+impl fmt::Display for MethodsSearchEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            MethodsSearchEvents::Finish => "Finish",
+            MethodsSearchEvents::RemoveChar => "Remove Character",
+        };
+        write!(f, "{}", display_str)
     }
 }
+
+pub struct MethodsSearchEventsHandler;
 
 impl EventHandler for MethodsSearchEventsHandler {
     type Context = AppContext;

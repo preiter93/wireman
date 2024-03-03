@@ -14,11 +14,19 @@ pub enum MethodsSelectionEvents {
     GoToServices,
 }
 
-pub struct MethodsSelectionEventsHandler {}
-
-impl MethodsSelectionEventsHandler {
-    pub fn new() -> Self {
-        Self {}
+impl fmt::Display for MethodsSelectionEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            MethodsSelectionEvents::Next => "Next",
+            MethodsSelectionEvents::Prev => "Previous",
+            MethodsSelectionEvents::NextTab => "Next Tab",
+            MethodsSelectionEvents::PrevTab => "Previous Tab",
+            MethodsSelectionEvents::Select => "Select",
+            MethodsSelectionEvents::Search => "Search",
+            MethodsSelectionEvents::Unselect => "Clear Search / Unselect",
+            MethodsSelectionEvents::GoToServices => "Go to Services",
+        };
+        write!(f, "{}", display_str)
     }
 }
 

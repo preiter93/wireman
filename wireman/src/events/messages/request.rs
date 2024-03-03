@@ -23,6 +23,28 @@ pub enum RequestEvents {
     LoadHistory5,
 }
 
+impl fmt::Display for RequestEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            RequestEvents::NextTab => "Next Tab",
+            RequestEvents::PrevTab => "Previous Tab",
+            RequestEvents::MakeRequest => "Make Request",
+            RequestEvents::AbortRequest => "Abort Request",
+            RequestEvents::GoToResponse => "Go to Response",
+            RequestEvents::CopyAsGrpCurl => "Copy as cURL",
+            RequestEvents::FormatMessage => "Format Message",
+            RequestEvents::ResetMessage => "Reset Message",
+            RequestEvents::SaveMessage => "Save Message",
+            RequestEvents::LoadHistory1 => "Load History 1",
+            RequestEvents::LoadHistory2 => "Load History 2",
+            RequestEvents::LoadHistory3 => "Load History 3",
+            RequestEvents::LoadHistory4 => "Load History 4",
+            RequestEvents::LoadHistory5 => "Load History 5",
+        };
+        write!(f, "{}", display_str)
+    }
+}
+
 impl RequestEventHandler {
     pub fn new() -> Self {
         Self {}
