@@ -3,14 +3,14 @@ use crate::{
     model::headers::HeadersTab,
 };
 use std::collections::HashMap;
-use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent, KeyModifier};
+use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RequestEvents {
-    MakeRequest,
-    AbortRequest,
     NextTab,
     PrevTab,
+    MakeRequest,
+    AbortRequest,
     GoToResponse,
     CopyAsGrpCurl,
     FormatMessage,
@@ -36,7 +36,7 @@ impl EventHandler for RequestEventHandler {
 
     type Event = RequestEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &RequestEvents, ctx: &mut Self::Context) {
         match event {
             RequestEvents::NextTab => {
                 ctx.tab = ctx.tab.next();
@@ -99,37 +99,55 @@ impl EventHandler for RequestEventHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, RequestEvents> {
         let disabled_root_events = ctx.disable_root_events;
         let mut map = HashMap::new();
         if !disabled_root_events {
             map.extend([
-                (KeyEvent::new(KeyCode::Tab), Self::Event::NextTab),
-                (KeyEvent::new(KeyCode::BackTab), Self::Event::PrevTab),
-                (KeyEvent::new(KeyCode::Enter), Self::Event::MakeRequest),
-                (KeyEvent::new(KeyCode::Esc), Self::Event::AbortRequest),
-                (KeyEvent::new(KeyCode::Char('J')), Self::Event::GoToResponse),
+                (KeyEvent::new(KeyCode::Tab), RequestEvents::NextTab),
+                (KeyEvent::shift(KeyCode::BackTab), RequestEvents::PrevTab),
+                (KeyEvent::new(KeyCode::Enter), RequestEvents::MakeRequest),
+                (KeyEvent::new(KeyCode::Esc), RequestEvents::AbortRequest),
                 (
-                    KeyEvent::new(KeyCode::Char('y')).modifier(KeyModifier::Control),
-                    Self::Event::CopyAsGrpCurl,
+                    KeyEvent::shift(KeyCode::Char('J')),
+                    RequestEvents::GoToResponse,
                 ),
                 (
-                    KeyEvent::new(KeyCode::Char('f')).modifier(KeyModifier::Control),
-                    Self::Event::FormatMessage,
+                    KeyEvent::ctrl(KeyCode::Char('y')),
+                    RequestEvents::CopyAsGrpCurl,
                 ),
                 (
-                    KeyEvent::new(KeyCode::Char('s')).modifier(KeyModifier::Control),
-                    Self::Event::SaveMessage,
+                    KeyEvent::ctrl(KeyCode::Char('f')),
+                    RequestEvents::FormatMessage,
                 ),
                 (
-                    KeyEvent::new(KeyCode::Char('d')).modifier(KeyModifier::Control),
-                    Self::Event::ResetMessage,
+                    KeyEvent::ctrl(KeyCode::Char('s')),
+                    RequestEvents::SaveMessage,
                 ),
-                (KeyEvent::new(KeyCode::Char('1')), Self::Event::LoadHistory1),
-                (KeyEvent::new(KeyCode::Char('2')), Self::Event::LoadHistory2),
-                (KeyEvent::new(KeyCode::Char('3')), Self::Event::LoadHistory3),
-                (KeyEvent::new(KeyCode::Char('4')), Self::Event::LoadHistory4),
-                (KeyEvent::new(KeyCode::Char('5')), Self::Event::LoadHistory5),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('d')),
+                    RequestEvents::ResetMessage,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('1')),
+                    RequestEvents::LoadHistory1,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('2')),
+                    RequestEvents::LoadHistory2,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('3')),
+                    RequestEvents::LoadHistory3,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('4')),
+                    RequestEvents::LoadHistory4,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('5')),
+                    RequestEvents::LoadHistory5,
+                ),
             ]);
         }
         map

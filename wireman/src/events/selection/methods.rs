@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum MethodsSelectionEvent {
+pub enum MethodsSelectionEvents {
     Next,
     Prev,
     Select,
@@ -14,33 +14,33 @@ pub enum MethodsSelectionEvent {
     GoToServices,
 }
 
-pub struct MethodsSelectionEventHandler {}
+pub struct MethodsSelectionEventsHandler {}
 
-impl MethodsSelectionEventHandler {
+impl MethodsSelectionEventsHandler {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl EventHandler for MethodsSelectionEventHandler {
+impl EventHandler for MethodsSelectionEventsHandler {
     type Context = AppContext;
 
-    type Event = MethodsSelectionEvent;
+    type Event = MethodsSelectionEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &MethodsSelectionEvents, ctx: &mut Self::Context) {
         match event {
-            MethodsSelectionEvent::Next => {
+            MethodsSelectionEvents::Next => {
                 ctx.selection.borrow_mut().next_method();
             }
-            MethodsSelectionEvent::Prev => {
+            MethodsSelectionEvents::Prev => {
                 ctx.selection.borrow_mut().previous_method();
             }
-            MethodsSelectionEvent::Select => {
+            MethodsSelectionEvents::Select => {
                 if ctx.selection.borrow().selected_method().is_none() {
                     ctx.selection.borrow_mut().next_method();
                 }
             }
-            MethodsSelectionEvent::NextTab => {
+            MethodsSelectionEvents::NextTab => {
                 if let Some(method) = ctx.selection.borrow().selected_method() {
                     ctx.messages.borrow_mut().load_method(&method);
                 } else {
@@ -48,7 +48,7 @@ impl EventHandler for MethodsSelectionEventHandler {
                 }
                 ctx.tab = ctx.tab.next();
             }
-            MethodsSelectionEvent::PrevTab => {
+            MethodsSelectionEvents::PrevTab => {
                 if let Some(method) = ctx.selection.borrow().selected_method() {
                     ctx.messages.borrow_mut().load_method(&method);
                 } else {
@@ -56,11 +56,11 @@ impl EventHandler for MethodsSelectionEventHandler {
                 }
                 ctx.tab = ctx.tab.prev();
             }
-            MethodsSelectionEvent::Search => {
+            MethodsSelectionEvents::Search => {
                 ctx.selection_tab = SelectionTab::SearchMethods;
                 ctx.disable_root_events = true;
             }
-            MethodsSelectionEvent::Unselect => {
+            MethodsSelectionEvents::Unselect => {
                 if ctx.selection.borrow_mut().methods_filter.is_some() {
                     ctx.selection.borrow_mut().clear_methods_filter();
                 } else {
@@ -68,30 +68,54 @@ impl EventHandler for MethodsSelectionEventHandler {
                     ctx.selection.borrow_mut().clear_methods_selection();
                 }
             }
-            MethodsSelectionEvent::GoToServices => {
+            MethodsSelectionEvents::GoToServices => {
                 ctx.selection_tab = SelectionTab::Services;
             }
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, MethodsSelectionEvents> {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
         let mut map = HashMap::from([
-            (KeyEvent::new(KeyCode::Down), Self::Event::Next),
-            (KeyEvent::new(KeyCode::Char('j')), Self::Event::Next),
-            (KeyEvent::new(KeyCode::Up), Self::Event::Prev),
-            (KeyEvent::new(KeyCode::Char('k')), Self::Event::Prev),
-            (KeyEvent::new(KeyCode::Char('/')), Self::Event::Search),
-            (KeyEvent::new(KeyCode::Esc), Self::Event::Unselect),
-            (KeyEvent::new(KeyCode::Char('K')), Self::Event::GoToServices),
+            (KeyEvent::new(KeyCode::Down), MethodsSelectionEvents::Next),
+            (
+                KeyEvent::new(KeyCode::Char('j')),
+                MethodsSelectionEvents::Next,
+            ),
+            (KeyEvent::new(KeyCode::Up), MethodsSelectionEvents::Prev),
+            (
+                KeyEvent::new(KeyCode::Char('k')),
+                MethodsSelectionEvents::Prev,
+            ),
+            (
+                KeyEvent::new(KeyCode::Char('/')),
+                MethodsSelectionEvents::Search,
+            ),
+            (
+                KeyEvent::new(KeyCode::Esc),
+                MethodsSelectionEvents::Unselect,
+            ),
+            (
+                KeyEvent::shift(KeyCode::Char('K')),
+                MethodsSelectionEvents::GoToServices,
+            ),
         ]);
         if !method_selected {
-            map.extend([(KeyEvent::new(KeyCode::Enter), Self::Event::Select)]);
+            map.extend([(
+                KeyEvent::new(KeyCode::Enter),
+                MethodsSelectionEvents::Select,
+            )]);
         } else {
             map.extend([
-                (KeyEvent::new(KeyCode::Enter), Self::Event::NextTab),
-                (KeyEvent::new(KeyCode::Tab), Self::Event::NextTab),
-                (KeyEvent::new(KeyCode::BackTab), Self::Event::PrevTab),
+                (
+                    KeyEvent::new(KeyCode::Enter),
+                    MethodsSelectionEvents::NextTab,
+                ),
+                (KeyEvent::new(KeyCode::Tab), MethodsSelectionEvents::NextTab),
+                (
+                    KeyEvent::shift(KeyCode::BackTab),
+                    MethodsSelectionEvents::PrevTab,
+                ),
             ]);
         }
         map

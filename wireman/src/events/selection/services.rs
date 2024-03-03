@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ServicesSelectionEvent {
+pub enum ServicesSelectionEvents {
     Next,
     Prev,
     Select,
@@ -12,61 +12,79 @@ pub enum ServicesSelectionEvent {
     GoToMethods,
 }
 
-pub struct ServicesSelectionEventHandler {}
+pub struct ServicesSelectionEventsHandler {}
 
-impl ServicesSelectionEventHandler {
+impl ServicesSelectionEventsHandler {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl EventHandler for ServicesSelectionEventHandler {
+impl EventHandler for ServicesSelectionEventsHandler {
     type Context = AppContext;
 
-    type Event = ServicesSelectionEvent;
+    type Event = ServicesSelectionEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &ServicesSelectionEvents, ctx: &mut Self::Context) {
         match event {
-            ServicesSelectionEvent::Next => {
+            ServicesSelectionEvents::Next => {
                 ctx.selection.borrow_mut().next_service();
                 ctx.selection.borrow_mut().clear_methods_selection();
             }
-            ServicesSelectionEvent::Prev => {
+            ServicesSelectionEvents::Prev => {
                 ctx.selection.borrow_mut().previous_service();
                 ctx.selection.borrow_mut().clear_methods_selection();
             }
-            ServicesSelectionEvent::Select => {
+            ServicesSelectionEvents::Select => {
                 ctx.selection_tab = SelectionTab::Methods;
                 if ctx.selection.borrow().selected_method().is_none() {
                     ctx.selection.borrow_mut().next_method();
                 }
             }
-            ServicesSelectionEvent::Search => {
+            ServicesSelectionEvents::Search => {
                 ctx.selection_tab = SelectionTab::SearchServices;
                 ctx.disable_root_events = true;
             }
-            ServicesSelectionEvent::ClearSearch => {
+            ServicesSelectionEvents::ClearSearch => {
                 if ctx.selection.borrow().services_filter.is_some() {
                     ctx.selection.borrow_mut().clear_services_filter();
                 }
             }
-            ServicesSelectionEvent::GoToMethods => {
+            ServicesSelectionEvents::GoToMethods => {
                 ctx.selection_tab = SelectionTab::Methods;
             }
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, ServicesSelectionEvents> {
         HashMap::from([
-            (KeyEvent::new(KeyCode::Down), Self::Event::Next),
-            (KeyEvent::new(KeyCode::Char('j')), Self::Event::Next),
-            (KeyEvent::new(KeyCode::Up), Self::Event::Prev),
-            (KeyEvent::new(KeyCode::Char('k')), Self::Event::Prev),
-            (KeyEvent::new(KeyCode::Tab), Self::Event::Select),
-            (KeyEvent::new(KeyCode::Enter), Self::Event::Select),
-            (KeyEvent::new(KeyCode::Char('/')), Self::Event::Search),
-            (KeyEvent::new(KeyCode::Esc), Self::Event::ClearSearch),
-            (KeyEvent::new(KeyCode::Char('J')), Self::Event::GoToMethods),
+            (KeyEvent::new(KeyCode::Down), ServicesSelectionEvents::Next),
+            (
+                KeyEvent::new(KeyCode::Char('j')),
+                ServicesSelectionEvents::Next,
+            ),
+            (KeyEvent::new(KeyCode::Up), ServicesSelectionEvents::Prev),
+            (
+                KeyEvent::new(KeyCode::Char('k')),
+                ServicesSelectionEvents::Prev,
+            ),
+            (KeyEvent::new(KeyCode::Tab), ServicesSelectionEvents::Select),
+            (
+                KeyEvent::new(KeyCode::Enter),
+                ServicesSelectionEvents::Select,
+            ),
+            (
+                KeyEvent::new(KeyCode::Char('/')),
+                ServicesSelectionEvents::Search,
+            ),
+            (
+                KeyEvent::new(KeyCode::Esc),
+                ServicesSelectionEvents::ClearSearch,
+            ),
+            (
+                KeyEvent::shift(KeyCode::Char('J')),
+                ServicesSelectionEvents::GoToMethods,
+            ),
         ])
     }
 }

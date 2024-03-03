@@ -1,14 +1,14 @@
 use crate::{context::AppContext, model::headers::HeadersTab};
 use std::collections::HashMap;
-use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent, KeyModifier};
+use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeadersEvents {
     Confirm,
     NextTab,
     PrevTab,
-    PrevRow,
     NextRow,
+    PrevRow,
     NextCol,
     PrevCol,
     NextColForce,
@@ -31,7 +31,7 @@ impl EventHandler for HeadersEventHandler {
 
     type Event = HeadersEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &HeadersEvents, ctx: &mut Self::Context) {
         match event {
             HeadersEvents::Confirm => {
                 if ctx.headers.borrow().tab == HeadersTab::None {
@@ -82,7 +82,7 @@ impl EventHandler for HeadersEventHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, HeadersEvents> {
         let disabled_root_events = ctx.headers.borrow().disabled_root_events();
         let (is_first_col, is_last_col) = match ctx.headers.borrow().selected_editor() {
             Some(e) => (e.is_first_col(), e.is_last_col()),
@@ -92,38 +92,44 @@ impl EventHandler for HeadersEventHandler {
         let mut map = HashMap::new();
         if !disabled_root_events {
             map.extend([
-                (KeyEvent::new(KeyCode::Esc), Self::Event::Unselect),
-                (KeyEvent::new(KeyCode::Enter), Self::Event::Confirm),
-                (KeyEvent::new(KeyCode::Tab), Self::Event::NextTab),
-                (KeyEvent::new(KeyCode::BackTab), Self::Event::PrevTab),
-                (KeyEvent::new(KeyCode::Down), Self::Event::NextRow),
-                (KeyEvent::new(KeyCode::Char('j')), Self::Event::NextRow),
-                (KeyEvent::new(KeyCode::Up), Self::Event::PrevRow),
-                (KeyEvent::new(KeyCode::Char('k')), Self::Event::PrevRow),
-                (KeyEvent::new(KeyCode::Char('L')), Self::Event::NextColForce),
-                (KeyEvent::new(KeyCode::Char('H')), Self::Event::PrevColForce),
+                (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
+                (KeyEvent::new(KeyCode::Enter), HeadersEvents::Confirm),
+                (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
+                (KeyEvent::new(KeyCode::BackTab), HeadersEvents::PrevTab),
+                (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
+                (KeyEvent::new(KeyCode::Char('j')), HeadersEvents::NextRow),
+                (KeyEvent::new(KeyCode::Up), HeadersEvents::PrevRow),
+                (KeyEvent::new(KeyCode::Char('k')), HeadersEvents::PrevRow),
                 (
-                    KeyEvent::new(KeyCode::Char('a')).modifier(KeyModifier::Control),
-                    Self::Event::AddHeaders,
+                    KeyEvent::shift(KeyCode::Char('L')),
+                    HeadersEvents::NextColForce,
+                ),
+                (
+                    KeyEvent::shift(KeyCode::Char('H')),
+                    HeadersEvents::PrevColForce,
+                ),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('a')),
+                    HeadersEvents::AddHeaders,
                 ),
             ]);
         }
         if !disabled_root_events && is_first_col {
             map.extend([
-                (KeyEvent::new(KeyCode::Left), Self::Event::PrevCol),
-                (KeyEvent::new(KeyCode::Char('h')), Self::Event::PrevCol),
+                (KeyEvent::new(KeyCode::Left), HeadersEvents::PrevCol),
+                (KeyEvent::new(KeyCode::Char('h')), HeadersEvents::PrevCol),
             ]);
         }
         if !disabled_root_events && is_last_col {
             map.extend([
-                (KeyEvent::new(KeyCode::Char('l')), Self::Event::NextCol),
-                (KeyEvent::new(KeyCode::Right), Self::Event::NextCol),
+                (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextCol),
+                (KeyEvent::new(KeyCode::Right), HeadersEvents::NextCol),
             ]);
         }
         if is_meta_tab {
             map.extend([(
-                KeyEvent::new(KeyCode::Char('d')).modifier(KeyModifier::Control),
-                Self::Event::DelHeaders,
+                KeyEvent::ctrl(KeyCode::Char('d')),
+                HeadersEvents::DelHeaders,
             )]);
         }
         map

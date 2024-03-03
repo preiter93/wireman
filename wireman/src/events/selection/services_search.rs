@@ -3,31 +3,31 @@ use std::collections::HashMap;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ServicesSearchEvent {
+pub enum ServicesSearchEvents {
     Finish,
     RemoveChar,
 }
 
-pub struct ServicesSearchEventHandler {}
+pub struct ServicesSearchEventsHandler {}
 
-impl ServicesSearchEventHandler {
+impl ServicesSearchEventsHandler {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl EventHandler for ServicesSearchEventHandler {
+impl EventHandler for ServicesSearchEventsHandler {
     type Context = AppContext;
 
-    type Event = ServicesSearchEvent;
+    type Event = ServicesSearchEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &ServicesSearchEvents, ctx: &mut Self::Context) {
         match event {
-            ServicesSearchEvent::Finish => {
+            ServicesSearchEvents::Finish => {
                 ctx.selection_tab = SelectionTab::Services;
                 ctx.disable_root_events = false;
             }
-            ServicesSearchEvent::RemoveChar => {
+            ServicesSearchEvents::RemoveChar => {
                 ctx.selection.borrow_mut().remove_char_services_filter();
             }
         }
@@ -39,11 +39,14 @@ impl EventHandler for ServicesSearchEventHandler {
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(_: &Self::Context) -> HashMap<KeyEvent, ServicesSearchEvents> {
         HashMap::from([
-            (KeyEvent::new(KeyCode::Enter), Self::Event::Finish),
-            (KeyEvent::new(KeyCode::Esc), Self::Event::Finish),
-            (KeyEvent::new(KeyCode::Backspace), Self::Event::RemoveChar),
+            (KeyEvent::new(KeyCode::Enter), ServicesSearchEvents::Finish),
+            (KeyEvent::new(KeyCode::Esc), ServicesSearchEvents::Finish),
+            (
+                KeyEvent::new(KeyCode::Backspace),
+                ServicesSearchEvents::RemoveChar,
+            ),
         ])
     }
 }

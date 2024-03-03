@@ -1,6 +1,6 @@
 use crate::context::{AppContext, MessagesTab};
 use std::collections::HashMap;
-use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent, KeyModifier};
+use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResponseEvents {
@@ -23,7 +23,7 @@ impl EventHandler for ResponseEventHandler {
 
     type Event = ResponseEvents;
 
-    fn handle_event(event: &Self::Event, ctx: &mut Self::Context) {
+    fn handle_event(event: &ResponseEvents, ctx: &mut Self::Context) {
         match event {
             ResponseEvents::NextTab => {
                 ctx.tab = ctx.tab.next();
@@ -40,17 +40,20 @@ impl EventHandler for ResponseEventHandler {
         }
     }
 
-    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, Self::Event> {
+    fn key_event_mappings(ctx: &Self::Context) -> HashMap<KeyEvent, ResponseEvents> {
         let disabled_root_events = ctx.disable_root_events;
         let mut map = HashMap::new();
         if !disabled_root_events {
             map.extend([
-                (KeyEvent::new(KeyCode::Tab), Self::Event::NextTab),
-                (KeyEvent::new(KeyCode::BackTab), Self::Event::PrevTab),
-                (KeyEvent::new(KeyCode::Char('K')), Self::Event::GoToRequest),
+                (KeyEvent::new(KeyCode::Tab), ResponseEvents::NextTab),
+                (KeyEvent::shift(KeyCode::BackTab), ResponseEvents::PrevTab),
                 (
-                    KeyEvent::new(KeyCode::Char('y')).modifier(KeyModifier::Control),
-                    Self::Event::CopyAsGrpCurl,
+                    KeyEvent::shift(KeyCode::Char('K')),
+                    ResponseEvents::GoToRequest,
+                ),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('y')),
+                    ResponseEvents::CopyAsGrpCurl,
                 ),
             ]);
         }

@@ -5,10 +5,10 @@ use crate::app::App;
 use crate::context::{MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{do_request, RequestResult};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-pub(crate) use selection::methods::MethodsSelectionEventHandler;
-pub(crate) use selection::methods_search::MethodsSearchEventHandler;
-pub(crate) use selection::services::ServicesSelectionEventHandler;
-pub(crate) use selection::services_search::ServicesSearchEventHandler;
+pub(crate) use selection::methods::MethodsSelectionEventsHandler;
+pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
+pub(crate) use selection::services::ServicesSelectionEventsHandler;
+pub(crate) use selection::services_search::ServicesSearchEventsHandler;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tui_key_event_handler::EventHandler;
 
@@ -42,16 +42,16 @@ impl App {
             _ => match self.ctx.tab {
                 Tab::Selection => match self.ctx.selection_tab {
                     SelectionTab::Services => {
-                        ServicesSelectionEventHandler::handle_key_event(&mut self.ctx, event);
+                        ServicesSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
                     }
                     SelectionTab::Methods => {
-                        MethodsSelectionEventHandler::handle_key_event(&mut self.ctx, event);
+                        MethodsSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
                     }
                     SelectionTab::SearchServices => {
-                        ServicesSearchEventHandler::handle_key_event(&mut self.ctx, event);
+                        ServicesSearchEventsHandler::handle_key_event(&mut self.ctx, event);
                     }
                     SelectionTab::SearchMethods => {
-                        MethodsSearchEventHandler::handle_key_event(&mut self.ctx, event);
+                        MethodsSearchEventsHandler::handle_key_event(&mut self.ctx, event);
                     }
                 },
                 Tab::Headers => {
