@@ -6,7 +6,7 @@ use ratatui::{
 };
 use std::collections::BTreeMap;
 
-use crate::{context::AppContext, events::handler::AppEventHandler};
+use crate::context::AppContext;
 
 pub struct HelpDialog {
     key_map: BTreeMap<String, String>,
@@ -23,9 +23,11 @@ impl HelpDialog {
         .collect();
         Self { key_map }
     }
-    pub fn from_ctx(ctx: &AppContext) -> Self {
-        let key_map = AppEventHandler::get_key_mappings(ctx).into_iter().collect();
-        Self { key_map }
+
+    pub fn from_ctx(_: &AppContext) -> Self {
+        // let key_map = AppEventHandler::get_key_mappings(ctx).into_iter().collect();
+        // Self { key_map }
+        Self::new()
     }
 }
 
