@@ -101,7 +101,7 @@ This guide will walk you through the steps to set up and run WireMan.
 
 1. After adding the protos in the config, start `wireman`.
 
-2. Basic key mappings are displayed in the footer of each page. For extended help, press `?` and close with `?` or `Esc`. If you want to close the app entirely, type either `q` or `Ctrl+c`.
+2. Basic key mappings are displayed in the footer of each page. For extended help, press `?` and close with `?` or `Esc`. If you want to close the app entirely, type `Ctrl+c`.
  
 3. The first page of Wireman will list your grpc services and their methods. You can navigate with `up`/`down` or `j`/`k`, select with `Enter` or unselect with `Esc`, then click `Tab`.
 

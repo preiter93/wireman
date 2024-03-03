@@ -26,7 +26,7 @@ impl<'a> HeadersPage<'a> {
         match self.model.tab {
             HeadersTab::Addr => {
                 vec![
-                    ("q/^c", "Quit"),
+                    ("^c", "Quit"),
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
@@ -35,7 +35,7 @@ impl<'a> HeadersPage<'a> {
             }
             HeadersTab::Auth => {
                 vec![
-                    ("q/^c", "Quit"),
+                    ("^c", "Quit"),
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
@@ -44,7 +44,7 @@ impl<'a> HeadersPage<'a> {
             }
             HeadersTab::Meta => {
                 vec![
-                    ("q/^c", "Quit"),
+                    ("^c", "Quit"),
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
@@ -53,7 +53,7 @@ impl<'a> HeadersPage<'a> {
             }
             HeadersTab::None => {
                 vec![
-                    ("q/^c", "Quit"),
+                    ("^c", "Quit"),
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
