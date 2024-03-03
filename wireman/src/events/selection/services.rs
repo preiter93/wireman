@@ -12,13 +12,21 @@ pub enum ServicesSelectionEvents {
     GoToMethods,
 }
 
-pub struct ServicesSelectionEventsHandler {}
-
-impl ServicesSelectionEventsHandler {
-    pub fn new() -> Self {
-        Self {}
+impl fmt::Display for ServicesSelectionEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            ServicesSelectionEvents::Next => "Next",
+            ServicesSelectionEvents::Prev => "Previous",
+            ServicesSelectionEvents::Select => "Select",
+            ServicesSelectionEvents::Search => "Search",
+            ServicesSelectionEvents::ClearSearch => "Clear Search",
+            ServicesSelectionEvents::GoToMethods => "Go to Methods",
+        };
+        write!(f, "{}", display_str)
     }
 }
+
+pub struct ServicesSelectionEventsHandler;
 
 impl EventHandler for ServicesSelectionEventsHandler {
     type Context = AppContext;

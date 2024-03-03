@@ -8,13 +8,17 @@ pub enum ServicesSearchEvents {
     RemoveChar,
 }
 
-pub struct ServicesSearchEventsHandler {}
-
-impl ServicesSearchEventsHandler {
-    pub fn new() -> Self {
-        Self {}
+impl fmt::Display for ServicesSearchEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            ServicesSearchEvents::Finish => "Finish",
+            ServicesSearchEvents::RemoveChar => "Remove Character",
+        };
+        write!(f, "{}", display_str)
     }
 }
+
+pub struct ServicesSearchEventsHandler;
 
 impl EventHandler for ServicesSearchEventsHandler {
     type Context = AppContext;

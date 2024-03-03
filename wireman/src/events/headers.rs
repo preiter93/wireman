@@ -18,6 +18,26 @@ pub enum HeadersEvents {
     DelHeaders,
 }
 
+impl fmt::Display for HeadersEvents {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display_str = match self {
+            HeadersEvents::Confirm => "Confirm",
+            HeadersEvents::NextTab => "Next Tab",
+            HeadersEvents::PrevTab => "Previous Tab",
+            HeadersEvents::NextRow => "Next Row",
+            HeadersEvents::PrevRow => "Previous Row",
+            HeadersEvents::NextCol => "Next Column",
+            HeadersEvents::PrevCol => "Previous Column",
+            HeadersEvents::NextColForce => "Next Column (Force)",
+            HeadersEvents::PrevColForce => "Previous Column (Force)",
+            HeadersEvents::Unselect => "Unselect",
+            HeadersEvents::AddHeaders => "Add Headers",
+            HeadersEvents::DelHeaders => "Delete Headers",
+        };
+        write!(f, "{}", display_str)
+    }
+}
+
 impl HeadersEventHandler {
     pub fn new() -> Self {
         Self {}
