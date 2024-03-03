@@ -14,7 +14,7 @@ impl fmt::Display for KeyEvent {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let code = format!("{}", self.code);
         let modifiers = self.modifiers.iter().map(|m| match m {
-            KeyModifier::Shift => "S-",
+            KeyModifier::Shift => "",
             KeyModifier::Control => "C-",
             KeyModifier::Alt => "A-",
             KeyModifier::Super => "Su-",
@@ -53,7 +53,7 @@ impl KeyEvent {
 
     /// Creates a new `KeyEvent` instance from a KeyCode.
     pub fn modifier(mut self, modifier: KeyModifier) -> Self {
-        self.modifiers = self.modifiers.add(modifier);
+        self.modifiers = self.modifiers.add_modifier(modifier);
         self
     }
 }
@@ -93,15 +93,15 @@ impl KeyModifiers {
 
     /// Creates a new `KeyModifiers` instance with the shift modifier.
     pub fn shift() -> Self {
-        KeyModifiers(0).add(KeyModifier::Shift)
+        KeyModifiers(0).add_modifier(KeyModifier::Shift)
     }
 
     /// Creates a new `KeyModifiers` instance with the ctrl modifier.
     pub fn ctrl() -> Self {
-        KeyModifiers(0).add(KeyModifier::Control)
+        KeyModifiers(0).add_modifier(KeyModifier::Control)
     }
 
-    pub fn add(mut self, modifier: KeyModifier) -> Self {
+    pub fn add_modifier(mut self, modifier: KeyModifier) -> Self {
         match modifier {
             KeyModifier::Shift => self.0 |= 0b0000_0001,
             KeyModifier::Control => self.0 |= 0b0000_0010,
@@ -113,7 +113,7 @@ impl KeyModifiers {
         self
     }
 
-    pub fn remove(mut self, modifier: KeyModifier) -> Self {
+    pub fn remove_modifier(mut self, modifier: KeyModifier) -> Self {
         match modifier {
             KeyModifier::Shift => self.0 &= !0b0000_0001,
             KeyModifier::Control => self.0 &= !0b0000_0010,
@@ -201,10 +201,10 @@ impl fmt::Display for KeyCode {
         match self {
             KeyCode::Backspace => write!(f, "Backspace"),
             KeyCode::Enter => write!(f, "Enter"),
-            KeyCode::Left => write!(f, "Left"),
-            KeyCode::Right => write!(f, "Right"),
-            KeyCode::Up => write!(f, "Up"),
-            KeyCode::Down => write!(f, "Down"),
+            KeyCode::Left => write!(f, "←"),
+            KeyCode::Right => write!(f, "→"),
+            KeyCode::Up => write!(f, "↑"),
+            KeyCode::Down => write!(f, "↓"),
             KeyCode::Home => write!(f, "Home"),
             KeyCode::End => write!(f, "End"),
             KeyCode::PageUp => write!(f, "PageUp"),

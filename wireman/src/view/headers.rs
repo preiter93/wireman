@@ -28,29 +28,27 @@ impl<'a> HeadersPage<'a> {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
-                    ("Esc", "Unselect"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
+                    ("?", "Show help"),
                 ]
             }
             HeadersTab::Auth => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
-                    ("Esc", "Unselect"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
+                    ("?", "Show help"),
                 ]
             }
             HeadersTab::Meta => {
                 vec![
                     ("q/^c", "Quit"),
                     ("Tab", "Next Tab"),
-                    ("Esc", "Unselect"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
-                    ("^a", "Add Header"),
-                    ("^d", "Remove Header"),
+                    ("?", "Show help"),
                 ]
             }
             HeadersTab::None => {
@@ -59,7 +57,7 @@ impl<'a> HeadersPage<'a> {
                     ("Tab", "Next Tab"),
                     ("↑/k", "Up"),
                     ("↓/j", "Down"),
-                    ("^h/^a", "Add Header"),
+                    ("?", "Show help"),
                 ]
             }
         }

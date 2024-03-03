@@ -87,10 +87,10 @@ impl Widget for Root<'_> {
             self.render_footer(footer, buf);
         }
 
-        if self.ctx.show_help {
+        if let Some(help_ctx) = &self.ctx.help {
             let popup_area = centered_rect(70, 50, area);
             Clear.render(popup_area, buf);
-            HelpDialog::from_ctx(self.ctx).render(popup_area, buf);
+            HelpDialog::new(help_ctx).render(popup_area, buf);
         }
     }
 }

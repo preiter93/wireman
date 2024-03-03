@@ -41,7 +41,7 @@ pub trait EventHandler {
     /// * `ctx` - The context in which the key event is handled.
     /// * `key_event` - The key event to handle.
     fn handle_key_event<T: Into<KeyEvent>>(ctx: &mut Self::Context, key_event: T) {
-        let mappings = Self::key_event_mappings(&ctx);
+        let mappings = Self::key_event_mappings(ctx);
         let key_event = key_event.into();
         if let Some(item) = mappings.iter().find(|item| item.0 == key_event) {
             Self::handle_event(&item.1, ctx);
@@ -71,7 +71,7 @@ pub trait EventHandler {
 
             if let Some(&index) = event_indices.get(&event_str) {
                 formatted_events[index]
-                    .1
+                    .0
                     .push_str(&format!(", {}", key_event_str));
             } else {
                 formatted_events.push((key_event_str, event_str.clone()));

@@ -15,19 +15,12 @@ pub struct Theme {
     pub history: History,
     pub headers: Headers,
     pub footer: Footer,
+    pub help_dialog: HelpDialog,
 }
 
 impl Theme {
     pub(crate) fn update_from_skin(&mut self, skin: &skin::Skin) {
         skin.apply_to(self);
-        // self.base.update_from_skin(&skin.base);
-        // self.list.update_from_skin(&skin.list);
-        // self.border.update_from_skin(&skin.border);
-        // self.navbar.update_from_skin(&skin.navbar);
-        // self.editor.update_from_skin(&skin.editor);
-        // self.history.update_from_skin(&skin.history);
-        // self.headers.update_from_skin(&skin.headers);
-        // self.help.update_from_skin(&skin.help);
     }
 }
 
@@ -35,15 +28,6 @@ impl Theme {
 pub struct Base {
     pub style: Style,
 }
-
-// impl Base {
-//     fn update_from_skin(&mut self, skin: &skin::Base) {
-//         self.style = self
-//             .style
-//             .fg(skin.foreground.into())
-//             .bg(skin.background.into());
-//     }
-// }
 
 #[derive(Debug, Clone)]
 pub struct Border {
@@ -61,15 +45,6 @@ impl Default for Border {
         }
     }
 }
-
-// impl Border {
-//     fn update_from_skin(&mut self, skin: &skin::Border) {
-//         self.border = self.border.fg(skin.border.into());
-//         self.border_focused = self.border_focused.fg(skin.border_focused.into());
-//         self.text = self.border_focused.fg(skin.text.into());
-//         self.text_focused = self.border_focused.fg(skin.text_focused.into());
-//     }
-// }
 
 #[derive(Debug, Clone, Default)]
 pub struct Navbar {
@@ -110,6 +85,11 @@ pub struct Footer {
     pub tabs: Style,
     pub text: Style,
     pub hide: bool,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct HelpDialog {
+    pub style: Style,
 }
 
 impl Theme {

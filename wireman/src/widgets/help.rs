@@ -1,33 +1,19 @@
+use crate::context::HelpContext;
 use ratatui::{
     prelude::{Alignment, Buffer, Constraint, Rect},
-    style::Style,
-    text::Span,
     widgets::{block::Title, Block, Borders, Cell, Row, Table, Widget},
 };
-use std::collections::BTreeMap;
-
-use crate::context::AppContext;
+use theme::Theme;
 
 pub struct HelpDialog {
-    key_map: BTreeMap<String, String>,
+    key_map: Vec<(String, String)>,
 }
 
 impl HelpDialog {
-    pub fn new() -> Self {
-        let key_map: BTreeMap<String, String> = [
-            ("a".to_string(), "Do that".to_string()),
-            ("b".to_string(), "Do that".to_string()),
-        ]
-        .iter()
-        .cloned()
-        .collect();
-        Self { key_map }
-    }
-
-    pub fn from_ctx(_: &AppContext) -> Self {
-        // let key_map = AppEventHandler::get_key_mappings(ctx).into_iter().collect();
-        // Self { key_map }
-        Self::new()
+    pub fn new(ctx: &HelpContext) -> Self {
+        Self {
+            key_map: ctx.key_mappings.clone(),
+        }
     }
 }
 
@@ -36,24 +22,32 @@ impl Widget for HelpDialog {
     where
         Self: Sized,
     {
-        let key_style = Style::default();
-        let msg_style = Style::default();
+        let theme = Theme::global();
+        let style = theme.help_dialog.style;
         let block = Block::default()
             .borders(Borders::ALL)
             .title(Title::from("Help").alignment(Alignment::Center));
-        let rows: Vec<_> = self
-            .key_map
-            .iter()
-            .map(|(key, msg)| {
-                Row::new(vec![
-                    Cell::from(Span::styled(key.to_string(), key_style)),
-                    Cell::from(Span::styled(msg.to_string(), msg_style)),
-                ])
-            })
-            .collect();
+        let mut rows = Vec::new();
+        for (key, msg) in self.key_map {
+            rows.push(Row::new(vec![
+                Cell::from(key.to_string()),
+                Cell::from(msg.to_string()),
+            ]));
+        }
+        rows.push(Row::new(vec![
+            Cell::from("?".to_string()),
+            Cell::from("Close help".to_string()),
+        ]));
+        rows.push(Row::new(vec![
+            Cell::from("C-c, q".to_string()),
+            Cell::from("Quit app".to_string()),
+        ]));
 
         let widths = [Constraint::Length(10), Constraint::Length(25)];
-        let table = Table::new(rows, widths).column_spacing(1).block(block);
+        let table = Table::new(rows, widths)
+            .column_spacing(1)
+            .style(style)
+            .block(block);
         table.render(area, buf);
     }
 }

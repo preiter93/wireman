@@ -41,7 +41,7 @@ impl From<CTKeyModifiers> for KeyModifiers {
         let mut modifiers = Self::new();
         for modifier in ct_modifiers {
             if value.contains(modifier.0) {
-                modifiers = modifiers.add(modifier.1);
+                modifiers = modifiers.add_modifier(modifier.1);
             }
         }
         modifiers

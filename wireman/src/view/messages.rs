@@ -24,6 +24,7 @@ impl<'a> MessagesPage<'a> {
         } else {
             keys.push(("K", "Up"));
         }
+        keys.push(("?", "Show help"));
         keys
         //     ("K", "Up"),
         //     ("J", "Down"),

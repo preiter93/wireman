@@ -64,8 +64,8 @@ impl EventHandler for ServicesSelectionEventsHandler {
         }
     }
 
-    fn key_event_mappings(_: &Self::Context) -> Vec<(KeyEvent, ServicesSelectionEvents)> {
-        Vec::from([
+    fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, ServicesSelectionEvents)> {
+        let mut map = Vec::from([
             (KeyEvent::new(KeyCode::Down), ServicesSelectionEvents::Next),
             (
                 KeyEvent::new(KeyCode::Char('j')),
@@ -86,13 +86,16 @@ impl EventHandler for ServicesSelectionEventsHandler {
                 ServicesSelectionEvents::Search,
             ),
             (
-                KeyEvent::new(KeyCode::Esc),
-                ServicesSelectionEvents::ClearSearch,
-            ),
-            (
                 KeyEvent::shift(KeyCode::Char('J')),
                 ServicesSelectionEvents::GoToMethods,
             ),
-        ])
+        ]);
+        if ctx.selection.borrow().services_filter.is_some() {
+            map.extend([(
+                KeyEvent::new(KeyCode::Esc),
+                ServicesSelectionEvents::ClearSearch,
+            )])
+        }
+        map
     }
 }
