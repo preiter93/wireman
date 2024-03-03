@@ -30,6 +30,8 @@ impl fmt::Display for MethodsSelectionEvents {
     }
 }
 
+pub struct MethodsSelectionEventsHandler;
+
 impl EventHandler for MethodsSelectionEventsHandler {
     type Context = AppContext;
 
