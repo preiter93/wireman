@@ -118,16 +118,16 @@ impl EventHandler for HeadersEventHandler {
                 (KeyEvent::new(KeyCode::Char('k')), HeadersEvents::PrevRow),
             ]);
         }
-        if !disabled_root_events && is_first_col {
-            map.extend([
-                (KeyEvent::new(KeyCode::Left), HeadersEvents::PrevCol),
-                (KeyEvent::new(KeyCode::Char('h')), HeadersEvents::PrevCol),
-            ]);
-        }
         if !disabled_root_events && is_last_col {
             map.extend([
                 (KeyEvent::new(KeyCode::Right), HeadersEvents::NextCol),
                 (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextCol),
+            ]);
+        }
+        if !disabled_root_events && is_first_col {
+            map.extend([
+                (KeyEvent::new(KeyCode::Left), HeadersEvents::PrevCol),
+                (KeyEvent::new(KeyCode::Char('h')), HeadersEvents::PrevCol),
             ]);
         }
         if is_meta_tab {
