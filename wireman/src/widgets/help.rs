@@ -39,7 +39,7 @@ impl Widget for HelpDialog {
             Cell::from("Close help".to_string()),
         ]));
         rows.push(Row::new(vec![
-            Cell::from("C-c, q".to_string()),
+            Cell::from("C-c".to_string()),
             Cell::from("Quit app".to_string()),
         ]));
 

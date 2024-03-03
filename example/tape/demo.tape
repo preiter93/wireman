@@ -83,7 +83,7 @@ Enter
 Type 'Or copy the request as grpCurl command with Ctrl+y.'
 Escape
 Sleep 0.5s
-Type 'q'
+Ctrl+c
 
 Type "You can also change the theme..."
 Sleep 0.5s

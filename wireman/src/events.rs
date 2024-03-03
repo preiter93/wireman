@@ -37,10 +37,6 @@ impl App {
     pub(crate) fn handle_crossterm_event(&mut self, event: KeyEvent) {
         let sx = self.internal_stream.sx.clone();
         match event.code {
-            // General app key events.
-            KeyCode::Char('q') if !self.ctx.disable_root_events => {
-                self.should_quit = true;
-            }
             KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
                 self.should_quit = true;
             }
