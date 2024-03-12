@@ -108,7 +108,9 @@ impl HeadersModel {
         // Metadata
         for (key, val) in &self.meta.headers {
             if !key.is_empty() {
-                let _ = map.insert(key.get_text_raw(), val.get_text_raw());
+                let key = try_expand(&key.get_text_raw());
+                let val = try_expand(&val.get_text_raw());
+                let _ = map.insert(key, val);
             }
         }
         map
