@@ -100,16 +100,10 @@ impl EventHandler for HeadersEventHandler {
             None => (true, true),
         };
         let is_meta_tab = ctx.headers.borrow().tab == HeadersTab::Meta;
-        let none_selected = ctx.headers.borrow().tab == HeadersTab::None;
         let mut map = Vec::new();
-        if none_selected {
-            map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
-        } else {
-            map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::Unselect)]);
-        }
+        map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
         if !disabled_root_events {
             map.extend([
-                (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
                 (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
                 (KeyEvent::shift(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
