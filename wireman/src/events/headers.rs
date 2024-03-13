@@ -111,7 +111,7 @@ impl EventHandler for HeadersEventHandler {
             map.extend([
                 (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
                 (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
-                (KeyEvent::new(KeyCode::BackTab), HeadersEvents::PrevTab),
+                (KeyEvent::shift(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Char('j')), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Up), HeadersEvents::PrevRow),
