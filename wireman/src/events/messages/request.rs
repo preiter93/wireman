@@ -1,7 +1,4 @@
-use crate::{
-    context::{AppContext, MessagesTab},
-    model::headers::HeadersTab,
-};
+use crate::context::{AppContext, MessagesTab};
 use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -76,11 +73,7 @@ impl EventHandler for RequestEventHandler {
                 ctx.messages.borrow_mut().start_request();
             }
             RequestEvents::AbortRequest => {
-                if ctx.headers.borrow().tab == HeadersTab::None {
-                    ctx.tab = ctx.tab.next();
-                } else {
-                    ctx.headers.borrow_mut().tab = HeadersTab::None;
-                }
+                ctx.messages.borrow_mut().abort_request();
             }
             RequestEvents::GoToResponse => {
                 ctx.messages_tab = MessagesTab::Response;
