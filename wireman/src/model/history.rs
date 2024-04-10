@@ -133,9 +133,7 @@ impl HistoryModel {
             Logger::debug("history: no method selected");
             return None;
         };
-        let Some(path) = self.path(self.save_spot(), method).clone() else {
-            return None;
-        };
+        let path = self.path(self.save_spot(), method).clone()?;
         if !path.exists() {
             return None;
         }
