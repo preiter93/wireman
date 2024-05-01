@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Paragraph, Widget},
 };
 use theme::Theme;
-use tui_widget_list::{ListableWidget, ScrollAxis};
+use tui_widget_list::{ListWidget, RenderContext};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
@@ -37,18 +37,19 @@ impl<'a> ListItem<'a> {
         }
     }
 }
+impl ListWidget for ListItem<'_> {
+    fn pre_render(mut self, context: &RenderContext) -> (Self, u16)
+    where
+        Self: Sized,
+    {
+        let main_axis_size = 1;
 
-impl ListableWidget for ListItem<'_> {
-    fn size(&self, _: &ScrollAxis) -> usize {
-        1
-    }
+        if context.is_selected {
+            self.prefix = Some(">>");
+            self.style = self.highlight_style;
+        }
 
-    fn highlight(self) -> Self {
-        let highlight_style = self.highlight_style;
-        let mut item = self;
-        item.prefix = Some(">>");
-        item.style = highlight_style;
-        item
+        (self, main_axis_size)
     }
 }
 
