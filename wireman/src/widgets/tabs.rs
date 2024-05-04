@@ -44,7 +44,7 @@ impl<'a> ActivatableTabs<'a> {
             active_style: Style::default(),
             highlight_style: Style::default(),
             active_highlight_style: Style::default(),
-            divider: Span::raw(symbols::line::VERTICAL),
+            divider: Span::from(""),
         }
     }
 

@@ -2,7 +2,10 @@ use super::root::layout;
 use crate::{model::history::HistoryModel, widgets::tabs::ActivatableTabs};
 
 use core::MethodDescriptor;
-use ratatui::prelude::*;
+use ratatui::{
+    prelude::*,
+    widgets::{Block, Borders, Tabs},
+};
 
 pub struct HistoryTabs<'a> {
     pub model: &'a HistoryModel,
@@ -22,15 +25,18 @@ impl Widget for HistoryTabs<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = theme::Theme::global();
         if !self.model.enabled {
-            let [_, right] = layout(area, Direction::Horizontal, &[0, 25]);
+            let [_, title, right] = layout(area, Direction::Horizontal, &[0, 3, 25]);
+            ActivatableTabs::new(vec!["H"])
+                .style(theme.history.inactive.0)
+                .render(title, buf);
+
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
                 .style(theme.history.inactive.0)
                 .active_style(theme.history.active.0)
                 .highlight_style(theme.history.inactive.1)
                 .active_highlight_style(theme.history.active.1)
-                .select(self.model.save_spot().saturating_sub(1))
-                .divider("");
+                .select(self.model.save_spot().saturating_sub(1));
             if let Some(method) = &self.selected_method {
                 tabs = tabs.active(self.model.save_spots_enabled(method));
             }
