@@ -1,11 +1,8 @@
 #![allow(clippy::module_name_repetitions, clippy::cast_possible_truncation)]
+
 use crate::context::MessagesTab;
 use crate::model::MessagesModel;
-use crate::view::root::layout;
-use crate::widgets::{
-    editor::{view_selected, view_unselected},
-    tabs::ActivatableTabs,
-};
+use crate::widgets::editor::{view_selected, view_unselected};
 use edtui::StatusLine;
 use ratatui::prelude::*;
 
@@ -34,8 +31,8 @@ impl Widget for MessagesPage<'_> {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = theme::Theme::global();
         let sl = if theme.editor.hide_status_line { 0 } else { 1 };
-        let [top, center, bottom, status] =
-            Layout::vertical([Percentage(50), Length(1), Min(0), Length(sl)]).areas(area);
+        let [top, bottom, status] =
+            Layout::vertical([Percentage(50), Min(0), Length(sl)]).areas(area);
 
         // Request
         let editor = if self.tab == MessagesTab::Request {
@@ -44,23 +41,6 @@ impl Widget for MessagesPage<'_> {
             view_unselected(&mut self.model.request.editor.state, "Request")
         };
         editor.render(top, buf);
-
-        // History
-        if !self.model.history_model.disabled {
-            let [_, right] = layout(center, Direction::Horizontal, &[0, 25]);
-            let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
-            let mut tabs = ActivatableTabs::new(titles)
-                .style(theme.history.inactive.0)
-                .active_style(theme.history.active.0)
-                .highlight_style(theme.history.inactive.1)
-                .active_highlight_style(theme.history.active.1)
-                .select(self.model.history_model.save_spot().saturating_sub(1))
-                .divider("");
-            if let Some(method) = &self.model.selected_method {
-                tabs = tabs.active(self.model.history_model.save_spots_enabled(method));
-            }
-            tabs.render(right, buf);
-        }
 
         // Request
         let editor = if self.tab == MessagesTab::Response {

@@ -22,7 +22,7 @@ pub struct HistoryModel {
     save_spot: usize,
 
     /// Whether history is enabled
-    pub(crate) disabled: bool,
+    pub(crate) enabled: bool,
 
     /// Whether autosave is enabled
     pub(crate) autosave: bool,
@@ -33,7 +33,7 @@ impl Default for HistoryModel {
         Self {
             base_path: PathBuf::default(),
             save_spot: 1,
-            disabled: false,
+            enabled: true,
             autosave: false,
         }
     }
@@ -48,7 +48,7 @@ impl HistoryModel {
         Ok(Self {
             base_path: path,
             save_spot: 1,
-            disabled: env.history.disabled,
+            enabled: env.history.disabled,
             autosave: env.history.autosave,
         })
     }
@@ -72,7 +72,7 @@ impl HistoryModel {
 
     /// Saves a request message to history.
     pub fn save(&self, messages: &MessagesModel) {
-        if self.disabled {
+        if self.enabled {
             return;
         }
 
@@ -125,7 +125,7 @@ impl HistoryModel {
 
     /// Loads a request from history.
     pub fn load(&self, messages: &mut MessagesModel) -> Option<()> {
-        if self.disabled {
+        if self.enabled {
             return None;
         }
 

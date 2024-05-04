@@ -2327,7 +2327,6 @@ dependencies = [
 [[package]]
 name = "tui-widget-list"
 version = "0.9.0"
-source = "git+https://github.com/preiter93/tui-widget-list.git?branch=v0.9#e4a2dae127133258e32f95392867601a596b9fc4"
 dependencies = [
  "ratatui",
 ]
