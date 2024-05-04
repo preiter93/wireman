@@ -1,4 +1,3 @@
-use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
@@ -19,7 +18,7 @@ impl Term {
     pub fn new() -> Result<Self> {
         let terminal = Terminal::new(CrosstermBackend::new(stderr()))?;
 
-        crossterm::execute!(stdout(), EnterAlternateScreen, EnableMouseCapture)?;
+        crossterm::execute!(stdout(), EnterAlternateScreen)?;
         enable_raw_mode()?;
 
         // Shutdown gracefully
@@ -35,7 +34,7 @@ impl Term {
 
     pub fn stop() -> Result<()> {
         disable_raw_mode()?;
-        crossterm::execute!(stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
+        crossterm::execute!(stdout(), LeaveAlternateScreen)?;
         Ok(())
     }
 }
