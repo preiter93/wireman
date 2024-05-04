@@ -15,6 +15,12 @@ pub enum HeadersEvents {
     Unselect,
     AddHeaders,
     DelHeaders,
+    SaveHistory,
+    LoadHistory1,
+    LoadHistory2,
+    LoadHistory3,
+    LoadHistory4,
+    LoadHistory5,
 }
 
 impl fmt::Display for HeadersEvents {
@@ -31,6 +37,12 @@ impl fmt::Display for HeadersEvents {
             HeadersEvents::Unselect => "Unselect",
             HeadersEvents::AddHeaders => "Add Headers",
             HeadersEvents::DelHeaders => "Delete Headers",
+            HeadersEvents::SaveHistory => "Save Request",
+            HeadersEvents::LoadHistory1 => "Load History 1",
+            HeadersEvents::LoadHistory2 => "Load History 2",
+            HeadersEvents::LoadHistory3 => "Load History 3",
+            HeadersEvents::LoadHistory4 => "Load History 4",
+            HeadersEvents::LoadHistory5 => "Load History 5",
         };
         write!(f, "{}", display_str)
     }
@@ -90,6 +102,25 @@ impl EventHandler for HeadersEventHandler {
                     }
                 }
             }
+            HeadersEvents::LoadHistory1 => {
+                ctx.messages.borrow_mut().handle_history_reload(1);
+            }
+            HeadersEvents::LoadHistory2 => {
+                ctx.messages.borrow_mut().handle_history_reload(2);
+            }
+            HeadersEvents::LoadHistory3 => {
+                ctx.messages.borrow_mut().handle_history_reload(3);
+            }
+            HeadersEvents::LoadHistory4 => {
+                ctx.messages.borrow_mut().handle_history_reload(4);
+            }
+            HeadersEvents::LoadHistory5 => {
+                ctx.messages.borrow_mut().handle_history_reload(5);
+            }
+            HeadersEvents::SaveHistory => {
+                let history = &ctx.messages.borrow().history_model;
+                history.save(&ctx.messages.borrow());
+            }
         }
     }
 
@@ -110,6 +141,30 @@ impl EventHandler for HeadersEventHandler {
                 (KeyEvent::new(KeyCode::Char('j')), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Up), HeadersEvents::PrevRow),
                 (KeyEvent::new(KeyCode::Char('k')), HeadersEvents::PrevRow),
+                (
+                    KeyEvent::new(KeyCode::Char('1')),
+                    HeadersEvents::LoadHistory1,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('2')),
+                    HeadersEvents::LoadHistory2,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('3')),
+                    HeadersEvents::LoadHistory3,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('4')),
+                    HeadersEvents::LoadHistory4,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('5')),
+                    HeadersEvents::LoadHistory5,
+                ),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('s')),
+                    HeadersEvents::SaveHistory,
+                ),
             ]);
         }
         if !disabled_root_events && is_last_col {
@@ -146,6 +201,7 @@ impl EventHandler for HeadersEventHandler {
                 HeadersEvents::DelHeaders,
             )]);
         }
+
         map
     }
 

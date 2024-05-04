@@ -11,8 +11,8 @@ pub enum RequestEvents {
     GoToResponse,
     CopyAsGrpCurl,
     FormatMessage,
-    ResetMessage,
-    SaveMessage,
+    ResetHistory,
+    SaveHistory,
     LoadHistory1,
     LoadHistory2,
     LoadHistory3,
@@ -30,8 +30,8 @@ impl fmt::Display for RequestEvents {
             RequestEvents::GoToResponse => "Go to Response",
             RequestEvents::CopyAsGrpCurl => "Copy as cURL",
             RequestEvents::FormatMessage => "Format Message",
-            RequestEvents::ResetMessage => "Reset Message",
-            RequestEvents::SaveMessage => "Save Message",
+            RequestEvents::ResetHistory => "Reset Request",
+            RequestEvents::SaveHistory => "Save Request",
             RequestEvents::LoadHistory1 => "Load History 1",
             RequestEvents::LoadHistory2 => "Load History 2",
             RequestEvents::LoadHistory3 => "Load History 3",
@@ -84,11 +84,11 @@ impl EventHandler for RequestEventHandler {
             RequestEvents::FormatMessage => {
                 ctx.messages.borrow_mut().request.editor.format_json();
             }
-            RequestEvents::SaveMessage => {
+            RequestEvents::SaveHistory => {
                 let history = &ctx.messages.borrow().history_model;
                 history.save(&ctx.messages.borrow());
             }
-            RequestEvents::ResetMessage => {
+            RequestEvents::ResetHistory => {
                 let method = ctx.messages.borrow().selected_method.clone();
                 if let Some(method) = method {
                     ctx.messages.borrow().history_model.delete(&method);
@@ -137,11 +137,11 @@ impl EventHandler for RequestEventHandler {
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('s')),
-                    RequestEvents::SaveMessage,
+                    RequestEvents::SaveHistory,
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('d')),
-                    RequestEvents::ResetMessage,
+                    RequestEvents::ResetHistory,
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('1')),
