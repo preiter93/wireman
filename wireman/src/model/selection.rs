@@ -61,7 +61,7 @@ impl SelectionModel {
         if self.services().is_empty() {
             return;
         }
-        let i = match self.services_state.selected() {
+        let i = match self.services_state.selected {
             Some(i) => {
                 if i >= self.services().len() - 1 {
                     0
@@ -81,7 +81,7 @@ impl SelectionModel {
         if self.services().is_empty() {
             return;
         }
-        let i = match self.services_state.selected() {
+        let i = match self.services_state.selected {
             Some(i) => {
                 if i == 0 {
                     self.services().len() - 1
@@ -97,7 +97,7 @@ impl SelectionModel {
 
     /// Load the methods after a services was selected
     pub fn load_methods(&mut self) {
-        if let Some(service_index) = self.services_state.selected() {
+        if let Some(service_index) = self.services_state.selected {
             let service_name = &self.services()[service_index];
             self.methods = list_methods(&self.core_client.borrow(), service_name);
         }
@@ -108,7 +108,7 @@ impl SelectionModel {
         if self.methods().is_empty() {
             return;
         }
-        let i = match self.methods_state.selected() {
+        let i = match self.methods_state.selected {
             Some(i) => {
                 if i >= self.methods().len() - 1 {
                     0
@@ -126,7 +126,7 @@ impl SelectionModel {
         if self.methods().is_empty() {
             return;
         }
-        let i = match self.methods_state.selected() {
+        let i = match self.methods_state.selected {
             Some(i) => {
                 if i == 0 {
                     self.methods().len() - 1
@@ -141,7 +141,7 @@ impl SelectionModel {
 
     /// Return the description of the currently selected service
     pub fn selected_service(&self) -> Option<ServiceDescriptor> {
-        if let Some(index) = self.services_state.selected() {
+        if let Some(index) = self.services_state.selected {
             let name = &self.services[index];
             return self.core_client.borrow().get_service_by_name(name);
         }
@@ -150,10 +150,9 @@ impl SelectionModel {
 
     /// Return the descrption of the currently selected method
     pub fn selected_method(&self) -> Option<MethodDescriptor> {
-        if let (Some(service_index), Some(method_index)) = (
-            self.services_state.selected(),
-            self.methods_state.selected(),
-        ) {
+        if let (Some(service_index), Some(method_index)) =
+            (self.services_state.selected, self.methods_state.selected)
+        {
             let service_name = &self.services()[service_index];
             let method_name = &self.methods()[method_index];
             return self
