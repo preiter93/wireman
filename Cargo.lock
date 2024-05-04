@@ -542,9 +542,9 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.3.3"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "112c6f1eba1fe5fb05024c227dc8883091d9818272b40a248443327bebd7a4a2"
+checksum = "2f9b8592cc0cf97afa3161f2d105c8338fa5c6bda92653f6fa0aeda1fc9194d1"
 dependencies = [
  "arboard",
  "crossterm",
