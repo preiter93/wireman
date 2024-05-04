@@ -16,7 +16,8 @@ config = { package = "wireman-config", path = "../wireman-config", version = "0.
 logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
 theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
 # tui-widget-list = { version = "0.8.2" }
-tui-widget-list = { git = "https://github.com/preiter93/tui-widget-list.git", branch = "v0.9" }
+# tui-widget-list = { git = "https://github.com/preiter93/tui-widget-list.git", branch = "v0.9" }
+tui-widget-list = { path = "../../tui-widget-list", version = "0.9.0"}
 tui-key-event-handler = { package = "tui-key-event-handler", path = "../tui-key-event-handler", version = "0.1.0" }
 edtui = "0.3.4"
 # edtui = { version = "0.3.3", path = "../../edtui" }

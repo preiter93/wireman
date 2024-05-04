@@ -1,7 +1,7 @@
 use crate::widgets::editor::{view_single_selected, view_single_unselected};
 use edtui::EditorState;
 use ratatui::{prelude::*, widgets::Widget};
-use tui_widget_list::ListWidget;
+use tui_widget_list::{PreRender, PreRenderContext};
 
 #[derive(Clone)]
 pub(crate) struct KV {
@@ -22,9 +22,9 @@ impl KV {
     }
 }
 
-impl ListWidget for KV {
-    fn pre_render(self, _context: &tui_widget_list::RenderContext) -> (Self, u16) {
-        (self, 3)
+impl PreRender for KV {
+    fn pre_render(&mut self, _context: &PreRenderContext) -> u16 {
+        3
     }
 }
 

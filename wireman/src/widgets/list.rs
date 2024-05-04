@@ -1,23 +1,14 @@
-use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Style,
-    text::{Line, Span},
-    widgets::{Paragraph, Widget},
-};
+use ratatui::prelude::*;
 use theme::Theme;
-use tui_widget_list::{ListWidget, RenderContext};
+use tui_widget_list::{PreRender, PreRenderContext};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
     /// The items text
     pub text: Line<'a>,
 
-    /// The items style
+    /// The style of the item
     pub style: Style,
-
-    /// The highlight style
-    pub highlight_style: Style,
 
     /// The current prefix. Changes when the item is selected.
     pub prefix: Option<&'a str>,
@@ -28,28 +19,29 @@ impl<'a> ListItem<'a> {
     where
         T: Into<Line<'a>>,
     {
-        let theme = Theme::global();
         Self {
             text: text.into(),
-            style: theme.list.text,
-            highlight_style: theme.list.focused,
+            style: Style::default(),
             prefix: None,
         }
     }
 }
-impl ListWidget for ListItem<'_> {
-    fn pre_render(mut self, context: &RenderContext) -> (Self, u16)
+impl PreRender for ListItem<'_> {
+    fn pre_render(&mut self, context: &PreRenderContext) -> u16
     where
         Self: Sized,
     {
+        let theme = Theme::global();
         let main_axis_size = 1;
 
         if context.is_selected {
             self.prefix = Some(">>");
-            self.style = self.highlight_style;
+            self.style = theme.list.focused;
+        } else {
+            self.style = theme.list.text;
         }
 
-        (self, main_axis_size)
+        main_axis_size
     }
 }
 
@@ -60,7 +52,7 @@ impl Widget for ListItem<'_> {
         } else {
             self.text.clone()
         };
-        Paragraph::new(text).style(self.style).render(area, buf);
+        text.style(self.style).render(area, buf);
     }
 }
 
