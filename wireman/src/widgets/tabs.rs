@@ -3,7 +3,6 @@ use ratatui::prelude::Rect;
 use ratatui::widgets::Widget;
 use ratatui::{
     style::{Style, Styled},
-    symbols,
     text::{Line, Span},
     widgets::Block,
 };
