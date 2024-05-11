@@ -2,10 +2,7 @@ use super::root::layout;
 use crate::{model::history::HistoryModel, widgets::tabs::ActivatableTabs};
 
 use core::MethodDescriptor;
-use ratatui::{
-    prelude::*,
-    widgets::{Block, Borders, Tabs},
-};
+use ratatui::prelude::*;
 
 pub struct HistoryTabs<'a> {
     pub model: &'a HistoryModel,
