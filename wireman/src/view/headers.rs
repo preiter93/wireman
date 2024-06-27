@@ -190,7 +190,7 @@ impl Widget for Authentication {
             .highlight_style(theme.headers.tabs.1)
             .select(self.selected_tag)
             .divider("")
-            .render(title.inner(&Margin::new(0, 0)), buf);
+            .render(title.inner(Margin::new(0, 0)), buf);
 
         if self.selected {
             view_single_selected(&mut self.state, self.title).render(content, buf);
