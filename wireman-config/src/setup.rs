@@ -88,7 +88,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
                 history_dir
             }
         };
-        config.history.directory = history_dir.clone();
+        config.history.directory.clone_from(&history_dir);
         if !dry_run && !Path::new(&history_dir).exists() {
             if let Err(err) = std::fs::create_dir(&history_dir) {
                 return Err(Error::SetupError(SetupError::new(format!(
@@ -106,7 +106,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
             return Err(Error::SetupError(err));
         }
         Ok(logger_dir) => {
-            config.logging.directory = logger_dir.clone();
+            config.logging.directory.clone_from(&logger_dir);
             let logger_file = config.logging.file_path_expanded();
             if dry_run {
                 println!("{:<20} {}", "Logging:", logger_file);
