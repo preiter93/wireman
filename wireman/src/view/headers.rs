@@ -4,7 +4,7 @@ use crate::{
     widgets::editor::{view_single_selected, view_single_unselected},
     widgets::kv::KV,
 };
-use edtui::{EditorState, StatusLine};
+use edtui::{EditorState, EditorStatusLine};
 use ratatui::{
     prelude::*,
     widgets::{Block, StatefulWidget, Tabs, Widget},
@@ -123,7 +123,7 @@ impl Widget for HeadersPage<'_> {
 
         // Show a combined status line for all editors
         if !theme.editor.hide_status_line {
-            StatusLine::default()
+            EditorStatusLine::default()
                 .style_text(theme.editor.status_text)
                 .style_line(theme.editor.status_line)
                 .mode(self.model.mode().name())

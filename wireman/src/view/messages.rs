@@ -3,7 +3,7 @@
 use crate::context::MessagesTab;
 use crate::model::MessagesModel;
 use crate::widgets::editor::{view_selected, view_unselected};
-use edtui::StatusLine;
+use edtui::EditorStatusLine;
 use ratatui::prelude::*;
 
 /// The request and response tab
@@ -56,7 +56,7 @@ impl Widget for MessagesPage<'_> {
                 MessagesTab::Request => self.model.request.editor.state.mode,
                 MessagesTab::Response => self.model.response.editor.state.mode,
             };
-            StatusLine::default()
+            EditorStatusLine::default()
                 .style_text(theme.editor.status_text)
                 .style_line(theme.editor.status_line)
                 .mode(mode.name())

@@ -1,7 +1,6 @@
 use std::fmt;
 
 /// A key event.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Hash)]
 pub struct KeyEvent {
     /// The key code.
@@ -59,7 +58,6 @@ impl KeyEvent {
 }
 
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyModifier {
     Shift,
     Control,
@@ -150,30 +148,8 @@ impl KeyModifiers {
     }
 }
 
-pub struct KeyModifierIterator {
-    current: KeyModifier,
-}
-
-impl Iterator for KeyModifierIterator {
-    type Item = KeyModifier;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let next_modifier = match self.current {
-            KeyModifier::Shift => KeyModifier::Control,
-            KeyModifier::Control => KeyModifier::Alt,
-            KeyModifier::Alt => KeyModifier::Super,
-            KeyModifier::Super => KeyModifier::Hyper,
-            KeyModifier::Hyper => KeyModifier::Meta,
-            KeyModifier::Meta => return None,
-        };
-        self.current = next_modifier;
-        Some(next_modifier)
-    }
-}
-
 /// Represents a key.
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyCode {
     Backspace,
     Enter,
