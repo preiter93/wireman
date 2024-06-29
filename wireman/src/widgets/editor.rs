@@ -3,7 +3,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
     actions::{Execute, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorMode, EditorState, EditorTheme, EditorView, Index2, Input, Lines, RowIndex,
+    EditorInput, EditorMode, EditorState, EditorTheme, EditorView, Index2, Lines, RowIndex,
 };
 use once_cell::sync::Lazy;
 use ratatui::{
@@ -21,7 +21,7 @@ pub struct TextEditor {
     pub state: EditorState,
 
     /// The input register
-    input: Input,
+    input: EditorInput,
 
     /// Error buffer
     error: Option<ErrorKind>,
@@ -46,7 +46,7 @@ impl TextEditor {
         state.set_clipboard(Lazy::force(&CLIPBOARD));
         Self {
             state,
-            input: Input::default(),
+            input: EditorInput::default(),
             error: None,
             focus: false,
             single_line: false,
@@ -58,7 +58,7 @@ impl TextEditor {
         state.set_clipboard(Lazy::force(&CLIPBOARD));
         Self {
             state,
-            input: Input::default(),
+            input: EditorInput::default(),
             error: None,
             focus: false,
             single_line: true,
