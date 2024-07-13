@@ -19,9 +19,9 @@ impl fmt::Display for MethodsSelectionEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
             MethodsSelectionEvents::Next => "Next",
-            MethodsSelectionEvents::Prev => "Previous",
+            MethodsSelectionEvents::Prev => "Prev",
             MethodsSelectionEvents::NextTab => "Next Tab",
-            MethodsSelectionEvents::PrevTab => "Previous Tab",
+            MethodsSelectionEvents::PrevTab => "Prev Tab",
             MethodsSelectionEvents::Select => "Select",
             MethodsSelectionEvents::Search => "Search",
             MethodsSelectionEvents::Unselect => "Unselect",

@@ -24,7 +24,7 @@ impl fmt::Display for RequestEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
             RequestEvents::NextTab => "Next Tab",
-            RequestEvents::PrevTab => "Previous Tab",
+            RequestEvents::PrevTab => "Prev Tab",
             RequestEvents::MakeRequest => "Make Request",
             RequestEvents::AbortRequest => "Abort Request",
             RequestEvents::GoToResponse => "Go to Response",
