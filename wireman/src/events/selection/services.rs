@@ -16,7 +16,7 @@ impl fmt::Display for ServicesSelectionEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
             ServicesSelectionEvents::Next => "Next",
-            ServicesSelectionEvents::Prev => "Previous",
+            ServicesSelectionEvents::Prev => "Prev",
             ServicesSelectionEvents::Select => "Select",
             ServicesSelectionEvents::Search => "Search",
             ServicesSelectionEvents::ClearSearch => "Clear Search",

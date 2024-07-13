@@ -12,6 +12,8 @@ pub enum HeadersEvents {
     PrevCol,
     NextColForce,
     PrevColForce,
+    NextAuth,
+    PrevAuth,
     Unselect,
     AddHeaders,
     DelHeaders,
@@ -27,16 +29,18 @@ impl fmt::Display for HeadersEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
             HeadersEvents::NextTab => "Next Tab",
-            HeadersEvents::PrevTab => "Previous Tab",
+            HeadersEvents::PrevTab => "Prev Tab",
             HeadersEvents::NextRow => "Next Row",
-            HeadersEvents::PrevRow => "Previous Row",
+            HeadersEvents::PrevRow => "Prev Row",
             HeadersEvents::NextCol => "Next Column",
-            HeadersEvents::PrevCol => "Previous Column",
+            HeadersEvents::PrevCol => "Prev Column",
+            HeadersEvents::NextAuth => "Next auth mode",
+            HeadersEvents::PrevAuth => "Prev auth mode",
             HeadersEvents::NextColForce => "Next Column (Force)",
-            HeadersEvents::PrevColForce => "Previous Column (Force)",
+            HeadersEvents::PrevColForce => "Prev Column (Force)",
             HeadersEvents::Unselect => "Unselect",
             HeadersEvents::AddHeaders => "Add Headers",
-            HeadersEvents::DelHeaders => "Delete Headers",
+            HeadersEvents::DelHeaders => "Del Headers",
             HeadersEvents::SaveHistory => "Save Request",
             HeadersEvents::LoadHistory1 => "Load History 1",
             HeadersEvents::LoadHistory2 => "Load History 2",
@@ -79,6 +83,12 @@ impl EventHandler for HeadersEventHandler {
                 ctx.headers.borrow_mut().next_col();
             }
             HeadersEvents::PrevCol => {
+                ctx.headers.borrow_mut().prev_col();
+            }
+            HeadersEvents::NextAuth => {
+                ctx.headers.borrow_mut().next_col();
+            }
+            HeadersEvents::PrevAuth => {
                 ctx.headers.borrow_mut().prev_col();
             }
             HeadersEvents::NextColForce => {
@@ -125,12 +135,18 @@ impl EventHandler for HeadersEventHandler {
     }
 
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, HeadersEvents)> {
-        let disabled_root_events = ctx.headers.borrow().disabled_root_events();
-        let (is_first_col, is_last_col) = match ctx.headers.borrow().selected_editor() {
+        let headers = ctx.headers.borrow();
+        let disabled_root_events = headers.disabled_root_events();
+        let selected_editor = headers.selected_editor();
+        let (is_first_col, is_last_col) = match selected_editor {
             Some(e) => (e.is_first_col(), e.is_last_col()),
             None => (true, true),
         };
-        let is_meta_tab = ctx.headers.borrow().tab == HeadersTab::Meta;
+        let enable_switch_auth_tab = ctx.headers.borrow().tab == HeadersTab::Auth
+            && selected_editor.map_or(true, |e| e.is_empty());
+        let enable_switch_col_force = ctx.headers.borrow().tab == HeadersTab::Meta;
+        let enable_next_col = enable_switch_col_force && is_last_col;
+        let enable_prev_col = enable_switch_col_force && is_first_col;
         let mut map = Vec::new();
         map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
         if !disabled_root_events {
@@ -167,19 +183,31 @@ impl EventHandler for HeadersEventHandler {
                 ),
             ]);
         }
-        if !disabled_root_events && is_last_col {
+        if !disabled_root_events && enable_switch_auth_tab {
+            map.extend([
+                (KeyEvent::new(KeyCode::Right), HeadersEvents::NextAuth),
+                (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextAuth),
+            ]);
+        }
+        if !disabled_root_events && enable_switch_auth_tab {
+            map.extend([
+                (KeyEvent::new(KeyCode::Left), HeadersEvents::PrevAuth),
+                (KeyEvent::new(KeyCode::Char('h')), HeadersEvents::PrevAuth),
+            ]);
+        }
+        if !disabled_root_events && enable_next_col {
             map.extend([
                 (KeyEvent::new(KeyCode::Right), HeadersEvents::NextCol),
                 (KeyEvent::new(KeyCode::Char('l')), HeadersEvents::NextCol),
             ]);
         }
-        if !disabled_root_events && is_first_col {
+        if !disabled_root_events && enable_prev_col {
             map.extend([
                 (KeyEvent::new(KeyCode::Left), HeadersEvents::PrevCol),
                 (KeyEvent::new(KeyCode::Char('h')), HeadersEvents::PrevCol),
             ]);
         }
-        if is_meta_tab {
+        if enable_switch_col_force {
             map.extend([
                 (
                     KeyEvent::shift(KeyCode::Char('L')),
@@ -195,7 +223,7 @@ impl EventHandler for HeadersEventHandler {
             KeyEvent::ctrl(KeyCode::Char('a')),
             HeadersEvents::AddHeaders,
         )]);
-        if is_meta_tab {
+        if enable_switch_col_force {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('d')),
                 HeadersEvents::DelHeaders,
