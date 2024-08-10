@@ -121,10 +121,10 @@ impl App {
         if self.ctx.tab == Tab::Messages {
             match self.ctx.messages_tab {
                 MessagesTab::Request => {
-                    RequestEventHandler::handle_mouse_event(&mut self.ctx, event)
+                    RequestEventHandler::handle_mouse_event(&mut self.ctx, event);
                 }
                 MessagesTab::Response => {
-                    ResponseEventHandler::handle_mouse_event(&mut self.ctx, event)
+                    ResponseEventHandler::handle_mouse_event(&mut self.ctx, event);
                 }
             };
         }
@@ -141,6 +141,6 @@ impl App {
         E::Event: Display,
     {
         let key_mappings = E::format_event_mappings_as_strings(ctx);
-        ctx.help = Some(HelpContext::new(key_mappings))
+        ctx.help = Some(HelpContext::new(key_mappings));
     }
 }

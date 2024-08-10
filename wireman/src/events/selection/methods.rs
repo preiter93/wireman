@@ -28,7 +28,7 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::ClearSearch => "Clear Search",
             MethodsSelectionEvents::GoToServices => "Go to Services",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 
@@ -93,12 +93,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
         let filter_active = ctx.selection.borrow_mut().methods_filter.is_some();
         let mut map = Vec::new();
-        if !method_selected {
-            map.extend([(
-                KeyEvent::new(KeyCode::Enter),
-                MethodsSelectionEvents::Select,
-            )]);
-        } else {
+        if method_selected {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Enter),
@@ -110,16 +105,21 @@ impl EventHandler for MethodsSelectionEventsHandler {
                     MethodsSelectionEvents::PrevTab,
                 ),
             ]);
+        } else {
+            map.extend([(
+                KeyEvent::new(KeyCode::Enter),
+                MethodsSelectionEvents::Select,
+            )]);
         }
-        if !filter_active {
+        if filter_active {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
-                MethodsSelectionEvents::Unselect,
+                MethodsSelectionEvents::ClearSearch,
             )]);
         } else {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
-                MethodsSelectionEvents::ClearSearch,
+                MethodsSelectionEvents::Unselect,
             )]);
         }
         map.extend(vec![

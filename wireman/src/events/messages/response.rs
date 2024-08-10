@@ -19,7 +19,7 @@ impl fmt::Display for ResponseEvents {
             ResponseEvents::GoToRequest => "Go to Request",
             ResponseEvents::CopyAsGrpCurl => "Copy as cURL",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 
@@ -73,18 +73,18 @@ impl EventHandler for ResponseEventHandler {
         map
     }
 
-    fn pass_through_key_events(key_event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events(event: &KeyEvent, ctx: &mut Self::Context) {
         // read only
-        if key_event.code == KeyCode::Char('i') {
+        if event.code == KeyCode::Char('i') {
             return;
         }
         let response = &mut ctx.messages.borrow_mut().response.editor;
-        response.on_key(key_event.clone().into());
+        response.on_key(event.clone().into());
         ctx.disable_root_events = !response.normal_mode();
     }
 
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
         let editor = &mut ctx.messages.borrow_mut().response.editor;
-        editor.on_mouse(event.clone().into());
+        editor.on_mouse(*event);
     }
 }

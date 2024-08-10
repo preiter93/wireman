@@ -30,7 +30,7 @@ impl Widget for MessagesPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = theme::Theme::global();
-        let sl = if theme.editor.hide_status_line { 0 } else { 1 };
+        let sl = u16::from(!theme.editor.hide_status_line);
         let [top, bottom, status] =
             Layout::vertical([Percentage(50), Min(0), Length(sl)]).areas(area);
 

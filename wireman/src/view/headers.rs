@@ -22,52 +22,21 @@ impl<'a> HeadersPage<'a> {
         Self { model }
     }
 
-    pub fn footer_keys(&self) -> Vec<(&'static str, &'static str)> {
-        match self.model.tab {
-            HeadersTab::Addr => {
-                vec![
-                    ("^c", "Quit"),
-                    ("Tab", "Next Tab"),
-                    ("↑/k", "Up"),
-                    ("↓/j", "Down"),
-                    ("?", "Show help"),
-                ]
-            }
-            HeadersTab::Auth => {
-                vec![
-                    ("^c", "Quit"),
-                    ("Tab", "Next Tab"),
-                    ("↑/k", "Up"),
-                    ("↓/j", "Down"),
-                    ("?", "Show help"),
-                ]
-            }
-            HeadersTab::Meta => {
-                vec![
-                    ("^c", "Quit"),
-                    ("Tab", "Next Tab"),
-                    ("↑/k", "Up"),
-                    ("↓/j", "Down"),
-                    ("?", "Show help"),
-                ]
-            }
-            HeadersTab::None => {
-                vec![
-                    ("^c", "Quit"),
-                    ("Tab", "Next Tab"),
-                    ("↑/k", "Up"),
-                    ("↓/j", "Down"),
-                    ("?", "Show help"),
-                ]
-            }
-        }
+    pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
+        vec![
+            ("^c", "Quit"),
+            ("Tab", "Next Tab"),
+            ("↑/k", "Up"),
+            ("↓/j", "Down"),
+            ("?", "Show help"),
+        ]
     }
 }
 
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let theme = theme::Theme::global();
-        let sl = if theme.editor.hide_status_line { 0 } else { 1 };
+        let sl = u16::from(!theme.editor.hide_status_line);
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 

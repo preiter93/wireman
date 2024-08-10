@@ -54,7 +54,7 @@ impl Root<'_> {
                     model: &mut self.ctx.messages.borrow_mut(),
                     tab: self.ctx.messages_tab,
                 }
-                .render(messages, buf)
+                .render(messages, buf);
             }
             Tab::Headers => {
                 //
@@ -65,7 +65,7 @@ impl Root<'_> {
                 )
                 .render(history, buf);
 
-                HeadersPage::new(&self.ctx.headers.borrow()).render(headers, buf)
+                HeadersPage::new(&self.ctx.headers.borrow()).render(headers, buf);
             }
         };
     }
@@ -75,7 +75,7 @@ impl Root<'_> {
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
             Tab::Messages => MessagesPage::footer_keys(self.ctx.messages_tab),
-            Tab::Headers => HeadersPage::new(&self.ctx.headers.borrow()).footer_keys(),
+            Tab::Headers => HeadersPage::footer_keys(),
         };
         let spans: Vec<Span> = keys
             .iter()

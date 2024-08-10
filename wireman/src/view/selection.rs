@@ -32,8 +32,8 @@ impl<'a> SelectionPage<'a> {
 
 impl Widget for SelectionPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
-        let theme = Theme::global();
         use ratatui::layout::Constraint::{Length, Min, Percentage};
+        let theme = Theme::global();
         let [top, bottom] = Layout::vertical([Percentage(50), Percentage(50)]).areas(area);
 
         let mut show_services_search = 0;

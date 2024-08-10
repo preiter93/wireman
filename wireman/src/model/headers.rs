@@ -51,7 +51,7 @@ impl HeadersModel {
             HeadersTab::Addr => Some(&self.addr),
             HeadersTab::Auth => Some(self.auth.selected_editor()),
             HeadersTab::Meta => self.meta.selected_editor(),
-            _ => None,
+            HeadersTab::None => None,
         }
     }
 
@@ -61,7 +61,7 @@ impl HeadersModel {
             HeadersTab::Addr => Some(&mut self.addr),
             HeadersTab::Auth => Some(self.auth.selected_editor_mut()),
             HeadersTab::Meta => self.meta.selected_editor_mut(),
-            _ => None,
+            HeadersTab::None => None,
         }
     }
     /// Whether any editor is currently in insert mode

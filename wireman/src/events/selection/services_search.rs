@@ -14,7 +14,7 @@ impl fmt::Display for ServicesSearchEvents {
             ServicesSearchEvents::Finish => "Finish",
             ServicesSearchEvents::RemoveChar => "Remove Character",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 

@@ -202,7 +202,7 @@ impl TextEditor {
     /// Handle mouse events.
     pub fn on_mouse(&mut self, event: MouseEvent) {
         let mouse = EditorMouse::default();
-        mouse.on_event(event, &mut self.state)
+        mouse.on_event(event, &mut self.state);
     }
 }
 

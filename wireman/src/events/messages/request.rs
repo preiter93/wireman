@@ -39,7 +39,7 @@ impl fmt::Display for RequestEvents {
             RequestEvents::LoadHistory4 => "Load History 4",
             RequestEvents::LoadHistory5 => "Load History 5",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 
@@ -177,6 +177,6 @@ impl EventHandler for RequestEventHandler {
 
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
         let editor = &mut ctx.messages.borrow_mut().request.editor;
-        editor.on_mouse(event.clone().into());
+        editor.on_mouse(*event);
     }
 }

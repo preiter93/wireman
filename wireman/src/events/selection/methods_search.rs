@@ -14,7 +14,7 @@ impl fmt::Display for MethodsSearchEvents {
             MethodsSearchEvents::Finish => "Finish",
             MethodsSearchEvents::RemoveChar => "Remove Character",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 

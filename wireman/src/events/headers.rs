@@ -1,4 +1,4 @@
-use crate::{context::AppContext, model::headers::HeadersTab};
+use crate::{context::AppContext, model::headers::HeadersTab, widgets::editor::TextEditor};
 use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -48,7 +48,7 @@ impl fmt::Display for HeadersEvents {
             HeadersEvents::LoadHistory4 => "Load History 4",
             HeadersEvents::LoadHistory5 => "Load History 5",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 
@@ -79,22 +79,10 @@ impl EventHandler for HeadersEventHandler {
             HeadersEvents::PrevRow => {
                 ctx.headers.borrow_mut().prev_row();
             }
-            HeadersEvents::NextCol => {
+            HeadersEvents::NextCol | HeadersEvents::NextAuth | HeadersEvents::NextColForce => {
                 ctx.headers.borrow_mut().next_col();
             }
-            HeadersEvents::PrevCol => {
-                ctx.headers.borrow_mut().prev_col();
-            }
-            HeadersEvents::NextAuth => {
-                ctx.headers.borrow_mut().next_col();
-            }
-            HeadersEvents::PrevAuth => {
-                ctx.headers.borrow_mut().prev_col();
-            }
-            HeadersEvents::NextColForce => {
-                ctx.headers.borrow_mut().next_col();
-            }
-            HeadersEvents::PrevColForce => {
+            HeadersEvents::PrevCol | HeadersEvents::PrevAuth | HeadersEvents::PrevColForce => {
                 ctx.headers.borrow_mut().prev_col();
             }
             HeadersEvents::Unselect => {
@@ -143,7 +131,7 @@ impl EventHandler for HeadersEventHandler {
             None => (true, true),
         };
         let enable_switch_auth_tab = ctx.headers.borrow().tab == HeadersTab::Auth
-            && selected_editor.map_or(true, |e| e.is_empty());
+            && selected_editor.map_or(true, TextEditor::is_empty);
         let enable_switch_col_force = ctx.headers.borrow().tab == HeadersTab::Meta;
         let enable_next_col = enable_switch_col_force && is_last_col;
         let enable_prev_col = enable_switch_col_force && is_first_col;
@@ -254,7 +242,7 @@ impl EventHandler for HeadersEventHandler {
                     .selected_editor_mut()
                     .on_key(key_event.clone().into());
             }
-            _ => (),
+            HeadersTab::None => (),
         }
     }
 }
