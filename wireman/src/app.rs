@@ -52,7 +52,7 @@ impl App {
     fn draw(&mut self) -> Result<()> {
         self.term.draw(|frame| {
             let root = Root::new(&self.ctx);
-            frame.render_widget(root, frame.size());
+            frame.render_widget(root, frame.area());
         })?;
         Ok(())
     }
