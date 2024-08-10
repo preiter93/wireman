@@ -177,5 +177,5 @@ impl MetaHeaders {
 }
 
 fn next_col(col: &mut usize) {
-    *col = (*col + 1) % 2
+    *col = (*col + 1) % 2;
 }

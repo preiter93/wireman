@@ -22,7 +22,7 @@ impl fmt::Display for ServicesSelectionEvents {
             ServicesSelectionEvents::ClearSearch => "Clear Search",
             ServicesSelectionEvents::GoToMethods => "Go to Methods",
         };
-        write!(f, "{}", display_str)
+        write!(f, "{display_str}")
     }
 }
 
@@ -94,7 +94,7 @@ impl EventHandler for ServicesSelectionEventsHandler {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
                 ServicesSelectionEvents::ClearSearch,
-            )])
+            )]);
         }
         map
     }
