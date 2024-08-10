@@ -10,7 +10,7 @@ use ratatui::{
     widgets::{Block, StatefulWidget, Tabs, Widget},
 };
 use theme::Theme;
-use tui_widget_list::{List, ListState};
+use tui_widget_list::{ListBuilder, ListState, ListView};
 
 /// The request and response tab
 pub struct HeadersPage<'a> {
@@ -210,7 +210,14 @@ impl Widget for Metadata {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = ListState::default();
         state.selected = self.selected_row;
-        let list = List::new(self.content);
+        let item_count = self.content.len();
+        let list = ListView::new(
+            ListBuilder::new(move |context| {
+                let item = self.content[context.index].clone();
+                (item, 3)
+            }),
+            item_count,
+        );
         list.render(area, buf, &mut state);
     }
 }

@@ -6,7 +6,7 @@ use ratatui::layout::Rect;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, Borders, Padding, Paragraph, StatefulWidget, Widget};
 use theme::Theme;
-use tui_widget_list::List;
+use tui_widget_list::{ListBuilder, ListView};
 
 /// The page where to select services and methods.
 pub struct SelectionPage<'a> {
@@ -57,11 +57,7 @@ impl Widget for SelectionPage<'_> {
             .padding(Padding::new(1, 1, 1, 1));
 
         // Services
-        let services = self
-            .model
-            .services()
-            .into_iter()
-            .map(|service| ListItem::new(service.clone()));
+        let services = self.model.services();
         let services_state = &mut self.model.services_state;
         let mut services_block = block
             .clone()
@@ -75,11 +71,25 @@ impl Widget for SelectionPage<'_> {
                 .border_style(theme.border.border.1)
                 .border_type(theme.border.border_type.1);
         }
-        List::new(services.collect()).block(services_block).render(
-            svc_content,
-            buf,
-            services_state,
-        );
+
+        let item_count = services.len();
+        let builder = ListBuilder::new(move |context| {
+            let theme = Theme::global();
+            let title = &services[context.index];
+            let mut widget = ListItem::new(title.to_string());
+
+            if context.is_selected {
+                widget.prefix = Some(">");
+                widget.style = theme.list.focused;
+            } else {
+                widget.style = theme.list.text;
+            }
+            (widget, 1)
+        });
+
+        ListView::new(builder, item_count)
+            .block(services_block)
+            .render(svc_content, buf, services_state);
 
         // Search line for services
         if show_services_search == 1 {
@@ -88,11 +98,7 @@ impl Widget for SelectionPage<'_> {
         }
 
         // Methods
-        let methods = self
-            .model
-            .methods()
-            .into_iter()
-            .map(|method| ListItem::new(method.clone()));
+        let methods = self.model.methods();
         let methods_state = &mut self.model.methods_state;
         let mut methods_block = block
             .clone()
@@ -100,13 +106,30 @@ impl Widget for SelectionPage<'_> {
             .title_style(theme.border.text.0)
             .border_style(theme.border.border.0)
             .border_type(theme.border.border_type.0);
+
         if [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab) {
             methods_block = methods_block
                 .title_style(theme.border.text.1)
                 .border_style(theme.border.border.1)
                 .border_type(theme.border.border_type.1);
         }
-        List::new(methods.collect())
+
+        let item_count = methods.len();
+        let builder = ListBuilder::new(move |context| {
+            let theme = Theme::global();
+            let title = &methods[context.index];
+            let mut widget = ListItem::new(title.to_string());
+
+            if context.is_selected {
+                widget.prefix = Some(">>");
+                widget.style = theme.list.focused;
+            } else {
+                widget.style = theme.list.text;
+            }
+            (widget, 1)
+        });
+
+        ListView::new(builder, item_count)
             .block(methods_block)
             .render(mtd_content, buf, methods_state);
 

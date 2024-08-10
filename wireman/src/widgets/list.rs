@@ -1,6 +1,4 @@
 use ratatui::prelude::*;
-use theme::Theme;
-use tui_widget_list::{PreRender, PreRenderContext};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ListItem<'a> {
@@ -24,24 +22,6 @@ impl<'a> ListItem<'a> {
             style: Style::default(),
             prefix: None,
         }
-    }
-}
-impl PreRender for ListItem<'_> {
-    fn pre_render(&mut self, context: &PreRenderContext) -> u16
-    where
-        Self: Sized,
-    {
-        let theme = Theme::global();
-        let main_axis_size = 1;
-
-        if context.is_selected {
-            self.prefix = Some(">>");
-            self.style = theme.list.focused;
-        } else {
-            self.style = theme.list.text;
-        }
-
-        main_axis_size
     }
 }
 
