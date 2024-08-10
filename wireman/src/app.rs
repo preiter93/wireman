@@ -60,8 +60,12 @@ impl App {
     async fn handle_events(&mut self) -> Result<()> {
         select! {
             crossterm_event = self.crossterm_stream.next() => {
-                if let Some(Ok(Event::Key(event))) = crossterm_event {
-                     self.handle_crossterm_event(event);
+                if let Some(Ok(event)) = crossterm_event {
+                    match event {
+                        Event::Key(event) => self.handle_crossterm_key_event(event),
+                        Event::Mouse(event) => self.handle_crossterm_mouse_event(event),
+                        _ => (),
+                    }
                  }
             },
             internal_event = self.internal_stream.rx.recv() =>{

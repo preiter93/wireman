@@ -3,6 +3,7 @@ pub mod key_event;
 use std::collections::HashMap;
 use std::fmt::Display;
 
+use ::crossterm::event::MouseEvent;
 pub use key_event::KeyCode;
 pub use key_event::KeyEvent;
 pub use key_event::{KeyModifier, KeyModifiers};
@@ -29,6 +30,12 @@ pub trait EventHandler {
     /// registering any specific handling logic.
     fn pass_through_key_events(_: &KeyEvent, _: &mut Self::Context) {}
 
+    /// Passes through key events without any specific handling.
+    ///
+    /// This method is optional and can be used to simply pass through character events without
+    /// registering any specific handling logic.
+    fn pass_through_mouse_events(_: &MouseEvent, _: &mut Self::Context) {}
+
     /// Retrieves the key event mappings to their corresponding application events.
     ///
     /// Returns a map of key events to application events.
@@ -39,15 +46,26 @@ pub trait EventHandler {
     /// # Arguments
     ///
     /// * `ctx` - The context in which the key event is handled.
-    /// * `key_event` - The key event to handle.
-    fn handle_key_event<T: Into<KeyEvent>>(ctx: &mut Self::Context, key_event: T) {
+    /// * `event` - The key event to handle.
+    fn handle_key_event<T: Into<KeyEvent>>(ctx: &mut Self::Context, event: T) {
         let mappings = Self::key_event_mappings(ctx);
-        let key_event = key_event.into();
-        if let Some(item) = mappings.iter().find(|item| item.0 == key_event) {
+        let event = event.into();
+        if let Some(item) = mappings.iter().find(|item| item.0 == event) {
             Self::handle_event(&item.1, ctx);
         } else {
-            Self::pass_through_key_events(&key_event, ctx);
+            Self::pass_through_key_events(&event, ctx);
         }
+    }
+
+    /// Handles a mouse event by dispatching it to the corresponding application event handler.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context in which the key event is handled.
+    /// * `event` - The mouse event to handle.
+    fn handle_mouse_event<T: Into<MouseEvent>>(ctx: &mut Self::Context, event: T) {
+        let event = event.into();
+        Self::pass_through_mouse_events(&event, ctx);
     }
 
     /// Converts the key event mappings into a vector of string representations, i.e.

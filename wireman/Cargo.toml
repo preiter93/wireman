@@ -19,8 +19,9 @@ tui-widget-list = { version = "0.11.0" }
 # tui-widget-list = { git = "https://github.com/preiter93/tui-widget-list.git", branch = "v0.9" }
 # tui-widget-list = { path = "../../tui-widget-list", version = "0.9.0"}
 tui-key-event-handler = { package = "tui-key-event-handler", path = "../tui-key-event-handler", version = "0.1.0" }
-edtui = "0.5"
-# edtui = { version = "0.3.3", path = "../../edtui" }
+# edtui = "0.5"
+# edtui = { version = "0.6", path = "../../edtui" }
+edtui = { package = "edtui", version = "0.6", git = "https://github.com/preiter93/edtui.git" }
 crossterm = { version = "0.27", features = ["events", "event-stream"] }
 ratatui = "0.27"
 serde = { version = "1.0", features = ["derive"] }
