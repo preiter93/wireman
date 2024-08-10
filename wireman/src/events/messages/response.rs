@@ -1,4 +1,5 @@
 use crate::context::{AppContext, MessagesTab};
+use crossterm::event::MouseEvent;
 use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -80,5 +81,10 @@ impl EventHandler for ResponseEventHandler {
         let response = &mut ctx.messages.borrow_mut().response.editor;
         response.on_key(key_event.clone().into());
         ctx.disable_root_events = !response.normal_mode();
+    }
+
+    fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        let editor = &mut ctx.messages.borrow_mut().response.editor;
+        editor.on_mouse(event.clone().into());
     }
 }

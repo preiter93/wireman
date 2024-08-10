@@ -1,9 +1,11 @@
 use arboard::Clipboard;
+use crossterm::event::MouseEvent;
 use crossterm::event::{KeyCode, KeyEvent};
 use edtui::{
     actions::{Execute, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorInput, EditorMode, EditorState, EditorTheme, EditorView, Index2, Lines, RowIndex,
+    EditorInput, EditorMode, EditorMouse, EditorState, EditorTheme, EditorView, Index2, Lines,
+    RowIndex,
 };
 use once_cell::sync::Lazy;
 use ratatui::{
@@ -182,20 +184,25 @@ impl TextEditor {
         }
     }
 
-    /// Key bindings in normal mode
+    /// Handle key events.
     pub fn on_key(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Tab | KeyCode::BackTab if self.single_line && self.insert_mode() => {
                 SwitchMode(EditorMode::Normal).execute(&mut self.state);
             }
             _ => {
-                self.input.on_key(key, &mut self.state);
+                self.input.on_event(key, &mut self.state);
             }
         }
 
         if self.single_line {
             self.truncate_first_line();
         }
+    }
+    /// Handle mouse events.
+    pub fn on_mouse(&mut self, event: MouseEvent) {
+        let mouse = EditorMouse::default();
+        mouse.on_event(event, &mut self.state)
     }
 }
 

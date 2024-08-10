@@ -6,7 +6,7 @@ use std::fmt::Display;
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{do_request, RequestResult};
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 pub(crate) use selection::services::ServicesSelectionEventsHandler;
@@ -34,7 +34,7 @@ impl InternalStream {
 }
 
 impl App {
-    pub(crate) fn handle_crossterm_event(&mut self, event: KeyEvent) {
+    pub(crate) fn handle_crossterm_key_event(&mut self, event: KeyEvent) {
         let sx = self.internal_stream.sx.clone();
         match event.code {
             KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
@@ -96,6 +96,7 @@ impl App {
                 }
             }
         }
+
         // Dispatch the grpc request in a seperate thread.
         if self.ctx.messages.borrow().dispatch {
             let mut messages_model = self.ctx.messages.borrow_mut();
@@ -113,6 +114,19 @@ impl App {
                     messages_model.response.set_error(err);
                 }
             }
+        }
+    }
+
+    pub(crate) fn handle_crossterm_mouse_event(&mut self, event: MouseEvent) {
+        if self.ctx.tab == Tab::Messages {
+            match self.ctx.messages_tab {
+                MessagesTab::Request => {
+                    RequestEventHandler::handle_mouse_event(&mut self.ctx, event)
+                }
+                MessagesTab::Response => {
+                    ResponseEventHandler::handle_mouse_event(&mut self.ctx, event)
+                }
+            };
         }
     }
 

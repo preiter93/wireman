@@ -1,4 +1,5 @@
 use crate::context::{AppContext, MessagesTab};
+use crossterm::event::MouseEvent;
 use std::fmt;
 use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -168,9 +169,14 @@ impl EventHandler for RequestEventHandler {
         map
     }
 
-    fn pass_through_key_events(key_event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events(event: &KeyEvent, ctx: &mut Self::Context) {
         let request = &mut ctx.messages.borrow_mut().request.editor;
-        request.on_key(key_event.clone().into());
+        request.on_key(event.clone().into());
         ctx.disable_root_events = !request.normal_mode();
+    }
+
+    fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        let editor = &mut ctx.messages.borrow_mut().request.editor;
+        editor.on_mouse(event.clone().into());
     }
 }
