@@ -1,11 +1,11 @@
 use arboard::Clipboard;
 use crossterm::event::MouseEvent;
 use crossterm::event::{KeyCode, KeyEvent};
+use edtui::EditorEventHandler;
 use edtui::{
     actions::{Execute, SwitchMode},
     clipboard::ClipboardTrait,
-    EditorInput, EditorMode, EditorMouse, EditorState, EditorTheme, EditorView, Index2, Lines,
-    RowIndex,
+    EditorMode, EditorState, EditorTheme, EditorView, Index2, Lines, RowIndex,
 };
 use once_cell::sync::Lazy;
 use ratatui::{
@@ -23,7 +23,7 @@ pub struct TextEditor {
     pub state: EditorState,
 
     /// The input register
-    input: EditorInput,
+    handler: EditorEventHandler,
 
     /// Error buffer
     error: Option<ErrorKind>,
@@ -48,7 +48,7 @@ impl TextEditor {
         state.set_clipboard(Lazy::force(&CLIPBOARD));
         Self {
             state,
-            input: EditorInput::default(),
+            handler: EditorEventHandler::default(),
             error: None,
             focus: false,
             single_line: false,
@@ -60,7 +60,7 @@ impl TextEditor {
         state.set_clipboard(Lazy::force(&CLIPBOARD));
         Self {
             state,
-            input: EditorInput::default(),
+            handler: EditorEventHandler::default(),
             error: None,
             focus: false,
             single_line: true,
@@ -191,7 +191,7 @@ impl TextEditor {
                 SwitchMode(EditorMode::Normal).execute(&mut self.state);
             }
             _ => {
-                self.input.on_event(key, &mut self.state);
+                self.handler.on_key_event(key, &mut self.state);
             }
         }
 
@@ -201,8 +201,7 @@ impl TextEditor {
     }
     /// Handle mouse events.
     pub fn on_mouse(&mut self, event: MouseEvent) {
-        let mouse = EditorMouse::default();
-        mouse.on_event(event, &mut self.state);
+        self.handler.on_mouse_event(event, &mut self.state);
     }
 }
 
