@@ -5,11 +5,8 @@ edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Theme for wireman"
 repository = "https://github.com/preiter93/wireman"
-keywords = ["gRPC", "proto", "TUI"]
-readme = "README.md"
+keywords = ["wireman", "theme"]
 license = "MIT"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 cssparser = "0.33.0"
