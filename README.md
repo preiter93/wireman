@@ -24,6 +24,14 @@ This guide will walk you through the steps to set up and run WireMan.
 
 ## Installation
 
+### Install with cargo
+
+```
+cargo install wireman
+```
+
+### Install manually
+
 1. Clone the repository:
 
     ```bash
