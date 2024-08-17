@@ -7,12 +7,12 @@ use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{do_request, RequestResult};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use event_handler::EventHandler;
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 pub(crate) use selection::services::ServicesSelectionEventsHandler;
 pub(crate) use selection::services_search::ServicesSearchEventsHandler;
 use tokio::sync::mpsc::{self, Receiver, Sender};
-use tui_key_event_handler::EventHandler;
 
 use self::headers::HeadersEventHandler;
 use self::messages::request::RequestEventHandler;

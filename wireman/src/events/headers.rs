@@ -1,6 +1,6 @@
 use crate::{context::AppContext, model::headers::HeadersTab, widgets::editor::TextEditor};
+use event_handler::{EventHandler, KeyCode, KeyEvent};
 use std::fmt;
-use tui_key_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeadersEvents {

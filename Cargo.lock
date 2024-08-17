@@ -2276,14 +2276,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
-name = "tui-key-event-handler"
-version = "0.1.0"
-dependencies = [
- "crossterm",
- "serde",
-]
-
-[[package]]
 name = "tui-widget-list"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2626,11 +2618,11 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "tui-key-event-handler",
  "tui-widget-list",
  "unicode-width",
  "wireman-config",
  "wireman-core",
+ "wireman-event-handler",
  "wireman-logger",
  "wireman-theme",
 ]
@@ -2668,6 +2660,14 @@ dependencies = [
  "tokio",
  "tonic",
  "webpki-roots",
+]
+
+[[package]]
+name = "wireman-event-handler"
+version = "0.1.0"
+dependencies = [
+ "crossterm",
+ "serde",
 ]
 
 [[package]]
