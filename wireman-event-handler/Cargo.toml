@@ -1,5 +1,5 @@
 [package]
-name = "tui-key-event-handler"
+name = "wireman-event-handler"
 version = "0.1.0"
 edition = "2021"
 

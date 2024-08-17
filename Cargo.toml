@@ -6,7 +6,7 @@ members = [
     "wireman-logger",
     "wireman-theme",
     "wireman",
-    "tui-key-event-handler",
+    "wireman-event-handler",
 ]
 
 default-members = ["wireman"]
