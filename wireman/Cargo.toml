@@ -5,23 +5,26 @@ edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
 repository = "https://github.com/preiter93/wireman"
-keywords = ["gRPC", "proto", "TUI"]
+keywords = ["wiream", "ratatui", "grpc", "client", "app"]
 readme = "README.md"
 license = "MIT"
 rust-version = "1.70.0"
 
 [dependencies]
-core = { package = "wireman-core", path = "../wireman-core", version = "0.1.0" }
-config = { package = "wireman-config", path = "../wireman-config", version = "0.1.0" }
-logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
-theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
-event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.1.0" }
+# core = { package = "wireman-core", path = "../wireman-core", version = "0.1.0" }
+# config = { package = "wireman-config", path = "../wireman-config", version = "0.1.0" }
+# logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
+# theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
+# event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.1.0" }
+
+core = { package = "wireman-core", version = "0.1.0" }
+config = { package = "wireman-config", version = "0.1.0" }
+logger = { package = "wireman-logger", version = "0.1.0" }
+theme = { package = "wireman-theme", version = "0.1.0" }
+event-handler = { package = "wireman-event-handler", version = "0.1.0" }
+
 tui-widget-list = { version = "0.12.0" }
-# tui-widget-list = { git = "https://github.com/preiter93/tui-widget-list.git", branch = "v0.9" }
-# tui-widget-list = { path = "../../tui-widget-list", version = "0.9.0"}
 edtui = "0.7"
-# edtui = { version = "0.7", path = "../../edtui" }
-# edtui = { package = "edtui", version = "0.7", git = "https://github.com/preiter93/edtui.git" }
 crossterm = { version = "0.28", features = ["events", "event-stream"] }
 ratatui = "0.28"
 serde = { version = "1.0", features = ["derive"] }
