@@ -2,11 +2,10 @@
 name = "wireman-logger"
 version = "0.1.0"
 edition = "2021"
-authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Logger for wireman"
+authors = ["preiter <phil.reiter93@gmail.com>"]
 repository = "https://github.com/preiter93/wireman"
-keywords = ["gRPC", "proto", "TUI"]
-readme = "README.md"
+keywords = ["wireman", "logger"]
 license = "MIT"
 
 [dependencies]
