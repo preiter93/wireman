@@ -217,7 +217,7 @@ pub fn default_text_disabled_color() -> Color {
 }
 
 pub fn default_help_dialog_background_color() -> Color {
-    MAGENTA
+    GREEN
 }
 
 #[derive(Debug, Deserialize, Default)]
