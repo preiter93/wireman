@@ -1,6 +1,6 @@
 [package]
 name = "wireman"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
@@ -11,17 +11,17 @@ license = "MIT"
 rust-version = "1.70.0"
 
 [dependencies]
-core = { package = "wireman-core", path = "../wireman-core", version = "0.1.0" }
-config = { package = "wireman-config", path = "../wireman-config", version = "0.1.0" }
-logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
-theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
-event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.1.0" }
+# core = { package = "wireman-core", path = "../wireman-core", version = "0.1.0" }
+# config = { package = "wireman-config", path = "../wireman-config", version = "0.1.0" }
+# logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
+# theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.1.0" }
+# event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.1.0" }
 
-# core = { package = "wireman-core", version = "0.1.0" }
-# config = { package = "wireman-config", version = "0.1.0" }
-# logger = { package = "wireman-logger", version = "0.1.0" }
-# theme = { package = "wireman-theme", version = "0.1.0" }
-# event-handler = { package = "wireman-event-handler", version = "0.1.0" }
+core = { package = "wireman-core", version = "0.1" }
+config = { package = "wireman-config", version = "0.1" }
+logger = { package = "wireman-logger", version = "0.1" }
+theme = { package = "wireman-theme", version = "0.1" }
+event-handler = { package = "wireman-event-handler", version = "0.1" }
 
 tui-widget-list = { version = "0.12.0" }
 edtui = "0.7"
