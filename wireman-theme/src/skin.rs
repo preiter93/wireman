@@ -39,7 +39,9 @@ impl Skin {
         let fc = self.base.foreground;
         let bc = self.base.background;
         let hc = default_highlight_color();
+        let hc2 = secondary_highlight_color();
         let dc = default_text_disabled_color();
+        let title_fg = default_title_color();
 
         // Base
         theme.base.style = theme.base.style.fg(fc.0).bg(bc.0);
@@ -52,27 +54,27 @@ impl Skin {
         set_fg_bg!(theme.border.border.1, focused, fc, bc);
 
         // Navbar
-        set_fg_bg!(theme.navbar.title, self.navbar.title, hc, bc);
+        set_fg_bg!(theme.navbar.title, self.navbar.title, title_fg, bc);
         let title = self.navbar.title.as_ref();
         if title.and_then(|x| x.bold).unwrap_or(true) {
             theme.navbar.title = theme.navbar.title.bold();
         }
-        set_focusable!(theme.navbar.tabs, self.navbar.tabs, fc, bc, bc, hc);
+        set_focusable!(theme.navbar.tabs, self.navbar.tabs, fc, bc, bc, hc2);
 
         // List
         set_fg_bg!(theme.list.text, self.list.unfocused, fc, bc);
-        set_fg_bg!(theme.list.focused, self.list.focused, bc, fc);
+        set_fg_bg!(theme.list.focused, self.list.focused, bc, hc);
 
         // Editor
         set_fg_bg!(theme.editor.text, self.editor.text, fc, bc);
         set_fg_bg!(theme.editor.cursor, self.editor.cursor, bc, fc);
-        set_fg_bg!(theme.editor.selection, self.editor.selection, bc, fc);
+        set_fg_bg!(theme.editor.selection, self.editor.selection, bc, hc);
         let (sc1, sc2) = default_editor_status_line_colors();
         let status_line = self.editor.status_line.as_ref();
         set_fg_bg!(
             theme.editor.status_text,
             status_line.and_then(|x| x.primary.as_ref()),
-            fc,
+            bc,
             sc1
         );
 
@@ -96,14 +98,16 @@ impl Skin {
         set_focusable!(theme.history.active, active, hc, bc, bc, hc);
 
         // Headers
-        set_fg_bg!(theme.headers.titles, self.headers.titles, hc, bc);
-        set_focusable!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, fc);
+        set_fg_bg!(theme.headers.titles, self.headers.titles, title_fg, bc);
+        set_focusable!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, hc);
 
         // Footer
         set_fg_bg!(theme.footer.tabs, self.footer.tabs, bc, dc);
         set_fg_bg!(theme.footer.text, self.footer.text, dc, bc);
         if let Some(hide_footer) = self.footer.hide {
             theme.footer.hide = hide_footer;
+        } else {
+            theme.footer.hide = true;
         }
 
         // Help dialog
@@ -185,7 +189,7 @@ pub(crate) struct HelpDialog {
 }
 
 pub fn default_background_color() -> Color {
-    SLATE_BLUE
+    DARK_BLUE
 }
 
 pub fn default_foreground_color() -> Color {
@@ -193,11 +197,19 @@ pub fn default_foreground_color() -> Color {
 }
 
 pub fn default_highlight_color() -> Color {
-    LIGHT_PURPLE
+    ORANGE
+}
+
+pub fn secondary_highlight_color() -> Color {
+    GREEN
+}
+
+pub fn default_title_color() -> Color {
+    MAGENTA
 }
 
 pub fn default_editor_status_line_colors() -> (Color, Color) {
-    (LIGHT_PURPLE, PURPLE)
+    (GREEN, DARK_BLUE)
 }
 
 pub fn default_text_disabled_color() -> Color {
@@ -205,7 +217,7 @@ pub fn default_text_disabled_color() -> Color {
 }
 
 pub fn default_help_dialog_background_color() -> Color {
-    BLACK
+    MAGENTA
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -235,13 +247,12 @@ pub(crate) struct StatusLine {
     pub hide: Option<bool>,
 }
 
-const SLATE_BLUE: Color = Color::rgb(15, 23, 42);
-// const SLATE_WHITE: Color = Color::rgb(241, 245, 249);
-const WHITE: Color = Color::rgb(255, 255, 255);
-const LIGHT_PURPLE: Color = Color::rgb(160, 76, 186);
-const PURPLE: Color = Color::rgb(120, 5, 156);
-const GRAY: Color = Color::rgb(71, 85, 105);
-const BLACK: Color = Color::rgb(2, 6, 23);
+const WHITE: Color = Color::rgb(241, 245, 249);
+const GRAY: Color = Color::rgb(68, 71, 90);
+const DARK_BLUE: Color = Color::rgb(2, 6, 23);
+const ORANGE: Color = Color::rgb(255, 153, 0);
+const MAGENTA: Color = Color::rgb(255, 51, 204);
+const GREEN: Color = Color::rgb(0, 204, 102);
 
 pub(crate) mod macros {
     #[macro_export]

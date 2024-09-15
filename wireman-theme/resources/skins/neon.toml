@@ -37,7 +37,7 @@ background = "#020617"
 
 [history.inactive.focused]
 foreground = "#020617"
-background = "#f1f5f9"
+background = "#44475a"
 
 [history.active.unfocused]
 foreground = "#ff9900"
@@ -58,25 +58,17 @@ background = "#ff9900"
 
 [editor.selection]
 foreground = "#020617"
-background = "#ff33cc"
+background = "#ff9900"
 
 [editor.status_line]
 bold = true
 
 [editor.status_line.primary]
 foreground = "#020617"
-background = "#ff9900"
+background = "#00cc66"
 
 [editor.status_line.secondary]
 background = "#020617"
 
-
-
 [footer]
 hide = true
-# [footer.tabs]
-# background = "#6272A4"
-# [footer.text]
-# foreground = "#44475A"
-
-
