@@ -227,20 +227,19 @@ impl EventHandler for HeadersEventHandler {
             HeadersTab::Meta => {
                 if let Some(input) = ctx.headers.borrow_mut().selected_editor_mut() {
                     input.on_key(key_event.clone().into());
+                    ctx.disable_root_events = !(input.normal_mode());
                 }
             }
             HeadersTab::Addr => {
-                ctx.headers
-                    .borrow_mut()
-                    .addr
-                    .on_key(key_event.clone().into());
+                let input = &mut ctx.headers.borrow_mut().addr;
+                input.on_key(key_event.clone().into());
+                ctx.disable_root_events = !(input.normal_mode());
             }
             HeadersTab::Auth => {
-                ctx.headers
-                    .borrow_mut()
-                    .auth
-                    .selected_editor_mut()
-                    .on_key(key_event.clone().into());
+                let mut headers = ctx.headers.borrow_mut();
+                let input = headers.auth.selected_editor_mut();
+                input.on_key(key_event.clone().into());
+                ctx.disable_root_events = !(input.normal_mode());
             }
             HeadersTab::None => (),
         }

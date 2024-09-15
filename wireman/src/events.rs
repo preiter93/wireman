@@ -56,13 +56,13 @@ impl App {
                     Tab::Selection => match self.ctx.selection_tab {
                         SelectionTab::Services => {
                             ServicesSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
-                            if event.code == HELP_KEY {
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, ServicesSelectionEventsHandler);
                             }
                         }
                         SelectionTab::Methods => {
                             MethodsSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
-                            if event.code == HELP_KEY {
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, MethodsSelectionEventsHandler);
                             }
                         }
@@ -75,20 +75,20 @@ impl App {
                     },
                     Tab::Headers => {
                         HeadersEventHandler::handle_key_event(&mut self.ctx, event);
-                        if event.code == HELP_KEY {
+                        if event.code == HELP_KEY && !self.ctx.disable_root_events {
                             Self::toggle_help(&mut self.ctx, HeadersEventHandler);
                         }
                     }
                     Tab::Messages => match self.ctx.messages_tab {
                         MessagesTab::Request => {
                             RequestEventHandler::handle_key_event(&mut self.ctx, event);
-                            if event.code == HELP_KEY {
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, RequestEventHandler);
                             }
                         }
                         MessagesTab::Response => {
                             ResponseEventHandler::handle_key_event(&mut self.ctx, event);
-                            if event.code == HELP_KEY {
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, ResponseEventHandler);
                             }
                         }
