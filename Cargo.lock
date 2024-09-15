@@ -2635,11 +2635,11 @@ dependencies = [
  "tokio",
  "tui-widget-list",
  "unicode-width",
- "wireman-config",
- "wireman-core",
- "wireman-event-handler",
- "wireman-logger",
- "wireman-theme",
+ "wireman-config 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-core 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2651,13 +2651,52 @@ dependencies = [
  "shellexpand",
  "thiserror",
  "toml",
- "wireman-logger",
- "wireman-theme",
+ "wireman-logger 0.1.0",
+ "wireman-theme 0.1.1",
+]
+
+[[package]]
+name = "wireman-config"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae4c07c85cb7ce6266e2171dbd37bcc58593bd3a85e85ed513485ce1535a8315"
+dependencies = [
+ "clap",
+ "serde",
+ "shellexpand",
+ "thiserror",
+ "toml",
+ "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "wireman-core"
 version = "0.1.0"
+dependencies = [
+ "http",
+ "hyper",
+ "hyper-rustls",
+ "prost",
+ "prost-build",
+ "prost-reflect",
+ "prost-types",
+ "protox",
+ "rustls",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tonic",
+ "webpki-roots",
+]
+
+[[package]]
+name = "wireman-core"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7b1c3af7440224fae63d4f891ed18dc4bb17f14982d51aeb9870781bc331a93"
 dependencies = [
  "http",
  "hyper",
@@ -2686,8 +2725,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "wireman-event-handler"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68e27c891b7f2ed7aab4f217a83003716edd654fb583966f2e4360becc4e1725"
+dependencies = [
+ "crossterm",
+ "serde",
+]
+
+[[package]]
 name = "wireman-logger"
 version = "0.1.0"
+dependencies = [
+ "chrono",
+ "once_cell",
+ "serde",
+]
+
+[[package]]
+name = "wireman-logger"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b6026faf8a1e47190fd1a746f37d9ca38159a99e0b9528a08779670732aabd3"
 dependencies = [
  "chrono",
  "once_cell",
@@ -2704,7 +2764,22 @@ dependencies = [
  "serde",
  "shellexpand",
  "toml",
- "wireman-logger",
+ "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wireman-theme"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2d70389c235af278ac7a1b1aa4937e4aa76daf04ea8d38a8b7ca90c3dce729a"
+dependencies = [
+ "cssparser",
+ "once_cell",
+ "ratatui",
+ "serde",
+ "shellexpand",
+ "toml",
+ "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
