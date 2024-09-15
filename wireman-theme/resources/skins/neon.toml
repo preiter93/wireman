@@ -1,0 +1,82 @@
+# black #020617
+# white #f1f5f9
+# gray: #44475a
+# neon-magenta: #ff33cc
+# neon-green: #00cc66
+# neon-orange: #ff9900
+
+[base]
+background = "#020617"
+foreground = "#f1f5f9"
+
+[border.text.unfocused]
+foreground = "#f1f5f9"
+
+[border.text.focused]
+foreground = "#f1f5f9"
+
+[navbar.title]
+foreground = "#ff33cc"
+bold = true
+
+[navbar.tabs.unfocused]
+foreground = "#f1f5f9"
+background = "#020617"
+
+[navbar.tabs.focused]
+foreground = "#020617"
+background = "#00cc66"
+
+[list.focused]
+foreground = "#020617"
+background = "#ff9900"
+
+[history.inactive.unfocused]
+foreground = "#44475a"
+background = "#020617"
+
+[history.inactive.focused]
+foreground = "#020617"
+background = "#f1f5f9"
+
+[history.active.unfocused]
+foreground = "#ff9900"
+background = "#020617"
+
+[history.active.focused]
+foreground = "#020617"
+background = "#ff9900"
+
+[headers.titles]
+foreground = "#f1f5f9"
+background = "#020617"
+bold = true
+
+[headers.tabs.focused]
+foreground = "#020617"
+background = "#ff9900"
+
+[editor.selection]
+foreground = "#020617"
+background = "#ff33cc"
+
+[editor.status_line]
+bold = true
+
+[editor.status_line.primary]
+foreground = "#020617"
+background = "#ff9900"
+
+[editor.status_line.secondary]
+background = "#020617"
+
+
+
+[footer]
+hide = true
+# [footer.tabs]
+# background = "#6272A4"
+# [footer.text]
+# foreground = "#44475A"
+
+
