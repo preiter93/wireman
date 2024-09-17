@@ -1,6 +1,6 @@
 use std::error::Error;
 use wireman_core::{
-    client::call_unary_blocking,
+    client::{call_unary_blocking, tls::TlsConfig},
     descriptor::{RequestMessage, ResponseMessage},
     ProtoDescriptor,
 };
@@ -27,6 +27,7 @@ fn main() -> Result<()> {
 }
 
 pub fn do_request(req: &RequestMessage) -> Result<ResponseMessage> {
-    let resp = call_unary_blocking(req)?;
+    let tls_config = TlsConfig::native()?;
+    let resp = call_unary_blocking(req, Some(tls_config))?;
     Ok(resp)
 }

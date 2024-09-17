@@ -8,6 +8,7 @@ use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::Result;
 use tls::TlsConfig;
+// use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
@@ -21,20 +22,18 @@ pub struct GrpcClient {
 impl GrpcClient {
     /// Returns a new Grpc Client. if no tls is given, the standard tonic
     /// client is used.
-    pub fn new<T: Into<Uri>>(uri: T, tls: Option<TlsConfig>) -> Self {
+    pub fn new<T: Into<Uri>>(uri: T, tls_config: Option<TlsConfig>) -> Result<Self> {
         let builder = Channel::builder(uri.into());
-        let channel = if let Some(tls) = tls {
-            // Build a channel with custom tls settings
-            let connector = tls.get_connector_from_tls();
-            builder.connect_with_connector_lazy(connector)
+
+        let channel = if let Some(tls_config) = tls_config {
+            builder.tls_config(tls_config.0)?.connect_lazy()
         } else {
-            // The standard tonic channel
             builder.connect_lazy()
         };
 
-        GrpcClient {
+        Ok(GrpcClient {
             grpc: Grpc::new(channel),
-        }
+        })
     }
 
     /// Make a unary `gRPC` call from the client.
@@ -57,12 +56,15 @@ impl GrpcClient {
 ///
 /// # Errors
 /// - Internal error calling the `gRPC` server
-pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
+pub fn call_unary_blocking(
+    req: &RequestMessage,
+    tls_config: Option<TlsConfig>,
+) -> Result<ResponseMessage> {
     let rt = create_runtime()?;
     let uri = Uri::try_from(req.address())
         .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
     let future = async move {
-        let mut client = GrpcClient::new(uri, None);
+        let mut client = GrpcClient::new(uri, tls_config)?;
         let response = client.unary(req).await?;
         Ok(response)
     };
@@ -79,10 +81,13 @@ pub fn call_unary_blocking(req: &RequestMessage) -> Result<ResponseMessage> {
 ///
 /// # Errors
 /// - Internal error calling the `gRPC` server
-pub async fn call_unary_async(req: &RequestMessage) -> Result<ResponseMessage> {
+pub async fn call_unary_async(
+    req: &RequestMessage,
+    tls_config: Option<TlsConfig>,
+) -> Result<ResponseMessage> {
     let uri = Uri::try_from(req.address())
         .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
-    let mut client = GrpcClient::new(uri, None);
+    let mut client = GrpcClient::new(uri, tls_config)?;
     client.unary(req).await
 }
 

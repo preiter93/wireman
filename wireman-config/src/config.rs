@@ -85,7 +85,6 @@ impl Config {
     }
 }
 
-/// The TLS config of the grpc client.
 /// The config for the server values of the grpc client.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct ServerConfig {
