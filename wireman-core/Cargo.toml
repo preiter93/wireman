@@ -1,6 +1,6 @@
 [package]
 name = "wireman-core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Core for wireman"
@@ -43,3 +43,6 @@ features = ["client", "http2"]
 [dependencies.hyper-rustls]
 version = "0.25.0"
 features = ["default", "http2"]
+
+[[example]]
+name = "list"
