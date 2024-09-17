@@ -192,15 +192,23 @@ impl LoggingConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct TlsConfig {
-    /// Custom certificates
+    use_native: Option<bool>,
     custom_cert: Option<String>,
 }
 
 impl TlsConfig {
-    /// Instantiate a `TlsConfig`
-    #[must_use]
-    pub fn new(custom_cert: Option<String>) -> Self {
-        Self { custom_cert }
+    pub fn new(use_native: bool) -> Self {
+        Self {
+            use_native: Some(use_native),
+            custom_cert: None,
+        }
+    }
+
+    pub fn custom(custom: &str) -> Self {
+        Self {
+            use_native: None,
+            custom_cert: Some(custom.to_string()),
+        }
     }
 }
 
@@ -235,7 +243,7 @@ mod test {
         let expected = Config {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
-            tls: TlsConfig::new(Some("cert.pem".to_string())),
+            tls: TlsConfig::custom("cert.pem"),
             server: ServerConfig::new("http://localhost:50051"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
