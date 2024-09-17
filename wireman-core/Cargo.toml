@@ -12,9 +12,9 @@ license = "MIT"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
-prost = "0.12"
-prost-build = "0.12"
-prost-types = "0.12"
+prost = "0.13"
+prost-build = "0.13"
+prost-types = "0.13"
 protox = "0.6"
 http = "1"
 
