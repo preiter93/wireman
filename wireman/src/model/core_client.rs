@@ -75,7 +75,12 @@ impl CoreClient {
     pub fn get_tls_config(&self) -> Option<TlsConfig> {
         let tls_config = self.grpc.0.tls.clone();
         match (tls_config.use_native, tls_config.custom_cert) {
-            (Some(use_native), _) if use_native => Some(TlsConfig::native().unwrap()),
+            (Some(use_native), _) => {
+                if use_native {
+                    return Some(TlsConfig::native().unwrap());
+                }
+                None
+            }
             (None, Some(custom)) => Some(TlsConfig::custom(custom).unwrap()),
             _ => TlsConfig::native().ok(),
         }
