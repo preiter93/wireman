@@ -1,7 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
-use core::{descriptor::RequestMessage, MethodDescriptor};
+use core::{client::tls::TlsConfig, descriptor::RequestMessage, MethodDescriptor};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use tokio::task::JoinHandle;
 
@@ -226,8 +226,8 @@ impl MessagesModel {
 }
 
 /// Make a grpc call and set response or error.
-pub async fn do_request(req: RequestMessage) -> RequestResult {
-    let resp = CoreClient::call_unary_async(&req).await;
+pub async fn do_request(req: RequestMessage, tls: Option<TlsConfig>) -> RequestResult {
+    let resp = CoreClient::call_unary_async(&req, tls).await;
 
     match resp {
         Ok(resp) => {
@@ -278,7 +278,7 @@ impl RequestResult {
 #[derive(Clone)]
 pub struct RequestModel {
     /// The core client retrieves default proto message and making grpc calls.
-    core_client: Rc<RefCell<CoreClient>>,
+    pub core_client: Rc<RefCell<CoreClient>>,
 
     /// The currently active editor
     pub editor: TextEditor,

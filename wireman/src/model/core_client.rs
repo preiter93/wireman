@@ -1,6 +1,7 @@
 use crate::widgets::editor::ErrorKind;
 use config::Config;
 use core::{
+    client::tls::TlsConfig,
     descriptor::{RequestMessage, ResponseMessage},
     features::grpcurl,
     MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
@@ -65,21 +66,37 @@ impl CoreClient {
         req
     }
 
-    /// Returns the default address as defined in the config.json
+    /// Returns the default address as defined in the wireman.toml
     pub fn get_default_address(&self) -> String {
         self.grpc.0.server.default_address.clone()
     }
 
-    /// Makes a unary grpc call with a given Message and Method which is
-    /// defined in [`ProtoMessage`]
-    pub fn call_unary(req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
-        Ok(core::client::call_unary_blocking(req)?)
+    /// Returns the tls config.
+    pub fn get_tls_config(&self) -> Option<TlsConfig> {
+        let tls_config = self.grpc.0.tls.clone();
+        match (tls_config.use_native, tls_config.custom_cert) {
+            (Some(use_native), _) if use_native => Some(TlsConfig::native().unwrap()),
+            (None, Some(custom)) => Some(TlsConfig::custom(custom).unwrap()),
+            _ => TlsConfig::native().ok(),
+        }
     }
 
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in [`ProtoMessage`]
-    pub async fn call_unary_async(req: &RequestMessage) -> Result<ResponseMessage, ErrorKind> {
-        Ok(core::client::call_unary_async(req).await?)
+    pub fn call_unary(
+        req: &RequestMessage,
+        tls: Option<TlsConfig>,
+    ) -> Result<ResponseMessage, ErrorKind> {
+        Ok(core::client::call_unary_blocking(req, tls)?)
+    }
+
+    /// Makes a unary grpc call with a given Message and Method which is
+    /// defined in [`ProtoMessage`]
+    pub async fn call_unary_async(
+        req: &RequestMessage,
+        tls: Option<TlsConfig>,
+    ) -> Result<ResponseMessage, ErrorKind> {
+        Ok(core::client::call_unary_async(req, tls).await?)
     }
 
     /// Return a grpcurl request
