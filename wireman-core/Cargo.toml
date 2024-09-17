@@ -12,14 +12,15 @@ license = "MIT"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
-prost = "0.13"
-prost-build = "0.13"
-prost-types = "0.13"
-protox = "0.6"
-http = "1"
+
+[dependencies.http]
+version = "1"
+
+[dependencies.protox]
+version = "0.7"
 
 [dependencies.prost-reflect]
-version = "0.13"
+version = "0.14.2"
 features = ["serde", "text-format"]
 
 [dependencies.tokio]
