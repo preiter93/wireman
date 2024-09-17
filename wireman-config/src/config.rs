@@ -192,8 +192,8 @@ impl LoggingConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct TlsConfig {
-    use_native: Option<bool>,
-    custom_cert: Option<String>,
+    pub use_native: Option<bool>,
+    pub custom_cert: Option<String>,
 }
 
 impl TlsConfig {
