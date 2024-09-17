@@ -89,6 +89,7 @@ impl Widget for SelectionPage<'_> {
 
         ListView::new(builder, item_count)
             .block(services_block)
+            .scroll_padding(1)
             .render(svc_content, buf, services_state);
 
         // Search line for services
@@ -131,6 +132,7 @@ impl Widget for SelectionPage<'_> {
 
         ListView::new(builder, item_count)
             .block(methods_block)
+            .scroll_padding(1)
             .render(mtd_content, buf, methods_state);
 
         // Search line for methods
