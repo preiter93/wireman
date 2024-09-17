@@ -173,7 +173,7 @@ impl SelectionModel {
         if let Some(filter) = &self.services_filter {
             return services
                 .into_iter()
-                .filter(|service| service.starts_with(filter))
+                .filter(|service| service.to_lowercase().contains(&filter.to_lowercase()))
                 .collect();
         }
         services
@@ -184,7 +184,7 @@ impl SelectionModel {
         if let Some(filter) = &self.methods_filter {
             return methods
                 .into_iter()
-                .filter(|method| method.starts_with(filter))
+                .filter(|method| method.to_lowercase().contains(&filter.to_lowercase()))
                 .collect();
         }
         methods
