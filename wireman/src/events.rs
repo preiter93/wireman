@@ -100,11 +100,12 @@ impl App {
         // Dispatch the grpc request in a seperate thread.
         if self.ctx.messages.borrow().dispatch {
             let mut messages_model = self.ctx.messages.borrow_mut();
+            let tls = messages_model.request.core_client.borrow().get_tls_config();
             messages_model.dispatch = false;
             match messages_model.collect_request() {
                 Ok(req) => {
                     let handler = tokio::spawn(async move {
-                        let resp = do_request(req).await;
+                        let resp = do_request(req, tls).await;
                         let _ = sx.send(resp).await;
                     });
                     messages_model.handler = Some(handler);
