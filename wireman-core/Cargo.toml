@@ -16,8 +16,7 @@ prost = "0.12"
 prost-build = "0.12"
 prost-types = "0.12"
 protox = "0.6"
-http = "0.2"
-webpki-roots = "0.26"
+http = "1"
 
 [dependencies.prost-reflect]
 version = "0.13"
@@ -28,21 +27,8 @@ version = "1"
 features = ["rt-multi-thread", "sync", "fs"]
 
 [dependencies.tonic]
-version = "0.11"
-
-[dependencies.rustls]
-version = "0.22.0"
-
-[dependencies.rustls-pemfile]
-version = "2.0"
-
-[dependencies.hyper]
-version = "0.14"
-features = ["client", "http2"]
-
-[dependencies.hyper-rustls]
-version = "0.25.0"
-features = ["default", "http2"]
+version = "0.12"
+features = ["tls", "tls-webpki-roots"]
 
 [[example]]
 name = "metadata"
