@@ -1,5 +1,7 @@
 use crate::{
-    events::ServicesSelectionEventsHandler, model::headers::HeadersTab, widgets::editor::TextEditor,
+    events::ServicesSelectionEventsHandler,
+    model::{headers::HeadersTab, selection::SelectionMode},
+    widgets::editor::TextEditor,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -17,6 +19,7 @@ pub enum ReflectionDialogEvents {
 }
 
 pub enum ReflectionEvents {
+    CloseDialog,
     TriggerReflection,
 }
 
@@ -39,6 +42,13 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ReflectionEvents::TriggerReflection => {
                     ctx.reflection.borrow_mut().dispatch_reflection()
                 }
+                ReflectionEvents::CloseDialog => {
+                    ctx.reflection
+                        .borrow()
+                        .selection
+                        .borrow_mut()
+                        .selection_mode = SelectionMode::File
+                }
             },
         }
     }
@@ -58,6 +68,10 @@ impl EventHandler for ReflectionDialogEventHandler {
         let enable_prev_col = is_first_col;
         let mut map = Vec::new();
         map.extend([
+            (
+                KeyEvent::new(KeyCode::Esc),
+                ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::CloseDialog),
+            ),
             (
                 KeyEvent::new(KeyCode::Enter),
                 ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::TriggerReflection),
