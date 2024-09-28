@@ -45,11 +45,14 @@ impl ProtoDescriptor {
 
     /// Instantiates a `DescriptorPool` from a grpc server that supports
     /// reflection.
+    ///
+    /// # Errors
+    /// Errors if server reflection or dependency resolving fails.
     pub async fn reflect(host: &str) -> Result<Self> {
         let services = make_list_service_reflection_request(host).await?;
 
         let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();
-        for service in services.iter() {
+        for service in &services {
             if service.contains("ServerReflection") {
                 continue;
             }
@@ -63,7 +66,7 @@ impl ProtoDescriptor {
         };
 
         let pool = DescriptorPool::from_file_descriptor_set(file_descriptor_set)
-            .map_err(|e| Error::Internal(format!("err {:?}", e)))?;
+            .map_err(|e| Error::Internal(format!("err {e}")))?;
 
         Ok(Self { pool })
     }

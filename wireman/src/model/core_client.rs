@@ -97,12 +97,12 @@ impl CoreClient {
         match (tls_config.use_native, tls_config.custom_cert) {
             (Some(use_native), _) => {
                 if use_native {
-                    return Some(TlsConfig::native().unwrap());
+                    return Some(TlsConfig::native());
                 }
                 None
             }
             (None, Some(custom)) => Some(TlsConfig::custom(custom).unwrap()),
-            _ => TlsConfig::native().ok(),
+            _ => Some(TlsConfig::native()),
         }
     }
 

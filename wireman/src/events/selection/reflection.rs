@@ -54,18 +54,18 @@ impl EventHandler for ReflectionDialogEventHandler {
         match event {
             ReflectionDialogEvents::Headers(event) => HeadersEventHandler::handle_event(event, ctx),
             ReflectionDialogEvents::Selection(event) => {
-                ServicesSelectionEventsHandler::handle_event(event, ctx)
+                ServicesSelectionEventsHandler::handle_event(event, ctx);
             }
             ReflectionDialogEvents::Reflection(events) => match events {
                 ReflectionEvents::ReflectServer => {
-                    ctx.reflection.borrow_mut().dispatch_reflection()
+                    ctx.reflection.borrow_mut().dispatch_reflection();
                 }
                 ReflectionEvents::CloseDialog => {
                     ctx.reflection
                         .borrow()
                         .selection
                         .borrow_mut()
-                        .selection_mode = SelectionMode::File
+                        .selection_mode = SelectionMode::File;
                 }
             },
         }

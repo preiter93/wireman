@@ -22,14 +22,11 @@ async fn main() -> Result<()> {
     let mut req = desc.get_request(&method);
     req.set_address("http://localhost:50051");
 
-    // let resp = do_request(&req).await?;
-    // println!("\nResponse:\n{:}", resp.message.to_json()?);
-
     Ok(())
 }
 
 pub async fn do_request(req: &RequestMessage) -> Result<ResponseMessage> {
-    let tls_config = TlsConfig::native()?;
+    let tls_config = TlsConfig::native();
     let resp = call_unary_async(req, Some(tls_config)).await?;
     Ok(resp)
 }

@@ -12,6 +12,9 @@ use tonic_reflection::pb::v1::{
 
 use crate::error::Error;
 
+/// # Errors
+///
+/// Fails if server reflection fails.
 pub async fn make_file_by_symbol_reflection_request(
     host: &str,
     containing_symbol: &str,
@@ -20,6 +23,9 @@ pub async fn make_file_by_symbol_reflection_request(
     make_file_reflection_request(host, request).await
 }
 
+/// # Errors
+///
+/// Fails if server reflection fails.
 pub async fn make_file_by_filename_reflection_request(
     host: &str,
     filename: &str,
@@ -28,6 +34,9 @@ pub async fn make_file_by_filename_reflection_request(
     make_file_reflection_request(host, request).await
 }
 
+/// # Errors
+///
+/// Fails if server reflection fails.
 pub async fn make_file_reflection_request(
     host: &str,
     request: MessageRequest,
@@ -38,7 +47,8 @@ pub async fn make_file_reflection_request(
     };
     let request = Request::new(tokio_stream::once(request));
 
-    let uri = Uri::from_str(host).unwrap();
+    let uri = Uri::from_str(host)
+        .map_err(|_| Error::Internal(format!("Could not create uri from string {host}")))?;
     let builder = Channel::builder(uri);
     let channel = builder.connect_lazy();
 
@@ -52,7 +62,7 @@ pub async fn make_file_reflection_request(
         .message_response
         .ok_or(Error::Internal("No message response".to_string()))?;
 
-    assert!(inbound.next().await.is_none());
+    debug_assert!(inbound.next().await.is_none());
 
     let MessageResponse::FileDescriptorResponse(descriptor) = response else {
         let internal =
@@ -60,13 +70,23 @@ pub async fn make_file_reflection_request(
         return Err(internal);
     };
 
-    let buf = descriptor.file_descriptor_proto.first().unwrap().as_ref();
+    let buf = descriptor
+        .file_descriptor_proto
+        .first()
+        .ok_or(Error::Internal(
+            "No file descriptor proto found".to_string(),
+        ))?
+        .as_ref();
 
-    let file_descriptor = FileDescriptorProto::decode(buf).expect("Failed to decode");
+    let file_descriptor = FileDescriptorProto::decode(buf)
+        .map_err(|_| Error::Internal("Failed to decode".to_string()))?;
 
     Ok(file_descriptor)
 }
 
+/// # Errors
+///
+/// Fails if server reflection fails.
 pub async fn make_list_service_reflection_request(host: &str) -> Result<Vec<String>, Error> {
     let message_request = MessageRequest::ListServices(String::new());
     let request = ServerReflectionRequest {
@@ -75,7 +95,8 @@ pub async fn make_list_service_reflection_request(host: &str) -> Result<Vec<Stri
     };
     let request = Request::new(tokio_stream::once(request));
 
-    let uri = Uri::from_str(host).unwrap();
+    let uri = Uri::from_str(host)
+        .map_err(|_| Error::Internal(format!("Could not create uri from string {host}")))?;
     let builder = Channel::builder(uri);
     let channel = builder.connect_lazy();
 
@@ -89,7 +110,7 @@ pub async fn make_list_service_reflection_request(host: &str) -> Result<Vec<Stri
         .message_response
         .ok_or(Error::Internal("No message response".to_string()))?;
 
-    assert!(inbound.next().await.is_none());
+    debug_assert!(inbound.next().await.is_none());
 
     let MessageResponse::ListServicesResponse(response) = response else {
         let internal =
@@ -100,6 +121,10 @@ pub async fn make_list_service_reflection_request(host: &str) -> Result<Vec<Stri
     Ok(response.service.into_iter().map(|s| s.name).collect())
 }
 
+/// # Errors
+///
+/// Fails if server reflection fails.
+#[allow(clippy::implicit_hasher)]
 pub async fn handle_reflection_dependencies(
     host: &str,
     file_descriptor: &FileDescriptorProto,
