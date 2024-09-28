@@ -13,6 +13,7 @@ pub enum MethodsSelectionEvents {
     Unselect,
     ClearSearch,
     GoToServices,
+    Reflection,
 }
 
 impl fmt::Display for MethodsSelectionEvents {
@@ -27,6 +28,7 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::Unselect => "Unselect",
             MethodsSelectionEvents::ClearSearch => "Clear Search",
             MethodsSelectionEvents::GoToServices => "Go to Services",
+            MethodsSelectionEvents::Reflection => "Switch to Reflection Mode",
         };
         write!(f, "{display_str}")
     }
@@ -86,13 +88,19 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::GoToServices => {
                 ctx.selection_tab = SelectionTab::Services;
             }
+            MethodsSelectionEvents::Reflection => {
+                ctx.selection.borrow_mut().toggle_reflection_mode();
+            }
         }
     }
 
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, MethodsSelectionEvents)> {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
         let filter_active = ctx.selection.borrow_mut().methods_filter.is_some();
-        let mut map = Vec::new();
+        let mut map = vec![(
+            KeyEvent::ctrl(KeyCode::Char('r')),
+            MethodsSelectionEvents::Reflection,
+        )];
         if method_selected {
             map.extend([
                 (

@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 //! Module for all grpc related stuff
 mod codec;
+pub mod reflection;
 pub mod tls;
 
 use crate::descriptor::RequestMessage;
@@ -8,7 +9,6 @@ use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::Result;
 use tls::TlsConfig;
-// use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};

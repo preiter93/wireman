@@ -1,6 +1,6 @@
 [package]
 name = "wireman-core"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Core for wireman"
@@ -16,8 +16,15 @@ thiserror = "1.0"
 http = { version = "1" }
 protox = { version = "0.7" }
 prost-reflect = { version = "0.14.2", features = ["serde", "text-format"] }
+prost = { version = "0.13.2" }
+prost-types = { version = "0.13.2" }
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "fs"] }
+tokio-stream = {version = "0.1", features = ["net"] }
 tonic = { version = "0.12", features = ["tls", "tls-webpki-roots"] }
+tonic-reflection = { version = "0.12" }
 
 [[example]]
 name = "metadata"
+
+[[example]]
+name = "reflection"

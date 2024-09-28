@@ -17,6 +17,10 @@ pub struct CoreClient {
     desc: ProtoDescriptor,
     /// Config to create a new grpc client
     grpc: GrpcClientConfig,
+    /// Proto path includes
+    includes: Vec<String>,
+    /// Proto files
+    files: Vec<String>,
 }
 
 impl Default for CoreClient {
@@ -30,10 +34,36 @@ struct GrpcClientConfig(Config);
 
 impl CoreClient {
     pub fn new(cfg: &Config) -> Result<Self, Box<dyn Error>> {
-        let desc = ProtoDescriptor::new(cfg.includes(), cfg.files())?;
+        let includes = cfg.includes();
+        let files = cfg.files();
+        let desc = ProtoDescriptor::new(includes.clone(), files.clone())?;
         let grpc = GrpcClientConfig(cfg.clone());
-        Ok(Self { desc, grpc })
+        Ok(Self {
+            desc,
+            grpc,
+            includes,
+            files,
+        })
     }
+
+    pub fn update_proto_descriptor(&mut self, desc: ProtoDescriptor) {
+        self.desc = desc;
+    }
+
+    pub fn reset(&mut self) -> Result<(), Box<dyn Error>> {
+        self.desc = ProtoDescriptor::new(self.includes.clone(), self.files.clone())?;
+        Ok(())
+    }
+
+    // pub async fn reflect(host: &str) -> Option<ProtoDescriptor> {
+    //     match ProtoDescriptor::reflect(host).await {
+    //         Ok(desc) => Some(desc),
+    //         Err(err) => {
+    //             Logger::critical(format!("server reflection failed: {err}"));
+    //             None
+    //         }
+    //     }
+    // }
 
     /// Return the proto Services
     pub fn get_services(&self) -> Vec<ServiceDescriptor> {

@@ -3,7 +3,8 @@ use std::{cell::RefCell, error::Error, rc::Rc};
 use config::Config;
 
 use crate::model::{
-    headers::HeadersModel, history::HistoryModel, CoreClient, MessagesModel, SelectionModel,
+    headers::HeadersModel, history::HistoryModel, reflection::ReflectionModel, CoreClient,
+    MessagesModel, SelectionModel,
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -29,6 +30,9 @@ pub struct AppContext {
     /// The model for the services and methods list
     pub selection: Rc<RefCell<SelectionModel>>,
 
+    /// The model for server reflection
+    pub reflection: Rc<RefCell<ReflectionModel>>,
+
     /// The model for the request and response messages
     pub messages: Rc<RefCell<MessagesModel>>,
 
@@ -51,14 +55,21 @@ impl AppContext {
         // The core client
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 
+        // The metadata model
+        let server_address = &core_client_rc.borrow().get_default_address();
+        let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
+
         // The selection model
         let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
             &core_client_rc,
         ))));
 
-        // The metadata model
-        let server_address = &core_client_rc.borrow().get_default_address();
-        let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
+        // The reflection model
+        let reflection = Rc::new(RefCell::new(ReflectionModel::new(
+            Rc::clone(&core_client_rc),
+            Rc::clone(&headers),
+            Rc::clone(&selection),
+        )));
 
         // The history model
         let history_model = HistoryModel::new(env)?;
@@ -79,6 +90,7 @@ impl AppContext {
             selection,
             messages,
             headers,
+            reflection,
         })
     }
 }

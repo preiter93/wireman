@@ -548,9 +548,7 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1392062965a0237cd2fc1cdc715029374fe8fc04908823c2ab618ff6284c0e49"
+version = "0.7.3"
 dependencies = [
  "arboard",
  "edtui-jagged",
@@ -2076,6 +2074,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "tonic-reflection"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b56b874eedb04f89907573b408eab1e87c1c1dce43aac6ad63742f57faa99ff"
+dependencies = [
+ "prost",
+ "prost-types",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+]
+
+[[package]]
 name = "tower"
 version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2466,7 +2477,7 @@ dependencies = [
 
 [[package]]
 name = "wireman"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "arboard",
  "crossterm",
@@ -2481,7 +2492,7 @@ dependencies = [
  "tui-widget-list",
  "unicode-width",
  "wireman-config 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-core",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2517,32 +2528,20 @@ dependencies = [
 
 [[package]]
 name = "wireman-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "http",
+ "prost",
  "prost-reflect",
+ "prost-types",
  "protox",
  "serde",
  "serde_json",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tonic",
-]
-
-[[package]]
-name = "wireman-core"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c5ccef832f1e62098ef579d915b080f6a400622bab61badbb0abaf8e036920e"
-dependencies = [
- "http",
- "prost-reflect",
- "protox",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tonic",
+ "tonic-reflection",
 ]
 
 [[package]]
