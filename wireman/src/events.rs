@@ -10,6 +10,7 @@ use crate::model::messages::{do_request, RequestResult};
 use crate::model::selection::SelectionMode;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use event_handler::EventHandler;
+use logger::Logger;
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 use selection::reflection::ReflectionDialogEventHandler;
@@ -159,15 +160,18 @@ impl App {
                 resp.set(&mut self.ctx.messages.borrow_mut().response.editor);
                 self.ctx.messages.borrow_mut().handler.take();
             }
-            InternalStreamData::Reflection(desc) => {
-                if let Ok(desc) = desc {
-                    self.ctx
-                        .selection
-                        .borrow_mut()
-                        .update_proto_descriptor(desc.clone());
+            InternalStreamData::Reflection(desc) => match desc {
+                Ok(desc) => {
+                    let d = desc.clone();
+                    self.ctx.selection.borrow_mut().update_descriptor(d);
+                    self.ctx.reflection.borrow_mut().error = None;
                     self.ctx.selection.borrow_mut().selection_mode = SelectionMode::Reflection;
                 }
-            }
+                Err(err) => {
+                    self.ctx.reflection.borrow_mut().error = Some(err.clone());
+                    Logger::critical(err);
+                }
+            },
         }
     }
 
