@@ -13,6 +13,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/reflection"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -144,6 +145,8 @@ func main() {
 	pb.RegisterTimeKeeperServer(s, &Server{})
 	pb.RegisterDebuggerServer(s, &Server{})
 	pb.RegisterTestServiceServer(s, &Server{})
+
+	reflection.Register(s)
 
 	fmt.Println("Listening on", lis.Addr())
 	if err := s.Serve(lis); err != nil {

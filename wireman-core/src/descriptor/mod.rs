@@ -5,13 +5,20 @@ pub mod request;
 pub mod response;
 
 pub use message::DynamicMessage;
+use prost_types::{FileDescriptorProto, FileDescriptorSet};
 pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
-use crate::error::Error;
-use crate::Result;
+use crate::{
+    client::reflection::{
+        handle_reflection_dependencies, make_file_by_symbol_reflection_request,
+        make_list_service_reflection_request,
+    },
+    error::Error,
+    Result,
+};
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 #[derive(Default, Debug, Clone)]
 pub struct ProtoDescriptor {
@@ -19,17 +26,6 @@ pub struct ProtoDescriptor {
 }
 
 impl ProtoDescriptor {
-    // /// Instantiates a descriptor from a [`ProtoConfig`]
-    // ///
-    // /// # Errors
-    // /// - Failed to compile proto `ProtoxCompileError`
-    // /// - Failed to generate descriptor `DescriptorError`
-    // pub fn from_config(cfg: &Config) -> Result<Self> {
-    //     let files = cfg.files.clone();
-    //     let includes = vec![cfg.workspace.clone()];
-    //     Self::from_files(files, includes)
-    // }
-
     /// Instantiate `DescriptorPool` from proto files and include paths
     ///
     /// # Errors
@@ -44,6 +40,31 @@ impl ProtoDescriptor {
         // Generate descriptor pool from file descriptor
         let pool = DescriptorPool::from_file_descriptor_set(file_desc_set)
             .map_err(Error::DescriptorError)?;
+        Ok(Self { pool })
+    }
+
+    /// Instantiates a `DescriptorPool` from a grpc server that supports
+    /// reflection.
+    pub async fn reflect(host: &str) -> Result<Self> {
+        let services = make_list_service_reflection_request(host).await?;
+
+        let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();
+        for service in services.iter() {
+            if service.contains("ServerReflection") {
+                continue;
+            }
+
+            let file_descriptor = make_file_by_symbol_reflection_request(host, service).await?;
+            handle_reflection_dependencies(host, &file_descriptor, &mut file_descriptors).await?;
+            file_descriptors.insert(file_descriptor.name().to_string(), file_descriptor);
+        }
+        let file_descriptor_set = FileDescriptorSet {
+            file: file_descriptors.into_values().collect(),
+        };
+
+        let pool = DescriptorPool::from_file_descriptor_set(file_descriptor_set)
+            .map_err(|e| Error::Internal(format!("err {:?}", e)))?;
+
         Ok(Self { pool })
     }
 

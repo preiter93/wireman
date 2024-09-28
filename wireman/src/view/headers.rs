@@ -102,7 +102,7 @@ impl Widget for HeadersPage<'_> {
 }
 
 #[allow(clippy::large_enum_variant)]
-enum ListElements {
+pub enum ListElements {
     VSpace(usize),
     VDivider(String),
 }
@@ -124,10 +124,10 @@ impl Widget for ListElements {
 }
 
 #[derive(Clone)]
-struct Address {
-    state: EditorState,
-    title: String,
-    selected: bool,
+pub struct Address {
+    pub state: EditorState,
+    pub title: String,
+    pub selected: bool,
 }
 
 impl Widget for Address {
@@ -141,11 +141,11 @@ impl Widget for Address {
 }
 
 #[derive(Clone)]
-struct Authentication {
-    state: EditorState,
-    title: String,
-    selected: bool,
-    selected_tag: usize,
+pub struct Authentication {
+    pub state: EditorState,
+    pub title: String,
+    pub selected: bool,
+    pub selected_tag: usize,
 }
 
 impl Widget for Authentication {
