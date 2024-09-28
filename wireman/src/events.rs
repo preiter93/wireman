@@ -67,6 +67,9 @@ impl App {
                                 == SelectionMode::ReflectionDialog =>
                         {
                             ReflectionDialogEventHandler::handle_key_event(&mut self.ctx, event);
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
+                                Self::toggle_help(&mut self.ctx, ReflectionDialogEventHandler);
+                            }
                         }
                         SelectionTab::Services => {
                             ServicesSelectionEventsHandler::handle_key_event(&mut self.ctx, event);

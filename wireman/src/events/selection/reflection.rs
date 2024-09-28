@@ -18,6 +18,16 @@ pub enum ReflectionDialogEvents {
     ReflectionEvents(ReflectionEvents),
 }
 
+impl std::fmt::Display for ReflectionDialogEvents {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::HeadersEvents(events) => events.fmt(f),
+            Self::SelectionEvents(events) => events.fmt(f),
+            Self::ReflectionEvents(events) => events.fmt(f),
+        }
+    }
+}
+
 pub enum ReflectionEvents {
     CloseDialog,
     ReflectServer,
@@ -67,15 +77,9 @@ impl EventHandler for ReflectionDialogEventHandler {
         let headers = ctx.headers.borrow();
         let disabled_root_events = headers.disabled_root_events();
         let selected_editor = headers.selected_editor();
-        let (is_first_col, is_last_col) = match selected_editor {
-            Some(e) => (e.is_first_col(), e.is_last_col()),
-            None => (true, true),
-        };
         let selected_tab = ctx.headers.borrow().tab.clone();
         let enable_switch_auth_tab =
             selected_tab == HeadersTab::Auth && selected_editor.map_or(true, TextEditor::is_empty);
-        let enable_next_col = is_last_col;
-        let enable_prev_col = is_first_col;
         let mut map = Vec::new();
         map.extend([
             (
@@ -91,18 +95,6 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ReflectionDialogEvents::SelectionEvents(ServicesSelectionEvents::FileMode),
             ),
         ]);
-        if !disabled_root_events {
-            map.extend([
-                (
-                    KeyEvent::new(KeyCode::Tab),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextTab),
-                ),
-                (
-                    KeyEvent::shift(KeyCode::BackTab),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevTab),
-                ),
-            ]);
-        }
         if selected_tab == HeadersTab::Addr || selected_tab == HeadersTab::None {
             map.extend([
                 (
@@ -149,30 +141,6 @@ impl EventHandler for ReflectionDialogEventHandler {
                 (
                     KeyEvent::new(KeyCode::Char('h')),
                     ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevAuth),
-                ),
-            ]);
-        }
-        if !disabled_root_events && enable_next_col {
-            map.extend([
-                (
-                    KeyEvent::new(KeyCode::Right),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextCol),
-                ),
-                (
-                    KeyEvent::new(KeyCode::Char('l')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextCol),
-                ),
-            ]);
-        }
-        if !disabled_root_events && enable_prev_col {
-            map.extend([
-                (
-                    KeyEvent::new(KeyCode::Left),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevCol),
-                ),
-                (
-                    KeyEvent::new(KeyCode::Char('h')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevCol),
                 ),
             ]);
         }
