@@ -13,17 +13,17 @@ use crate::{
 use super::services::ServicesSelectionEvents;
 
 pub enum ReflectionDialogEvents {
-    HeadersEvents(HeadersEvents),
-    SelectionEvents(ServicesSelectionEvents),
-    ReflectionEvents(ReflectionEvents),
+    Headers(HeadersEvents),
+    Selection(ServicesSelectionEvents),
+    Reflection(ReflectionEvents),
 }
 
 impl std::fmt::Display for ReflectionDialogEvents {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::HeadersEvents(events) => events.fmt(f),
-            Self::SelectionEvents(events) => events.fmt(f),
-            Self::ReflectionEvents(events) => events.fmt(f),
+            Self::Headers(events) => events.fmt(f),
+            Self::Selection(events) => events.fmt(f),
+            Self::Reflection(events) => events.fmt(f),
         }
     }
 }
@@ -52,13 +52,11 @@ impl EventHandler for ReflectionDialogEventHandler {
 
     fn handle_event(event: &ReflectionDialogEvents, ctx: &mut Self::Context) {
         match event {
-            ReflectionDialogEvents::HeadersEvents(event) => {
-                HeadersEventHandler::handle_event(event, ctx)
-            }
-            ReflectionDialogEvents::SelectionEvents(event) => {
+            ReflectionDialogEvents::Headers(event) => HeadersEventHandler::handle_event(event, ctx),
+            ReflectionDialogEvents::Selection(event) => {
                 ServicesSelectionEventsHandler::handle_event(event, ctx)
             }
-            ReflectionDialogEvents::ReflectionEvents(events) => match events {
+            ReflectionDialogEvents::Reflection(events) => match events {
                 ReflectionEvents::ReflectServer => {
                     ctx.reflection.borrow_mut().dispatch_reflection()
                 }
@@ -84,26 +82,26 @@ impl EventHandler for ReflectionDialogEventHandler {
         map.extend([
             (
                 KeyEvent::new(KeyCode::Esc),
-                ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::CloseDialog),
+                ReflectionDialogEvents::Reflection(ReflectionEvents::CloseDialog),
             ),
             (
                 KeyEvent::new(KeyCode::Enter),
-                ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::ReflectServer),
+                ReflectionDialogEvents::Reflection(ReflectionEvents::ReflectServer),
             ),
             (
                 KeyEvent::ctrl(KeyCode::Char('r')),
-                ReflectionDialogEvents::SelectionEvents(ServicesSelectionEvents::FileMode),
+                ReflectionDialogEvents::Selection(ServicesSelectionEvents::FileMode),
             ),
         ]);
         if selected_tab == HeadersTab::Addr || selected_tab == HeadersTab::None {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Down),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextRow),
+                    ReflectionDialogEvents::Headers(HeadersEvents::NextRow),
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('j')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextRow),
+                    ReflectionDialogEvents::Headers(HeadersEvents::NextRow),
                 ),
             ]);
         }
@@ -111,11 +109,11 @@ impl EventHandler for ReflectionDialogEventHandler {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Up),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevRow),
+                    ReflectionDialogEvents::Headers(HeadersEvents::PrevRow),
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('k')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevRow),
+                    ReflectionDialogEvents::Headers(HeadersEvents::PrevRow),
                 ),
             ]);
         }
@@ -124,11 +122,11 @@ impl EventHandler for ReflectionDialogEventHandler {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Right),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextAuth),
+                    ReflectionDialogEvents::Headers(HeadersEvents::NextAuth),
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('l')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::NextAuth),
+                    ReflectionDialogEvents::Headers(HeadersEvents::NextAuth),
                 ),
             ]);
         }
@@ -136,11 +134,11 @@ impl EventHandler for ReflectionDialogEventHandler {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Left),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevAuth),
+                    ReflectionDialogEvents::Headers(HeadersEvents::PrevAuth),
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('h')),
-                    ReflectionDialogEvents::HeadersEvents(HeadersEvents::PrevAuth),
+                    ReflectionDialogEvents::Headers(HeadersEvents::PrevAuth),
                 ),
             ]);
         }
