@@ -68,10 +68,7 @@ impl EventHandler for ServicesSelectionEventsHandler {
             ServicesSelectionEvents::GoToMethods => {
                 ctx.selection_tab = SelectionTab::Methods;
             }
-            ServicesSelectionEvents::ReflectionMode => {
-                ctx.selection.borrow_mut().toggle_reflection_mode();
-            }
-            ServicesSelectionEvents::FileMode => {
+            ServicesSelectionEvents::ReflectionMode | ServicesSelectionEvents::FileMode => {
                 ctx.selection.borrow_mut().toggle_reflection_mode();
             }
         }

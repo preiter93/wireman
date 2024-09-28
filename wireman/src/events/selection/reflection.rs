@@ -79,21 +79,25 @@ impl EventHandler for ReflectionDialogEventHandler {
         let enable_switch_auth_tab =
             selected_tab == HeadersTab::Auth && selected_editor.map_or(true, TextEditor::is_empty);
         let mut map = Vec::new();
-        map.extend([
-            (
-                KeyEvent::new(KeyCode::Esc),
-                ReflectionDialogEvents::Reflection(ReflectionEvents::CloseDialog),
-            ),
-            (
-                KeyEvent::new(KeyCode::Enter),
-                ReflectionDialogEvents::Reflection(ReflectionEvents::ReflectServer),
-            ),
-            (
-                KeyEvent::ctrl(KeyCode::Char('r')),
-                ReflectionDialogEvents::Selection(ServicesSelectionEvents::FileMode),
-            ),
-        ]);
-        if selected_tab == HeadersTab::Addr || selected_tab == HeadersTab::None {
+        if !disabled_root_events {
+            map.extend([
+                (
+                    KeyEvent::new(KeyCode::Esc),
+                    ReflectionDialogEvents::Reflection(ReflectionEvents::CloseDialog),
+                ),
+                (
+                    KeyEvent::new(KeyCode::Enter),
+                    ReflectionDialogEvents::Reflection(ReflectionEvents::ReflectServer),
+                ),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('r')),
+                    ReflectionDialogEvents::Selection(ServicesSelectionEvents::FileMode),
+                ),
+            ]);
+        }
+        if !disabled_root_events && selected_tab == HeadersTab::Addr
+            || selected_tab == HeadersTab::None
+        {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Down),
@@ -105,7 +109,7 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ),
             ]);
         }
-        if selected_tab == HeadersTab::Auth {
+        if !disabled_root_events && selected_tab == HeadersTab::Auth {
             map.extend([
                 (
                     KeyEvent::new(KeyCode::Up),
