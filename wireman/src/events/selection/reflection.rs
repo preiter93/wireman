@@ -20,7 +20,17 @@ pub enum ReflectionDialogEvents {
 
 pub enum ReflectionEvents {
     CloseDialog,
-    TriggerReflection,
+    ReflectServer,
+}
+
+impl std::fmt::Display for ReflectionEvents {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let display_str = match self {
+            ReflectionEvents::ReflectServer => "Reflect server",
+            ReflectionEvents::CloseDialog => "Close dialog",
+        };
+        write!(f, "{display_str}")
+    }
 }
 
 pub struct ReflectionDialogEventHandler;
@@ -39,7 +49,7 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ServicesSelectionEventsHandler::handle_event(event, ctx)
             }
             ReflectionDialogEvents::ReflectionEvents(events) => match events {
-                ReflectionEvents::TriggerReflection => {
+                ReflectionEvents::ReflectServer => {
                     ctx.reflection.borrow_mut().dispatch_reflection()
                 }
                 ReflectionEvents::CloseDialog => {
@@ -74,7 +84,7 @@ impl EventHandler for ReflectionDialogEventHandler {
             ),
             (
                 KeyEvent::new(KeyCode::Enter),
-                ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::TriggerReflection),
+                ReflectionDialogEvents::ReflectionEvents(ReflectionEvents::ReflectServer),
             ),
             (
                 KeyEvent::ctrl(KeyCode::Char('r')),
