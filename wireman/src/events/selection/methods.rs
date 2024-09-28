@@ -1,4 +1,7 @@
-use crate::context::{AppContext, SelectionTab};
+use crate::{
+    context::{AppContext, SelectionTab},
+    model::selection::SelectionMode,
+};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use std::fmt;
 
@@ -13,6 +16,8 @@ pub enum MethodsSelectionEvents {
     Unselect,
     ClearSearch,
     GoToServices,
+    ReflectionMode,
+    FileMode,
 }
 
 impl fmt::Display for MethodsSelectionEvents {
@@ -27,6 +32,8 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::Unselect => "Unselect",
             MethodsSelectionEvents::ClearSearch => "Clear Search",
             MethodsSelectionEvents::GoToServices => "Go to Services",
+            MethodsSelectionEvents::ReflectionMode => "Switch to Reflection Mode",
+            MethodsSelectionEvents::FileMode => "Switch to File Mode",
         };
         write!(f, "{display_str}")
     }
@@ -86,6 +93,9 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::GoToServices => {
                 ctx.selection_tab = SelectionTab::Services;
             }
+            MethodsSelectionEvents::ReflectionMode | MethodsSelectionEvents::FileMode => {
+                ctx.selection.borrow_mut().toggle_reflection_mode();
+            }
         }
     }
 
@@ -111,6 +121,19 @@ impl EventHandler for MethodsSelectionEventsHandler {
                 MethodsSelectionEvents::Select,
             )]);
         }
+
+        if ctx.selection.borrow().selection_mode == SelectionMode::File {
+            map.extend([(
+                KeyEvent::ctrl(KeyCode::Char('r')),
+                MethodsSelectionEvents::ReflectionMode,
+            )]);
+        } else {
+            map.extend([(
+                KeyEvent::ctrl(KeyCode::Char('r')),
+                MethodsSelectionEvents::FileMode,
+            )]);
+        }
+
         if filter_active {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
