@@ -22,6 +22,10 @@ pub struct GrpcClient {
 impl GrpcClient {
     /// Returns a new Grpc Client. if no tls is given, the standard tonic
     /// client is used.
+    ///
+    /// # Errors
+    ///
+    /// Errors if tls config cannot be build.
     pub fn new<T: Into<Uri>>(uri: T, tls_config: Option<TlsConfig>) -> Result<Self> {
         let builder = Channel::builder(uri.into());
 

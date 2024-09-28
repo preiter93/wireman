@@ -27,7 +27,7 @@ fn main() -> Result<()> {
 }
 
 pub fn do_request(req: &RequestMessage) -> Result<ResponseMessage> {
-    let tls_config = TlsConfig::native()?;
+    let tls_config = TlsConfig::native();
     let resp = call_unary_blocking(req, Some(tls_config))?;
     Ok(resp)
 }

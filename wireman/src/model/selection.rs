@@ -82,7 +82,7 @@ impl SelectionModel {
             SelectionMode::Reflection => {
                 let _ = self.core_client.borrow_mut().reset();
                 self.load_core_services_and_methods_from_files();
-                self.selection_mode = SelectionMode::File
+                self.selection_mode = SelectionMode::File;
             }
         }
     }
