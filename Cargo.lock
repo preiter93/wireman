@@ -548,9 +548,9 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b86d5002f2059468974096ff2dc821fcb5d5a2eec4e9147078daafae32fcba0e"
+checksum = "64950481dcf00727f7c629f35c84309689b68cab7a3322f44b6f453defe46ad0"
 dependencies = [
  "arboard",
  "edtui-jagged",
@@ -560,9 +560,9 @@ dependencies = [
 
 [[package]]
 name = "edtui-jagged"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0e8447b1e3e75b9e078d9717f89f409198a51f2e5bddf87bd350ce6fe04a92e"
+checksum = "3a02f7b3f54b11bc0191d2481280d93019c2b313cb3be7061f30705fa000ec1f"
 
 [[package]]
 name = "either"

@@ -24,7 +24,7 @@ theme = { package = "wireman-theme", version = "0.1" }
 event-handler = { package = "wireman-event-handler", version = "0.1" }
 
 tui-widget-list = { version = "0.12.2" }
-edtui = "0.7.3"
+edtui = "0.7.4"
 # edtui = { package = "edtui", path = "../../edtui", version = "0.7.3" }
 crossterm = { version = "0.28", features = ["events", "event-stream"] }
 ratatui = "0.28"
