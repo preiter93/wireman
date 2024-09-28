@@ -88,7 +88,7 @@ impl SelectionModel {
     }
 
     /// Update the proto descriptor.
-    pub fn update_proto_descriptor(&mut self, desc: ProtoDescriptor) {
+    pub fn update_descriptor(&mut self, desc: ProtoDescriptor) {
         self.core_client.borrow_mut().update_proto_descriptor(desc);
         self.load_core_services_and_methods_from_files();
     }

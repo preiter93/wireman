@@ -1,6 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
 use core::ProtoDescriptor;
-use logger::Logger;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tokio::sync::mpsc::Sender;
@@ -21,6 +20,8 @@ pub struct ReflectionModel {
     pub selection: Rc<RefCell<SelectionModel>>,
     /// Dispatch a reflection event
     pub dispatch_reflection: bool,
+    /// An error that occured during reflection
+    pub error: Option<String>,
 }
 
 impl ReflectionModel {
@@ -36,11 +37,11 @@ impl ReflectionModel {
             headers,
             selection,
             dispatch_reflection: false,
+            error: None,
         }
     }
 
     pub fn dispatch_reflection(&mut self) {
-        Logger::debug("boom toggle");
         self.dispatch_reflection = true;
     }
 
@@ -48,19 +49,13 @@ impl ReflectionModel {
         let host = self.headers.borrow().address();
         self.dispatch_reflection = false;
         tokio::spawn(async move {
-            Logger::debug("spawn");
-            match ProtoDescriptor::reflect(&host).await {
-                Ok(desc) => {
-                    let _ = sx.send(InternalStreamData::Reflection(Ok(desc))).await;
-                }
+            let event = match ProtoDescriptor::reflect(&host).await {
+                Ok(desc) => InternalStreamData::Reflection(Ok(desc)),
                 Err(err) => {
-                    let err_str = format!("Server reflection failed: {err}");
-                    let _ = sx
-                        .send(InternalStreamData::Reflection(Err(err_str.clone())))
-                        .await;
-                    Logger::critical(err_str)
+                    InternalStreamData::Reflection(Err(format!("Server reflection failed: {err}")))
                 }
-            }
+            };
+            let _ = sx.send(event).await;
         });
     }
 }

@@ -3,6 +3,7 @@ use super::root::layout;
 use crate::model::headers::{AuthSelection, HeadersTab};
 use crate::model::reflection::ReflectionModel;
 use ratatui::layout::Layout;
+use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::{
     buffer::Buffer,
@@ -40,10 +41,10 @@ impl Widget for ReflectionDialog {
             block.render(area, buf);
             inner_area
         };
-        let [main, footer] = Layout::vertical([Min(0), Length(1)]).areas(area);
+        let [m, f] = Layout::vertical([Min(0), Length(1)]).areas(area);
 
         // Address
-        let layout = layout(main, Direction::Vertical, &[1, 1, 3, 1, 1, 4]);
+        let layout = layout(m, Direction::Vertical, &[1, 1, 3, 1, 1, 4]);
         let [_, addr_title, addr_content, _, auth_title, auth_content] = layout;
         ListElements::VDivider(String::from(" Address ")).render(addr_title, buf);
         Address {
@@ -71,8 +72,11 @@ impl Widget for ReflectionDialog {
         };
         body.render(auth_content, buf);
 
-        Line::from("Press Enter ")
-            .right_aligned()
-            .render(footer, buf);
+        // Status line
+        if let Some(err) = self.model.error {
+            Line::from(err).left_aligned().red().render(f, buf);
+        } else {
+            Line::from("Press Enter ").right_aligned().render(f, buf);
+        }
     }
 }
