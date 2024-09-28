@@ -151,7 +151,7 @@ impl Widget for SelectionPage<'_> {
         }
 
         // Show a dialog with address and authentication input fields
-        // which are required before server reflection
+        // which are required for server reflection
         if self.model.selection_mode == SelectionMode::ReflectionDialog {
             let popup_area = centered_rect(80, 80, area);
             Clear.render(popup_area, buf);

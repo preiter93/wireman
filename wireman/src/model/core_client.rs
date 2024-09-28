@@ -55,16 +55,6 @@ impl CoreClient {
         Ok(())
     }
 
-    // pub async fn reflect(host: &str) -> Option<ProtoDescriptor> {
-    //     match ProtoDescriptor::reflect(host).await {
-    //         Ok(desc) => Some(desc),
-    //         Err(err) => {
-    //             Logger::critical(format!("server reflection failed: {err}"));
-    //             None
-    //         }
-    //     }
-    // }
-
     /// Return the proto Services
     pub fn get_services(&self) -> Vec<ServiceDescriptor> {
         self.desc.get_services()
