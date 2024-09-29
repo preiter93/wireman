@@ -1,6 +1,8 @@
 /target
-/example/grpc_simple/proto
-/example/grpc_simple/grpc-simple
+/example/server/simple/proto
+/example/server/simple/simple
+/example/server/reflection/proto
+/example/server/reflection/simple
 /wireman/debug.log
 /wireman/cfg.json
 /wireman/history

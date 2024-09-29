@@ -17,6 +17,10 @@ pub struct CoreClient {
     desc: ProtoDescriptor,
     /// Config to create a new grpc client
     grpc: GrpcClientConfig,
+    /// Proto path includes
+    includes: Vec<String>,
+    /// Proto files
+    files: Vec<String>,
 }
 
 impl Default for CoreClient {
@@ -30,9 +34,25 @@ struct GrpcClientConfig(Config);
 
 impl CoreClient {
     pub fn new(cfg: &Config) -> Result<Self, Box<dyn Error>> {
-        let desc = ProtoDescriptor::new(cfg.includes(), cfg.files())?;
+        let includes = cfg.includes();
+        let files = cfg.files();
+        let desc = ProtoDescriptor::new(includes.clone(), files.clone())?;
         let grpc = GrpcClientConfig(cfg.clone());
-        Ok(Self { desc, grpc })
+        Ok(Self {
+            desc,
+            grpc,
+            includes,
+            files,
+        })
+    }
+
+    pub fn update_proto_descriptor(&mut self, desc: ProtoDescriptor) {
+        self.desc = desc;
+    }
+
+    pub fn reset(&mut self) -> Result<(), Box<dyn Error>> {
+        self.desc = ProtoDescriptor::new(self.includes.clone(), self.files.clone())?;
+        Ok(())
     }
 
     /// Return the proto Services
@@ -77,12 +97,12 @@ impl CoreClient {
         match (tls_config.use_native, tls_config.custom_cert) {
             (Some(use_native), _) => {
                 if use_native {
-                    return Some(TlsConfig::native().unwrap());
+                    return Some(TlsConfig::native());
                 }
                 None
             }
             (None, Some(custom)) => Some(TlsConfig::custom(custom).unwrap()),
-            _ => TlsConfig::native().ok(),
+            _ => Some(TlsConfig::native()),
         }
     }
 

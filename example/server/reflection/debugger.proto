@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service Debugger {
+  rpc Metadata (MetadataReq) returns (MetadataResp) {}
+}
+  
+message MetadataReq {
+}
+  
+message MetadataResp {
+ string metadata = 1;
+}

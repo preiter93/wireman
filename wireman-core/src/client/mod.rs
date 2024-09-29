@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 //! Module for all grpc related stuff
 mod codec;
+pub mod reflection;
 pub mod tls;
 
 use crate::descriptor::RequestMessage;
@@ -8,7 +9,6 @@ use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::Result;
 use tls::TlsConfig;
-// use tls::TlsConfig;
 use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
@@ -22,6 +22,10 @@ pub struct GrpcClient {
 impl GrpcClient {
     /// Returns a new Grpc Client. if no tls is given, the standard tonic
     /// client is used.
+    ///
+    /// # Errors
+    ///
+    /// Errors if tls config cannot be build.
     pub fn new<T: Into<Uri>>(uri: T, tls_config: Option<TlsConfig>) -> Result<Self> {
         let builder = Channel::builder(uri.into());
 

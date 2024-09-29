@@ -163,7 +163,7 @@ impl MessagesModel {
     }
 
     // Collect the grpc request
-    pub fn collect_request(&mut self) -> Result<RequestMessage, ErrorKind> {
+    pub fn get_request(&mut self) -> Result<RequestMessage, ErrorKind> {
         let Some(method) = self.selected_method.clone() else {
             let err = ErrorKind::default_error("Select a method!");
             self.response.editor.set_error(Some(err.clone()));
