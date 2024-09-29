@@ -1,11 +1,13 @@
 #![allow(clippy::module_name_repetitions)]
 pub mod message;
 pub mod metadata;
+pub mod reflection_request;
 pub mod request;
 pub mod response;
 
 pub use message::DynamicMessage;
 use prost_types::{FileDescriptorProto, FileDescriptorSet};
+pub use reflection_request::ReflectionRequest;
 pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
@@ -48,8 +50,8 @@ impl ProtoDescriptor {
     ///
     /// # Errors
     /// Errors if server reflection or dependency resolving fails.
-    pub async fn reflect(host: &str) -> Result<Self> {
-        let services = make_list_service_reflection_request(host).await?;
+    pub async fn reflect(request: ReflectionRequest) -> Result<Self> {
+        let services = make_list_service_reflection_request(&request).await?;
 
         let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();
         for service in &services {
@@ -57,8 +59,9 @@ impl ProtoDescriptor {
                 continue;
             }
 
-            let file_descriptor = make_file_by_symbol_reflection_request(host, service).await?;
-            handle_reflection_dependencies(host, &file_descriptor, &mut file_descriptors).await?;
+            let file_descriptor = make_file_by_symbol_reflection_request(&request, service).await?;
+            handle_reflection_dependencies(&request, &file_descriptor, &mut file_descriptors)
+                .await?;
             file_descriptors.insert(file_descriptor.name().to_string(), file_descriptor);
         }
         let file_descriptor_set = FileDescriptorSet {

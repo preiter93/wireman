@@ -13,7 +13,7 @@ out = "."
 all: clean build run
 
 build:
-	$(PROTOC) $(PROTOC_GEN_GO) order.proto
+	$(PROTOC) $(PROTOC_GEN_GO) order.proto debugger.proto
 	$(GOBUILD) -o $(BINARY_NAME) -v ./main.go
 
 clean:
@@ -21,6 +21,8 @@ clean:
 	rm -f $(BINARY_NAME)
 	rm -f proto/order.pb.go
 	rm -f proto/order_grpc.pb.go
+	rm -f proto/debugger.pb.go
+	rm -f proto/debugger_grpc.pb.go
 
 run: build
 	./$(BINARY_NAME)

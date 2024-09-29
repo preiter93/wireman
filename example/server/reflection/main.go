@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -9,15 +11,17 @@ import (
 	pb "grpc_simple/proto"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 )
 
 var (
-	port = flag.Int("port", 50052, "The server port")
+	port = flag.Int("port", 50051, "The server port")
 )
 
 type Server struct {
 	pb.UnimplementedOrderServiceServer
+	pb.UnimplementedDebuggerServer
 }
 
 func main() {
@@ -28,6 +32,7 @@ func main() {
 
 	s := grpc.NewServer()
 	pb.RegisterOrderServiceServer(s, &Server{})
+	pb.RegisterDebuggerServer(s, &Server{})
 
 	reflection.Register(s)
 
@@ -35,4 +40,20 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve grpc Server: %v", err)
 	}
+}
+
+func (s *Server) Metadata(ctx context.Context, req *pb.MetadataReq) (*pb.MetadataResp, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("failed to get metadata from context")
+	}
+
+	mdJson, err := json.Marshal(md)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal metadata to JSON: %v", err)
+	}
+
+	return &pb.MetadataResp{
+		Metadata: string(mdJson),
+	}, nil
 }
