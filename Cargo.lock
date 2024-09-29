@@ -2494,7 +2494,7 @@ dependencies = [
  "tui-widget-list",
  "unicode-width",
  "wireman-config 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-core",
+ "wireman-core 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2531,6 +2531,26 @@ dependencies = [
 [[package]]
 name = "wireman-core"
 version = "0.1.2"
+dependencies = [
+ "http",
+ "prost",
+ "prost-reflect",
+ "prost-types",
+ "protox",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tonic-reflection",
+]
+
+[[package]]
+name = "wireman-core"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f27688fa1880cb0c9d441ba0d6cca36dedcb60ce6871be046f4a9cb3ca2bdbc"
 dependencies = [
  "http",
  "prost",
