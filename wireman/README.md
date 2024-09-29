@@ -139,13 +139,13 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 
 ## Demo
 
-![](https://raw.githubusercontent.com/preiter93/wireman/reflection/example/tape/demo.gif)
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/demo.gif)
 
 ## Server Reflection
 
 Wireman now also supports server reflection for gRPC servers that provide reflection. To activate reflection mode, press `Ctrl + r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. To switch back from reflection mode to file mode, press `Ctrl + r` again.
 
-![](https://raw.githubusercontent.com/preiter93/wireman/reflection/example/tape/reflection.gif)
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif)
 
 ## Roadmap
 
