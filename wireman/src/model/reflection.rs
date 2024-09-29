@@ -1,14 +1,13 @@
 #![allow(clippy::module_name_repetitions)]
+use super::core_client::CoreClient;
+use super::headers::HeadersModel;
+use super::SelectionModel;
+use crate::events::InternalStreamData;
+use core::descriptor::ReflectionRequest;
 use core::ProtoDescriptor;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tokio::sync::mpsc::Sender;
-
-use crate::events::InternalStreamData;
-
-use super::core_client::CoreClient;
-use super::headers::HeadersModel;
-use super::SelectionModel;
 
 #[derive(Clone)]
 pub struct ReflectionModel {
@@ -46,10 +45,10 @@ impl ReflectionModel {
     }
 
     pub fn handle_reflection(&mut self, sx: Sender<InternalStreamData>) {
-        let host = self.headers.borrow().address();
+        let request = self.build_request();
         self.dispatch_reflection = false;
         tokio::spawn(async move {
-            let event = match ProtoDescriptor::reflect(&host).await {
+            let event = match ProtoDescriptor::reflect(request).await {
                 Ok(desc) => InternalStreamData::Reflection(Ok(desc)),
                 Err(err) => {
                     InternalStreamData::Reflection(Err(format!("Server reflection failed: {err}")))
@@ -57,5 +56,23 @@ impl ReflectionModel {
             };
             let _ = sx.send(event).await;
         });
+    }
+
+    // Builds the grpc request
+    pub fn build_request(&mut self) -> ReflectionRequest {
+        let headers_model = self.headers.borrow();
+
+        // Address
+        let address = headers_model.address();
+        let mut req = ReflectionRequest::new(&address);
+
+        // Metadata
+        for (key, val) in headers_model.auth_headers_expanded() {
+            if !key.is_empty() {
+                let _ = req.insert_metadata(&key, &val);
+            }
+        }
+
+        req
     }
 }
