@@ -48,7 +48,7 @@ impl ReflectionModel {
         let request = self.build_request();
         self.dispatch_reflection = false;
         tokio::spawn(async move {
-            let event = match ProtoDescriptor::reflect(request).await {
+            let event = match ProtoDescriptor::from_reflection(request).await {
                 Ok(desc) => InternalStreamData::Reflection(Ok(desc)),
                 Err(err) => {
                     InternalStreamData::Reflection(Err(format!("Server reflection failed: {err}")))
