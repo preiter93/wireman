@@ -2,10 +2,10 @@ includes = [
     "$HOME/Rust/wireman/example",
 ]
 files = [
-    "grpc_simple/debugger.proto",
-    "grpc_simple/greeter.proto",
-    "grpc_simple/productfinder.proto",
-    "grpc_simple/timekeeper.proto",
+    "server/simple/debugger.proto",
+    "server/simple/greeter.proto",
+    "server/simple/productfinder.proto",
+    "server/simple/timekeeper.proto",
 ]
 
 [server]

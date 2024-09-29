@@ -164,6 +164,7 @@ Wireman now also supports server reflection for gRPC servers that provide reflec
 - [x] Metadata headers
 - [x] Provide installation help
 - [x] Custom themes
+- [x] Server reflection
 
 Planned
 - [ ] Edit config file in app

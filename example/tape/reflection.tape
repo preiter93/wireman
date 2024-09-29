@@ -30,14 +30,10 @@ Sleep 1.0s
 Type 'jjlh'
 Sleep 0.5s
 Enter
-Sleep 0.5s
 
 # Select
 Type 'j'
-Sleep 1s
+Enter
+Enter
 Enter
 Sleep 1s
-Enter
-Sleep 1s
-Enter
-Sleep 2s
