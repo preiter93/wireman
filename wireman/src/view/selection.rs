@@ -1,16 +1,25 @@
 #![allow(clippy::cast_possible_truncation)]
-use crate::context::SelectionTab;
+
+use crate::model::selection::SelectionMode;
 use crate::model::SelectionModel;
+use crate::view::reflection_dialog::ReflectionDialog;
 use crate::widgets::list::ListItem;
-use ratatui::layout::Rect;
-use ratatui::prelude::*;
-use ratatui::widgets::{Block, Borders, Padding, Paragraph, StatefulWidget, Widget};
+use crate::widgets::modal::centered_rect;
+use crate::{context::SelectionTab, model::reflection::ReflectionModel};
+use ratatui::{
+    buffer::Buffer,
+    layout::{Alignment, Layout, Rect},
+    prelude::StatefulWidget,
+    text::Line,
+    widgets::{Block, Borders, Clear, Padding, Widget},
+};
 use theme::Theme;
 use tui_widget_list::{ListBuilder, ListView};
 
 /// The page where to select services and methods.
 pub struct SelectionPage<'a> {
     pub model: &'a mut SelectionModel,
+    pub reflection_model: &'a mut ReflectionModel,
     pub tab: SelectionTab,
 }
 
@@ -140,8 +149,17 @@ impl Widget for SelectionPage<'_> {
             SearchLine::new(self.model.methods_filter.clone().unwrap_or_default())
                 .render(mtd_search, buf);
         }
+
+        // Show a dialog with address and authentication input fields
+        // which are required for server reflection
+        if self.model.selection_mode == SelectionMode::ReflectionDialog {
+            let popup_area = centered_rect(80, 80, area);
+            Clear.render(popup_area, buf);
+            ReflectionDialog::new(self.reflection_model.clone()).render(popup_area, buf);
+        }
     }
 }
+
 struct SearchLine {
     text: String,
 }
@@ -154,6 +172,6 @@ impl SearchLine {
 
 impl Widget for SearchLine {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new(Text::from(format!("/{}", self.text))).render(area, buf);
+        Line::from(format!("/{}", self.text)).render(area, buf);
     }
 }

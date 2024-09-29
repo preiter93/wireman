@@ -1,15 +1,19 @@
 pub(crate) mod headers;
 pub(crate) mod messages;
 pub(crate) mod selection;
+use core::ProtoDescriptor;
 use std::fmt::Display;
 
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{do_request, RequestResult};
+use crate::model::selection::SelectionMode;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use event_handler::EventHandler;
+use logger::Logger;
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
+use selection::reflection::ReflectionDialogEventHandler;
 pub(crate) use selection::services::ServicesSelectionEventsHandler;
 pub(crate) use selection::services_search::ServicesSearchEventsHandler;
 use tokio::sync::mpsc::{self, Receiver, Sender};
@@ -18,24 +22,28 @@ use self::headers::HeadersEventHandler;
 use self::messages::request::RequestEventHandler;
 use self::messages::response::ResponseEventHandler;
 
-type InternalStreamData = RequestResult;
+pub(crate) enum InternalStreamData {
+    Request(RequestResult),
+    Reflection(Result<ProtoDescriptor, String>),
+}
 pub(crate) struct InternalStream {
     pub(crate) sx: Sender<InternalStreamData>,
     pub(crate) rx: Receiver<InternalStreamData>,
 }
 
-const HELP_KEY: KeyCode = KeyCode::Char('?');
-
 impl InternalStream {
     pub(crate) fn new() -> Self {
-        let (sx, rx) = mpsc::channel::<RequestResult>(10);
+        let (sx, rx) = mpsc::channel::<InternalStreamData>(10);
         Self { sx, rx }
     }
 }
 
+const HELP_KEY: KeyCode = KeyCode::Char('?');
+
 impl App {
     pub(crate) fn handle_crossterm_key_event(&mut self, event: KeyEvent) {
-        let sx = self.internal_stream.sx.clone();
+        let sx1 = self.internal_stream.sx.clone();
+        let sx2 = self.internal_stream.sx.clone();
         match event.code {
             KeyCode::Char('c') if event.modifiers == KeyModifiers::CONTROL => {
                 self.should_quit = true;
@@ -51,9 +59,19 @@ impl App {
                     }
                     return;
                 }
+
                 // Route specifc key event.
                 match self.ctx.tab {
                     Tab::Selection => match self.ctx.selection_tab {
+                        SelectionTab::Services | SelectionTab::Methods
+                            if self.ctx.selection.borrow().selection_mode.clone()
+                                == SelectionMode::ReflectionDialog =>
+                        {
+                            ReflectionDialogEventHandler::handle_key_event(&mut self.ctx, event);
+                            if event.code == HELP_KEY && !self.ctx.disable_root_events {
+                                Self::toggle_help(&mut self.ctx, ReflectionDialogEventHandler);
+                            }
+                        }
                         SelectionTab::Services => {
                             ServicesSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
@@ -97,16 +115,16 @@ impl App {
             }
         }
 
-        // Dispatch the grpc request in a seperate thread.
+        // Dispatch a grpc request event in a seperate thread.
         if self.ctx.messages.borrow().dispatch {
             let mut messages_model = self.ctx.messages.borrow_mut();
             let tls = messages_model.request.core_client.borrow().get_tls_config();
             messages_model.dispatch = false;
-            match messages_model.collect_request() {
+            match messages_model.get_request() {
                 Ok(req) => {
                     let handler = tokio::spawn(async move {
                         let resp = do_request(req, tls).await;
-                        let _ = sx.send(resp).await;
+                        let _ = sx1.send(InternalStreamData::Request(resp)).await;
                     });
                     messages_model.handler = Some(handler);
                 }
@@ -115,6 +133,11 @@ impl App {
                     messages_model.response.set_error(err);
                 }
             }
+        }
+
+        // Dispatch a server reflection event in a seperate thread.
+        if self.ctx.reflection.borrow().dispatch_reflection {
+            self.ctx.reflection.borrow_mut().handle_reflection(sx2);
         }
     }
 
@@ -131,9 +154,25 @@ impl App {
         }
     }
 
-    pub(crate) fn handle_internal_event(&mut self, result: &RequestResult) {
-        result.set(&mut self.ctx.messages.borrow_mut().response.editor);
-        self.ctx.messages.borrow_mut().handler.take();
+    pub(crate) fn handle_internal_event(&mut self, data: &InternalStreamData) {
+        match data {
+            InternalStreamData::Request(resp) => {
+                resp.set(&mut self.ctx.messages.borrow_mut().response.editor);
+                self.ctx.messages.borrow_mut().handler.take();
+            }
+            InternalStreamData::Reflection(desc) => match desc {
+                Ok(desc) => {
+                    let d = desc.clone();
+                    self.ctx.selection.borrow_mut().update_descriptor(d);
+                    self.ctx.reflection.borrow_mut().error = None;
+                    self.ctx.selection.borrow_mut().selection_mode = SelectionMode::Reflection;
+                }
+                Err(err) => {
+                    self.ctx.reflection.borrow_mut().error = Some(err.clone());
+                    Logger::critical(err);
+                }
+            },
+        }
     }
 
     fn toggle_help<E>(ctx: &mut AppContext, _: E)

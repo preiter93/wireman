@@ -13,19 +13,18 @@ Type 'alias wireman="../target/debug/wireman"'
 Enter
 Type 'clear'
 Enter
-Show
 
 # Initialization
-Set TypingSpeed 30ms
-Type "export WIREMAN_CONFIG_DIR=$PWD/config_default"
-Set TypingSpeed 40ms
+Type "export WIREMAN_CONFIG_DIR=$PWD/configs/default"
 Enter
 Sleep 0.5s
 Type "wireman"
 Enter
-Sleep 1.5s
+Sleep 1.0s
+Show
 
 # Help
+Sleep 1.0s
 Type '?'
 Sleep 2.0s
 Type '?'
@@ -47,7 +46,6 @@ Type 'Here we can paste in a token or use a bash script enclosed in $()'
 Sleep 0.5s
 Escape
 Type 'ddi'
-Set TypingSpeed 60ms
 Type '$(getToken.sh)'
 Escape
 Sleep 0.5s
@@ -66,14 +64,13 @@ Sleep 1s
 Type '2'
 Sleep 0.5s
 Type 'hciwdi'
-Type 'This will be saved'
+Type 'This request will be saved in your history.'
 Escape
 Enter
 Sleep 0.5s
 
 # Show more features
 Type 'jjo'
-Set TypingSpeed 40ms
 Type 'If autosave is enabled, each request is saved after send.'
 Sleep 0.2s
 Enter
@@ -91,16 +88,16 @@ Hide
 Backspace 35
 Show
 
-Type "export WIREMAN_CONFIG_DIR=$PWD/config_dracula"
+Type "export WIREMAN_CONFIG_DIR=$PWD/configs/dracula"
 Enter
 # Type 'tail -n 2 config_dracula/wireman.toml'
 # Enter
-Sleep 1.5s
+Sleep 1.0s
 
 # Reopen and show that previous request is saved
 Type "wireman"
 Enter
-Sleep 1.5s
+Sleep 1.0s
 Set TypingSpeed 100ms
 Type 'j'
 Enter

@@ -1,5 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
-use core::{MethodDescriptor, ServiceDescriptor};
+use core::{MethodDescriptor, ProtoDescriptor, ServiceDescriptor};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tui_widget_list::ListState;
@@ -22,6 +22,16 @@ pub struct SelectionModel {
     pub services_filter: Option<String>,
     /// Filters the methods
     pub methods_filter: Option<String>,
+    /// The selection mode
+    pub selection_mode: SelectionMode,
+}
+
+#[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum SelectionMode {
+    #[default]
+    File,
+    ReflectionDialog,
+    Reflection,
 }
 
 /// Each service can hold a list of methods
@@ -35,25 +45,52 @@ impl SelectionModel {
     /// Instantiates a [`SelectionModel`]. Requires the core client to
     /// retrieve the proto services and methods.
     pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
-        let services = list_services(&core_client.borrow());
-        let mut methods: Vec<String> = Vec::new();
-
-        // Preselect the first service
-        let mut services_state = ListState::default();
-        if !services.is_empty() {
-            services_state.select(Some(0));
-            methods = list_methods(&core_client.borrow(), &services[0]);
-        }
-
-        Self {
+        let mut model = Self {
             core_client,
-            services,
-            methods,
-            services_state,
+            services: Vec::new(),
+            methods: Vec::new(),
+            services_state: ListState::default(),
             methods_state: ListState::default(),
             services_filter: None,
             methods_filter: None,
+            selection_mode: SelectionMode::File,
+        };
+        model.load_core_services_and_methods_from_files();
+
+        model
+    }
+
+    /// Loads the services and methods from the core client
+    pub fn load_core_services_and_methods_from_files(&mut self) {
+        self.services = list_services(&self.core_client.borrow());
+        self.services_state.select(None);
+
+        self.methods = Vec::new();
+        self.methods_state.select(None);
+
+        if !self.services.is_empty() {
+            self.services_state.select(Some(0));
+            self.methods = list_methods(&self.core_client.borrow(), &self.services[0]);
         }
+    }
+
+    /// Toggles the reflection mode.
+    pub fn toggle_reflection_mode(&mut self) {
+        match self.selection_mode {
+            SelectionMode::File => self.selection_mode = SelectionMode::ReflectionDialog,
+            SelectionMode::ReflectionDialog => self.selection_mode = SelectionMode::File,
+            SelectionMode::Reflection => {
+                let _ = self.core_client.borrow_mut().reset();
+                self.load_core_services_and_methods_from_files();
+                self.selection_mode = SelectionMode::File;
+            }
+        }
+    }
+
+    /// Update the proto descriptor.
+    pub fn update_descriptor(&mut self, desc: ProtoDescriptor) {
+        self.core_client.borrow_mut().update_proto_descriptor(desc);
+        self.load_core_services_and_methods_from_files();
     }
 
     /// Select the next service.

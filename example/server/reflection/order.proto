@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service OrderService {
+  // Get a order by its id
+  rpc GetOrder (GetOrderReq) returns (GetOrderResp) {}
+  // Return all available orders
+  rpc ListOrders (ListOrdersReq) returns (ListOrdersResp) {}
+}
+  
+message GetOrderReq {
+  // The account id.
+  string account_id = 1;
+  // The id of the order.
+  string order_id = 2;
+}
+  
+message GetOrderResp {
+  // The order matching the order_id.
+  Order order = 1;
+}
+
+message ListOrdersReq {
+  // The account id.
+  string account_id = 1;
+}
+  
+message ListOrdersResp {
+  // All available orders.
+  repeated Order orders = 1;
+}
+
+message Order {
+  // The id of the order.
+  string id = 1;
+  // The name of the order.
+  string name = 2;
+}

@@ -40,6 +40,7 @@ impl Root<'_> {
         match self.ctx.tab {
             Tab::Selection => SelectionPage {
                 model: &mut self.ctx.selection.borrow_mut(),
+                reflection_model: &mut self.ctx.reflection.borrow_mut(),
                 tab: self.ctx.selection_tab,
             }
             .render(area, buf),

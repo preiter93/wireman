@@ -1,0 +1,15 @@
+includes = [
+    "$HOME/Rust/wireman/example",
+]
+files = [
+    "server/simple/debugger.proto",
+    "server/simple/greeter.proto",
+    "server/simple/productfinder.proto",
+    "server/simple/timekeeper.proto",
+]
+
+[history]
+directory = "$HOME/Rust/wireman/example/history"
+
+[server]
+default_address = "http://localhost:50051"

@@ -96,6 +96,18 @@ impl HeadersModel {
         map
     }
 
+    /// Get the shell expanded authentication headers as a map
+    pub fn auth_headers_expanded(&self) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+
+        // Authorization
+        if !self.auth.is_empty() {
+            map.insert(AuthHeader::key(), self.auth.value_expanded());
+        }
+
+        map
+    }
+
     /// Get the shell expanded headers as a map
     pub fn headers_expanded(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();

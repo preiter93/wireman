@@ -12,7 +12,7 @@ pub enum Error {
     #[error("internal error {0}")]
     Internal(String),
 
-    /// Failed to deserialize DynamicMessage from json
+    /// Failed to deserialize `DynamicMessage` from json
     #[error("error deserializing message from json")]
     DeserializeMessage(#[source] serde_json::Error),
 
