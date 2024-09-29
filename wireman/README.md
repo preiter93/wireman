@@ -141,6 +141,12 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 
 ![](example/tape/demo.gif?v=2)
 
+## Server Reflection
+
+Wireman now also supports server reflection for gRPC servers that provide reflection. To activate reflection mode, press `Ctrl + r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. To switch back from reflection mode to file mode, press `Ctrl + r` again.
+
+![](example/tape/reflection.gif?v=2)
+
 ## Roadmap
 
 - [x] Unary gRPC
@@ -155,6 +161,7 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 - [x] Metadata headers
 - [x] Provide installation help
 - [x] Custom themes
+- [x] Server reflection
 
 Planned
 - [ ] Edit config file in app
