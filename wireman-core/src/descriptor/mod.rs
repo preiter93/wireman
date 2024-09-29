@@ -50,7 +50,7 @@ impl ProtoDescriptor {
     ///
     /// # Errors
     /// Errors if server reflection or dependency resolving fails.
-    pub async fn reflect(request: ReflectionRequest) -> Result<Self> {
+    pub async fn from_reflection(request: ReflectionRequest) -> Result<Self> {
         let services = make_list_service_reflection_request(&request).await?;
 
         let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();

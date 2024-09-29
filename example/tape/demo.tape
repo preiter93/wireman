@@ -17,7 +17,7 @@ Show
 
 # Initialization
 Set TypingSpeed 30ms
-Type "export WIREMAN_CONFIG_DIR=$PWD/config_default"
+Type "export WIREMAN_CONFIG_DIR=$PWD/configs/default"
 Set TypingSpeed 40ms
 Enter
 Sleep 0.5s
@@ -91,7 +91,7 @@ Hide
 Backspace 35
 Show
 
-Type "export WIREMAN_CONFIG_DIR=$PWD/config_dracula"
+Type "export WIREMAN_CONFIG_DIR=$PWD/configs/dracula"
 Enter
 # Type 'tail -n 2 config_dracula/wireman.toml'
 # Enter

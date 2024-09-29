@@ -11,7 +11,7 @@ pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 #[tokio::main]
 async fn main() -> Result<()> {
     let request = ReflectionRequest::new("http://localhost:50051");
-    let desc = ProtoDescriptor::reflect(request).await?;
+    let desc = ProtoDescriptor::from_reflection(request).await?;
     let service = &desc.get_services()[0];
     let method = &desc.get_methods(service)[1];
     println!("Service: {:}", service.full_name());
