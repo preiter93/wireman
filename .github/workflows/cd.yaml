@@ -40,7 +40,7 @@ jobs:
 
       - name: Set the release version
         shell: bash
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -71,15 +71,15 @@ jobs:
           else
             mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
           fi
-          echo "DIRNAME=$dirname" >> $GITHUB_ENV
+          echo "dirname=$dirname" >> $GITHUB_ENV
 
       - name: Create release artifacts
         shell: bash
         run: |
           if [ "${{ matrix.os }}" = "windows-2022" ]; then
-            7z a "${{ env.DIRNAME }}.zip" "${{ env.DIRNAME }}"
+            7z a "${{ env.dirname }}.zip" "${{ env.dirname }}"
           else
-            tar -czvf "${{ env.DIRNAME }}.tar.gz" "${{ env.DIRNAME }}"
+            tar -czvf "${{ env.dirname }}.tar.gz" "${{ env.dirname }}"
           fi
 
       - name: Upload the binary releases
