@@ -76,7 +76,6 @@ jobs:
       - name: Create release artifacts
         shell: bash
         run: |
-          echo "DIRNAME: ${{ env.DIRNAME }}"
           if [ "${{ matrix.os }}" = "windows-2022" ]; then
             7z a "${{ env.DIRNAME }}.zip" "${{ env.DIRNAME }}"
           else
