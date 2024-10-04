@@ -30,6 +30,10 @@ This guide will walk you through the steps to set up and run WireMan.
 cargo install wireman
 ```
 
+### Download Binary
+
+Alternatively, you can download the latest binary from the [releases page](https://github.com/preiter93/wireman/releases).
+
 ### Install manually
 
 1. Clone the repository:
