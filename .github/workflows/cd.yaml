@@ -62,14 +62,13 @@ jobs:
       - name: Prepare release assets
         shell: bash
         run: |
-          mkdir -p release
-          cp {LICENSE.md,README.md,CHANGELOG.md} release/
           dirname="wireman-${{ env.VERSION }}-${{ matrix.target }}"
-          mkdir "$dirname"
+          mkdir -p "$dirname"
+          cp {LICENSE.md,README.md,CHANGELOG.md} "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
+            mv "target/${{ matrix.target }}/release/wireman.exe" "$dirname"
           else
-            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
+            mv "target/${{ matrix.target }}/release/wireman" "$dirname"
           fi
           echo "dirname=$dirname" >> $GITHUB_ENV
 
