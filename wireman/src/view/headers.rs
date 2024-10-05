@@ -12,7 +12,6 @@ use ratatui::{
 use theme::Theme;
 use tui_widget_list::{ListBuilder, ListState, ListView};
 
-/// The request and response tab
 pub struct HeadersPage<'a> {
     model: &'a HeadersModel,
 }
