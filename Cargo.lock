@@ -542,21 +542,20 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.7.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3f6fa14c4dd39e14d1f68994c97fcecd73cb33453608824c51bfbeca7cb3819"
+version = "0.8.0"
 dependencies = [
  "arboard",
  "edtui-jagged",
  "enum_dispatch",
  "ratatui",
+ "unicode-width 0.2.0",
 ]
 
 [[package]]
 name = "edtui-jagged"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e034671eafe4bbdea219971116f8377caa354d389f562bb04a3b80d88c990f15"
+checksum = "7756b389bc324975dbbbc177e687090d711571aaaad71e8f2208a3e37ad64f5e"
 
 [[package]]
 name = "either"
@@ -1127,7 +1126,7 @@ dependencies = [
  "cfg-if",
  "miette-derive",
  "thiserror",
- "unicode-width",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -1589,7 +1588,7 @@ dependencies = [
  "strum_macros",
  "unicode-segmentation",
  "unicode-truncate",
- "unicode-width",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -2198,7 +2197,7 @@ checksum = "b3644627a5af5fa321c95b9b235a72fd24cd29c648c2c379431e6628655627bf"
 dependencies = [
  "itertools",
  "unicode-segmentation",
- "unicode-width",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -2206,6 +2205,12 @@ name = "unicode-width"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
+
+[[package]]
+name = "unicode-width"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
 
 [[package]]
 name = "untrusted"
@@ -2504,12 +2509,12 @@ dependencies = [
  "serde_json",
  "tokio",
  "tui-widget-list",
- "unicode-width",
+ "unicode-width 0.1.14",
  "wireman-config 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-core 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.1.1",
 ]
 
 [[package]]
@@ -2522,7 +2527,7 @@ dependencies = [
  "thiserror",
  "toml",
  "wireman-logger 0.1.0",
- "wireman-theme 0.1.1",
+ "wireman-theme 0.1.2",
 ]
 
 [[package]]
@@ -2537,7 +2542,7 @@ dependencies = [
  "thiserror",
  "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.1.1",
 ]
 
 [[package]]
@@ -2619,6 +2624,8 @@ dependencies = [
 [[package]]
 name = "wireman-theme"
 version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2d70389c235af278ac7a1b1aa4937e4aa76daf04ea8d38a8b7ca90c3dce729a"
 dependencies = [
  "cssparser",
  "once_cell",
@@ -2631,9 +2638,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2d70389c235af278ac7a1b1aa4937e4aa76daf04ea8d38a8b7ca90c3dce729a"
+version = "0.1.2"
 dependencies = [
  "cssparser",
  "once_cell",
