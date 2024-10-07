@@ -83,7 +83,7 @@ impl Widget for ReflectionDialog {
 
         let paragraph = Paragraph::new(line).wrap(Wrap { trim: true });
         let line_count = paragraph.line_count(f.width) as u16;
-        f.y = f.y + max_height_footer.saturating_sub(line_count);
+        f.y += max_height_footer.saturating_sub(line_count);
         paragraph.render(f, buf);
     }
 }
