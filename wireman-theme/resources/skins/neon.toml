@@ -1,4 +1,4 @@
-# black #020617
+# black #101116
 # white #f1f5f9
 # gray: #44475a
 # neon-magenta: #ff33cc
@@ -6,7 +6,7 @@
 # neon-orange: #ff9900
 
 [base]
-background = "#020617"
+background = "#101116"
 foreground = "#f1f5f9"
 
 [border.text.unfocused]
@@ -21,54 +21,54 @@ bold = true
 
 [navbar.tabs.unfocused]
 foreground = "#f1f5f9"
-background = "#020617"
+background = "#101116"
 
 [navbar.tabs.focused]
-foreground = "#020617"
+foreground = "#101116"
 background = "#00cc66"
 
 [list.focused]
-foreground = "#020617"
+foreground = "#101116"
 background = "#ff9900"
 
 [history.inactive.unfocused]
 foreground = "#44475a"
-background = "#020617"
+background = "#101116"
 
 [history.inactive.focused]
-foreground = "#020617"
+foreground = "#101116"
 background = "#44475a"
 
 [history.active.unfocused]
 foreground = "#ff9900"
-background = "#020617"
+background = "#101116"
 
 [history.active.focused]
-foreground = "#020617"
+foreground = "#101116"
 background = "#ff9900"
 
 [headers.titles]
 foreground = "#f1f5f9"
-background = "#020617"
+background = "#101116"
 bold = true
 
 [headers.tabs.focused]
-foreground = "#020617"
+foreground = "#101116"
 background = "#ff9900"
 
 [editor.selection]
-foreground = "#020617"
+foreground = "#101116"
 background = "#ff9900"
 
 [editor.status_line]
 bold = true
 
 [editor.status_line.primary]
-foreground = "#020617"
+foreground = "#101116"
 background = "#00cc66"
 
 [editor.status_line.secondary]
-background = "#020617"
+background = "#101116"
 
 [footer]
 hide = true

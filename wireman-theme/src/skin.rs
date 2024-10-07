@@ -41,7 +41,7 @@ impl Skin {
         let hc = default_highlight_color();
         let hc2 = secondary_highlight_color();
         let dc = default_text_disabled_color();
-        let title_fg = default_title_color();
+        let tc = default_title_color();
 
         // Base
         theme.base.style = theme.base.style.fg(fc.0).bg(bc.0);
@@ -49,12 +49,12 @@ impl Skin {
         // Border
         let unfocused = self.border.unfocused.as_ref();
         let focused = self.border.focused.as_ref();
-        set_focusable!(theme.border.text, self.border.text, fc, bc, fc, bc);
+        set_focusable!(theme.border.text, self.border.text, fc, bc, tc, bc);
         set_fg_bg!(theme.border.border.0, unfocused, fc, bc);
         set_fg_bg!(theme.border.border.1, focused, fc, bc);
 
         // Navbar
-        set_fg_bg!(theme.navbar.title, self.navbar.title, title_fg, bc);
+        set_fg_bg!(theme.navbar.title, self.navbar.title, tc, bc);
         let title = self.navbar.title.as_ref();
         if title.and_then(|x| x.bold).unwrap_or(true) {
             theme.navbar.title = theme.navbar.title.bold();
@@ -98,7 +98,7 @@ impl Skin {
         set_focusable!(theme.history.active, active, hc, bc, bc, hc);
 
         // Headers
-        set_fg_bg!(theme.headers.titles, self.headers.titles, title_fg, bc);
+        set_fg_bg!(theme.headers.titles, self.headers.titles, tc, bc);
         set_focusable!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, hc);
 
         // Footer
@@ -189,7 +189,7 @@ pub(crate) struct HelpDialog {
 }
 
 pub fn default_background_color() -> Color {
-    DARK_BLUE
+    DARK_NIGHT
 }
 
 pub fn default_foreground_color() -> Color {
@@ -209,7 +209,7 @@ pub fn default_title_color() -> Color {
 }
 
 pub fn default_editor_status_line_colors() -> (Color, Color) {
-    (GREEN, DARK_BLUE)
+    (GREEN, DARK_NIGHT)
 }
 
 pub fn default_text_disabled_color() -> Color {
@@ -249,7 +249,7 @@ pub(crate) struct StatusLine {
 
 const WHITE: Color = Color::rgb(241, 245, 249);
 const GRAY: Color = Color::rgb(68, 71, 90);
-const DARK_BLUE: Color = Color::rgb(2, 6, 23);
+const DARK_NIGHT: Color = Color::rgb(16, 17, 22);
 const ORANGE: Color = Color::rgb(255, 153, 0);
 const MAGENTA: Color = Color::rgb(255, 51, 204);
 const GREEN: Color = Color::rgb(0, 204, 102);
