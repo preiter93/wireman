@@ -313,7 +313,7 @@ mod tests {
         // Load Skin from file
         let skin: Skin = Skin::from_file(&test_resource("empty.toml")).unwrap();
         // Assert
-        assert_eq!(skin.base.background, Color::rgb(2, 6, 23));
+        assert_eq!(skin.base.background, Color::rgb(16, 17, 22));
     }
     #[test]
     fn test_skin_from_file() {
