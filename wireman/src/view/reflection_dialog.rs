@@ -5,6 +5,7 @@ use crate::model::reflection::ReflectionModel;
 use ratatui::layout::Layout;
 use ratatui::style::Stylize;
 use ratatui::text::Line;
+use ratatui::widgets::{Paragraph, Wrap};
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Direction, Rect},
@@ -41,7 +42,8 @@ impl Widget for ReflectionDialog {
             block.render(area, buf);
             inner_area
         };
-        let [m, f] = Layout::vertical([Min(0), Length(1)]).areas(area);
+        let max_height_footer = 3;
+        let [m, mut f] = Layout::vertical([Min(0), Length(max_height_footer)]).areas(area);
 
         // Address
         let layout = layout(m, Direction::Vertical, &[1, 1, 3, 1, 1, 4]);
@@ -73,10 +75,15 @@ impl Widget for ReflectionDialog {
         body.render(auth_content, buf);
 
         // Status line
-        if let Some(err) = self.model.error {
-            Line::from(err).left_aligned().red().render(f, buf);
+        let line = if let Some(err) = self.model.error {
+            Line::from(err).left_aligned().red()
         } else {
-            Line::from("Press Enter ").right_aligned().render(f, buf);
-        }
+            Line::from("Press Enter ").right_aligned()
+        };
+
+        let paragraph = Paragraph::new(line).wrap(Wrap { trim: true });
+        let line_count = paragraph.line_count(f.width) as u16;
+        f.y = f.y + max_height_footer.saturating_sub(line_count);
+        paragraph.render(f, buf);
     }
 }
