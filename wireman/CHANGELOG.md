@@ -1,3 +1,7 @@
+0.1.5 - 07 Sep 2024
+===================
+- Resize request and response windows with `+`/`-`
+
 0.1.4 - 07 Sep 2024
 ===================
 - Bump edtui to v0.8: Supports line wrapping

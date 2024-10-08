@@ -31,8 +31,9 @@ impl Widget for MessagesPage<'_> {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = theme::Theme::global();
         let sl = u16::from(!theme.editor.hide_status_line);
+        let request_window_size = self.model.request.window_size;
         let [top, bottom, status] =
-            Layout::vertical([Percentage(50), Min(0), Length(sl)]).areas(area);
+            Layout::vertical([Percentage(request_window_size), Min(0), Length(sl)]).areas(area);
 
         // Request
         let editor = if self.tab == MessagesTab::Request {
