@@ -19,6 +19,8 @@ pub enum RequestEvents {
     LoadHistory3,
     LoadHistory4,
     LoadHistory5,
+    IncreaseSize,
+    DecreaseSize,
 }
 
 impl fmt::Display for RequestEvents {
@@ -38,6 +40,8 @@ impl fmt::Display for RequestEvents {
             RequestEvents::LoadHistory3 => "Load History 3",
             RequestEvents::LoadHistory4 => "Load History 4",
             RequestEvents::LoadHistory5 => "Load History 5",
+            RequestEvents::IncreaseSize => "Increase Size",
+            RequestEvents::DecreaseSize => "Decrease Size",
         };
         write!(f, "{display_str}")
     }
@@ -112,6 +116,8 @@ impl EventHandler for RequestEventHandler {
             RequestEvents::LoadHistory5 => {
                 ctx.messages.borrow_mut().handle_history_reload(5);
             }
+            RequestEvents::IncreaseSize => ctx.messages.borrow_mut().request.increase_window_size(),
+            RequestEvents::DecreaseSize => ctx.messages.borrow_mut().request.decrease_window_size(),
         }
     }
 
@@ -163,6 +169,14 @@ impl EventHandler for RequestEventHandler {
                 (
                     KeyEvent::new(KeyCode::Char('5')),
                     RequestEvents::LoadHistory5,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('+')),
+                    RequestEvents::IncreaseSize,
+                ),
+                (
+                    KeyEvent::new(KeyCode::Char('-')),
+                    RequestEvents::DecreaseSize,
                 ),
             ]);
         }

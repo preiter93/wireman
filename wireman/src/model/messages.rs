@@ -285,6 +285,9 @@ pub struct RequestModel {
 
     /// The metadata
     pub metadata: String,
+
+    /// The window size in percentage.
+    pub window_size: u16,
 }
 
 impl RequestModel {
@@ -295,6 +298,7 @@ impl RequestModel {
             core_client,
             editor: TextEditor::new(),
             metadata: String::new(),
+            window_size: 50,
         }
     }
 
@@ -316,6 +320,14 @@ impl RequestModel {
 
     pub fn set_error(&mut self, error: ErrorKind) {
         self.editor.set_error(Some(error));
+    }
+
+    pub fn increase_window_size(&mut self) {
+        self.window_size = (self.window_size + 10).min(90);
+    }
+
+    pub fn decrease_window_size(&mut self) {
+        self.window_size = self.window_size.saturating_sub(10).max(10);
     }
 }
 
