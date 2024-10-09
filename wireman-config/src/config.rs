@@ -90,13 +90,16 @@ impl Config {
 pub struct ServerConfig {
     /// The default address
     pub default_address: String,
+    /// The default auth header
+    pub default_auth_header: String,
 }
 
 impl ServerConfig {
     #[must_use]
-    pub fn new(default_address: &str) -> Self {
+    pub fn new(default_address: &str, default_auth_header: &str) -> Self {
         Self {
             default_address: default_address.to_string(),
+            default_auth_header: default_auth_header.to_string(),
         }
     }
 }
@@ -228,6 +231,7 @@ mod test {
         ]
         [server]
         default_address = "http://localhost:50051"
+        default_auth_header = "Bearer ey"
         [history]
         directory = "/Users/test"
         autosave = false
@@ -244,7 +248,7 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::custom("cert.pem"),
-            server: ServerConfig::new("http://localhost:50051"),
+            server: ServerConfig::new("http://localhost:50051", "Bearer ey"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
             ui: theme::Config::new(Some(String::from("skin.toml"))),
@@ -258,7 +262,7 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
-            server: ServerConfig::new("http://localhost:50051"),
+            server: ServerConfig::new("http://localhost:50051", "Bearer ey"),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
             ui: theme::Config::new(Some(String::from("skin.toml"))),
@@ -273,6 +277,7 @@ disabled = false
 
 [server]
 default_address = "http://localhost:50051"
+default_auth_header = "Bearer ey"
 
 [logging]
 level = "Debug"
