@@ -89,17 +89,28 @@ impl Config {
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct ServerConfig {
     /// The default address
-    pub default_address: String,
+    pub default_address: Option<String>,
     /// The default auth header
-    pub default_auth_header: String,
+    pub default_auth_header: Option<String>,
 }
 
 impl ServerConfig {
     #[must_use]
     pub fn new(default_address: &str, default_auth_header: &str) -> Self {
+        let default_address = if default_address.is_empty() {
+            None
+        } else {
+            Some(default_address.to_string())
+        };
+
+        let default_auth_header = if default_auth_header.is_empty() {
+            None
+        } else {
+            Some(default_auth_header.to_string())
+        };
         Self {
-            default_address: default_address.to_string(),
-            default_auth_header: default_auth_header.to_string(),
+            default_address,
+            default_auth_header,
         }
     }
 }
@@ -231,7 +242,6 @@ mod test {
         ]
         [server]
         default_address = "http://localhost:50051"
-        default_auth_header = "Bearer ey"
         [history]
         directory = "/Users/test"
         autosave = false
@@ -248,7 +258,7 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::custom("cert.pem"),
-            server: ServerConfig::new("http://localhost:50051", "Bearer ey"),
+            server: ServerConfig::new("http://localhost:50051", ""),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
             ui: theme::Config::new(Some(String::from("skin.toml"))),
@@ -262,7 +272,7 @@ mod test {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
             tls: TlsConfig::default(),
-            server: ServerConfig::new("http://localhost:50051", "Bearer ey"),
+            server: ServerConfig::new("http://localhost:50051", ""),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
             ui: theme::Config::new(Some(String::from("skin.toml"))),
@@ -277,7 +287,6 @@ disabled = false
 
 [server]
 default_address = "http://localhost:50051"
-default_auth_header = "Bearer ey"
 
 [logging]
 level = "Debug"
