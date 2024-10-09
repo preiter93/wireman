@@ -24,18 +24,20 @@ pub struct HeadersModel {
 
 impl Default for HeadersModel {
     fn default() -> Self {
-        Self::new("")
+        Self::new("", "")
     }
 }
 
 impl HeadersModel {
     /// Create a new `HeadersModel` instance
-    pub fn new(default_address: &str) -> Self {
+    pub fn new(default_address: &str, default_auth_header: &str) -> Self {
         let mut address = TextEditor::single();
         address.set_text_raw(default_address);
+        let mut auth_header = AuthHeader::default();
+        auth_header.set_text(default_auth_header);
         Self {
             addr: address,
-            auth: AuthHeader::default(),
+            auth: auth_header,
             meta: MetaHeaders::default(),
             tab: HeadersTab::default(),
         }

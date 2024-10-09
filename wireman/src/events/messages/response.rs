@@ -55,10 +55,10 @@ impl EventHandler for ResponseEventHandler {
                 ctx.messages.borrow_mut().yank_grpcurl();
             }
             ResponseEvents::IncreaseSize => {
-                ctx.messages.borrow_mut().request.decrease_window_size()
+                ctx.messages.borrow_mut().request.decrease_window_size();
             }
             ResponseEvents::DecreaseSize => {
-                ctx.messages.borrow_mut().request.increase_window_size()
+                ctx.messages.borrow_mut().request.increase_window_size();
             }
         }
     }
