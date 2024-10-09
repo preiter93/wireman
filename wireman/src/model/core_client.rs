@@ -88,7 +88,22 @@ impl CoreClient {
 
     /// Returns the default address as defined in the wireman.toml
     pub fn get_default_address(&self) -> String {
-        self.grpc.0.server.default_address.clone()
+        self.grpc
+            .0
+            .server
+            .default_address
+            .clone()
+            .unwrap_or_default()
+    }
+
+    /// Returns the default auth header as defined in the wireman.toml
+    pub fn get_default_auth_header(&self) -> String {
+        self.grpc
+            .0
+            .server
+            .default_auth_header
+            .clone()
+            .unwrap_or_default()
     }
 
     /// Returns the tls config.

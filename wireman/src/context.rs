@@ -57,7 +57,11 @@ impl AppContext {
 
         // The metadata model
         let server_address = &core_client_rc.borrow().get_default_address();
-        let headers = Rc::new(RefCell::new(HeadersModel::new(server_address)));
+        let server_auth_header = &core_client_rc.borrow().get_default_auth_header();
+        let headers = Rc::new(RefCell::new(HeadersModel::new(
+            server_address,
+            server_auth_header,
+        )));
 
         // The selection model
         let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
