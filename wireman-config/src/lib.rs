@@ -9,6 +9,7 @@
 //! - `files`: A list of .proto files to include.
 //! - `server`
 //!   - `default_address`: The default address of the `gRPC` server.
+//!   - `default_auth_header`: The default authentication header.
 //! - `history`
 //!   - `directory`: The folder path where the history should be kept
 pub mod cli;
