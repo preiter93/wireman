@@ -85,6 +85,7 @@ Alternatively, you can download the latest binary from the [releases page](https
     
     [server]
     default_address = "http://localhost:50051"
+    default_auth_header = "Bearer $(getToken.sh)"
     
     [history]
     directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
