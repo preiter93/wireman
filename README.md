@@ -32,7 +32,7 @@ cargo install wireman
 
 ### Download Binary
 
-Alternatively, you can download the latest binary from the [releases page](https://github.com/preiter93/wireman/releases).
+Alternatively, you can download the latest wireman binary from the [releases page](https://github.com/preiter93/wireman/releases).
 
 ### Install manually
 
@@ -88,6 +88,7 @@ Alternatively, you can download the latest binary from the [releases page](https
     
     [server]
     default_address = "http://localhost:50051"
+    default_auth_header = "Bearer $(getToken.sh)"
     
     [history]
     directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
