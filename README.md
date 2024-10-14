@@ -38,7 +38,7 @@ brew install preiter93/wireman/wireman
 
 ### Download Binary
 
-Alternatively, you can download the latest wireman binary from the [releases page](https://github.com/preiter93/wireman/releases).
+You can download the latest wireman binary from the [releases page](https://github.com/preiter93/wireman/releases).
 
 ### Install manually
 
