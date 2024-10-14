@@ -27,6 +27,12 @@ This guide will walk you through the steps to set up and run WireMan.
 cargo install wireman
 ```
 
+### Install with brew
+
+```
+brew install preiter93/wireman/wireman
+```
+
 ### Download Binary
 
 Alternatively, you can download the latest binary from the [releases page](https://github.com/preiter93/wireman/releases).
