@@ -22,11 +22,11 @@ impl<'a> Root<'a> {
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        let [left, right] = layout(area, Direction::Horizontal, &[0, 45]);
+        let [left, right] = layout(area, Direction::Horizontal, &[0, 34]);
         Block::new().style(theme.base.style).render(area, buf);
 
         Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
-        let titles = vec![" Selection ", " Address & Headers ", " Messages "];
+        let titles = vec![" Endpoints ", " Headers ", " Request "];
         Tabs::new(titles)
             .style(theme.navbar.tabs.0)
             .highlight_style(theme.navbar.tabs.1)
@@ -76,7 +76,7 @@ impl Root<'_> {
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
             Tab::Messages => MessagesPage::footer_keys(self.ctx.messages_tab),
-            Tab::Headers => HeadersPage::footer_keys(),
+            Tab::Headers => HeadersPage::footer_keys(&self.ctx.headers.borrow()),
         };
         let spans: Vec<Span> = keys
             .iter()
@@ -109,7 +109,7 @@ impl Widget for Root<'_> {
         }
 
         if let Some(help_ctx) = &self.ctx.help {
-            let popup_area = centered_rect(70, 50, area);
+            let popup_area = centered_rect(80, 70, area);
             Clear.render(popup_area, buf);
             HelpDialog::new(help_ctx).render(popup_area, buf);
         }

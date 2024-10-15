@@ -4,7 +4,7 @@ use crate::{
     widgets::editor::{view_single_selected, view_single_unselected},
     widgets::kv::KV,
 };
-use edtui::{EditorState, EditorStatusLine};
+use edtui::{EditorMode, EditorState, EditorStatusLine};
 use ratatui::{
     prelude::*,
     widgets::{Block, StatefulWidget, Tabs, Widget},
@@ -21,14 +21,20 @@ impl<'a> HeadersPage<'a> {
         Self { model }
     }
 
-    pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
-        vec![
+    pub fn footer_keys(model: &'a HeadersModel) -> Vec<(&'static str, &'static str)> {
+        let mut keys = vec![
             ("^c", "Quit"),
-            ("Tab", "Next Tab"),
-            ("↑/k", "Up"),
-            ("↓/j", "Down"),
-            ("?", "Show help"),
-        ]
+            ("Tab", "Next Page"),
+            ("j/k/h/l", "Navigate"),
+        ];
+        if model.mode() == EditorMode::Insert {
+            keys.push(("Esc", "Normal Mode"));
+        } else {
+            keys.push(("i", "Insert Mode"));
+        }
+        keys.push(("?", "Help"));
+
+        keys
     }
 }
 

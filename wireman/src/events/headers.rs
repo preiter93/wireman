@@ -28,8 +28,8 @@ pub enum HeadersEvents {
 impl fmt::Display for HeadersEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
-            HeadersEvents::NextTab => "Next Tab",
-            HeadersEvents::PrevTab => "Prev Tab",
+            HeadersEvents::NextTab => "Next Page",
+            HeadersEvents::PrevTab => "Prev Page",
             HeadersEvents::NextRow => "Next Row",
             HeadersEvents::PrevRow => "Prev Row",
             HeadersEvents::NextCol => "Next Column",

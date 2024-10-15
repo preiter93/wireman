@@ -26,8 +26,8 @@ pub enum RequestEvents {
 impl fmt::Display for RequestEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
-            RequestEvents::NextTab => "Next Tab",
-            RequestEvents::PrevTab => "Prev Tab",
+            RequestEvents::NextTab => "Next Page",
+            RequestEvents::PrevTab => "Prev Page",
             RequestEvents::MakeRequest => "Make Request",
             RequestEvents::AbortRequest => "Abort Request",
             RequestEvents::GoToResponse => "Go to Response",
