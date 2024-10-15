@@ -14,10 +14,10 @@ pub struct MessagesPage<'a> {
 
 impl<'a> MessagesPage<'a> {
     pub fn footer_keys(tab: MessagesTab) -> Vec<(&'static str, &'static str)> {
-        let mut keys = vec![("^c", "Quit"), ("Tab", "Next Tab")];
+        let mut keys = vec![("^c", "Quit"), ("Tab", "Next Page")];
         if tab == MessagesTab::Request {
             keys.push(("J", "Down"));
-            keys.push(("Enter", "Make request"));
+            keys.push(("⏎", "Make request"));
         } else {
             keys.push(("K", "Up"));
         }

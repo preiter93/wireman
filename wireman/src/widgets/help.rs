@@ -43,7 +43,7 @@ impl Widget for HelpDialog {
             Cell::from("Quit app".to_string()),
         ]));
 
-        let widths = [Constraint::Length(10), Constraint::Length(25)];
+        let widths = [Constraint::Length(15), Constraint::Length(25)];
         let table = Table::new(rows, widths)
             .column_spacing(1)
             .style(style)

@@ -16,8 +16,8 @@ pub enum ResponseEvents {
 impl fmt::Display for ResponseEvents {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display_str = match self {
-            ResponseEvents::NextTab => "Next Tab",
-            ResponseEvents::PrevTab => "Prev Tab",
+            ResponseEvents::NextTab => "Next Page",
+            ResponseEvents::PrevTab => "Prev Page",
             ResponseEvents::GoToRequest => "Go to Request",
             ResponseEvents::CopyAsGrpCurl => "Copy as cURL",
             ResponseEvents::IncreaseSize => "Increase Size",

@@ -25,8 +25,8 @@ impl fmt::Display for MethodsSelectionEvents {
         let display_str = match self {
             MethodsSelectionEvents::Next => "Next",
             MethodsSelectionEvents::Prev => "Prev",
-            MethodsSelectionEvents::NextTab => "Next Tab",
-            MethodsSelectionEvents::PrevTab => "Prev Tab",
+            MethodsSelectionEvents::NextTab => "Next Page",
+            MethodsSelectionEvents::PrevTab => "Prev Page",
             MethodsSelectionEvents::Select => "Select",
             MethodsSelectionEvents::Search => "Search",
             MethodsSelectionEvents::Unselect => "Unselect",

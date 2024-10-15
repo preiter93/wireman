@@ -24,6 +24,8 @@ impl Widget for HistoryTabs<'_> {
         if !self.model.enabled {
             let [_, _, right] = layout(area, Direction::Horizontal, &[0, 3, 25]);
 
+            // Line::from("💾").render(symbol, buf);
+
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
                 .style(theme.history.inactive.0)

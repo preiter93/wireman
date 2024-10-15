@@ -27,9 +27,10 @@ impl<'a> SelectionPage<'a> {
     pub fn footer_keys(sub: SelectionTab) -> Vec<(&'static str, &'static str)> {
         let mut keys = vec![
             ("^c", "Quit"),
-            ("j/↓", "Next"),
-            ("k/↑", "Prev"),
-            ("Enter", "Select"),
+            ("Tab", "Next Page"),
+            ("j/k", "Scroll"),
+            ("/", "Search"),
+            ("⏎", "Select"),
         ];
         if sub == SelectionTab::Methods {
             keys.push(("Esc", "Unselect"));
