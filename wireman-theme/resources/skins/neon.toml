@@ -61,7 +61,7 @@ foreground = "#101116"
 background = "#ff9900"
 
 [editor.status_line]
-bold = true
+bold = false
 
 [editor.status_line.primary]
 foreground = "#101116"
@@ -71,4 +71,4 @@ background = "#00cc66"
 background = "#101116"
 
 [footer]
-hide = true
+hide = false
