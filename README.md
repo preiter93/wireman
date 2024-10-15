@@ -66,6 +66,9 @@ You can download the latest wireman binary from the [releases page](https://gith
     ```bash
     echo "alias wireman='CURRENT_DIRECTORY/target/release/wireman'" >> ~/.zshrc
     ```
+## Demo
+
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/demo.gif)
 
 ## Configuration
 
@@ -148,12 +151,6 @@ skin = "path_to_file/custom_skin.toml"
 ```
     
 For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins).
-
-
-
-## Demo
-
-![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/demo.gif)
 
 ## Server Reflection
 
