@@ -107,7 +107,7 @@ impl Skin {
         if let Some(hide_footer) = self.footer.hide {
             theme.footer.hide = hide_footer;
         } else {
-            theme.footer.hide = true;
+            theme.footer.hide = false;
         }
 
         // Help dialog
