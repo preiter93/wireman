@@ -548,9 +548,9 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df8fc57b5a47b372c0bd473f85db0dbeb6b86898d1ab5db6bcd9b56b0b26d14b"
+checksum = "a43def1c144641785b02a955524bedb6cd2b9f9411634bf3cd35da0935856534"
 dependencies = [
  "arboard",
  "edtui-jagged",
@@ -563,9 +563,9 @@ dependencies = [
 
 [[package]]
 name = "edtui-jagged"
-version = "0.1.9"
+version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51be911a23f161b3bf65d3ed8f56b55f39b99de552893eacecbce3941b7af194"
+checksum = "b5a992f520125617a8b5d316d702a77ef46128c7b316514bc22376dfc076331b"
 
 [[package]]
 name = "either"
@@ -877,9 +877,9 @@ checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
 name = "hyper"
-version = "1.4.1"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50dfd22e0e76d0f662d429a5f80fcaf3855009297eab6a0a9f8543834744ba05"
+checksum = "bbbff0a806a4728c99295b254c8838933b5b082d75e3cb70c8dab21fdfbcfa9a"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -1747,9 +1747,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e696e35370c65c9c541198af4543ccd580cf17fc25d8e05c5a242b202488c55"
+checksum = "16f1201b3c9a7ee8039bcadc17b7e605e2945b27eee7631788c1bd2b0643674b"
 
 [[package]]
 name = "rustls-webpki"
@@ -1764,9 +1764,9 @@ dependencies = [
 
 [[package]]
 name = "rustversion"
-version = "1.0.17"
+version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "955d28af4278de8121b7ebeb796b6a45735dc01436d898801014aced2773a3d6"
+checksum = "0e819f2bc632f285be6d7cd36e25940d45b2391dd6d9b939e79de557f7014248"
 
 [[package]]
 name = "ryu"
@@ -2668,7 +2668,7 @@ dependencies = [
  "wireman-core 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.1.2",
+ "wireman-theme 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2681,7 +2681,7 @@ dependencies = [
  "thiserror",
  "toml",
  "wireman-logger 0.1.0",
- "wireman-theme 0.1.3",
+ "wireman-theme 0.1.4",
 ]
 
 [[package]]
@@ -2696,7 +2696,7 @@ dependencies = [
  "thiserror",
  "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.1.2",
+ "wireman-theme 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2777,9 +2777,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6caec5dc0ac158f32fedd1f2b023811ae4a8c2e471a3b13ce9555d909c56c73b"
+version = "0.1.4"
 dependencies = [
  "cssparser",
  "once_cell",
@@ -2792,7 +2790,9 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.1.3"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d6e63de4d2c03fc04bd75bed76f8e34ac4337bb22f6b05a931ba6c30229589a"
 dependencies = [
  "cssparser",
  "once_cell",
