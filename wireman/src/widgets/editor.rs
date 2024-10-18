@@ -338,7 +338,7 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
 /// Returns the editors view for a single line editor when selected.
 pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    EditorView::new(state).theme(
+    EditorView::new(state).wrap(false).theme(
         EditorTheme::default()
             .block(
                 Block::new()
@@ -359,7 +359,7 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
 /// Returns the editors view for a single line editor when unselected.
 pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
     let theme = Theme::global();
-    EditorView::new(state).theme(
+    EditorView::new(state).wrap(false).theme(
         EditorTheme::default()
             .block(
                 Block::new()
