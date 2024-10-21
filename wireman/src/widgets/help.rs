@@ -1,7 +1,8 @@
 use crate::context::HelpContext;
 use ratatui::{
-    prelude::{Alignment, Buffer, Constraint, Rect},
-    widgets::{block::Title, Block, Borders, Cell, Row, Table, Widget},
+    prelude::{Buffer, Constraint, Rect},
+    text::Line,
+    widgets::{Block, Borders, Cell, Row, Table, Widget},
 };
 use theme::Theme;
 
@@ -26,7 +27,7 @@ impl Widget for HelpDialog {
         let style = theme.help_dialog.style;
         let block = Block::default()
             .borders(Borders::ALL)
-            .title(Title::from("Help").alignment(Alignment::Center));
+            .title_top(Line::from("Help").centered());
         let mut rows = Vec::new();
         for (key, msg) in self.key_map {
             rows.push(Row::new(vec![

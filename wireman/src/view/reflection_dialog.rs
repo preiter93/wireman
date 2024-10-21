@@ -8,8 +8,8 @@ use ratatui::text::Line;
 use ratatui::widgets::{Paragraph, Wrap};
 use ratatui::{
     buffer::Buffer,
-    layout::{Alignment, Direction, Rect},
-    widgets::{block::Title, Block, Borders, Widget},
+    layout::{Direction, Rect},
+    widgets::{Block, Borders, Widget},
 };
 use theme::Theme;
 
@@ -36,7 +36,7 @@ impl Widget for ReflectionDialog {
             let block = Block::default()
                 .borders(Borders::ALL)
                 .style(style)
-                .title(Title::from("Reflection Settings").alignment(Alignment::Center))
+                .title_top(Line::from("Reflection Settings").centered())
                 .title_style(title_style);
             let inner_area = block.inner(area);
             block.render(area, buf);
