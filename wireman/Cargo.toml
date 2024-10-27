@@ -25,7 +25,8 @@ event-handler = { package = "wireman-event-handler", version = "0.1" }
 
 tui-widget-list = { version = "0.13" }
 edtui = "0.9"
-# edtui = { package = "edtui", path = "../../edtui", version = "0.8.4" }
+# edtui = { package = "edtui", path = "../../edtui", version = "0.9" }
+# edtui = { version = "0.9", git = "https://github.com/preiter93/edtui", branch = "tabs" }
 crossterm = { version = "0.28", features = ["events", "event-stream"] }
 ratatui = { package = "ratatui", version = "0.29", features = ["unstable"] }
 serde = { version = "1.0", features = ["derive"] }
