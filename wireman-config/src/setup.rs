@@ -4,7 +4,7 @@ use std::error::Error as StdError;
 use std::fmt::{self};
 use std::path::Path;
 
-use logger::{Logger, LoggerError};
+use logger::Logger;
 
 use crate::config::{HistoryConfig, LoggingConfig};
 use crate::{Config, CONFIG_FNAME, ENV_CONFIG_DIR};
@@ -16,7 +16,7 @@ use std::result::Result as StdResult;
 /// Initializes the `Config` from environment variables
 ///
 /// # Errors
-/// See `setup`
+/// See [`setup`].
 pub fn init_from_env() -> Result<Config> {
     setup(false)
 }
@@ -91,8 +91,8 @@ pub fn setup(dry_run: bool) -> Result<Config> {
         config.history.directory.clone_from(&history_dir);
         if !dry_run && !Path::new(&history_dir).exists() {
             if let Err(err) = std::fs::create_dir(&history_dir) {
-                return Err(Error::SetupError(SetupError::new(format!(
-                    "Failed to create the directory {history_dir}, err: {err}",
+                return Err(Error::SetupError(SetupError::CreateDirectory(Box::new(
+                    err,
                 ))));
             }
         }
@@ -116,8 +116,8 @@ pub fn setup(dry_run: bool) -> Result<Config> {
     };
     if !dry_run {
         if let Err(err) = Logger::init(logger_file, config.logging.level) {
-            return Err(Error::SetupError(SetupError::new(format!(
-                "Failed to initialize the logger: {err}"
+            return Err(Error::SetupError(SetupError::InitializeLogger(Box::new(
+                err,
             ))));
         }
     }
@@ -130,25 +130,11 @@ pub fn setup(dry_run: bool) -> Result<Config> {
 }
 
 fn config_dir_checked() -> StdResult<String, SetupError> {
-    let config_dir = var(ENV_CONFIG_DIR).map_err(|err| {
-        SetupError::new(format!(
-            "Failed to read the environment variable {ENV_CONFIG_DIR}, err: {err}",
-        ))
-    })?;
-
-    if config_dir.is_empty() {
-        return Err(SetupError::new(
-            "The {ENV_CONFIG_DIR} environment variable is empty. \
-Please provide a configuration path.",
-        ));
-    }
+    let config_dir = var(ENV_CONFIG_DIR).map_err(|_| SetupError::ConfigDirEnvNotFound)?;
 
     let config_path = Path::new(&config_dir);
-    if !config_path.exists() {
-        return Err(SetupError::new(format!(
-            "The directory specified by the env variable '{ENV_CONFIG_DIR}' \
-             does not exist: {config_dir}",
-        )));
+    if config_dir.is_empty() || !config_path.exists() {
+        return Err(SetupError::ConfigDirInvalid);
     }
 
     Ok(config_dir)
@@ -158,9 +144,7 @@ fn config_file_checked(config_path: &Path) -> StdResult<String, SetupError> {
     let config_file_path = config_path.join(CONFIG_FNAME);
     let config_file = config_file_path.to_string_lossy();
     if !config_path.exists() {
-        return Err(SetupError::new(format!(
-            "No config file found: {config_file}"
-        )));
+        return Err(SetupError::ConfigFileNotFound(config_file.to_string()));
     }
 
     Ok(config_file.to_string())
@@ -183,9 +167,9 @@ fn history_dir_checked(
         .parent()
         .map_or(true, |p| !p.exists())
     {
-        return Err(SetupError::new(format!(
-            "Non existant parent of history directory {history_dir_path}.",
-        )));
+        return Err(SetupError::HistoryPathNotFound(
+            history_dir_path.to_string(),
+        ));
     }
 
     Ok(history_dir_path)
@@ -202,45 +186,50 @@ fn logger_dir_checked(
     }
 
     if !Path::new(&logger_dir).exists() {
-        return Err(SetupError::new(format!(
-            "Non existant path to log file {logger_dir}.",
-        )));
+        return Err(SetupError::LoggerPathNotFound(logger_dir.to_string()));
     }
 
     Ok(logger_dir)
 }
 
 #[derive(Debug)]
-pub struct SetupError {
-    error_msg: String,
-}
-
-impl SetupError {
-    pub fn new<S: Into<String>>(error_msg: S) -> Self {
-        Self {
-            error_msg: error_msg.into(),
-        }
-    }
+pub enum SetupError {
+    ConfigDirEnvNotFound,
+    ConfigDirInvalid,
+    ConfigFileNotFound(String),
+    HistoryPathNotFound(String),
+    LoggerPathNotFound(String),
+    CreateDirectory(Box<dyn StdError>),
+    InitializeLogger(Box<dyn StdError>),
 }
 
 impl fmt::Display for SetupError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let general_error_msg = "Check the README for tips on how to set up wireman: \
-        https://github.com/preiter93/wireman";
-        write!(f, "{}\n{}\n", self.error_msg, general_error_msg)
-    }
-}
-
-impl From<LoggerError> for SetupError {
-    fn from(value: LoggerError) -> Self {
-        Self {
-            error_msg: value.error_msg,
+        match self {
+            SetupError::ConfigDirEnvNotFound => {
+                write!(f, "The config dir {ENV_CONFIG_DIR} was not found.")
+            }
+            SetupError::ConfigDirInvalid => {
+                write!(f, "The config dir {ENV_CONFIG_DIR} is not a valid path.")
+            }
+            SetupError::CreateDirectory(err) => {
+                write!(f, "Could not created directory {ENV_CONFIG_DIR}: {err}.")
+            }
+            SetupError::ConfigFileNotFound(file) => {
+                write!(f, "The config file {file} was not found.")
+            }
+            SetupError::HistoryPathNotFound(path) => {
+                write!(f, "The historys parent path {path} does not exist.")
+            }
+            SetupError::LoggerPathNotFound(path) => {
+                write!(f, "The loggers parent path {path} does not exist.")
+            }
+            SetupError::InitializeLogger(err) => write!(f, "Failed to initialize logger: {err}."),
         }
+        // let general_error_msg = "Check the README for tips on how to set up wireman: \
+        // https://github.com/preiter93/wireman";
+        // write!(f, "{}\n{}\n", self.error_msg, general_error_msg)
     }
 }
 
-impl StdError for SetupError {
-    fn description(&self) -> &str {
-        &self.error_msg
-    }
-}
+impl StdError for SetupError {}
