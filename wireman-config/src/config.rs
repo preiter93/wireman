@@ -40,7 +40,7 @@ impl Config {
     ///
     /// Failed to read the config file.
     pub fn load(file: &str) -> Result<Self> {
-        let f = expand_path(file);
+        let f = expand_file(file);
         let data = read_to_string(&f).map_err(|err| Error::ReadConfigError {
             filename: f,
             source: err,
