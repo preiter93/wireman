@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::error::Error;
 use crate::error::Result;
+use crate::install::expand_path;
 use logger::LogLevel;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
@@ -38,7 +39,7 @@ impl Config {
     ///
     /// Failed to read the config file.
     pub fn load(file: &str) -> Result<Self> {
-        let f = shellexpand::env(file).map_or(file.to_string(), |x| x.to_string());
+        let f = expand_path(file);
         let data = read_to_string(&f).map_err(|err| Error::ReadConfigError {
             filename: f,
             source: err,
@@ -68,20 +69,14 @@ impl Config {
     /// if it contains environment variables such as $HOME or ~.
     #[must_use]
     pub fn includes(&self) -> Vec<String> {
-        self.includes
-            .iter()
-            .map(|e| shellexpand::env(e).map_or(e.clone(), |x| x.to_string()))
-            .collect()
+        self.includes.iter().map(|e| expand_path(e)).collect()
     }
 
     /// Gets the files. Tries to shell expand the path if it contains
     ///  environment variables such as $HOME or ~.
     #[must_use]
     pub fn files(&self) -> Vec<String> {
-        self.files
-            .iter()
-            .map(|e| shellexpand::env(e).map_or(e.clone(), |x| x.to_string()))
-            .collect()
+        self.files.iter().map(|e| expand_path(e)).collect()
     }
 }
 
@@ -158,7 +153,10 @@ impl HistoryConfig {
     /// environment variables such as $HOME or ~.
     #[must_use]
     pub fn directory_expanded(&self) -> String {
-        shellexpand::env(&self.directory).map_or(self.directory.clone(), |x| x.to_string())
+        if self.directory.is_empty() {
+            return String::new();
+        }
+        expand_path(&self.directory)
     }
 }
 
@@ -186,7 +184,10 @@ impl LoggingConfig {
     /// environment variables such as $HOME or ~.
     #[must_use]
     pub fn directory_expanded(&self) -> String {
-        shellexpand::env(&self.directory).map_or(self.directory.clone(), |x| x.to_string())
+        if self.directory.is_empty() {
+            return String::new();
+        }
+        expand_path(&self.directory)
     }
 
     /// Returns the path to the logger file. Tries to shell expand the path if it contains
@@ -211,6 +212,7 @@ pub struct TlsConfig {
 }
 
 impl TlsConfig {
+    #[must_use]
     pub fn new(use_native: bool) -> Self {
         Self {
             use_native: Some(use_native),
@@ -218,6 +220,7 @@ impl TlsConfig {
         }
     }
 
+    #[must_use]
     pub fn custom(custom: &str) -> Self {
         Self {
             use_native: None,

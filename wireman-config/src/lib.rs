@@ -15,6 +15,7 @@
 pub mod cli;
 pub mod config;
 pub mod error;
+mod install;
 mod setup;
 pub use config::Config;
 pub use setup::init_from_env;
@@ -26,3 +27,8 @@ pub const ENV_CONFIG_DIR: &str = "WIREMAN_CONFIG_DIR";
 
 /// The wireman config filename
 pub const CONFIG_FNAME: &str = "wireman.toml";
+
+/// The default wireman config directory.
+/// TOOD: Use the `config_dir` crate to determine the default
+/// based on the operating system
+pub const DEFAULT_CONFIG_DIR: &str = "~/.config/wireman";
