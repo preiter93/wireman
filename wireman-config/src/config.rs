@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use crate::error::Error;
 use crate::error::Result;
+use crate::install::expand_file;
 use crate::install::expand_path;
 use logger::LogLevel;
 use serde::{Deserialize, Serialize};
@@ -76,7 +77,7 @@ impl Config {
     ///  environment variables such as $HOME or ~.
     #[must_use]
     pub fn files(&self) -> Vec<String> {
-        self.files.iter().map(|e| expand_path(e)).collect()
+        self.files.iter().map(|e| expand_file(e)).collect()
     }
 }
 
