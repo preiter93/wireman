@@ -12,7 +12,7 @@ struct App {
 enum Command {
     /// Runs a health check and prompts configuration details.
     Check,
-    /// Installs wireman with default paths and configuration.
+    /// Setup wireman and create a default configuration file.
     #[command(aliases = ["setup", "install"])]
     Init,
 }
