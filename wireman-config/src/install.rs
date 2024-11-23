@@ -93,7 +93,8 @@ pub(crate) fn expand_path(path: &str) -> String {
 }
 
 pub(crate) fn expand_file(path: &str) -> String {
-    shellexpand::env(path).map_or(path.to_string(), |x| x.to_string())
+    shellexpand::tilde(&shellexpand::env(path).map_or(path.to_string(), |x| x.to_string()))
+        .to_string()
 }
 
 fn create_directory_if_missing<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
