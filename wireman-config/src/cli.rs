@@ -13,8 +13,8 @@ enum Command {
     /// Runs a health check and prompts configuration details.
     Check,
     /// Installs wireman with default paths and configuration.
-    #[command(aliases = ["setup", "init"])]
-    Install,
+    #[command(aliases = ["setup", "install"])]
+    Init,
 }
 
 pub fn parse() {
@@ -23,7 +23,7 @@ pub fn parse() {
         Command::Check => {
             let _ = setup(true);
         }
-        Command::Install => {
+        Command::Init => {
             install();
         }
     }
