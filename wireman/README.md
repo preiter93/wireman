@@ -64,21 +64,23 @@ You can download the latest binary from the [releases page](https://github.com/p
     echo "alias wireman='CURRENT_DIRECTORY/target/release/wireman'" >> ~/.zshrc
     ```
 
-## Configuration
+## Setup/Configuration
 
 1. Set the `WIREMAN_CONFIG_DIR` environment variable to specify the directory where your configuration file will be located:
 
     ```bash
     export WIREMAN_CONFIG_DIR=~/.config/wireman
     ```
+    
+This step is **optional**. By default, wireman will be installed to `~/.config/wireman`.
 
-2. Create the directory specified in `WIREMAN_CONFIG_DIR`:
+2. Follow the setup steps:
 
     ```bash
-    mkdir -p ~/.config/wireman
+    wireman init
     ```
 
-3. Create a `wireman.toml` file in the specified directory. Here's an example configuration:
+3. The previos step creates a `wireman.toml` file in your configuration directory. Here's an example configuration:
 
     ```toml
     includes = [
@@ -108,7 +110,7 @@ You can download the latest binary from the [releases page](https://github.com/p
 
     Replace with the appropriate values for your project.
     
-4. Optionally, you can now verify the setup configuration
+4. At last, you can now verify the setup configuration
     ```bash
     wireman check 
     ```
