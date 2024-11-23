@@ -22,14 +22,17 @@ async fn main() -> Result<()> {
 
     match init_from_env() {
         Ok(cfg) => App::run(cfg).await?,
-        Err(err) => match err {
-            config::error::Error::SetupError(err) => {
+        Err(err) => {
+            if let config::error::Error::SetupError(err) = err {
                 println!("Setup error: {err}");
-                println!("Did you install wireman?");
+                println!("Try to install wireman");
                 println!("   wireman install");
+            } else {
+                println!("An error occured:\n{err}");
+                println!("Verify your installation");
+                println!("   wireman check");
             }
-            _ => println!("An error occured:\n{err}"),
-        },
+        }
     }
     // App::run(cfg).await?;
 

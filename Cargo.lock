@@ -548,9 +548,7 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af24e7418cababd81eb35ed2775ae9d36882d1eaa3640cf131c77a02da4bf68a"
+version = "0.9.2"
 dependencies = [
  "arboard",
  "edtui-jagged",
@@ -2656,7 +2654,7 @@ dependencies = [
 
 [[package]]
 name = "wireman"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "arboard",
  "crossterm",
@@ -2670,7 +2668,7 @@ dependencies = [
  "tokio",
  "tui-widget-list",
  "unicode-width 0.1.14",
- "wireman-config 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-config 0.2.0",
  "wireman-core 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2680,6 +2678,8 @@ dependencies = [
 [[package]]
 name = "wireman-config"
 version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5713e6d80276c4c9755a4f58adf381e9d81aca035d93295e33489099080438ed"
 dependencies = [
  "clap",
  "serde",
@@ -2692,9 +2692,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-config"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5713e6d80276c4c9755a4f58adf381e9d81aca035d93295e33489099080438ed"
+version = "0.2.1"
 dependencies = [
  "clap",
  "serde",
