@@ -7,7 +7,8 @@ use std::path::Path;
 use logger::Logger;
 
 use crate::config::{HistoryConfig, LoggingConfig};
-use crate::{Config, CONFIG_FNAME, ENV_CONFIG_DIR};
+use crate::install::expand_path;
+use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 use theme::Theme;
 
 use crate::error::{Error, Result};
@@ -130,14 +131,15 @@ pub fn setup(dry_run: bool) -> Result<Config> {
 }
 
 fn config_dir_checked() -> StdResult<String, SetupError> {
-    let config_dir = var(ENV_CONFIG_DIR).map_err(|_| SetupError::ConfigDirEnvNotFound)?;
+    let config_dir = var(ENV_CONFIG_DIR).unwrap_or(DEFAULT_CONFIG_DIR.to_string());
+    let config_dir_expanded = expand_path(&config_dir);
 
-    let config_path = Path::new(&config_dir);
+    let config_path = Path::new(&config_dir_expanded);
     if config_dir.is_empty() || !config_path.exists() {
         return Err(SetupError::ConfigDirInvalid);
     }
 
-    Ok(config_dir)
+    Ok(config_dir_expanded)
 }
 
 fn config_file_checked(config_path: &Path) -> StdResult<String, SetupError> {
