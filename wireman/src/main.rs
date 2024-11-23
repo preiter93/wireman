@@ -20,8 +20,18 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
-    let cfg = init_from_env()?;
-    App::run(cfg).await?;
+    match init_from_env() {
+        Ok(cfg) => App::run(cfg).await?,
+        Err(err) => match err {
+            config::error::Error::SetupError(err) => {
+                println!("Setup error: {err}");
+                println!("Did you install wireman?");
+                println!("   wireman install");
+            }
+            _ => println!("An error occured:\n{err}"),
+        },
+    }
+    // App::run(cfg).await?;
 
     Ok(())
 }
