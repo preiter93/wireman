@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 18
           cache: npm
+          working-directory: website
 
       - name: Install dependencies
         run: |
