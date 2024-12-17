@@ -49,7 +49,7 @@ pub fn install() {
         println!("- Add the following line to your shell configuration file:");
         println!();
         println!("```");
-        println!("export {ENV_CONFIG_DIR}=${config_dir}");
+        println!("export {ENV_CONFIG_DIR}={config_dir}");
         println!("```");
         println!();
     }
