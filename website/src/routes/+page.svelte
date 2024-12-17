@@ -46,12 +46,12 @@
 		<BinariesTable />
 	</ContentCard>
 
-	<h2>Configuration</h2>
+	<h2>Setup</h2>
 
-	<ContentCard title="Setup" initiallyExpanded={true}>
+	<ContentCard title="Initialization" initiallyExpanded={true}>
 		<p>
-			After installing wireman run the following command, which will prompt you to specify an
-			install directory (the config path) in which it will create a default configuration:
+			After installing wireman, execute the following command, which prompts you to specify an
+			installation directory (the configuration path) in which a default configuration is created:
 		</p>
 		<CodeContainer command="wireman init" />
 		<p style="padding-top:24px">
@@ -61,19 +61,21 @@
 		<CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" />
 	</ContentCard>
 
-	<ContentCard title="Configuring Wireman" initiallyExpanded={true}>
+	<ContentCard title="Configuration" initiallyExpanded={true}>
 		<p>
-			After initializing Wireman, you should have configuration file like <code
-				>~/.config/wireman.toml</code
-			>. The most important step is to specify proto includes and files.
+			After initializing wireman, the most important step is to specify proto includes and files.
+			Say you have a project with the following structure
 		</p>
-		<p>
-			Say you have a project with protos <code>$HOME/my-project/services/order/api.proto</code>
-			and
-			<code>$HOME/my-project/services/price/api.proto</code> and your <code>api.proto</code>'s
-			reference proto's from
-			<code>$HOME/my-project/protos</code>, then your configuration file may look like this:
-		</p>
+		<pre>
+$HOME/my-project/
+├── services/
+│   ├── order/
+│   │   └── api.proto
+│   └── price/
+│       └── api.proto
+└── protos/common.proto
+</pre>
+		<p>Then you should extend your <code>~/.config/wireman.toml</code> with:</p>
 		<CodeContainer
 			command="includes = [
     '$HOME/my-project/services',
@@ -83,8 +85,14 @@
 files = [
     'order/api.proto',
     'price/api.proto'
-]
+]"
+		/>
+	</ContentCard>
 
+	<ContentCard title="Advanced Options">
+		<p>Wireman is highly customizable and offers advanced configuration options:</p>
+		<CodeContainer
+			command="
 [server]
 # Optional. Prefills the server address.
 default_address = 'http://localhost:50051'
@@ -100,15 +108,12 @@ directory = '$WIREMAN_CONFIG_DIR/history'
 autosave = true                            
 
 # Optional. History is enabled by default.
-disabled = false"
+			disabled = false
+# [ui]
+# Optional. Set a UI theme. 
+skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 		/>
 	</ContentCard>
-
-	<h2>Basic Usage</h2>
-
-	<div class="image-container">
-		<img src="/images/wireman-selection.png" alt="Shows how to select a proto service" />
-	</div>
 </div>
 
 <style>
@@ -138,25 +143,12 @@ disabled = false"
 		border-radius: 4px;
 		padding: 1px 1px;
 		border: 1px solid var(--gray-light);
+		font-size: var(--font-size-code);
 	}
 
-	.image-container {
-		margin: 0;
-		width: 830px;
-		box-sizing: border-box;
-		padding: 12px;
-		overflow: hidden;
-	}
-
-	img {
-		width: 100%;
-		height: auto;
-		border: 1px solid var(--gray-light);
-	}
-
-	@media (max-width: 850px) {
-		.image-container {
-			width: 100%;
-		}
+	pre {
+		text-align: left;
+		color: var(--gray-lightest);
+		font-size: var(--font-size-code);
 	}
 </style>
