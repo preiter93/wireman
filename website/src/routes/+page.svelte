@@ -54,11 +54,11 @@
 			installation directory (the configuration path) in which a default configuration is created:
 		</p>
 		<CodeContainer command="wireman init" />
-		<p style="padding-top:24px">
-			If you've specified a non-default directory, don't forget to add the following environment
-			variable to your .bashrc file:
-		</p>
-		<CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" />
+		<!-- <p style="padding-top:24px"> -->
+		<!-- 	If you've specified a non-default directory, don't forget to add the following environment -->
+		<!-- 	variable to your .bashrc file: -->
+		<!-- </p> -->
+		<!-- <CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" /> -->
 	</ContentCard>
 
 	<ContentCard title="Configuration" initiallyExpanded={true}>
@@ -90,10 +90,14 @@ files = [
 	</ContentCard>
 
 	<ContentCard title="Advanced Options">
-		<p>Wireman is highly customizable and offers advanced configuration options:</p>
+		<p>
+			Wireman is very customizable. You can change the default configuration directory by exporting
+			the following environment variable:
+		</p>
+		<CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" />
+		<p style="padding-top:22px">The configuration file also provides more configuration options:</p>
 		<CodeContainer
-			command="
-[server]
+			command="[server]
 # Optional. Prefills the server address.
 default_address = 'http://localhost:50051'
 
@@ -108,8 +112,9 @@ directory = '$WIREMAN_CONFIG_DIR/history'
 autosave = true                            
 
 # Optional. History is enabled by default.
-			disabled = false
-# [ui]
+disabled = false
+
+[ui]
 # Optional. Set a UI theme. 
 skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 		/>
