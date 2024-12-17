@@ -48,12 +48,14 @@ pub fn install() {
     println!("{config_dir}/{CONFIG_FNAME}");
     println!("```");
     println!();
-    println!("- Add the following line to your shell configuration file:");
-    println!();
-    println!("```");
-    println!("export {ENV_CONFIG_DIR}=${config_dir}");
-    println!("```");
-    println!();
+    if non_default_directory {
+        println!("- Add the following line to your shell configuration file:");
+        println!();
+        println!("```");
+        println!("export {ENV_CONFIG_DIR}=${config_dir}");
+        println!("```");
+        println!();
+    }
     println!("- Specify the include directories and proto files:");
     println!();
     println!("```");
