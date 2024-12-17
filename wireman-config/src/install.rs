@@ -3,11 +3,7 @@ use std::{env::var, io::Write, path::Path};
 use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 
 pub fn install() {
-    let decoration = "-".repeat(60);
-    let indent = " ".repeat(22);
-    println!("*{decoration}*");
-    println!("*{indent}Install Wireman {indent}*");
-    println!("*{decoration}*");
+    print_header("Install Wireman");
     println!();
 
     let mut config_dir = if let Ok(env_config_dir) = var(ENV_CONFIG_DIR) {
@@ -44,38 +40,35 @@ pub fn install() {
     }
 
     println!();
-    println!("****** Further Information ******");
+    print_header("Further Information");
     println!();
-    if non_default_directory {
-        println!("*** Set the {ENV_CONFIG_DIR} environment variable ***");
-        println!();
-        println!(
-        "   Add the following line to your shell configuration file (e.g., `.bashrc`, `.zshrc`):"
-    );
-        println!();
-        println!("   export {ENV_CONFIG_DIR}=${config_dir}");
-        println!();
-    }
-    println!("*** Include directories and proto files ***");
+    println!("- The Wireman configuration file is here: ");
     println!();
-    println!("The Wireman configuration file is found here: ");
-    println!("   {config_dir}/{CONFIG_FNAME}");
+    println!("```");
+    println!("{config_dir}/{CONFIG_FNAME}");
+    println!("```");
     println!();
-    println!("Specify the include directories and proto files.");
-    println!("Here’s an example structure:");
+    println!("- Add the following line to your shell configuration file:");
     println!();
-    println!("   includes = [");
-    println!("       \"$HOME/my-project/services\",");
-    println!("       \"$HOME/my-project/protos\",");
-    println!("   ]");
-    println!("   files = [");
-    println!("       \"order/api.proto\",");
-    println!("       \"price/api.proto\"");
-    println!("   ]");
+    println!("```");
+    println!("export {ENV_CONFIG_DIR}=${config_dir}");
+    println!("```");
     println!();
+    println!("- Specify the include directories and proto files:");
+    println!();
+    println!("```");
+    println!("includes = [");
+    println!("    \"$HOME/my-project/services\",");
+    println!("    \"$HOME/my-project/protos\",");
+    println!("]");
+    println!("files = [");
+    println!("    \"order/api.proto\",");
+    println!("    \"price/api.proto\"");
+    println!("]");
+    println!("```");
     println!();
     println!("For more information, visit the Wireman configuration guide:");
-    println!("🔗 https://github.com/preiter93/wireman?tab=readme-ov-file#configuration");
+    println!("🔗 https://github.com/preiter93/wireman?tab=readme-ov-file#setupconfiguration");
     println!();
     println!("✅ Once you've completed these steps, you're ready to use Wireman!");
 }
@@ -134,6 +127,18 @@ fn enforce_absolute_path(path: &str) -> String {
     } else {
         format!("/{path}")
     }
+}
+
+fn print_header(text: &str) {
+    let width = 60;
+
+    let decoration = "-".repeat(width);
+    let num_whitespaces = width - text.len();
+    let whitespaces_left = " ".repeat(num_whitespaces / 2);
+    let whitespaces_right = " ".repeat(num_whitespaces / 2 + num_whitespaces % 2);
+    println!("*{decoration}*");
+    println!("*{whitespaces_left}{text}{whitespaces_right}*");
+    println!("*{decoration}*");
 }
 
 // let file_path = config_dir.join("wireman.toml");
