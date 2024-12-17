@@ -109,7 +109,7 @@ fn create_directory_if_missing<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
 fn write_config_to_toml<P: AsRef<Path>>(path: P) -> std::io::Result<bool> {
     let file_path = path.as_ref().join(CONFIG_FNAME);
     if file_path.exists() {
-        let input = read_input("A config exists already. Do you want to continue? [y/n]");
+        let input = read_input("A config exists already. Do you want to overwrite it? [y/n]");
         return Ok(input.trim() == "y");
     }
 
