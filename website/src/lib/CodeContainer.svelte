@@ -7,7 +7,7 @@
 </script>
 
 <div class="container">
-	<code>{command}</code>
+	<pre>{command}</pre>
 	<button class="button" onclick={copyCommand} aria-label="Copy code">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true">
 			<path
@@ -32,6 +32,7 @@
 		justify-content: space-between;
 		align-items: center;
 		box-shadow: 0px 0px 2px var(--gray-light);
+		overflow-x: auto;
 	}
 
 	@media (max-width: 600px) {
@@ -42,6 +43,7 @@
 
 	button {
 		all: unset;
+		align-self: flex-start;
 	}
 
 	svg {
@@ -58,5 +60,8 @@
 	svg:active {
 		fill: var(--green);
 	}
-</style>
 
+	pre {
+		margin: 0;
+	}
+</style>
