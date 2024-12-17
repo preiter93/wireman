@@ -16,7 +16,8 @@ jobs:
         with:
           node-version: 18
           cache: npm
-          working-directory: website
+          node-version-file: website/package.json
+          cache-dependency-path: website/package-lock.json
 
       - name: Install dependencies
         run: |
