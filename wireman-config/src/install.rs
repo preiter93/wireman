@@ -3,7 +3,11 @@ use std::{env::var, io::Write, path::Path};
 use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 
 pub fn install() {
-    println!("****** Install Wireman ******");
+    let decoration = "-".repeat(60);
+    let indent = " ".repeat(22);
+    println!("*{decoration}*");
+    println!("*{indent}Install Wireman {indent}*");
+    println!("*{decoration}*");
     println!();
 
     let mut config_dir = if let Ok(env_config_dir) = var(ENV_CONFIG_DIR) {
