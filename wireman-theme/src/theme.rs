@@ -29,6 +29,7 @@ pub struct Base {
     pub style: Style,
 }
 
+#[allow(clippy::struct_field_names)]
 #[derive(Debug, Clone)]
 pub struct Border {
     pub border: (Style, Style),

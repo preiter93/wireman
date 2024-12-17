@@ -8,6 +8,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[must_use]
     pub fn new(skin: Option<String>) -> Self {
         Self { skin }
     }
