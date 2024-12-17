@@ -23,7 +23,7 @@ pub struct SelectionPage<'a> {
     pub tab: SelectionTab,
 }
 
-impl<'a> SelectionPage<'a> {
+impl SelectionPage<'_> {
     pub fn footer_keys(sub: SelectionTab) -> Vec<(&'static str, &'static str)> {
         let mut keys = vec![
             ("^c", "Quit"),
