@@ -19,8 +19,8 @@
 		--font-size-h2: 48px;
 		--font-size-h3: 24px;
 		--font-size-h4: 24px;
-		--font-size-body: 24px;
-		--font-size-code: 18px;
+		--font-size-body: 18px;
+		--font-size-code: 16px;
 
 		--font-weight-h1: 900;
 		--font-weight-h2: 500;
@@ -121,6 +121,6 @@
 		font-size: var(--font-size-body);
 		font-weight: var(--font-weight-body);
 		text-decoration: underline;
-		color: var(--magenta);
+		color: var(--gray-lightest);
 	}
 </style>
