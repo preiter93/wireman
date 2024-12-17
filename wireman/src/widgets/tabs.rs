@@ -140,7 +140,7 @@ impl<'a> Styled for ActivatableTabs<'a> {
     }
 }
 
-impl<'a> Widget for ActivatableTabs<'a> {
+impl Widget for ActivatableTabs<'_> {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         buf.set_style(area, self.style);
         let total_area = match self.block.take() {

@@ -12,7 +12,7 @@ pub struct MessagesPage<'a> {
     pub tab: MessagesTab,
 }
 
-impl<'a> MessagesPage<'a> {
+impl MessagesPage<'_> {
     pub fn footer_keys(tab: MessagesTab) -> Vec<(&'static str, &'static str)> {
         let mut keys = vec![("^c", "Quit"), ("Tab", "Next Page")];
         if tab == MessagesTab::Request {
