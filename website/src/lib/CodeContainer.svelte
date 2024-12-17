@@ -27,23 +27,28 @@
 		background-color: var(--gray-darkest);
 		border: 1px solid var(--gray-light);
 		border-radius: 4px;
-		padding: 10px 10px;
+		padding: 10px 0px 10px 10px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		box-shadow: 0px 0px 2px var(--gray-light);
 		overflow-x: auto;
+		gap: 4px;
 	}
 
 	@media (max-width: 600px) {
 		.container {
-			padding: 6px 6px;
+			padding: 6px 0px 6px 6px;
 		}
 	}
 
 	button {
 		all: unset;
 		align-self: flex-start;
+		position: sticky;
+		right: 0px;
+		background-color: var(--gray-darkest);
+		padding: 6px;
 	}
 
 	svg {
