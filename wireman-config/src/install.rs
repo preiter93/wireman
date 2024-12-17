@@ -12,15 +12,12 @@ pub fn install() {
         DEFAULT_CONFIG_DIR.to_string()
     };
 
-    let mut non_default_directory = false;
     let input = read_input(&format!("Install wireman to {config_dir}? [y/n]"));
     if input.trim().to_lowercase() != "y" {
         let input = read_input("Install instead in");
         config_dir = input.trim().to_string();
-        if expand_path(&config_dir) != expand_path(DEFAULT_CONFIG_DIR) {
-            non_default_directory = true;
-        }
     }
+    let is_default_directory = expand_path(&config_dir) == expand_path(DEFAULT_CONFIG_DIR);
 
     if let Err(err) = create_directory_if_missing(expand_path(&config_dir)) {
         println!("Could not create {config_dir:?}: {err}. ABORT.");
@@ -48,7 +45,7 @@ pub fn install() {
     println!("{config_dir}/{CONFIG_FNAME}");
     println!("```");
     println!();
-    if non_default_directory {
+    if !is_default_directory {
         println!("- Add the following line to your shell configuration file:");
         println!();
         println!("```");
@@ -108,8 +105,8 @@ fn create_directory_if_missing<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
 fn write_config_to_toml<P: AsRef<Path>>(path: P) -> std::io::Result<bool> {
     let file_path = path.as_ref().join(CONFIG_FNAME);
     if file_path.exists() {
-        let input = read_input("A config exists already. Do you want to overwrite it? [y/n]");
-        return Ok(input.trim() == "y");
+        println!("It seems you already have a config file.");
+        return Ok(true);
     }
 
     let mut config = Config::default();
