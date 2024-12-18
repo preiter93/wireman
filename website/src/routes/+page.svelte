@@ -3,12 +3,12 @@
 	import CodeContainer from '$lib/CodeContainer.svelte';
 	import ContentCard from '$lib/ContentCard.svelte';
 
-	import ImgHelp from '$lib/assets/website_088.png';
-	import ImgService from '$lib/assets/website_111.png';
-	import ImgMethod from '$lib/assets/website_143.png';
-	import ImgAuth from '$lib/assets/website_231.png';
-	import ImgRequest from '$lib/assets/website_306.png';
-	import ImgResponse from '$lib/assets/website_377.png';
+	import ImgHelp from '$lib/assets/website_001.png';
+	import ImgService from '$lib/assets/website_026.png';
+	import ImgMethod from '$lib/assets/website_051.png';
+	import ImgAuth from '$lib/assets/website_170.png';
+	import ImgRequest from '$lib/assets/website_225.png';
+	import ImgResponse from '$lib/assets/website_301.png';
 
 	$effect(() => {
 		// Preload all images to avoid jumping animations when
@@ -207,8 +207,9 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 			</p>
 
 			<p>
-				The editor uses vim motions. Navigate with <code>h/j/k/l</code> and start editing with
-				<code>i</code>. For more details about the editor, visit
+				The editor uses vim motions. Navigate with <code>h/j/k/l</code>, start editing with
+				<code>i</code> and go back to normal mode with <code>Esc</code>. For more details about the
+				editor, visit
 				<a
 					href="https://github.com/preiter93/edtui"
 					class="custom-link"
