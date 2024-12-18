@@ -223,9 +223,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 corresponding numbers
                 <code>1-5</code>.
             </p>
-            <p>
-                <img src={ImgResponse} alt="Saved history" />
-            </p>
+            <img src={ImgResponse} alt="Saved history" />
         </div>
     </ContentCard>
 </div>
