@@ -210,26 +210,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         font-size: var(--font-size-code);
     }
 
-    .img-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
     p {
         align-self: flex-start;
-    }
-
-    img {
-        width: 85%;
-        height: 100%;
-        display: block;
-    }
-
-    @media (max-width: 600px) {
-        img {
-            width: 100%;
-        }
     }
 </style>

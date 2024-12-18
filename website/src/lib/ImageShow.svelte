@@ -88,11 +88,11 @@ Sent requests are automatically saved by default. You can switch between save bu
     let startX = 0;
     let endX = 0;
 
-    function handleTouchStart(event) {
+    function handleTouchStart(event: TouchEvent) {
         startX = event.changedTouches[0].screenX;
     }
 
-    function handleTouchEnd(event) {
+    function handleTouchEnd(event: TouchEvent) {
         endX = event.changedTouches[0].screenX;
 
         if (startX - endX > 50) {
