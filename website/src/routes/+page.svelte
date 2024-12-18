@@ -4,14 +4,6 @@
     import ContentCard from '$lib/ContentCard.svelte';
     import GithubButton from '$lib/GithubButton.svelte';
     import ImageShow from '$lib/ImageShow.svelte';
-
-    // import ImgHelp from '$lib/assets/website_001.png';
-    // import ImgService from '$lib/assets/website_026.png';
-    // import ImgMethod from '$lib/assets/website_051.png';
-    // import ImgAuth from '$lib/assets/website_170.png';
-    // import ImgRequest from '$lib/assets/website_225.png';
-    // import ImgResponse from '$lib/assets/website_300.png';
-    // import ImgCopy from '$lib/assets/website_301.png';
 </script>
 
 <div class="header">
@@ -178,13 +170,13 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     .github {
         position: absolute;
         right: 0;
-        margin-right: 16px;
+        margin-right: 20px;
         padding-top: 20px;
     }
 
     @media (max-width: 600px) {
         .github {
-            margin-right: 10px;
+            margin-right: 16px;
             padding-top: 16px;
         }
     }
