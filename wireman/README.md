@@ -11,9 +11,9 @@
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
 
-# Getting Started with WireMan
+# Quick Start
 
-This guide will walk you through the steps to set up and run WireMan.
+If you prefer a quick overview, you can check out the official [website](https://preiter93.github.io/wireman).
 
 ## Prerequisites
 
