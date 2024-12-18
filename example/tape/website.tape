@@ -1,7 +1,7 @@
 # vhs tape/website.tape
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
-# cp website_088.png website_111.png website_143.png website_163.png website_231.png website_264.png website_306.png website_360.png website_377.png ../../../website/src/lib/assets/.
+# cp website_001.png website_026.png website_051.png website_170.png website_225.png website_301.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
@@ -15,6 +15,7 @@ Set Width 830
 Set Height 550
 Set PlaybackSpeed 1.
 Set Framerate 1
+Set TypingSpeed 1ms
 
 Type "export WIREMAN_CONFIG_DIR=$PWD/configs/website"
 Enter
@@ -23,6 +24,7 @@ Enter
 Type "?"
 Sleep 1s
 Type "?"
+Sleep 1s
 Enter
 Sleep 1s
 Type "j"
