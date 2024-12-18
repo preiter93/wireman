@@ -1,0 +1,13 @@
+includes = [
+    '$HOME/Rust/wireman/example/server/website',
+]
+files = [
+    'order/api.proto',
+    'price/api.proto',
+]
+
+[history]
+directory = '$HOME/Rust/wireman/example/history'
+
+[server]
+default_address = 'http://localhost:50051'
