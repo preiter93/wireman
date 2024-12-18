@@ -19,6 +19,7 @@
         --font-size-h2: 36px;
         --font-size-h3: 22px;
         --font-size-h4: 22px;
+        --font-size-h5: 26px;
         --font-size-body: 16px;
         --font-size-code: 14px;
 
@@ -40,6 +41,7 @@
 
         --icon-size: 18px;
         --icon-size-large: 36px;
+        --icon-size-xlarge: 48px;
 
         --text-margin: 18px;
 
@@ -52,11 +54,13 @@
             --font-size-h2: 22px;
             --font-size-h3: 14px;
             --font-size-h4: 14px;
+            --font-size-h5: 16px;
             --font-size-body: 14px;
             --font-size-code: 12px;
 
             --icon-size: 16px;
             --icon-size-large: 24px;
+            --icon-size-xlarge: 32px;
 
             --text-margin: 16px;
         }
