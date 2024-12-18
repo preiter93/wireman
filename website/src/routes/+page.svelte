@@ -2,6 +2,7 @@
     import BinariesTable from '$lib/BinariesTable.svelte';
     import CodeContainer from '$lib/CodeContainer.svelte';
     import ContentCard from '$lib/ContentCard.svelte';
+    import GithubButton from '$lib/GithubButton.svelte';
 
     import ImgHelp from '$lib/assets/website_001.png';
     import ImgService from '$lib/assets/website_026.png';
@@ -23,8 +24,13 @@
     });
 </script>
 
-<div>
+<div class="header">
     <h1>Wireman</h1>
+    <div class="github">
+        <GithubButton />
+    </div>
+</div>
+<div>
     <p class="subtitle">A grpc client for the terminal</p>
 </div>
 
@@ -208,9 +214,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 Switch between the request and response editors using <code>J/K</code>. Copy the response with
                 <code>VGy</code> to your clipboard.
             </p>
-            <p>
-                <img src={ImgCopy} alt="Copy response" />
-            </p>
+            <img src={ImgCopy} alt="Copy response" />
         </div>
     </ContentCard>
 
@@ -223,9 +227,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 corresponding numbers
                 <code>1-5</code>.
             </p>
-            <p>
-                <img src={ImgResponse} alt="Saved history" />
-            </p>
+            <img src={ImgResponse} alt="Saved history" />
         </div>
     </ContentCard>
 </div>
@@ -247,6 +249,56 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 
     @media (max-width: var(--max-width)) {
         .content {
+            width: 100%;
+        }
+    }
+
+    pre {
+        text-align: left;
+        color: var(--gray-lightest);
+        font-size: var(--font-size-code);
+    }
+
+    .header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: var(--max-width);
+        position: relative;
+    }
+
+    .github {
+        position: absolute;
+        right: 0;
+        margin-right: 16px;
+        padding-top: 20px;
+    }
+    @media (max-width: 600px) {
+        .github {
+            margin-right: 10px;
+            padding-top: 16px;
+        }
+    }
+
+    .subtitle {
+        margin: 0;
+        font-style: italic;
+    }
+
+    p {
+        margin-bottom: 1rem;
+    }
+
+    .content {
+        width: var(--max-width);
+        padding-bottom: 12px;
+    }
+
+    @media (max-width: 800px) {
+        .content {
+            width: 100%;
+        }
+        .header {
             width: 100%;
         }
     }
