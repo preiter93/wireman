@@ -15,12 +15,12 @@
 	:root {
 		--font-family: 'Raleway', sans-serif;
 
-		--font-size-h1: 52px;
-		--font-size-h2: 48px;
-		--font-size-h3: 24px;
-		--font-size-h4: 24px;
-		--font-size-body: 18px;
-		--font-size-code: 16px;
+		--font-size-h1: 48px;
+		--font-size-h2: 36px;
+		--font-size-h3: 22px;
+		--font-size-h4: 22px;
+		--font-size-body: 16px;
+		--font-size-code: 14px;
 
 		--font-weight-h1: 900;
 		--font-weight-h2: 500;
@@ -38,9 +38,11 @@
 		--magenta: hsl(315, 100%, 60%);
 		--green: hsl(150, 100%, 40%);
 
-		--icon-size: 24px;
+		--icon-size: 18px;
 
-		--text-margin: 24px;
+		--text-margin: 18px;
+
+		--max-width: 700px;
 	}
 
 	@media (max-width: 600px) {
