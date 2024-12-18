@@ -85,16 +85,36 @@ Sent requests are automatically saved by default. You can switch between save bu
 
     let selected_index = $state(0);
 
+    let startX = 0;
+    let endX = 0;
+
+    function handleTouchStart(event) {
+        startX = event.changedTouches[0].screenX;
+    }
+
+    function handleTouchEnd(event) {
+        endX = event.changedTouches[0].screenX;
+
+        if (startX - endX > 50) {
+            next();
+        } else if (endX - startX > 50) {
+            previous();
+        }
+    }
+
     function next() {
         if (selected_index + 1 >= num_elements) {
-            selected_index = 0;
+            // selected_index = 0;
+            return;
         } else {
             selected_index += 1;
         }
     }
+
     function previous() {
         if (selected_index == 0) {
-            selected_index = num_elements - 1;
+            // selected_index = num_elements - 1;
+            return;
         } else {
             selected_index -= 1;
         }
@@ -110,7 +130,7 @@ Sent requests are automatically saved by default. You can switch between save bu
     </button>
 {/snippet}
 
-<div class="container">
+<div class="container" ontouchstart={handleTouchStart} ontouchend={handleTouchEnd}>
     <div class="title">
         {@render chevron('90deg', previous, selected_index == 0)}
         <h3>{elements[selected_index].title}</h3>
