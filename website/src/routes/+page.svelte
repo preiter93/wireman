@@ -145,7 +145,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Open help">
-		<div>
+		<div class="img-container">
 			<p>
 				Open the help dialog by pressing <code>?</code>. It provides key mappings for each page to
 				help you navigate.
@@ -155,7 +155,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Select service">
-		<div>
+		<div class="img-container">
 			<p>
 				Get started by selecting a proto service. Use <code>j/k</code> to scroll and
 				<code>Enter</code> to select a service.
@@ -165,7 +165,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Select method">
-		<div>
+		<div class="img-container">
 			<p>
 				Similar to selecting a service, use <code>j/k</code> to scroll through the methods and
 				<code>Enter</code>
@@ -176,7 +176,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Set address and headers">
-		<div>
+		<div class="img-container">
 			<p>On this page, set the server address and metadata headers.</p>
 			<p>
 				Use shell scripts for dynamic authorization headers by enclosing them in <code>$()</code>,
@@ -190,7 +190,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Send request">
-		<div>
+		<div class="img-container">
 			<p>
 				This page displays both the request and response messages. Begin by editing the request.
 			</p>
@@ -211,7 +211,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	</ContentCard>
 
 	<ContentCard title="Copy response">
-		<div>
+		<div class="img-container">
 			<p>
 				Switch between the request and response editors using <code>J/K</code>. Copy the response
 				via
@@ -233,11 +233,11 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 	}
 
 	.content {
-		width: 850px;
+		width: var(--max-width);
 		padding-bottom: 12px;
 	}
 
-	@media (max-width: 850px) {
+	@media (max-width: var(--max-width)) {
 		.content {
 			width: 100%;
 		}
@@ -249,9 +249,26 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 		font-size: var(--font-size-code);
 	}
 
+	.img-container {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	p {
+		align-self: flex-start;
+	}
+
 	img {
-		width: 100%;
+		width: 85%;
 		height: 100%;
 		display: block;
+	}
+
+	@media (max-width: 600px) {
+		img {
+			width: 100%;
+		}
 	}
 </style>
