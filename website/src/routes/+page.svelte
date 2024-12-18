@@ -9,6 +9,17 @@
 	import ImgAuth from '$lib/assets/website_231.png';
 	import ImgRequest from '$lib/assets/website_306.png';
 	import ImgResponse from '$lib/assets/website_377.png';
+
+	$effect(() => {
+		// Preload all images to avoid jumping animations when
+		// expanding the cards for the first time.
+		const imageSources = [ImgHelp, ImgService, ImgMethod, ImgAuth, ImgRequest, ImgResponse];
+
+		imageSources.forEach((src) => {
+			const img = new Image();
+			img.src = src;
+		});
+	});
 </script>
 
 <div>
