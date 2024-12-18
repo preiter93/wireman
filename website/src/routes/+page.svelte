@@ -241,7 +241,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         padding-bottom: 12px;
     }
 
-    @media (max-width: var(--max-width)) {
+    @media (max-width: 850px) {
         .content {
             width: 100%;
         }
