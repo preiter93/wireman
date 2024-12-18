@@ -1,18 +1,20 @@
 # vhs tape/website.tape
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
-# cp website_036.png website_038.png website_049.png website_060.png website_078.png website_095.png website_106.png website_118.png website_138.png ../../../website/src/lib/assets/.
+# cp website_088.png website_111.png website_143.png website_163.png website_231.png website_264.png website_306.png website_360.png website_377.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
 
 Set Margin 10
+Set MarginFill "#1d262f"
 Set Padding 2
-Set BorderRadius 10
-Set FontSize 44
-Set Width 2200
-Set Height 1500
-Set PlaybackSpeed 0.5
+Set BorderRadius 2
+Set FontSize 16
+Set Width 830
+Set Height 550
+Set PlaybackSpeed 1.
+Set Framerate 1
 
 Type "export WIREMAN_CONFIG_DIR=$PWD/configs/website"
 Enter
