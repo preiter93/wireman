@@ -94,6 +94,13 @@ files = [
         />
     </ContentCard>
 
+    <ContentCard title="Start wireman" initiallyExpanded={true}>
+        <p style="padding-bottom:0">
+            You can now start <code>wireman</code> from the terminal:
+        </p>
+        <CodeContainer command="wireman" />
+    </ContentCard>
+
     <ContentCard title="Advanced Options">
         <p>
             Wireman is very customizable. You can change the default configuration directory by exporting the following environment
@@ -135,13 +142,6 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     </ContentCard>
 
     <h2>Usage</h2>
-    <ContentCard title="Start wireman" initiallyExpanded={true}>
-        <p style="padding-bottom:0">
-            You can now start <code>wireman</code> from the terminal:
-        </p>
-        <CodeContainer command="wireman" />
-    </ContentCard>
-
     <ImageShow></ImageShow>
 </div>
 
