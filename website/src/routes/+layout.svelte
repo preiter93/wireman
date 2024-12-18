@@ -123,4 +123,13 @@
 		text-decoration: underline;
 		color: var(--gray-lightest);
 	}
+
+	:global(code) {
+		background-color: var(--gray-darkest);
+		color: var(--gray-lightest);
+		border-radius: 4px;
+		padding: 1px 4px;
+		border: 1px solid var(--gray-light);
+		font-size: var(--font-size-code);
+	}
 </style>
