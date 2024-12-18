@@ -104,7 +104,6 @@ Sent requests are automatically saved by default. You can switch between save bu
 
     function next() {
         if (selected_index + 1 >= num_elements) {
-            // selected_index = 0;
             return;
         } else {
             selected_index += 1;
@@ -113,7 +112,6 @@ Sent requests are automatically saved by default. You can switch between save bu
 
     function previous() {
         if (selected_index == 0) {
-            // selected_index = num_elements - 1;
             return;
         } else {
             selected_index -= 1;
