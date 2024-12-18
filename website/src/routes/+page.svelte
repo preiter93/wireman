@@ -51,7 +51,7 @@
         <BinariesTable />
     </ContentCard>
 
-    <h2>Setup</h2>
+    <h2>Getting Started</h2>
 
     <ContentCard title="Initialization" initiallyExpanded={true}>
         <p>
@@ -101,7 +101,7 @@ files = [
         <CodeContainer command="wireman" />
     </ContentCard>
 
-    <ContentCard title="Advanced Options">
+    <ContentCard title="Advanced">
         <p>
             Wireman is very customizable. You can change the default configuration directory by exporting the following environment
             variable:
@@ -141,7 +141,6 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         />
     </ContentCard>
 
-    <h2>Usage</h2>
     <ImageShow></ImageShow>
 </div>
 
