@@ -3,25 +3,15 @@
     import CodeContainer from '$lib/CodeContainer.svelte';
     import ContentCard from '$lib/ContentCard.svelte';
     import GithubButton from '$lib/GithubButton.svelte';
+    import ImageShow from '$lib/ImageShow.svelte';
 
-    import ImgHelp from '$lib/assets/website_001.png';
-    import ImgService from '$lib/assets/website_026.png';
-    import ImgMethod from '$lib/assets/website_051.png';
-    import ImgAuth from '$lib/assets/website_170.png';
-    import ImgRequest from '$lib/assets/website_225.png';
-    import ImgResponse from '$lib/assets/website_300.png';
-    import ImgCopy from '$lib/assets/website_301.png';
-
-    $effect(() => {
-        // Preload all images to avoid jumping animations when
-        // expanding the cards for the first time.
-        const imageSources = [ImgHelp, ImgService, ImgMethod, ImgAuth, ImgRequest, ImgResponse, ImgCopy];
-
-        imageSources.forEach((src) => {
-            const img = new Image();
-            img.src = src;
-        });
-    });
+    // import ImgHelp from '$lib/assets/website_001.png';
+    // import ImgService from '$lib/assets/website_026.png';
+    // import ImgMethod from '$lib/assets/website_051.png';
+    // import ImgAuth from '$lib/assets/website_170.png';
+    // import ImgRequest from '$lib/assets/website_225.png';
+    // import ImgResponse from '$lib/assets/website_300.png';
+    // import ImgCopy from '$lib/assets/website_301.png';
 </script>
 
 <div class="header">
@@ -152,84 +142,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         <CodeContainer command="wireman" />
     </ContentCard>
 
-    <ContentCard title="Open help">
-        <div class="img-container">
-            <p>
-                Open the help dialog by pressing <code>?</code>. It provides key mappings for each page to help you navigate.
-            </p>
-            <img src={ImgHelp} alt="The help dialog" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Select service">
-        <div class="img-container">
-            <p>
-                Get started by selecting a proto service. Use <code>j/k</code> to scroll and
-                <code>Enter</code> to select a service.
-            </p>
-            <img src={ImgService} alt="Select a service" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Select method">
-        <div class="img-container">
-            <p>
-                Similar to selecting a service, use <code>j/k</code> to scroll through the methods and
-                <code>Enter</code>
-                to select. Press <code>Tab</code> to go to the next step.
-            </p>
-            <img src={ImgMethod} alt="Select a method" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Set address and headers">
-        <div class="img-container">
-            <p>On this page, set the server address and metadata headers.</p>
-            <p>
-                Use shell scripts for dynamic authorization headers by enclosing them in <code>$()</code>, e.g.
-                <code>$(getToken.sh)</code>
-                . This approach is more secure than hardcoded credentials. Press <code>Tab</code> to continue to the next step.
-            </p>
-            <img src={ImgAuth} alt="Set address and headers" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Send request">
-        <div class="img-container">
-            <p>This page displays both the request and response messages. Begin by editing the request.</p>
-
-            <p>
-                The editor uses vim motions. Navigate with <code>h/j/k/l</code>, start editing with
-                <code>i</code> and go back to normal mode with <code>Esc</code>. For more details about the editor, visit
-                <a href="https://github.com/preiter93/edtui" class="custom-link" target="_blank" rel="noopener noreferrer">edtui </a>. Press
-                <code>Enter</code> to send the request to your server.
-            </p>
-            <img src={ImgRequest} alt="Send request" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Copy response">
-        <div class="img-container">
-            <p>
-                Switch between the request and response editors using <code>J/K</code>. Copy the response with
-                <code>VGy</code> to your clipboard.
-            </p>
-            <img src={ImgCopy} alt="Copy response" />
-        </div>
-    </ContentCard>
-
-    <ContentCard title="Saved history">
-        <div class="img-container">
-            <p>
-                After you have sent the request, request and headers are saved automatically. This is indicated visually by the highlighted <code
-                    >1</code
-                >. The next time you open wireman, the data will still be available. You can switch between save buffers by typing the
-                corresponding numbers
-                <code>1-5</code>.
-            </p>
-            <img src={ImgResponse} alt="Saved history" />
-        </div>
-    </ContentCard>
+    <ImageShow></ImageShow>
 </div>
 
 <style>
@@ -245,12 +158,6 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     .content {
         width: var(--max-width);
         padding-bottom: 12px;
-    }
-
-    @media (max-width: var(--max-width)) {
-        .content {
-            width: 100%;
-        }
     }
 
     pre {
@@ -273,6 +180,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         margin-right: 16px;
         padding-top: 20px;
     }
+
     @media (max-width: 600px) {
         .github {
             margin-right: 10px;
