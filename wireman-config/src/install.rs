@@ -110,7 +110,7 @@ fn write_config_to_toml<P: AsRef<Path>>(path: P) -> std::io::Result<bool> {
     }
 
     let mut config = Config::default();
-    config.server.default_address = Some(String::new());
+    config.server.default_address = Some(String::from("http://localhost:50051"));
     config.server.default_auth_header = Some(String::new());
 
     let toml_str = toml::to_string(&config).expect("Failed to serialize config");
