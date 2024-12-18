@@ -141,6 +141,8 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         />
     </ContentCard>
 
+    <h2>A Tour of Wireman</h2>
+
     <ImageShow></ImageShow>
 </div>
 
