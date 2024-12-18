@@ -2,6 +2,13 @@
 	import BinariesTable from '$lib/BinariesTable.svelte';
 	import CodeContainer from '$lib/CodeContainer.svelte';
 	import ContentCard from '$lib/ContentCard.svelte';
+
+	import ImgHelp from '$lib/assets/website_088.png';
+	import ImgService from '$lib/assets/website_111.png';
+	import ImgMethod from '$lib/assets/website_143.png';
+	import ImgAuth from '$lib/assets/website_231.png';
+	import ImgRequest from '$lib/assets/website_306.png';
+	import ImgResponse from '$lib/assets/website_377.png';
 </script>
 
 <div>
@@ -128,6 +135,91 @@ level = 'Debug'
 skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 		/>
 	</ContentCard>
+
+	<h2>Usage</h2>
+	<ContentCard title="Start wireman" initiallyExpanded={true}>
+		<p style="padding-bottom:0">
+			You can now start <code>wireman</code> from the terminal:
+		</p>
+		<CodeContainer command="wireman" />
+	</ContentCard>
+
+	<ContentCard title="Open help">
+		<div>
+			<p>
+				Open the help dialog by pressing <code>?</code>. It provides key mappings for each page to
+				help you navigate.
+			</p>
+			<img src={ImgHelp} alt="The help dialog" />
+		</div>
+	</ContentCard>
+
+	<ContentCard title="Select service">
+		<div>
+			<p>
+				Get started by selecting a proto service. Use <code>j/k</code> to scroll and
+				<code>Enter</code> to select a service.
+			</p>
+			<img src={ImgService} alt="Select a service" />
+		</div>
+	</ContentCard>
+
+	<ContentCard title="Select method">
+		<div>
+			<p>
+				Similar to selecting a service, use <code>j/k</code> to scroll through the methods and
+				<code>Enter</code>
+				to select. Press <code>Tab</code> to go to the next step.
+			</p>
+			<img src={ImgMethod} alt="Select a method" />
+		</div>
+	</ContentCard>
+
+	<ContentCard title="Set address and headers">
+		<div>
+			<p>On this page, set the server address and metadata headers.</p>
+			<p>
+				Use shell scripts for dynamic authorization headers by enclosing them in <code>$()</code>,
+				e.g.
+				<code>$(getToken.sh)</code>
+				. This approach is more secure than hardcoded credentials. Press <code>Tab</code> to continue
+				to the next step.
+			</p>
+			<img src={ImgAuth} alt="Set address and headers" />
+		</div>
+	</ContentCard>
+
+	<ContentCard title="Send request">
+		<div>
+			<p>
+				This page displays both the request and response messages. Begin by editing the request.
+			</p>
+
+			<p>
+				The editor uses vim motions. Navigate with <code>h/j/k/l</code> and start editing with
+				<code>i</code>. For more details about the editor, visit
+				<a
+					href="https://github.com/preiter93/edtui"
+					class="custom-link"
+					target="_blank"
+					rel="noopener noreferrer"
+					>edtui
+				</a>. Press <code>Enter</code> to send the request to your server.
+			</p>
+			<img src={ImgRequest} alt="Send request" />
+		</div>
+	</ContentCard>
+
+	<ContentCard title="Copy response">
+		<div>
+			<p>
+				Switch between the request and response editors using <code>J/K</code>. Copy the response
+				via
+				<code>VGy</code> to your clipboard.
+			</p>
+			<img src={ImgResponse} alt="Copy response" />
+		</div>
+	</ContentCard>
 </div>
 
 <style>
@@ -151,18 +243,15 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 		}
 	}
 
-	code {
-		background-color: var(--gray-darkest);
-		color: var(--gray-lightest);
-		border-radius: 4px;
-		padding: 1px 1px;
-		border: 1px solid var(--gray-light);
-		font-size: var(--font-size-code);
-	}
-
 	pre {
 		text-align: left;
 		color: var(--gray-lightest);
 		font-size: var(--font-size-code);
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+		display: block;
 	}
 </style>
