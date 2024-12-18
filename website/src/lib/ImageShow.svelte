@@ -142,7 +142,7 @@ Sent requests are automatically saved by default. You can switch between save bu
     h3 {
         padding: 0;
         margin: 0;
-        color: var(--magenta);
+        color: var(--orange);
         font-size: var(--font-size-h5);
         font-weight: var(--font-weight-body);
     }
