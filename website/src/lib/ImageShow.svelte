@@ -48,9 +48,8 @@
             img: ImgAuth,
             body: `
             <p style="text-align: center; line-height:1.4em">
-                Next you can edit the server address and metadata headers.
-                Use shell scripts for authorization headers by enclosing them in <code>$()</code>, e.g.
-                <code>$(getToken.sh)</code>. Press <code>Tab</code> to progress.
+                Add the server address and headers.
+                Use scripts for auth headers by enclosing them in <code>$()</code>. Press <code>Tab</code> to continue.
             </p>
 `
         },
@@ -59,7 +58,7 @@
             img: ImgRequest,
             body: `
             <p style="text-align: center; line-height:1.4em">
-                Edit the request using vim motions. Navigate with <code>h/j/k/l</code>, insert with <code>i</code> and go to normal mode with <code>Esc</code>. For more mappings visit <a href="https://github.com/preiter93/edtui" class="custom-link" target="_blank" rel="noopener noreferrer">edtui</a>. Press <code>Enter</code> to send the request.
+                Edit the request. Navigate with <code>h/j/k/l</code>, insert with <code>i</code> and go to normal mode with <code>Esc</code>. For more mappings visit <a href="https://github.com/preiter93/edtui" class="custom-link" target="_blank" rel="noopener noreferrer">edtui</a>. Press <code>Enter</code> to send the request.
             </p>
 `
         },
@@ -152,7 +151,7 @@ Sent requests are automatically saved by default. You can switch between save bu
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
         padding: 0px 16px 0px 16px;
     }
 
@@ -184,7 +183,7 @@ Sent requests are automatically saved by default. You can switch between save bu
         align-items: center;
         fill: var(--gray-lightest);
         box-sizing: border-box;
-        border: 1px solid var(--gray-light);
+        border: none;
         box-shadow: 0px 0px 3px var(--gray-lightest);
         border-radius: 50%;
         height: var(--icon-size);
