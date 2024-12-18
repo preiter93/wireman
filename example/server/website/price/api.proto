@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service PriceService {
+  rpc GetPrice (GetPriceReq) returns (GetPriceResp) {}
+  rpc ListPrices (ListPricesReq) returns (ListPricesResp) {}
+  rpc UpdatePrice (UpdatePriceReq) returns (UpdatePriceResp) {}
+  rpc DeletePrice (DeletePriceReq) returns (DeletePriceResp) {}
+}
+
+message ListPricesReq {}
+
+message ListPricesResp {
+  repeated Price price = 1;
+}
+
+message GetPriceReq {
+  string id = 1;
+}
+
+message GetPriceResp {
+  Price price = 1;
+}
+
+message UpdatePriceReq {
+  string id = 1;
+  double amount = 2;
+  string currency = 3;
+}
+
+message UpdatePriceResp {
+  Price price = 1;
+}
+
+message DeletePriceReq {
+  string id = 1;
+}
+
+message DeletePriceResp {}
+
+message Price {
+  string id = 1;
+  double amount = 2;
+  string currency = 3;
+}

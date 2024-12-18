@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+import "google/protobuf/timestamp.proto";
+
+service OrderService {
+  rpc GetOrder (GetOrderReq) returns (GetOrderResp) {}
+  rpc ListOrders (ListOrdersReq) returns (ListOrdersResp) {}
+  rpc UpdateOrder (UpdateOrderReq) returns (UpdateOrderResp) {}
+  rpc DeleteOrder (DeleteOrderReq) returns (DeleteOrderResp) {}
+}
+
+message ListOrdersReq {}
+  
+message ListOrdersResp {
+  repeated Order order = 1;
+}
+  
+message GetOrderReq {
+  string id = 1;
+}
+  
+message GetOrderResp {
+  Order order = 1;
+}
+
+message UpdateOrderReq {
+  string id = 1;
+  string name = 2;
+}
+  
+message UpdateOrderResp {
+  Order order = 1;
+}
+
+message DeleteOrderReq {
+  string id = 1;
+}
+  
+message DeleteOrderResp {}
+
+message Order {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+  google.protobuf.Timestamp created_at = 4; 
+  google.protobuf.Timestamp updated_at = 5;
+}
