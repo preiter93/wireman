@@ -75,7 +75,7 @@ $HOME/my-project/
 │       └── api.proto
 └── protos/common.proto
 </pre>
-		<p>Then you should extend your <code>~/.config/wireman.toml</code> with:</p>
+		<p>Then modify <code>~/.config/wireman/wireman.toml</code>:</p>
 		<CodeContainer
 			command="includes = [
     '$HOME/my-project/services',
@@ -95,7 +95,9 @@ files = [
 			the following environment variable:
 		</p>
 		<CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" />
-		<p style="padding-top:22px">The configuration file also provides more configuration options:</p>
+		<p style="padding-top:22px">
+			The <code>wireman.toml</code> provides the following configuration options:
+		</p>
 		<CodeContainer
 			command="[server]
 # Optional. Prefills the server address.
@@ -113,6 +115,13 @@ autosave = true
 
 # Optional. History is enabled by default.
 disabled = false
+
+[logging]
+# Optional. Defaults to $WIREMAN_CONFIG_DIR.
+directory = '$WIREMAN_CONFIG_DIR'
+
+# Optional. Defaults to Debug.
+level = 'Debug'                            
 
 [ui]
 # Optional. Set a UI theme. 
