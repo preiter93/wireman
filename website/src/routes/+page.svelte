@@ -2,6 +2,7 @@
     import BinariesTable from '$lib/BinariesTable.svelte';
     import CodeContainer from '$lib/CodeContainer.svelte';
     import ContentCard from '$lib/ContentCard.svelte';
+    import GithubButton from '$lib/GithubButton.svelte';
 
     import ImgHelp from '$lib/assets/website_001.png';
     import ImgService from '$lib/assets/website_026.png';
@@ -23,8 +24,13 @@
     });
 </script>
 
-<div>
+<div class="header">
     <h1>Wireman</h1>
+    <div class="github">
+        <GithubButton />
+    </div>
+</div>
+<div>
     <p class="subtitle">A grpc client for the terminal</p>
 </div>
 
@@ -227,6 +233,27 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 </div>
 
 <style>
+    .header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: var(--max-width);
+        position: relative;
+    }
+
+    .github {
+        position: absolute;
+        right: 0;
+        margin-right: 16px;
+        padding-top: 20px;
+    }
+    @media (max-width: 600px) {
+        .github {
+            margin-right: 10px;
+            padding-top: 16px;
+        }
+    }
+
     .subtitle {
         margin: 0;
         font-style: italic;
@@ -241,8 +268,11 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         padding-bottom: 12px;
     }
 
-    @media (max-width: 850px) {
+    @media (max-width: 800px) {
         .content {
+            width: 100%;
+        }
+        .header {
             width: 100%;
         }
     }

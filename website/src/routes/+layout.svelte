@@ -39,10 +39,11 @@
         --green: hsl(150, 100%, 40%);
 
         --icon-size: 18px;
+        --icon-size-large: 36px;
 
         --text-margin: 18px;
 
-        --max-width: 700px;
+        --max-width: 800px;
     }
 
     @media (max-width: 600px) {
@@ -55,6 +56,7 @@
             --font-size-code: 12px;
 
             --icon-size: 16px;
+            --icon-size-large: 24px;
 
             --text-margin: 16px;
         }
