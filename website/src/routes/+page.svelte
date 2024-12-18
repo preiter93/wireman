@@ -208,9 +208,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 Switch between the request and response editors using <code>J/K</code>. Copy the response with
                 <code>VGy</code> to your clipboard.
             </p>
-            <p>
-                <img src={ImgCopy} alt="Copy response" />
-            </p>
+            <img src={ImgCopy} alt="Copy response" />
         </div>
     </ContentCard>
 
