@@ -1,7 +1,7 @@
 # vhs tape/website.tape
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
-# cp website_001.png website_026.png website_051.png website_170.png website_225.png website_300.png website_301.png ../../../website/src/lib/assets/.
+# cp website_001.png website_026.png website_080.png website_170.png website_225.png  website_271.png website_326.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
@@ -12,7 +12,7 @@ Set Padding 2
 Set BorderRadius 2
 Set FontSize 16
 Set Width 830
-Set Height 550
+Set Height 570
 Set PlaybackSpeed 1.
 Set Framerate 1
 Set TypingSpeed 1ms
@@ -45,6 +45,8 @@ Type "jwwwa123"
 Escape
 Sleep 1s
 Enter
+Sleep 1s
+Type "2"
 Sleep 1s
 Type "J"
 Sleep 1s
