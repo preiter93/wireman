@@ -40,7 +40,7 @@
             body: `
             <p style="text-align: center; line-height:1.4em">
                 Use <code>j/k</code> to scroll through the methods and
-                click <code>Enter</code> to select. Press <code>Tab</code> to progress.
+                click <code>Enter</code> to select a method and progress.
             </p>
 `
         },
