@@ -32,6 +32,7 @@ impl<'a> HeadersPage<'a> {
         } else {
             keys.push(("i", "Insert Mode"));
         }
+        keys.push(("<C-a>", "Add Header"));
         keys.push(("?", "Help"));
 
         keys
