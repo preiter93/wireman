@@ -49,7 +49,8 @@
             img: ImgAuth,
             body: `
             <p style="text-align: center; line-height:1.4em">
-                Add the server address and headers.
+                Edit the server address and headers. insert with <code>i</code> and go to normal mode with <code>Esc</code>.
+                Add headers with <code>&ltC-a&gt</code>.
                 Use scripts for auth headers by enclosing them in <code>$()</code>. Press <code>Tab</code> to continue.
             </p>
 `
