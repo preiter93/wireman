@@ -51,11 +51,6 @@
             configuration path) in which a default configuration is created:
         </p>
         <CodeContainer command="wireman init" />
-        <!-- <p style="padding-top:24px"> -->
-        <!-- 	If you've specified a non-default directory, don't forget to add the following environment -->
-        <!-- 	variable to your .bashrc file: -->
-        <!-- </p> -->
-        <!-- <CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" /> -->
     </ContentCard>
 
     <ContentCard title="Configuration" initiallyExpanded={true}>
@@ -131,6 +126,16 @@ level = 'Debug'
 # Optional. Set a UI theme. 
 skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         />
+        <p style="padding-top: 12px;">
+            If you are interested in configuring wireman with your own theme, check out the custom
+            <a
+                href="https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins"
+                class="custom-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                >skins
+            </a>.
+        </p>
     </ContentCard>
 
     <h2>A Tour of Wireman</h2>
