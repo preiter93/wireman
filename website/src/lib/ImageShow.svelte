@@ -1,15 +1,16 @@
 <script lang="ts">
     import ImgHelp from '$lib/assets/website_001.png';
     import ImgServices from '$lib/assets/website_026.png';
-    import ImgMethod from '$lib/assets/website_051.png';
+    import ImgMethod from '$lib/assets/website_080.png';
     import ImgAuth from '$lib/assets/website_170.png';
     import ImgRequest from '$lib/assets/website_225.png';
-    import ImgResponse from '$lib/assets/website_300.png';
-    import ImgCopy from '$lib/assets/website_301.png';
+    import ImgResponse from '$lib/assets/website_271.png';
+    import ImgCopy from '$lib/assets/website_326.png';
 
     type ShowElement = {
         title: string;
         img: string;
+        // TODO: Use snippets
         body: string;
     };
 
@@ -76,7 +77,7 @@
             img: ImgResponse,
             body: `
             <p style="text-align: center; line-height:1.4em">
-Sent requests are automatically saved by default. You can switch between save buffers by typing the numbers <code>1-5</code>.
+Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</code>. You can switch between the save buffers by entering the numbers <code>1-5</code>.
             </p>
 `
         }
