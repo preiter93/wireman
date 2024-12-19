@@ -22,19 +22,17 @@
 </script>
 
 <div class="content-card">
-    <div class="header {isExpanded ? 'true' : 'false'}">
+    <button class="header {isExpanded ? 'true' : 'false'}" onclick={toggle} tabindex="0">
         <h3>{title}</h3>
         {#if !hideToggle}
-            <button onclick={toggle} class="chevron">
-                <div>
-                    <svg class="chevron {isExpanded ? 'true' : 'false'}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path class="chevron path" d="M12 15L6 9H18L12 15Z" />
-                        >
-                    </svg>
-                </div>
-            </button>
+            <div>
+                <svg class="chevron {isExpanded ? 'true' : 'false'}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path class="chevron path" d="M12 15L6 9H18L12 15Z" />
+                    >
+                </svg>
+            </div>
         {/if}
-    </div>
+    </button>
     {#if isExpanded}
         <div class="content" transition:slide={{ duration: 500 }}>
             {@render children()}
