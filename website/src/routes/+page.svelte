@@ -94,7 +94,7 @@ files = [
             variable:
         </p>
         <CodeContainer command="export WIREMAN_CONFIG_DIR=$HOME/.config/wireman" />
-        <p style="padding-top:22px">
+        <p style="padding-top:18px">
             The <code>wireman.toml</code> provides the following configuration options:
         </p>
         <CodeContainer
@@ -126,7 +126,7 @@ level = 'Debug'
 # Optional. Set a UI theme. 
 skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         />
-        <p style="padding-top: 12px;">
+        <p style="padding-top: 18px;">
             If you are interested in configuring wireman with your own theme, check out the custom
             <a
                 href="https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins"
