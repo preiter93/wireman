@@ -204,7 +204,7 @@ Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</c
         fill: var(--gray-lightest);
         box-sizing: border-box;
         border: none;
-        box-shadow: 0px 0px 3px var(--gray-lightest);
+        box-shadow: 0px 0px 2px var(--gray-lightest);
         border-radius: 50%;
         height: var(--icon-size);
         width: var(--icon-size);
@@ -216,6 +216,8 @@ Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</c
         transform: scale(0.9);
     }
     .chevron {
+        height: 100%;
+        width: 100%;
         transform: translateY(1px);
     }
 
