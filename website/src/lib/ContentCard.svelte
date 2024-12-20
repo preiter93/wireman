@@ -66,6 +66,7 @@
 
     .content {
         margin-top: 1rem;
+        overflow: hidden;
     }
 
     button {
