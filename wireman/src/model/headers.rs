@@ -69,7 +69,7 @@ impl HeadersModel {
     /// Whether any editor is currently in insert mode
     pub fn disabled_root_events(&self) -> bool {
         self.selected_editor()
-            .map_or(false, |editor| editor.state.mode != EditorMode::Normal)
+            .is_some_and(|editor| editor.state.mode != EditorMode::Normal)
     }
 
     /// Returns the editor mode

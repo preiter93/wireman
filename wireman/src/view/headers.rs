@@ -86,9 +86,9 @@ impl Widget for HeadersPage<'_> {
                         key: x.0.state.clone(),
                         val: x.1.state.clone(),
                         key_selected: (self.model.tab == HeadersTab::Meta)
-                            && index.map_or(false, |x| x.row == i && x.col == 0),
+                            && index.is_some_and(|x| x.row == i && x.col == 0),
                         val_selected: (self.model.tab == HeadersTab::Meta)
-                            && index.map_or(false, |x| x.row == i && x.col == 1),
+                            && index.is_some_and(|x| x.row == i && x.col == 1),
                     })
                     .collect(),
                 selected_row: index.map(|x| x.row),
