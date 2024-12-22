@@ -50,14 +50,14 @@ impl AuthHeader {
     }
 
     pub fn value(&self) -> String {
-        self._value(false)
+        self.get_value(false)
     }
 
     pub fn value_expanded(&self) -> String {
-        self._value(true)
+        self.get_value(true)
     }
 
-    fn _value(&self, expanded: bool) -> String {
+    fn get_value(&self, expanded: bool) -> String {
         match self.selected {
             AuthSelection::Bearer => {
                 let mut value = self.bearer.get_text_raw();
