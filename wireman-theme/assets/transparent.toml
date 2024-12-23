@@ -9,24 +9,12 @@ gray = "#44475a"
 [base]
 foreground = "white"
 
-[border.focused]
-foreground = "white"
-
-[border.unfocused]
-foreground = "white"
-
-[border.text.unfocused]
-foreground = "white"
-
 [border.text.focused]
 foreground = "magenta"
 
 [navbar.title]
 foreground = "magenta"
 bold = true
-
-[navbar.tabs.unfocused]
-foreground = "white"
 
 [navbar.tabs.focused]
 foreground = "black"
@@ -57,9 +45,6 @@ bold = true
 [headers.tabs.focused]
 foreground = "black"
 background = "orange"
-
-[editor.text]
-foreground = "white"
 
 [editor.cursor]
 foreground = "black"
