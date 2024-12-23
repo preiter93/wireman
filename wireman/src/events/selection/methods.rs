@@ -1,5 +1,6 @@
 use crate::{
     context::{AppContext, SelectionTab},
+    events::CONFIG_KEY,
     model::selection::SelectionMode,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
@@ -18,6 +19,7 @@ pub enum MethodsSelectionEvents {
     GoToServices,
     ToggleReflectionMode,
     UntoggleReflectionMode,
+    EditConfig,
 }
 
 impl fmt::Display for MethodsSelectionEvents {
@@ -34,6 +36,7 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::GoToServices => "Go to Services",
             MethodsSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
             MethodsSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
+            MethodsSelectionEvents::EditConfig => "Edit configuration",
         };
         write!(f, "{display_str}")
     }
@@ -96,6 +99,9 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::ToggleReflectionMode
             | MethodsSelectionEvents::UntoggleReflectionMode => {
                 ctx.selection.borrow_mut().toggle_reflection_mode();
+            }
+            MethodsSelectionEvents::EditConfig => {
+                ctx.configuration.borrow_mut().toggle();
             }
         }
     }
@@ -166,6 +172,10 @@ impl EventHandler for MethodsSelectionEventsHandler {
                 MethodsSelectionEvents::GoToServices,
             ),
         ]);
+        map.extend([(
+            KeyEvent::new(CONFIG_KEY.into()),
+            MethodsSelectionEvents::EditConfig,
+        )]);
         map
     }
 }
