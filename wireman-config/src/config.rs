@@ -7,6 +7,7 @@ use logger::LogLevel;
 use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 use std::path::Path;
+use std::str::FromStr;
 use theme::Config as ThemeConfig;
 
 /// The top level config.
@@ -48,6 +49,20 @@ impl Config {
         Self::deserialize_toml(&data)
     }
 
+    /// Returns the content of the config as a string.
+    ///
+    /// # Errors
+    ///
+    /// Failed to read the config file.
+    pub fn read_to_string(file: &str) -> Result<String> {
+        let f = expand_file(file);
+        let data = read_to_string(&f).map_err(|err| Error::ReadConfigError {
+            filename: f,
+            source: err,
+        })?;
+        Ok(data)
+    }
+
     /// Parses the config from a toml-formatted string.
     ///
     /// # Errors
@@ -78,6 +93,19 @@ impl Config {
     #[must_use]
     pub fn files(&self) -> Vec<String> {
         self.files.iter().map(|e| expand_file(e)).collect()
+    }
+}
+
+impl FromStr for Config {
+    type Err = Error;
+
+    /// Parses the config from a toml-formatted string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serde deserialization fails.
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        Self::deserialize_toml(s)
     }
 }
 

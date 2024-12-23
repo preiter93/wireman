@@ -18,7 +18,7 @@ use std::result::Result as StdResult;
 ///
 /// # Errors
 /// See [`setup`].
-pub fn init_from_env() -> Result<Config> {
+pub fn init_from_env() -> Result<(Config, String)> {
     setup(false)
 }
 
@@ -33,7 +33,7 @@ pub fn init_from_env() -> Result<Config> {
 /// - `Config Init Errors`: Error initializing the configuration.
 /// - `Logger Init Errors`: Error initializing the logger.
 /// - `History Init Errors`: Error initializing the history.
-pub fn setup(dry_run: bool) -> Result<Config> {
+pub fn setup(dry_run: bool) -> Result<(Config, String)> {
     let config_dir = match config_dir_checked() {
         Err(err) => {
             if dry_run {
@@ -127,7 +127,7 @@ pub fn setup(dry_run: bool) -> Result<Config> {
         Theme::init(&config.ui);
     }
 
-    Ok(config)
+    Ok((config, config_file))
 }
 
 fn config_dir_checked() -> StdResult<String, SetupError> {
