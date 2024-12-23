@@ -1,3 +1,8 @@
+0.2.2 - 
+===================
+- Switch auth headers with L/H
+- Allow color parameters in skin configuration
+
 0.2.1 - 23 Nov 2024
 ===================
 - Add a setup cli
