@@ -1,0 +1,76 @@
+[colors]
+black = "#282a36"
+white = "#f8f8f2"
+gray = "#44475a"
+purple = "#bd93f9"
+orange = "#ffb86c"
+green = "#50fa7b"
+cyan = "#8be9fd"
+pink = "#ff79c6"
+yellow = "#f1fa8c"
+
+[base]
+background = "black"
+foreground = "white"
+
+[border.text.focused]
+foreground = "purple"
+
+[navbar.title]
+foreground = "purple"
+bold = true
+
+[navbar.tabs.focused]
+foreground = "black"
+background = "pink"
+
+[list.focused]
+foreground = "black"
+background = "orange"
+
+[history.inactive.unfocused]
+foreground = "gray"
+
+[history.inactive.focused]
+foreground = "black"
+background = "gray"
+
+[history.active.unfocused]
+foreground = "orange"
+
+[history.active.focused]
+foreground = "black"
+background = "orange"
+
+[headers.titles]
+foreground = "purple"
+bold = true
+
+[headers.tabs.focused]
+foreground = "black"
+background = "orange"
+
+[editor.cursor]
+foreground = "black"
+background = "white"
+
+[editor.selection]
+foreground = "black"
+background = "orange"
+
+[editor.status_line]
+bold = false
+
+[editor.status_line.primary]
+foreground = "black"
+background = "pink"
+
+[footer]
+hide = false
+
+[footer.text]
+foreground = "gray"
+
+[footer.tabs]
+foreground = "black"
+background = "gray"

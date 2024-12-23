@@ -79,7 +79,6 @@ impl<'de> Deserialize<'de> for Color {
             where
                 E: de::Error,
             {
-                // Parse the color string using ratatuis color parser
                 let color = RatatuiColor::from_str(value).map_err(de::Error::custom)?;
 
                 Ok(Color(color))

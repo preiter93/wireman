@@ -1,0 +1,97 @@
+[colors]
+black = "#101116"
+white = "#f1f5f9"
+magenta = "#ff33cc"
+orange = "#ff9900"
+green = "#00cc66"
+gray = "#44475a"
+
+[base]
+background = "black"
+foreground = "white"
+
+[border.focused]
+foreground = "white"
+
+[border.unfocused]
+foreground = "white"
+
+[border.text.unfocused]
+foreground = "white"
+
+[border.text.focused]
+foreground = "magenta"
+
+[navbar.title]
+foreground = "magenta"
+bold = true
+
+[navbar.tabs.unfocused]
+foreground = "white"
+background = "black"
+
+[navbar.tabs.focused]
+foreground = "black"
+background = "green"
+
+[list.focused]
+foreground = "black"
+background = "orange"
+
+[history.inactive.unfocused]
+foreground = "gray"
+background = "black"
+
+[history.inactive.focused]
+foreground = "black"
+background = "gray"
+
+[history.active.unfocused]
+foreground = "orange"
+background = "black"
+
+[history.active.focused]
+foreground = "black"
+background = "orange"
+
+[headers.titles]
+foreground = "magenta"
+background = "black"
+bold = true
+
+[headers.tabs.focused]
+foreground = "black"
+background = "orange"
+
+[editor.text]
+foreground = "white"
+background = "black"
+
+[editor.cursor]
+foreground = "black"
+background = "white"
+
+[editor.selection]
+foreground = "black"
+background = "orange"
+
+[editor.status_line]
+bold = false
+
+[editor.status_line.primary]
+foreground = "black"
+background = "green"
+
+[editor.status_line.secondary]
+background = "black"
+
+[footer]
+hide = false
+
+[footer.text]
+foreground = "gray"
+background = "black"
+
+[footer.tabs]
+foreground = "black"
+background = "gray"

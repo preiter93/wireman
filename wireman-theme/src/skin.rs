@@ -1,12 +1,15 @@
-use std::error::Error;
+#![allow(unused, dead_code)]
+use std::{collections::HashMap, error::Error, str::FromStr};
 
 use ratatui::style::Stylize;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
-use crate::{color::Color, set_fg_bg, set_focusable, Theme};
+use crate::{color::Color, set_fg_bg, Theme};
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize)]
 pub struct Skin {
+    #[serde(default)]
+    pub colors: HashMap<String, Color>,
     #[serde(default)]
     pub base: Base,
     #[serde(default)]
@@ -27,83 +30,138 @@ pub struct Skin {
     pub help_dialog: HelpDialog,
 }
 
+impl Default for Skin {
+    fn default() -> Self {
+        toml::from_str(include_str!("../assets/default.toml")).unwrap()
+    }
+}
+
 impl Skin {
-    pub fn from_file(file_path: &str) -> Result<Self, Box<dyn Error>> {
+    pub(crate) fn from_file(file_path: &str) -> Result<Self, Box<dyn Error>> {
         let f = shellexpand::env(file_path).map_or(file_path.to_string(), |x| x.to_string());
+
         let toml_content = std::fs::read_to_string(f)?;
-        let skin: Self = toml::from_str(&toml_content)?;
-        Ok(skin)
+
+        Ok(toml::from_str(&toml_content)?)
     }
 
-    pub fn apply_to(&self, theme: &mut Theme) {
-        let fc = self.base.foreground;
-        let bc = self.base.background;
-        let hc = default_highlight_color();
-        let hc2 = secondary_highlight_color();
-        let dc = default_text_disabled_color();
-        let tc = default_title_color();
+    fn resolve_color(&self, color: &str) -> Option<Color> {
+        if let Some(color) = self.colors.get(color) {
+            return Some(*color);
+        }
 
+        Color::from_str(color).ok()
+    }
+
+    pub(crate) fn apply_to(&self, theme: &mut Theme) {
         // Base
-        theme.base.style = theme.base.style.fg(fc.0).bg(bc.0);
+        let fc = resolve_color(&self.colors, self.base.foreground.as_deref());
+        let bc = resolve_color(&self.colors, self.base.background.as_deref());
+        if let Some(fc) = fc {
+            theme.base.style = theme.base.style.fg(fc.0);
+        }
+        if let Some(bc) = bc {
+            theme.base.style = theme.base.style.bg(bc.0);
+        }
 
         // Border
-        let unfocused = self.border.unfocused.as_ref();
-        let focused = self.border.focused.as_ref();
-        set_focusable!(theme.border.text, self.border.text, fc, bc, tc, bc);
-        set_fg_bg!(theme.border.border.0, unfocused, fc, bc);
-        set_fg_bg!(theme.border.border.1, focused, fc, bc);
+        if let Some(target) = &self.border.unfocused {
+            set_fg_bg!(theme.border.border.0, target, self.colors);
+        }
+        if let Some(target) = &self.border.focused {
+            set_fg_bg!(theme.border.border.1, target, self.colors);
+        }
+        if let Some(target) = &self.border.text.as_ref().and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.border.text.0, target, self.colors);
+        }
+        if let Some(target) = &self.border.text.as_ref().and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.border.text.1, target, self.colors);
+        }
 
         // Navbar
-        set_fg_bg!(theme.navbar.title, self.navbar.title, tc, bc);
         let title = self.navbar.title.as_ref();
         if title.and_then(|x| x.bold).unwrap_or(true) {
             theme.navbar.title = theme.navbar.title.bold();
         }
-        set_focusable!(theme.navbar.tabs, self.navbar.tabs, fc, bc, bc, hc2);
+        if let Some(target) = &self.navbar.title {
+            set_fg_bg!(theme.navbar.title, target, self.colors);
+        }
+        if let Some(target) = &self.navbar.tabs.as_ref().and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.navbar.tabs.0, target, self.colors);
+        }
+        if let Some(target) = &self.navbar.tabs.as_ref().and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.navbar.tabs.1, target, self.colors);
+        }
 
         // List
-        set_fg_bg!(theme.list.text, self.list.unfocused, fc, bc);
-        set_fg_bg!(theme.list.focused, self.list.focused, bc, hc);
+        if let Some(target) = &self.list.unfocused.as_ref() {
+            set_fg_bg!(theme.list.text, target, self.colors);
+        }
+        if let Some(target) = &self.list.focused {
+            set_fg_bg!(theme.list.focused, target, self.colors);
+        }
 
         // Editor
-        set_fg_bg!(theme.editor.text, self.editor.text, fc, bc);
-        set_fg_bg!(theme.editor.cursor, self.editor.cursor, bc, fc);
-        set_fg_bg!(theme.editor.selection, self.editor.selection, bc, hc);
-        let (sc1, sc2) = default_editor_status_line_colors();
-        let status_line = self.editor.status_line.as_ref();
-        set_fg_bg!(
-            theme.editor.status_text,
-            status_line.and_then(|x| x.primary.as_ref()),
-            bc,
-            sc1
-        );
-
-        set_fg_bg!(
-            theme.editor.status_line,
-            status_line.and_then(|x| x.secondary.as_ref()),
-            fc,
-            sc2
-        );
-        if status_line.and_then(|x| x.bold).unwrap_or(false) {
-            theme.editor.status_text = theme.editor.status_text.bold();
+        if let Some(target) = &self.editor.text.as_ref() {
+            set_fg_bg!(theme.editor.text, target, self.colors);
         }
+        if let Some(target) = &self.editor.cursor.as_ref() {
+            set_fg_bg!(theme.editor.cursor, target, self.colors);
+        }
+        if let Some(target) = &self.editor.selection.as_ref() {
+            set_fg_bg!(theme.editor.selection, target, self.colors);
+        }
+
+        let status_line = self.editor.status_line.as_ref();
+        let primary = status_line.and_then(|x| x.primary.as_ref());
+        if let Some(target) = primary {
+            set_fg_bg!(theme.editor.status_text, target, self.colors);
+        }
+        let secondary = status_line.and_then(|x| x.secondary.as_ref());
+        if let Some(target) = secondary {
+            set_fg_bg!(theme.editor.status_line, target, self.colors);
+        }
+
         if let Some(hide_status_line) = status_line.and_then(|x| x.hide) {
             theme.editor.hide_status_line = hide_status_line;
         }
 
         // History
-        let inactive = self.history.inactive.as_ref();
-        let active = self.history.active.as_ref();
-        set_focusable!(theme.history.inactive, inactive, dc, bc, bc, dc);
-        set_focusable!(theme.history.active, active, hc, bc, bc, hc);
+        let history = &self.history;
+        if let Some(target) = history.inactive.as_ref().and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.history.inactive.0, target, self.colors);
+        }
+        if let Some(target) = history.inactive.as_ref().and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.history.inactive.1, target, self.colors);
+        }
+        if let Some(target) = history.active.as_ref().and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.history.active.0, target, self.colors);
+        }
+        if let Some(target) = history.active.as_ref().and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.history.active.1, target, self.colors);
+        }
 
         // Headers
-        set_fg_bg!(theme.headers.titles, self.headers.titles, tc, bc);
-        set_focusable!(theme.headers.tabs, self.headers.tabs, fc, bc, bc, hc);
+        let headers = &self.headers;
+        if let Some(target) = headers.titles.as_ref() {
+            set_fg_bg!(theme.headers.titles, target, self.colors);
+        }
+        if let Some(target) = headers.tabs.as_ref().and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.0, target, self.colors);
+        }
+        if let Some(target) = headers.tabs.as_ref().and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.1, target, self.colors);
+        }
 
         // Footer
-        set_fg_bg!(theme.footer.tabs, self.footer.tabs, bc, dc);
-        set_fg_bg!(theme.footer.text, self.footer.text, dc, bc);
+        let footer = &self.footer;
+        if let Some(target) = footer.tabs.as_ref() {
+            set_fg_bg!(theme.footer.tabs, target, self.colors);
+        }
+        if let Some(target) = footer.text.as_ref() {
+            set_fg_bg!(theme.footer.text, target, self.colors);
+        }
+
         if let Some(hide_footer) = self.footer.hide {
             theme.footer.hide = hide_footer;
         } else {
@@ -111,29 +169,21 @@ impl Skin {
         }
 
         // Help dialog
-        let foreground = self.help_dialog.foreground;
-        let background = self.help_dialog.background;
-        let bl = default_help_dialog_background_color();
-        theme.help_dialog.style = theme.help_dialog.style.fg(foreground.unwrap_or(fc).0);
-        theme.help_dialog.style = theme.help_dialog.style.bg(background.unwrap_or(bl).0);
-    }
-}
-
-#[derive(Debug, Deserialize)]
-pub(crate) struct Base {
-    #[serde(default = "default_background_color")]
-    pub background: Color,
-    #[serde(default = "default_foreground_color")]
-    pub foreground: Color,
-}
-
-impl Default for Base {
-    fn default() -> Self {
-        Self {
-            background: default_background_color(),
-            foreground: default_foreground_color(),
+        let fc = resolve_color(&self.colors, self.help_dialog.foreground.as_deref());
+        let bc = resolve_color(&self.colors, self.help_dialog.background.as_deref());
+        if let Some(fc) = fc {
+            theme.help_dialog.style = theme.base.style.fg(fc.0);
+        }
+        if let Some(bc) = bc {
+            theme.help_dialog.style = theme.base.style.bg(bc.0);
         }
     }
+}
+
+#[derive(Default, Debug, Deserialize)]
+pub(crate) struct Base {
+    pub background: Option<String>,
+    pub foreground: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -184,46 +234,14 @@ pub(crate) struct Footer {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct HelpDialog {
-    pub foreground: Option<Color>,
-    pub background: Option<Color>,
-}
-
-pub fn default_background_color() -> Color {
-    DARK_NIGHT
-}
-
-pub fn default_foreground_color() -> Color {
-    WHITE
-}
-
-pub fn default_highlight_color() -> Color {
-    ORANGE
-}
-
-pub fn secondary_highlight_color() -> Color {
-    GREEN
-}
-
-pub fn default_title_color() -> Color {
-    MAGENTA
-}
-
-pub fn default_editor_status_line_colors() -> (Color, Color) {
-    (GREEN, DARK_NIGHT)
-}
-
-pub fn default_text_disabled_color() -> Color {
-    GRAY
-}
-
-pub fn default_help_dialog_background_color() -> Color {
-    DARK_NIGHT
+    pub foreground: Option<String>,
+    pub background: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Title {
-    pub foreground: Option<Color>,
-    pub background: Option<Color>,
+    pub foreground: Option<String>,
+    pub background: Option<String>,
     pub bold: Option<bool>,
 }
 
@@ -235,8 +253,8 @@ pub(crate) struct Focusable {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct FgBg {
-    pub foreground: Option<Color>,
-    pub background: Option<Color>,
+    pub foreground: Option<String>,
+    pub background: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -254,41 +272,30 @@ const ORANGE: Color = Color::rgb(255, 153, 0);
 const MAGENTA: Color = Color::rgb(255, 51, 204);
 const GREEN: Color = Color::rgb(0, 204, 102);
 
+pub(crate) fn resolve_color(colors: &HashMap<String, Color>, color: Option<&str>) -> Option<Color> {
+    let Some(color) = color else {
+        return None;
+    };
+
+    if let Some(color) = colors.get(color) {
+        return Some(*color);
+    }
+
+    Color::from_str(color).ok()
+}
+
 pub(crate) mod macros {
     #[macro_export]
     macro_rules! set_fg_bg {
-        ($theme:expr, $skin:expr, $fg:expr, $bg:expr) => {
-            $theme = $theme.fg($skin.as_ref().and_then(|x| x.foreground).unwrap_or($fg).0);
-            $theme = $theme.bg($skin.as_ref().and_then(|x| x.background).unwrap_or($bg).0);
-        };
-    }
-    #[macro_export]
-    macro_rules! set_focusable {
-        ($theme:expr, $skin:expr, $fg_unfocused:expr, $bg_unfocused:expr, $fg_focused:expr, $bg_focused:expr) => {
-            $theme.0 = $theme.0.fg($skin
-                .as_ref()
-                .and_then(|t| t.unfocused.as_ref())
-                .and_then(|x| x.foreground)
-                .unwrap_or($fg_unfocused)
-                .0);
-            $theme.0 = $theme.0.bg($skin
-                .as_ref()
-                .and_then(|t| t.unfocused.as_ref())
-                .and_then(|x| x.background)
-                .unwrap_or($bg_unfocused)
-                .0);
-            $theme.1 = $theme.1.fg($skin
-                .as_ref()
-                .and_then(|t| t.focused.as_ref())
-                .and_then(|x| x.foreground)
-                .unwrap_or($fg_focused)
-                .0);
-            $theme.1 = $theme.1.bg($skin
-                .as_ref()
-                .and_then(|t| t.focused.as_ref())
-                .and_then(|x| x.background)
-                .unwrap_or($bg_focused)
-                .0);
+        ($theme:expr, $fg_bg:expr, $colors:expr) => {
+            let fc = resolve_color(&$colors, $fg_bg.foreground.as_deref());
+            let bc = resolve_color(&$colors, $fg_bg.background.as_deref());
+            if let Some(fc) = fc {
+                $theme = $theme.fg(fc.0);
+            }
+            if let Some(bc) = bc {
+                $theme = $theme.bg(bc.0);
+            }
         };
     }
 }
@@ -309,17 +316,10 @@ mod tests {
     }
 
     #[test]
-    fn test_skin_from_empty_toml() {
-        // Load Skin from file
-        let skin: Skin = Skin::from_file(&test_resource("empty.toml")).unwrap();
-        // Assert
-        assert_eq!(skin.base.background, Color::rgb(16, 17, 22));
-    }
-    #[test]
-    fn test_skin_from_file() {
-        // Load Skin from file
-        let skin: Skin = Skin::from_file(&test_resource("default.toml")).unwrap();
-        // Assert
-        assert_eq!(skin.base.background, Color::rgb(15, 23, 42));
+    fn test_skin_default() {
+        let skin: Skin = Skin::default();
+
+        let background = resolve_color(&skin.colors, skin.base.background.as_deref());
+        assert_eq!(background, Some(Color::rgb(16, 17, 22)));
     }
 }
