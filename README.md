@@ -162,6 +162,14 @@ Wireman also supports server reflection of gRPC servers. To activate reflection 
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif)
 
+## Edit configuration in-app
+
+You can manage your configuration directly within the app:
+
+- Navigate to the services page.
+- Type `c` to edit the configuration.
+- Save your changes with `Ctrl-s`.
+
 ## Roadmap
 
 - [x] Unary gRPC
@@ -177,9 +185,7 @@ Wireman also supports server reflection of gRPC servers. To activate reflection 
 - [x] Provide installation help
 - [x] Custom themes
 - [x] Server reflection
+- [x] Edit config file in app
 
 Planned
-- [ ] Edit config file in app
-
-Maybe
 - [ ] Streaming gRPC
