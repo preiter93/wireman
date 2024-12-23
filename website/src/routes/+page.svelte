@@ -129,7 +129,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         <p style="padding-top: 18px;">
             If you are interested in configuring wireman with your own theme, check out the custom
             <a
-                href="https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins"
+                href="https://github.com/preiter93/wireman/tree/main/wireman-theme/assets"
                 class="custom-link"
                 target="_blank"
                 rel="noopener noreferrer"
