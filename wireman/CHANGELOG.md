@@ -3,6 +3,7 @@
 - Switch auth headers with L/H
 - Allow color parameters in skin configuration
 - Support inline editing of config file
+- Add a placeholder text if there are no proto services
 
 0.2.1 - 23 Nov 2024
 ===================
