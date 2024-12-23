@@ -15,4 +15,4 @@ default_address = "http://localhost:50051"
 directory = "$HOME/Rust/wireman/example/history"
 
 [ui]
-skin = "$PWD/../wireman-theme/resources/skins/dracula.toml"
+skin = "$PWD/../wireman-theme/assets/dracula.toml"
