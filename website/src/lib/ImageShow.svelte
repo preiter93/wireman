@@ -6,6 +6,7 @@
     import ImgRequest from '$lib/assets/website_225.png';
     import ImgResponse from '$lib/assets/website_271.png';
     import ImgCopy from '$lib/assets/website_326.png';
+    import ImgConfig from '$lib/assets/website_401.png';
 
     type ShowElement = {
         title: string;
@@ -79,6 +80,15 @@
             body: `
             <p style="text-align: center; line-height:1.4em">
 Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</code>. You can switch between the save buffers by entering the numbers <code>1-5</code>.
+            </p>
+`
+        },
+        {
+            title: 'Edit Configuration',
+            img: ImgConfig,
+            body: `
+            <p style="text-align: center; line-height:1.4em">
+The configuration <code>wireman.toml</code> can be added in-app. On the services page, type <code>c</code>. Save the config with <code>&ltC-s&gt</code>. Exit with <code>Esc</code>. 
             </p>
 `
         }
