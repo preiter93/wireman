@@ -16,8 +16,8 @@ pub enum MethodsSelectionEvents {
     Unselect,
     ClearSearch,
     GoToServices,
-    ReflectionMode,
-    FileMode,
+    ToggleReflectionMode,
+    UntoggleReflectionMode,
 }
 
 impl fmt::Display for MethodsSelectionEvents {
@@ -32,8 +32,8 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::Unselect => "Unselect",
             MethodsSelectionEvents::ClearSearch => "Clear Search",
             MethodsSelectionEvents::GoToServices => "Go to Services",
-            MethodsSelectionEvents::ReflectionMode => "Switch to Reflection Mode",
-            MethodsSelectionEvents::FileMode => "Switch to File Mode",
+            MethodsSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
+            MethodsSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
         };
         write!(f, "{display_str}")
     }
@@ -93,7 +93,8 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::GoToServices => {
                 ctx.selection_tab = SelectionTab::Services;
             }
-            MethodsSelectionEvents::ReflectionMode | MethodsSelectionEvents::FileMode => {
+            MethodsSelectionEvents::ToggleReflectionMode
+            | MethodsSelectionEvents::UntoggleReflectionMode => {
                 ctx.selection.borrow_mut().toggle_reflection_mode();
             }
         }
@@ -125,12 +126,12 @@ impl EventHandler for MethodsSelectionEventsHandler {
         if ctx.selection.borrow().selection_mode == SelectionMode::File {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('r')),
-                MethodsSelectionEvents::ReflectionMode,
+                MethodsSelectionEvents::ToggleReflectionMode,
             )]);
         } else {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('r')),
-                MethodsSelectionEvents::FileMode,
+                MethodsSelectionEvents::UntoggleReflectionMode,
             )]);
         }
 

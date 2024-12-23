@@ -3,8 +3,8 @@ use std::{cell::RefCell, error::Error, rc::Rc};
 use config::Config;
 
 use crate::model::{
-    headers::HeadersModel, history::HistoryModel, reflection::ReflectionModel, CoreClient,
-    MessagesModel, SelectionModel,
+    configuration::ConfigurationModel, headers::HeadersModel, history::HistoryModel,
+    reflection::ReflectionModel, CoreClient, MessagesModel, SelectionModel,
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -38,6 +38,9 @@ pub struct AppContext {
 
     /// The model for the headers
     pub headers: Rc<RefCell<HeadersModel>>,
+
+    /// The model for the configuration dialog
+    pub configuration: Rc<RefCell<ConfigurationModel>>,
 }
 
 pub struct HelpContext {
@@ -51,7 +54,7 @@ impl HelpContext {
 }
 
 impl AppContext {
-    pub fn new(env: &Config) -> Result<Self> {
+    pub fn new(env: &Config, config_file: String) -> Result<Self> {
         // The core client
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 
@@ -67,6 +70,9 @@ impl AppContext {
         let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
             &core_client_rc,
         ))));
+
+        // The configuration model.
+        let configuration = Rc::new(RefCell::new(ConfigurationModel::new(config_file)));
 
         // The reflection model
         let reflection = Rc::new(RefCell::new(ReflectionModel::new(
@@ -95,7 +101,21 @@ impl AppContext {
             messages,
             headers,
             reflection,
+            configuration,
         })
+    }
+
+    pub fn reload(&mut self, env: &Config) {
+        let Ok(core_client) = CoreClient::new(env) else {
+            return;
+        };
+        let core_client_rc = Rc::new(RefCell::new(core_client));
+
+        let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
+            &core_client_rc,
+        ))));
+
+        self.selection = selection;
     }
 }
 

@@ -2,6 +2,7 @@
 ===================
 - Switch auth headers with L/H
 - Allow color parameters in skin configuration
+- Support inline editing of config file
 
 0.2.1 - 23 Nov 2024
 ===================

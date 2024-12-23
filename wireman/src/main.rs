@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
     }
 
     match init_from_env() {
-        Ok(cfg) => App::run(cfg).await?,
+        Ok((cfg, file)) => App::run(cfg, file).await?,
         Err(err) => {
             if let config::error::Error::SetupError(err) = err {
                 println!("Setup error: {err}");

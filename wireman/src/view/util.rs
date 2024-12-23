@@ -1,4 +1,7 @@
-use ratatui::layout::{Constraint, Layout, Rect};
+use ratatui::{
+    layout::{Constraint, Layout, Rect},
+    text::Span,
+};
 
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
 pub fn centered_rect_percentage(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
@@ -26,4 +29,15 @@ pub fn centered_rect_length(percent_x: u16, height: u16, r: Rect) -> Rect {
         ((f64::from(height) / f64::from(r.height)) * 100.) as u16,
         r,
     )
+}
+
+pub fn spans_from_keys(keys: &[(&'static str, &'static str)]) -> Vec<Span<'static>> {
+    let theme = theme::Theme::global();
+    keys.iter()
+        .flat_map(|(key, desc)| {
+            let key = Span::styled(format!(" {key} "), theme.footer.tabs);
+            let desc = Span::styled(format!(" {desc} "), theme.footer.text);
+            [key, desc]
+        })
+        .collect()
 }

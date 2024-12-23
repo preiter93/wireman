@@ -32,6 +32,7 @@ pub enum SelectionMode {
     File,
     ReflectionDialog,
     Reflection,
+    Configuration,
 }
 
 /// Each service can hold a list of methods
@@ -84,6 +85,7 @@ impl SelectionModel {
                 self.load_core_services_and_methods_from_files();
                 self.selection_mode = SelectionMode::File;
             }
+            SelectionMode::Configuration => {}
         }
     }
 
