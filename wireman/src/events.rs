@@ -1,3 +1,4 @@
+pub(crate) mod configuration;
 pub(crate) mod headers;
 pub(crate) mod messages;
 pub(crate) mod selection;
@@ -8,6 +9,7 @@ use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{do_request, RequestResult};
 use crate::model::selection::SelectionMode;
+use configuration::ConfigurationEventHandler;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use event_handler::EventHandler;
 use logger::Logger;
@@ -39,8 +41,10 @@ impl InternalStream {
 }
 
 const HELP_KEY: KeyCode = KeyCode::Char('?');
+const CONFIG_KEY: KeyCode = KeyCode::Char('c');
 
 impl App {
+    #[allow(clippy::too_many_lines)]
     pub(crate) fn handle_crossterm_key_event(&mut self, event: KeyEvent) {
         let sx1 = self.internal_stream.sx.clone();
         let sx2 = self.internal_stream.sx.clone();
@@ -49,13 +53,23 @@ impl App {
                 self.should_quit = true;
             }
             _ => {
-                //  Help modal dialog key events.
+                // Help modal dialog key events.
                 if self.ctx.help.is_some() {
                     match event.code {
                         KeyCode::Esc | HELP_KEY => {
                             self.ctx.help = None;
                         }
                         _ => (),
+                    }
+                    return;
+                }
+                // Configuration dialog key events
+                if self.ctx.configuration.borrow().toggled() {
+                    match event.code {
+                        KeyCode::Esc | CONFIG_KEY if !self.ctx.disable_root_events => {
+                            self.ctx.configuration.borrow_mut().toggle();
+                        }
+                        _ => ConfigurationEventHandler::handle_key_event(&mut self.ctx, event),
                     }
                     return;
                 }

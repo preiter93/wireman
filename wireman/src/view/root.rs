@@ -1,4 +1,7 @@
-use super::{headers::HeadersPage, messages::MessagesPage, selection::SelectionPage};
+use super::{
+    configuration::ConfigurationDialog, headers::HeadersPage, messages::MessagesPage,
+    selection::SelectionPage, util::spans_from_keys,
+};
 use crate::{
     context::{AppContext, Tab},
     view::history_tab::HistoryTabs,
@@ -72,20 +75,12 @@ impl Root<'_> {
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
-        let theme = Theme::global();
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
             Tab::Messages => MessagesPage::footer_keys(self.ctx.messages_tab),
             Tab::Headers => HeadersPage::footer_keys(&self.ctx.headers.borrow()),
         };
-        let spans: Vec<Span> = keys
-            .iter()
-            .flat_map(|(key, desc)| {
-                let key = Span::styled(format!(" {key} "), theme.footer.tabs);
-                let desc = Span::styled(format!(" {desc} "), theme.footer.text);
-                [key, desc]
-            })
-            .collect();
+        let spans = spans_from_keys(&keys);
         Paragraph::new(Line::from(spans))
             .alignment(Alignment::Center)
             .render(area, buf);
@@ -112,6 +107,15 @@ impl Widget for Root<'_> {
             let popup_area = centered_rect(80, 70, area);
             Clear.render(popup_area, buf);
             HelpDialog::new(help_ctx).render(popup_area, buf);
+        }
+
+        if self.ctx.configuration.borrow().toggled() {
+            let popup_area = centered_rect(80, 70, area);
+            Clear.render(popup_area, buf);
+            ConfigurationDialog {
+                model: &mut self.ctx.configuration.borrow_mut(),
+            }
+            .render(popup_area, buf);
         }
     }
 }

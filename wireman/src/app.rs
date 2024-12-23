@@ -28,10 +28,10 @@ pub struct App {
 
 impl App {
     #[allow(clippy::needless_pass_by_value)]
-    pub fn new(env: Config) -> Result<App> {
+    pub fn new(env: Config, config_file: String) -> Result<App> {
         Ok(App {
             term: Term::new()?,
-            ctx: AppContext::new(&env)?,
+            ctx: AppContext::new(&env, config_file)?,
             should_quit: false,
             crossterm_stream: EventStream::new(),
             internal_stream: InternalStream::new(),
@@ -39,8 +39,8 @@ impl App {
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    pub async fn run(env: Config) -> Result<()> {
-        let mut app = Self::new(env)?;
+    pub async fn run(env: Config, config_file: String) -> Result<()> {
+        let mut app = Self::new(env, config_file)?;
         while !app.should_quit {
             app.draw()?;
             app.handle_events().await?;

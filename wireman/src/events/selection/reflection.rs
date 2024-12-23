@@ -91,7 +91,9 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('r')),
-                    ReflectionDialogEvents::Selection(ServicesSelectionEvents::FileMode),
+                    ReflectionDialogEvents::Selection(
+                        ServicesSelectionEvents::UntoggleReflectionMode,
+                    ),
                 ),
             ]);
         }

@@ -1,5 +1,6 @@
 use crate::{
     context::{AppContext, SelectionTab},
+    events::CONFIG_KEY,
     model::selection::SelectionMode,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
@@ -13,8 +14,9 @@ pub enum ServicesSelectionEvents {
     Search,
     ClearSearch,
     GoToMethods,
-    ReflectionMode,
-    FileMode,
+    ToggleReflectionMode,
+    UntoggleReflectionMode,
+    EditConfig,
 }
 
 impl fmt::Display for ServicesSelectionEvents {
@@ -26,8 +28,9 @@ impl fmt::Display for ServicesSelectionEvents {
             ServicesSelectionEvents::Search => "Search",
             ServicesSelectionEvents::ClearSearch => "Clear Search",
             ServicesSelectionEvents::GoToMethods => "Go to Methods",
-            ServicesSelectionEvents::ReflectionMode => "Switch to Reflection Mode",
-            ServicesSelectionEvents::FileMode => "Switch to File Mode",
+            ServicesSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
+            ServicesSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
+            ServicesSelectionEvents::EditConfig => "Edit configuration",
         };
         write!(f, "{display_str}")
     }
@@ -68,8 +71,12 @@ impl EventHandler for ServicesSelectionEventsHandler {
             ServicesSelectionEvents::GoToMethods => {
                 ctx.selection_tab = SelectionTab::Methods;
             }
-            ServicesSelectionEvents::ReflectionMode | ServicesSelectionEvents::FileMode => {
+            ServicesSelectionEvents::ToggleReflectionMode
+            | ServicesSelectionEvents::UntoggleReflectionMode => {
                 ctx.selection.borrow_mut().toggle_reflection_mode();
+            }
+            ServicesSelectionEvents::EditConfig => {
+                ctx.configuration.borrow_mut().toggle();
             }
         }
     }
@@ -103,14 +110,18 @@ impl EventHandler for ServicesSelectionEventsHandler {
         if ctx.selection.borrow().selection_mode == SelectionMode::File {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('r')),
-                ServicesSelectionEvents::ReflectionMode,
+                ServicesSelectionEvents::ToggleReflectionMode,
             )]);
         } else {
             map.extend([(
                 KeyEvent::ctrl(KeyCode::Char('r')),
-                ServicesSelectionEvents::FileMode,
+                ServicesSelectionEvents::UntoggleReflectionMode,
             )]);
         }
+        map.extend([(
+            KeyEvent::new(CONFIG_KEY.into()),
+            ServicesSelectionEvents::EditConfig,
+        )]);
         if ctx.selection.borrow().services_filter.is_some() {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
