@@ -18,7 +18,7 @@
 
 {#snippet link(/** @type {string} */ name)}
     <td>
-        <a href="https://github.com/preiter93/wireman/releases/download/v0.2.1/{name}" download>
+        <a href="https://github.com/preiter93/wireman/releases/download/v0.2.2/{name}" download>
             {name}
         </a>
     </td>
