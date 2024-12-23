@@ -167,7 +167,7 @@ fn history_dir_checked(
 
     if Path::new(&history_dir_path)
         .parent()
-        .map_or(true, |p| !p.exists())
+        .is_none_or(|p| !p.exists())
     {
         return Err(SetupError::HistoryPathNotFound(
             history_dir_path.to_string(),
