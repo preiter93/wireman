@@ -53,6 +53,7 @@ impl Skin {
         Color::from_str(color).ok()
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(crate) fn apply_to(&self, theme: &mut Theme) {
         // Base
         let fc = resolve_color(&self.colors, self.base.foreground.as_deref());
@@ -273,9 +274,7 @@ const MAGENTA: Color = Color::rgb(255, 51, 204);
 const GREEN: Color = Color::rgb(0, 204, 102);
 
 pub(crate) fn resolve_color(colors: &HashMap<String, Color>, color: Option<&str>) -> Option<Color> {
-    let Some(color) = color else {
-        return None;
-    };
+    let color = color?;
 
     if let Some(color) = colors.get(color) {
         return Some(*color);
