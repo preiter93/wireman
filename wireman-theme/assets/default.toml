@@ -95,3 +95,7 @@ background = "black"
 [footer.tabs]
 foreground = "black"
 background = "gray"
+
+[help_dialog]
+background = "black"
+foreground = "white"
