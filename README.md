@@ -154,7 +154,7 @@ Wireman allows users to customize the appearance of the UI by adding custom skin
 skin = "path_to_file/custom_skin.toml"
 ```
     
-For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/resources/skins).
+For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/assets).
 
 ## Server Reflection
 

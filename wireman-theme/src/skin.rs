@@ -1,8 +1,7 @@
-#![allow(unused, dead_code)]
 use std::{collections::HashMap, error::Error, str::FromStr};
 
 use ratatui::style::Stylize;
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 
 use crate::{color::Color, set_fg_bg, Theme};
 
@@ -43,14 +42,6 @@ impl Skin {
         let toml_content = std::fs::read_to_string(f)?;
 
         Ok(toml::from_str(&toml_content)?)
-    }
-
-    fn resolve_color(&self, color: &str) -> Option<Color> {
-        if let Some(color) = self.colors.get(color) {
-            return Some(*color);
-        }
-
-        Color::from_str(color).ok()
     }
 
     #[allow(clippy::too_many_lines)]
@@ -113,6 +104,7 @@ impl Skin {
             set_fg_bg!(theme.editor.selection, target, self.colors);
         }
 
+        // Status line
         let status_line = self.editor.status_line.as_ref();
         let primary = status_line.and_then(|x| x.primary.as_ref());
         if let Some(target) = primary {
@@ -125,6 +117,10 @@ impl Skin {
 
         if let Some(hide_status_line) = status_line.and_then(|x| x.hide) {
             theme.editor.hide_status_line = hide_status_line;
+        }
+
+        if status_line.and_then(|x| x.bold).unwrap_or(true) {
+            theme.editor.status_text = theme.editor.status_text.bold();
         }
 
         // History
@@ -266,13 +262,6 @@ pub(crate) struct StatusLine {
     pub hide: Option<bool>,
 }
 
-const WHITE: Color = Color::rgb(241, 245, 249);
-const GRAY: Color = Color::rgb(68, 71, 90);
-const DARK_NIGHT: Color = Color::rgb(16, 17, 22);
-const ORANGE: Color = Color::rgb(255, 153, 0);
-const MAGENTA: Color = Color::rgb(255, 51, 204);
-const GREEN: Color = Color::rgb(0, 204, 102);
-
 pub(crate) fn resolve_color(colors: &HashMap<String, Color>, color: Option<&str>) -> Option<Color> {
     let color = color?;
 
@@ -302,17 +291,6 @@ pub(crate) mod macros {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
-
-    fn test_resource(file_name: &str) -> String {
-        let manifest_dir = env!("CARGO_MANIFEST_DIR");
-        Path::new(manifest_dir)
-            .join("resources/test")
-            .join(file_name)
-            .into_os_string()
-            .into_string()
-            .unwrap()
-    }
 
     #[test]
     fn test_skin_default() {
