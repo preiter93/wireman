@@ -290,6 +290,10 @@ impl SelectionModel {
             self.set_methods_filter(Some(filter));
         }
     }
+
+    pub fn has_services(&self) -> bool {
+        !self.services.is_empty()
+    }
 }
 
 fn list_services(core_client: &CoreClient) -> Vec<String> {

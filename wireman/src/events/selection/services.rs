@@ -2,6 +2,7 @@ use crate::{
     context::{AppContext, SelectionTab},
     events::CONFIG_KEY,
     model::selection::SelectionMode,
+    widgets::editor::yank_to_clipboard,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use std::fmt;
@@ -17,6 +18,7 @@ pub enum ServicesSelectionEvents {
     ToggleReflectionMode,
     UntoggleReflectionMode,
     EditConfig,
+    YankWebsiteLink,
 }
 
 impl fmt::Display for ServicesSelectionEvents {
@@ -31,6 +33,7 @@ impl fmt::Display for ServicesSelectionEvents {
             ServicesSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
             ServicesSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
             ServicesSelectionEvents::EditConfig => "Edit configuration",
+            ServicesSelectionEvents::YankWebsiteLink => "Yank website link",
         };
         write!(f, "{display_str}")
     }
@@ -77,6 +80,9 @@ impl EventHandler for ServicesSelectionEventsHandler {
             }
             ServicesSelectionEvents::EditConfig => {
                 ctx.configuration.borrow_mut().toggle();
+            }
+            ServicesSelectionEvents::YankWebsiteLink => {
+                yank_to_clipboard("https://preiter93.github.io/wireman/");
             }
         }
     }
@@ -126,6 +132,12 @@ impl EventHandler for ServicesSelectionEventsHandler {
             map.extend([(
                 KeyEvent::new(KeyCode::Esc),
                 ServicesSelectionEvents::ClearSearch,
+            )]);
+        }
+        if !ctx.selection.borrow().has_services() {
+            map.extend([(
+                KeyEvent::new(KeyCode::Char('y')),
+                ServicesSelectionEvents::YankWebsiteLink,
             )]);
         }
         map
