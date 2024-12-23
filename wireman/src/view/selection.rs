@@ -6,6 +6,8 @@ use crate::view::reflection_dialog::ReflectionDialog;
 use crate::widgets::list::ListItem;
 use crate::widgets::modal::centered_rect;
 use crate::{context::SelectionTab, model::reflection::ReflectionModel};
+use ratatui::style::Stylize;
+use ratatui::text::Span;
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Layout, Rect},
@@ -41,6 +43,7 @@ impl SelectionPage<'_> {
 }
 
 impl Widget for SelectionPage<'_> {
+    #[allow(clippy::too_many_lines)]
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = Theme::global();
@@ -81,6 +84,7 @@ impl Widget for SelectionPage<'_> {
                 .border_style(theme.border.border.1)
                 .border_type(theme.border.border_type.1);
         }
+        let inner_area = services_block.inner(svc_content);
 
         let item_count = services.len();
         let builder = ListBuilder::new(move |context| {
@@ -98,9 +102,20 @@ impl Widget for SelectionPage<'_> {
         });
 
         ListView::new(builder, item_count)
-            .block(services_block)
+            .block(services_block.clone())
             .scroll_padding(1)
             .render(svc_content, buf, services_state);
+
+        if !self.model.has_services() {
+            let [l1, l2, l3, l4] =
+                Layout::vertical([Length(1), Length(1), Length(1), Min(0)]).areas(inner_area);
+            Span::from("It seems you don't have any proto services available. ").render(l1, buf);
+            Span::from("Please check your files and proto includes, see: ").render(l2, buf);
+            Span::from("https://preiter93.github.io/wireman/")
+                .underlined()
+                .render(l3, buf);
+            Span::from("(Copy link with \"y\")").render(l4, buf);
+        }
 
         // Search line for services
         if show_services_search == 1 {
