@@ -96,25 +96,22 @@ pub struct HelpDialog {
 impl Theme {
     /// Initializes the `Theme` from a config.
     pub fn init(config: &Config) {
-        let mut theme = Theme::default();
-
-        if let Some(skin_file_path) = &config.skin {
-            match skin::Skin::from_file(skin_file_path) {
-                Ok(skin) => {
-                    theme.update_from_skin(&skin);
-                }
+        let skin = config
+            .skin
+            .as_deref()
+            .and_then(|skin_file| match skin::Skin::from_file(skin_file) {
+                Ok(skin) => Some(skin),
                 Err(err) => {
                     Logger::debug(format!(
-                        "Failed read skin from file {skin_file_path}, err: {err}"
+                        "Failed to read skin from file {skin_file}, err: {err}"
                     ));
-                    let default_skin = skin::Skin::default();
-                    theme.update_from_skin(&default_skin);
+                    None
                 }
-            }
-        } else {
-            let default_skin = skin::Skin::default();
-            theme.update_from_skin(&default_skin);
-        }
+            })
+            .unwrap_or_default();
+
+        let mut theme = Theme::default();
+        theme.update_from_skin(&skin);
 
         let _ = THEME.set(theme.clone());
     }
