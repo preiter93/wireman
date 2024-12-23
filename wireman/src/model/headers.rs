@@ -188,11 +188,7 @@ impl HeadersModel {
     pub fn next_col(&mut self) {
         match self.tab {
             HeadersTab::Meta => self.meta.next_col(),
-            HeadersTab::Auth => {
-                if self.auth.is_empty() {
-                    self.auth.next();
-                }
-            }
+            HeadersTab::Auth => self.auth.next(),
             _ => (),
         }
     }
@@ -200,11 +196,7 @@ impl HeadersModel {
     pub fn prev_col(&mut self) {
         match self.tab {
             HeadersTab::Meta => self.meta.prev_col(),
-            HeadersTab::Auth => {
-                if self.auth.is_empty() {
-                    self.auth.next();
-                }
-            }
+            HeadersTab::Auth => self.auth.next(),
             _ => (),
         }
     }

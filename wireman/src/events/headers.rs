@@ -132,9 +132,12 @@ impl EventHandler for HeadersEventHandler {
         };
         let enable_switch_auth_tab = ctx.headers.borrow().tab == HeadersTab::Auth
             && selected_editor.map_or(true, TextEditor::is_empty);
-        let enable_switch_col_force = ctx.headers.borrow().tab == HeadersTab::Meta;
-        let enable_next_col = enable_switch_col_force && is_last_col;
-        let enable_prev_col = enable_switch_col_force && is_first_col;
+        let enable_switch_col_force = ctx.headers.borrow().tab == HeadersTab::Meta
+            || ctx.headers.borrow().tab == HeadersTab::Auth;
+        let enable_next_col = enable_switch_col_force
+            && (is_last_col && ctx.headers.borrow().tab == HeadersTab::Meta);
+        let enable_prev_col = enable_switch_col_force
+            && (is_first_col && ctx.headers.borrow().tab == HeadersTab::Meta);
         let mut map = Vec::new();
         map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
         if !disabled_root_events {
@@ -143,8 +146,10 @@ impl EventHandler for HeadersEventHandler {
                 (KeyEvent::shift(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Char('j')), HeadersEvents::NextRow),
+                (KeyEvent::shift(KeyCode::Char('J')), HeadersEvents::NextRow),
                 (KeyEvent::new(KeyCode::Up), HeadersEvents::PrevRow),
                 (KeyEvent::new(KeyCode::Char('k')), HeadersEvents::PrevRow),
+                (KeyEvent::shift(KeyCode::Char('K')), HeadersEvents::PrevRow),
                 (
                     KeyEvent::new(KeyCode::Char('1')),
                     HeadersEvents::LoadHistory1,
