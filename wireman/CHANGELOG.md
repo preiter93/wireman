@@ -1,4 +1,4 @@
-0.2.2 - 
+0.2.2 - 23 Dec 2024
 ===================
 - Switch auth headers with L/H
 - Allow color parameters in skin configuration
