@@ -6,12 +6,8 @@ use core::{
     descriptor::{response::StreamingResponse, DynamicMessage, RequestMessage, ResponseMessage},
     MethodDescriptor,
 };
-use futures::{
-    self,
-    stream::{once, unfold},
-    Stream, StreamExt,
-};
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use futures::{self, stream::once, Stream, StreamExt};
+use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
 use tokio::task::JoinHandle;
 
 /// Map from Method to request/response message
@@ -256,20 +252,18 @@ pub(crate) async fn server_streaming(
 
     let resp = resp.unwrap();
 
-    unfold(resp, |mut resp| async {
-        match resp.next().await {
-            Some(Ok(message)) => Some((unmarshal_message(&message.message), resp)),
-            Some(Err(err)) => {
-                let kind = ErrorKind::streaming_error(format!("{err}"));
-                Some((RequestResult::error(kind), resp))
-            }
-            None => None,
+    let mapped_stream = resp.inner.map(|message| match message {
+        Ok(message) => unmarshal_message(&message.message),
+        Err(err) => {
+            let kind = ErrorKind::streaming_error(format!("{err}"));
+            RequestResult::error(kind)
         }
-    })
-    .boxed()
+    });
+
+    Box::pin(mapped_stream)
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RequestResult {
     data: Option<String>,
     error: Option<ErrorKind>,
