@@ -29,7 +29,7 @@ impl ResponseMessage {
 
 /// Streaming requests and responses.
 pub struct StreamingResponse {
-    inner: tonic::Streaming<ResponseMessage>,
+    pub inner: tonic::Streaming<ResponseMessage>,
 }
 
 impl StreamingResponse {
