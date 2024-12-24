@@ -209,13 +209,13 @@ impl fmt::Display for SetupError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SetupError::ConfigDirEnvNotFound => {
-                write!(f, "The config dir {ENV_CONFIG_DIR} was not found.")
+                write!(f, "The config dir ${ENV_CONFIG_DIR} was not found.")
             }
             SetupError::ConfigDirInvalid => {
-                write!(f, "The config dir {ENV_CONFIG_DIR} is not a valid path.")
+                write!(f, "The config dir ${ENV_CONFIG_DIR} is not a valid path.")
             }
             SetupError::CreateDirectory(err) => {
-                write!(f, "Could not created directory {ENV_CONFIG_DIR}: {err}.")
+                write!(f, "Could not create directory in ${ENV_CONFIG_DIR}: {err}.")
             }
             SetupError::ConfigFileNotFound(file) => {
                 write!(f, "The config file {file} was not found.")
