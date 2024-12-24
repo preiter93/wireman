@@ -3,7 +3,8 @@
     import CodeContainer from '$lib/CodeContainer.svelte';
     import ContentCard from '$lib/ContentCard.svelte';
     import GithubButton from '$lib/GithubButton.svelte';
-    import ImageShow from '$lib/ImageShow.svelte';
+    import Tour from '$lib/Tour.svelte';
+    import MoreFeatures from '$lib/MoreFeatures.svelte';
 </script>
 
 <div class="header">
@@ -140,7 +141,11 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 
     <h2>A Tour of Wireman</h2>
 
-    <ImageShow></ImageShow>
+    <Tour></Tour>
+
+    <h2>More Features</h2>
+
+    <MoreFeatures></MoreFeatures>
 </div>
 
 <style>
