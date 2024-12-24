@@ -162,6 +162,16 @@ Wireman also supports server reflection of gRPC servers. To activate reflection 
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif)
 
+## Server-Side Streaming
+
+Wireman supports server-side streaming. For example, if you have an endpoint like this:
+```proto
+rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
+```
+Wireman automatically detects whether the endpoint is server-side streaming and handles it accordingly.
+
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/streaming.gif)
+
 ## Edit configuration in-app
 
 You can manage your configuration directly within the app:
