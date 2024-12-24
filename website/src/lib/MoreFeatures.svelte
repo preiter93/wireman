@@ -25,7 +25,7 @@ Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</c
             img: ImgConfig,
             body: `
             <p style="text-align: center; line-height:1.4em">
-The configuration <code>wireman.toml</code> can be added in-app. On the services page, type <code>c</code>. Save the config with <code>&ltC-s&gt</code>. Exit with <code>Esc</code>. 
+The configuration <code>wireman.toml</code> can be added in-app. On the services page, type <code>&ltC-e&gt</code>. Save the config with <code>&ltC-s&gt</code>. Exit with <code>Esc</code>. 
             </p>
 `
         },
