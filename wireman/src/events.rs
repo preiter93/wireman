@@ -44,7 +44,6 @@ impl InternalStream {
 }
 
 const HELP_KEY: KeyCode = KeyCode::Char('?');
-const CONFIG_KEY: KeyCode = KeyCode::Char('c');
 
 impl App {
     #[allow(clippy::too_many_lines)]
@@ -69,7 +68,7 @@ impl App {
                 // Configuration dialog key events
                 if self.ctx.configuration.borrow().toggled() {
                     match event.code {
-                        KeyCode::Esc | CONFIG_KEY if !self.ctx.disable_root_events => {
+                        KeyCode::Esc if !self.ctx.disable_root_events => {
                             self.ctx.configuration.borrow_mut().toggle();
                         }
                         _ => ConfigurationEventHandler::handle_key_event(&mut self.ctx, event),

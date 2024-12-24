@@ -1,6 +1,5 @@
 use crate::{
     context::{AppContext, SelectionTab},
-    events::CONFIG_KEY,
     model::selection::SelectionMode,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
@@ -36,7 +35,7 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::GoToServices => "Go to Services",
             MethodsSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
             MethodsSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
-            MethodsSelectionEvents::EditConfig => "Edit configuration",
+            MethodsSelectionEvents::EditConfig => "Edit Configuration",
         };
         write!(f, "{display_str}")
     }
@@ -173,7 +172,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
             ),
         ]);
         map.extend([(
-            KeyEvent::new(CONFIG_KEY.into()),
+            KeyEvent::ctrl(KeyCode::Char('e')),
             MethodsSelectionEvents::EditConfig,
         )]);
         map
