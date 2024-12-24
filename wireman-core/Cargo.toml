@@ -1,6 +1,6 @@
 [package]
 name = "wireman-core"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Core for wireman"
