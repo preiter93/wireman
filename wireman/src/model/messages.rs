@@ -246,7 +246,7 @@ pub(crate) async fn unary(req: RequestMessage, tls: Option<TlsConfig>) -> Reques
 pub(crate) async fn server_streaming(
     req: RequestMessage,
     tls: Option<TlsConfig>,
-) -> impl Stream<Item = RequestResult> {
+) -> Pin<Box<dyn Stream<Item = RequestResult> + Send>> {
     let resp: Result<StreamingResponse, ErrorKind> =
         CoreClient::call_server_streaming(&req, tls).await;
 
