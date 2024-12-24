@@ -25,13 +25,16 @@ async fn main() -> Result<()> {
         Err(err) => {
             if let config::error::Error::SetupError(err) = err {
                 println!("Setup error: {err}");
-                println!("Try to install wireman");
-                println!("   wireman install");
+                println!();
             } else {
-                println!("An error occured:\n{err}");
-                println!("Verify your installation");
-                println!("   wireman check");
+                println!("An unknown error occured:\n{err}");
+                println!();
             }
+            println!("Did you install wireman?");
+            println!("   wireman install");
+            println!();
+            println!("Is your configuration correct?");
+            println!("   wireman check");
         }
     }
     // App::run(cfg).await?;
