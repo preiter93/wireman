@@ -4,14 +4,16 @@ pub(crate) mod messages;
 pub(crate) mod selection;
 use core::ProtoDescriptor;
 use std::fmt::Display;
+use std::pin::Pin;
 
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
-use crate::model::messages::{do_request, RequestResult};
+use crate::model::messages::{server_streaming, unary, RequestResult};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
 use event_handler::EventHandler;
+use futures::{Stream, StreamExt};
 use logger::Logger;
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
@@ -28,6 +30,7 @@ pub(crate) enum InternalStreamData {
     Request(RequestResult),
     Reflection(Result<ProtoDescriptor, String>),
 }
+
 pub(crate) struct InternalStream {
     pub(crate) sx: Sender<InternalStreamData>,
     pub(crate) rx: Receiver<InternalStreamData>,
@@ -137,9 +140,19 @@ impl App {
             match messages_model.get_request() {
                 Ok(req) => {
                     let handler = tokio::spawn(async move {
-                        let resp = do_request(req, tls).await;
-                        let _ = sx1.send(InternalStreamData::Request(resp)).await;
+                        let is_server_streaming = req.method_descriptor().is_server_streaming();
+                        if is_server_streaming {
+                            let mut stream: Pin<Box<dyn Stream<Item = RequestResult> + Send>> =
+                                Box::pin(server_streaming(req, tls).await);
+                            while let Some(resp) = stream.next().await {
+                                let _ = sx1.send(InternalStreamData::Request(resp)).await;
+                            }
+                        } else {
+                            let resp = unary(req, tls).await;
+                            let _ = sx1.send(InternalStreamData::Request(resp)).await;
+                        }
                     });
+
                     messages_model.handler = Some(handler);
                 }
                 Err(err) => {
