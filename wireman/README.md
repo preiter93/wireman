@@ -170,12 +170,12 @@ Wireman automatically detects whether the endpoint is server-side streaming and 
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/streaming.gif)
 
-## Edit configuration in-app
+## Edit Configuration in-app
 
 You can manage your configuration directly within the app:
 
 - Navigate to the services page.
-- Type `c` to edit the configuration.
+- Type `Ctrl-e` to edit the configuration.
 - Save your changes with `Ctrl-s`.
 
 ## Features
