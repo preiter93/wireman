@@ -6,6 +6,7 @@ files = [
     "server/simple/greeter.proto",
     "server/simple/productfinder.proto",
     "server/simple/timekeeper.proto",
+    "server/streaming/streaming.proto",
 ]
 
 [history]
