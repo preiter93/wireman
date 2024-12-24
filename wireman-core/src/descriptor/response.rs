@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use super::DynamicMessage;
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
 
@@ -22,5 +24,30 @@ impl ResponseMessage {
     // Set a new message for the response.
     pub fn set_message(&mut self, message: DynamicMessage) {
         self.message = message;
+    }
+}
+
+/// Streaming requests and responses.
+pub struct StreamingResponse {
+    inner: tonic::Streaming<ResponseMessage>,
+}
+
+impl StreamingResponse {
+    pub fn new(inner: tonic::Streaming<ResponseMessage>) -> Self {
+        Self { inner }
+    }
+}
+
+impl Deref for StreamingResponse {
+    type Target = tonic::Streaming<ResponseMessage>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl DerefMut for StreamingResponse {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }

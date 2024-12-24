@@ -1,13 +1,14 @@
 use std::error::Error;
 use wireman_core::{
-    client::{call_unary_blocking, tls::TlsConfig},
+    client::{call_unary_async, tls::TlsConfig},
     descriptor::{RequestMessage, ResponseMessage},
     ProtoDescriptor,
 };
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let desc = ProtoDescriptor::new(
         vec!["/Users/philippreiter/Rust/wireman/example"],
         vec!["grpc_simple/debugger.proto"],
@@ -20,14 +21,14 @@ fn main() -> Result<()> {
     let mut req = desc.get_request(&method);
     req.set_address("http://localhost:50051");
 
-    let resp = do_request(&req)?;
+    let resp = do_request(&req).await?;
     println!("\nResponse:\n{:}", resp.message.to_json()?);
 
     Ok(())
 }
 
-pub fn do_request(req: &RequestMessage) -> Result<ResponseMessage> {
+pub async fn do_request(req: &RequestMessage) -> Result<ResponseMessage> {
     let tls_config = TlsConfig::native();
-    let resp = call_unary_blocking(req, Some(tls_config))?;
+    let resp = call_unary_async(req, Some(tls_config)).await?;
     Ok(resp)
 }

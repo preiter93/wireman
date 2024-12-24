@@ -1,9 +1,10 @@
 use super::{metadata::Metadata, DynamicMessage};
+use crate::client::codec::DynamicCodec;
 use crate::{
     error::{Error, FROM_UTF8},
     Result,
 };
-use http::uri::PathAndQuery;
+use http::{uri::PathAndQuery, Uri};
 use prost_reflect::{MessageDescriptor, MethodDescriptor};
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::str::FromStr;
@@ -81,6 +82,13 @@ impl RequestMessage {
         &self.address
     }
 
+    /// Get the host address as uri.
+    #[must_use]
+    pub fn uri(&self) -> Result<Uri> {
+        Uri::try_from(self.address())
+            .map_err(|_| Error::Internal(String::from("Failed to parse address")))
+    }
+
     /// Sets the host address.
     pub fn set_address(&mut self, address: &str) {
         self.address = address.to_string();
@@ -120,15 +128,10 @@ impl RequestMessage {
         PathAndQuery::from_str(&path).unwrap()
     }
 
-    /// Wrap the message in a `tonic::Request`.
+    /// Return the dynamic codec based on the method descriptor.
     #[must_use]
-    pub fn into_request(self) -> Request<RequestMessage> {
-        let metadata = self.metadata().clone();
-        let mut req = Request::new(self);
-        if let Some(meta) = metadata {
-            *req.metadata_mut() = meta.inner;
-        }
-        req
+    pub fn codec(&self) -> DynamicCodec {
+        DynamicCodec::new(self.method_descriptor())
     }
 
     /// Serialize the `RequestMessage` to a JSON string.
@@ -141,6 +144,17 @@ impl RequestMessage {
         self.serialize(&mut s)
             .map_err(|_| Error::Internal(String::from("failed to serialize message")))?;
         String::from_utf8(s.into_inner()).map_err(|_| Error::Internal(FROM_UTF8.to_string()))
+    }
+}
+
+impl Into<Request<RequestMessage>> for RequestMessage {
+    fn into(self) -> Request<RequestMessage> {
+        let metadata = self.metadata().clone();
+        let mut req = Request::new(self);
+        if let Some(meta) = metadata {
+            *req.metadata_mut() = meta.inner;
+        }
+        req
     }
 }
 
@@ -192,7 +206,7 @@ mod test {
         let message_descriptor = given_message.message_descriptor().clone();
 
         // when
-        let given_req = given_message.into_request();
+        let given_req: Request<RequestMessage> = given_message.into();
 
         // then
         let metadata = given_req.metadata();
