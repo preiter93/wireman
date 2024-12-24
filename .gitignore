@@ -3,6 +3,8 @@
 /example/server/simple/simple
 /example/server/reflection/proto
 /example/server/reflection/simple
+/example/server/streaming/proto
+/example/server/streaming/simple
 /wireman/debug.log
 /wireman/cfg.json
 /wireman/history
