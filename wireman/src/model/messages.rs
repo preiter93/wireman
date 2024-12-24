@@ -1,7 +1,16 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
-use core::{client::tls::TlsConfig, descriptor::RequestMessage, MethodDescriptor};
+use core::{
+    client::tls::TlsConfig,
+    descriptor::{response::StreamingResponse, DynamicMessage, RequestMessage, ResponseMessage},
+    MethodDescriptor,
+};
+use futures::{
+    self,
+    stream::{once, unfold},
+    Stream, StreamExt,
+};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use tokio::task::JoinHandle;
 
@@ -225,22 +234,39 @@ impl MessagesModel {
     }
 }
 
-/// Make a grpc call and set response or error.
-pub async fn do_request(req: RequestMessage, tls: Option<TlsConfig>) -> RequestResult {
-    let resp = CoreClient::call_unary_async(&req, tls).await;
+pub(crate) async fn unary(req: RequestMessage, tls: Option<TlsConfig>) -> RequestResult {
+    let resp: Result<ResponseMessage, ErrorKind> = CoreClient::call_unary_async(&req, tls).await;
 
     match resp {
-        Ok(resp) => {
-            if let Ok(json) = resp.message.to_json() {
-                let formatted_json = try_pretty_format_json(&json);
-                RequestResult::data(formatted_json)
-            } else {
-                let err = ErrorKind::format_error("failed to parse json".to_string());
-                RequestResult::error(err)
-            }
-        }
+        Ok(resp) => unmarshal_message(&resp.message),
         Err(err) => RequestResult::error(err),
     }
+}
+
+pub(crate) async fn server_streaming(
+    req: RequestMessage,
+    tls: Option<TlsConfig>,
+) -> impl Stream<Item = RequestResult> {
+    let resp: Result<StreamingResponse, ErrorKind> =
+        CoreClient::call_server_streaming(&req, tls).await;
+
+    if let Err(err) = resp {
+        return once(async { RequestResult::error(err) }).boxed();
+    }
+
+    let resp = resp.unwrap();
+
+    unfold(resp, |mut resp| async {
+        match resp.next().await {
+            Some(Ok(message)) => Some((unmarshal_message(&message.message), resp)),
+            Some(Err(err)) => {
+                let kind = ErrorKind::streaming_error(format!("{err}"));
+                Some((RequestResult::error(kind), resp))
+            }
+            None => None,
+        }
+    })
+    .boxed()
 }
 
 #[derive(Default)]
@@ -363,4 +389,14 @@ impl ResponseModel {
 /// the input if formatting fails.
 fn try_pretty_format_json(input: &str) -> String {
     pretty_format_json(input).unwrap_or_else(|_| input.to_string())
+}
+
+fn unmarshal_message(message: &DynamicMessage) -> RequestResult {
+    if let Ok(json) = message.to_json() {
+        let formatted_json = try_pretty_format_json(&json);
+        RequestResult::data(formatted_json)
+    } else {
+        let err = ErrorKind::format_error("failed to parse json".to_string());
+        RequestResult::error(err)
+    }
 }

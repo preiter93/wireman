@@ -2,7 +2,7 @@ use crate::widgets::editor::ErrorKind;
 use config::Config;
 use core::{
     client::tls::TlsConfig,
-    descriptor::{RequestMessage, ResponseMessage},
+    descriptor::{response::StreamingResponse, RequestMessage, ResponseMessage},
     features::grpcurl,
     MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
@@ -121,13 +121,18 @@ impl CoreClient {
         }
     }
 
-    /// Makes a unary grpc call with a given Message and Method which is
-    /// defined in [`ProtoMessage`]
     pub async fn call_unary_async(
         req: &RequestMessage,
         tls: Option<TlsConfig>,
     ) -> Result<ResponseMessage, ErrorKind> {
         Ok(core::client::call_unary_async(req, tls).await?)
+    }
+
+    pub async fn call_server_streaming(
+        req: &RequestMessage,
+        tls: Option<TlsConfig>,
+    ) -> Result<StreamingResponse, ErrorKind> {
+        Ok(core::client::call_server_streaming(req, tls).await?)
     }
 
     /// Return a grpcurl request
