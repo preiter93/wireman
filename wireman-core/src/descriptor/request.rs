@@ -83,7 +83,9 @@ impl RequestMessage {
     }
 
     /// Get the host address as uri.
-    #[must_use]
+    ///
+    /// # Errors
+    /// - Failed to parse address to uri.
     pub fn uri(&self) -> Result<Uri> {
         Uri::try_from(self.address())
             .map_err(|_| Error::Internal(String::from("Failed to parse address")))
@@ -147,10 +149,10 @@ impl RequestMessage {
     }
 }
 
-impl Into<Request<RequestMessage>> for RequestMessage {
-    fn into(self) -> Request<RequestMessage> {
-        let metadata = self.metadata().clone();
-        let mut req = Request::new(self);
+impl From<RequestMessage> for Request<RequestMessage> {
+    fn from(value: RequestMessage) -> Self {
+        let metadata = value.metadata().clone();
+        let mut req = Request::new(value);
         if let Some(meta) = metadata {
             *req.metadata_mut() = meta.inner;
         }
