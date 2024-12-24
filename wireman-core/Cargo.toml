@@ -28,3 +28,6 @@ name = "metadata"
 
 [[example]]
 name = "reflection"
+
+[[example]]
+name = "streaming"

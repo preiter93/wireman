@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package proto;
+
+service StreamingService {
+  rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
+}
+  
+message ListFeaturesReq {}
+  
+message ListFeaturesResp {
+  string name = 1;
+}

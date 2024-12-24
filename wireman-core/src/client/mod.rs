@@ -1,15 +1,15 @@
 #![allow(clippy::module_name_repetitions)]
 //! Module for all grpc related stuff
-mod codec;
+pub(crate) mod codec;
 pub mod reflection;
 pub mod tls;
 
+use crate::descriptor::response::StreamingResponse;
 use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::Result;
 use tls::TlsConfig;
-use tokio::runtime::Runtime;
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
 
@@ -40,43 +40,41 @@ impl GrpcClient {
         })
     }
 
-    /// Make a unary `gRPC` call from the client.
+    /// Make a unary `gRPC` call.
     ///
     /// # Errors
     /// - `gRPC` client is not ready
     /// - Server call failed
-    pub async fn unary(&mut self, req: &RequestMessage) -> Result<ResponseMessage> {
+    pub async fn unary(&mut self, request: &RequestMessage) -> Result<ResponseMessage> {
         self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
-        let codec = codec::DynamicCodec::new(req.method_descriptor());
-        let path = req.path();
-        let request = req.clone().into_request();
-        let response = self.grpc.unary(request, path, codec).await?.into_inner();
-        Ok(response)
+
+        let path = request.path();
+        let codec = request.codec();
+
+        let request = request.clone().into();
+        let response = self.grpc.unary(request, path, codec).await?;
+
+        Ok(response.into_inner())
     }
-}
 
-/// Creates a new `gRPC` client and sends a message to a `gRPC` server.
-/// This method is blocking.
-///
-/// # Errors
-/// - Internal error calling the `gRPC` server
-pub fn call_unary_blocking(
-    req: &RequestMessage,
-    tls_config: Option<TlsConfig>,
-) -> Result<ResponseMessage> {
-    let rt = create_runtime()?;
-    let uri = Uri::try_from(req.address())
-        .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
-    let future = async move {
-        let mut client = GrpcClient::new(uri, tls_config)?;
-        let response = client.unary(req).await?;
-        Ok(response)
-    };
-    let result: Result<ResponseMessage> = rt.block_on(future);
+    /// Make a streaming `gRPC` call.
+    ///
+    /// # Errors
+    /// - `gRPC` client is not ready
+    /// - Server call failed
+    pub async fn server_streaming(
+        &mut self,
+        request: &RequestMessage,
+    ) -> Result<StreamingResponse> {
+        self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
 
-    match result {
-        Ok(response) => Ok(response),
-        Err(err) => Err(Error::Internal(err.to_string())),
+        let path = request.path();
+        let codec = request.codec();
+
+        let request = request.clone().into();
+        let response = self.grpc.server_streaming(request, path, codec).await?;
+
+        Ok(StreamingResponse::new(response.into_inner()))
     }
 }
 
@@ -86,19 +84,28 @@ pub fn call_unary_blocking(
 /// # Errors
 /// - Internal error calling the `gRPC` server
 pub async fn call_unary_async(
-    req: &RequestMessage,
-    tls_config: Option<TlsConfig>,
+    request: &RequestMessage,
+    tls: Option<TlsConfig>,
 ) -> Result<ResponseMessage> {
-    let uri = Uri::try_from(req.address())
-        .map_err(|_| Error::Internal(String::from("Failed to parse address")))?;
-    let mut client = GrpcClient::new(uri, tls_config)?;
-    client.unary(req).await
+    let uri = request.uri()?;
+
+    let mut client = GrpcClient::new(uri, tls)?;
+
+    client.unary(request).await
 }
 
-/// Creates a new Tokio runtime.
+/// Creates a new `gRPC` client and sends a message to a `gRPC` server.
+/// This method is async.
 ///
 /// # Errors
-/// - Internal: Failed to crate tokio runtime.
-pub fn create_runtime() -> Result<Runtime> {
-    Runtime::new().map_err(|_| Error::Internal(String::from("Failed to create runtime")))
+/// - Internal error calling the `gRPC` server
+pub async fn call_server_streaming(
+    req: &RequestMessage,
+    tls: Option<TlsConfig>,
+) -> Result<StreamingResponse> {
+    let uri = req.uri()?;
+
+    let mut client = GrpcClient::new(uri, tls)?;
+
+    client.server_streaming(req).await
 }
