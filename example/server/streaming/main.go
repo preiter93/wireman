@@ -36,7 +36,16 @@ func main() {
 }
 
 func (s *Server) ListFeatures(req *pb.ListFeaturesReq, stream pb.StreamingService_ListFeaturesServer) error {
-	features := []string{"FeatureA", "FeatureB", "FeatureC"}
+	features := []string{
+		"Upload Files",
+		"Delete Files",
+		"1TB Storage",
+		"Share Files with Others",
+		"Automated Backup",
+		"Advanced Search",
+		"Bulk File Upload",
+		"File Preview",
+	}
 
 	for _, feature := range features {
 		time.Sleep(1 * time.Second)
