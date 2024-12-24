@@ -1,6 +1,5 @@
 use crate::{
     context::{AppContext, SelectionTab},
-    events::CONFIG_KEY,
     model::selection::SelectionMode,
     widgets::editor::yank_to_clipboard,
 };
@@ -32,7 +31,7 @@ impl fmt::Display for ServicesSelectionEvents {
             ServicesSelectionEvents::GoToMethods => "Go to Methods",
             ServicesSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
             ServicesSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
-            ServicesSelectionEvents::EditConfig => "Edit configuration",
+            ServicesSelectionEvents::EditConfig => "Edit Configuration",
             ServicesSelectionEvents::YankWebsiteLink => "Yank website link",
         };
         write!(f, "{display_str}")
@@ -125,7 +124,7 @@ impl EventHandler for ServicesSelectionEventsHandler {
             )]);
         }
         map.extend([(
-            KeyEvent::new(CONFIG_KEY.into()),
+            KeyEvent::ctrl(KeyCode::Char('e')),
             ServicesSelectionEvents::EditConfig,
         )]);
         if ctx.selection.borrow().services_filter.is_some() {
