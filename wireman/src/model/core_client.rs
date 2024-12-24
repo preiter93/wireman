@@ -123,15 +123,6 @@ impl CoreClient {
 
     /// Makes a unary grpc call with a given Message and Method which is
     /// defined in [`ProtoMessage`]
-    pub fn call_unary(
-        req: &RequestMessage,
-        tls: Option<TlsConfig>,
-    ) -> Result<ResponseMessage, ErrorKind> {
-        Ok(core::client::call_unary_blocking(req, tls)?)
-    }
-
-    /// Makes a unary grpc call with a given Message and Method which is
-    /// defined in [`ProtoMessage`]
     pub async fn call_unary_async(
         req: &RequestMessage,
         tls: Option<TlsConfig>,
