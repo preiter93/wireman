@@ -160,7 +160,7 @@ Wireman also supports server reflection for gRPC servers. To activate reflection
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif)
 
-## Server-Side Streaming
+## Server Side Streaming
 
 Wireman supports server-side streaming. For example, if you have an endpoint like this:
 ```proto
@@ -178,7 +178,7 @@ You can manage your configuration directly within the app:
 - Type `c` to edit the configuration.
 - Save your changes with `Ctrl-s`.
 
-## Roadmap
+## Features
 
 - [x] Unary gRPC
 - [x] Set host address
@@ -194,6 +194,4 @@ You can manage your configuration directly within the app:
 - [x] Custom themes
 - [x] Server reflection
 - [x] Edit config file in app
-
-Planned
-- [ ] Streaming gRPC
+- [x] Server side Streaming
