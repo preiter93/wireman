@@ -69,7 +69,7 @@ impl App {
                 // Configuration dialog key events
                 if self.ctx.configuration.borrow().toggled() {
                     match event.code {
-                        KeyCode::Esc if !self.ctx.disable_root_events => {
+                        KeyCode::Char('e') if event.modifiers == KeyModifiers::CONTROL => {
                             self.ctx.configuration.borrow_mut().toggle();
                         }
                         _ => ConfigurationEventHandler::handle_key_event(&mut self.ctx, event),
