@@ -29,6 +29,7 @@ use self::messages::response::ResponseEventHandler;
 pub(crate) enum InternalStreamData {
     Request(RequestResult),
     Reflection(Result<ProtoDescriptor, String>),
+    Done,
 }
 
 pub(crate) struct InternalStream {
@@ -146,9 +147,11 @@ impl App {
                             while let Some(resp) = stream.next().await {
                                 let _ = sx1.send(InternalStreamData::Request(resp)).await;
                             }
+                            let _ = sx1.send(InternalStreamData::Done).await;
                         } else {
                             let resp = unary(req, tls).await;
                             let _ = sx1.send(InternalStreamData::Request(resp)).await;
+                            let _ = sx1.send(InternalStreamData::Done).await;
                         }
                     });
 
@@ -184,7 +187,6 @@ impl App {
         match data {
             InternalStreamData::Request(resp) => {
                 resp.set(&mut self.ctx.messages.borrow_mut().response.editor);
-                self.ctx.messages.borrow_mut().handler.take();
             }
             InternalStreamData::Reflection(desc) => match desc {
                 Ok(desc) => {
@@ -198,6 +200,9 @@ impl App {
                     Logger::critical(err);
                 }
             },
+            InternalStreamData::Done => {
+                self.ctx.messages.borrow_mut().handler = None;
+            }
         }
     }
 
