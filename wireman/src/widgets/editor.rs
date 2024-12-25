@@ -311,7 +311,7 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
                     .title_style(theme.border.text.1)
                     .border_style(theme.border.border.1)
                     .border_type(theme.border.border_type.1)
-                    .title(title.into())
+                    .title(format!("|{:}|", title.into()))
                     .title_alignment(Alignment::Center),
             )
             .base(theme.editor.text)
@@ -332,7 +332,7 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
                     .title_style(theme.border.text.0)
                     .border_style(theme.border.border.0)
                     .border_type(theme.border.border_type.0)
-                    .title(title.into())
+                    .title(format!("|{:}|", title.into()))
                     .title_alignment(Alignment::Center),
             )
             .hide_status_line()
