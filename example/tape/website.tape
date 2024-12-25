@@ -1,7 +1,7 @@
 # vhs tape/website.tape
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
-# cp website_001.png website_026.png website_080.png website_170.png website_225.png  website_271.png website_326.png website_401.png website_439.png website_476.png ../../../website/src/lib/assets/.
+# cp website_001.png website_026.png website_080.png website_170.png website_225.png  website_271.png website_326.png website_439.png website_476.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
