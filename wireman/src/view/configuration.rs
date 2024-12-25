@@ -17,7 +17,7 @@ pub struct ConfigurationDialog<'a> {
 
 impl ConfigurationDialog<'_> {
     pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
-        let keys = vec![("Esc", "Quit"), ("<C-s>", "Save")];
+        let keys = vec![("<C-e>", "Quit"), ("<C-s>", "Save")];
         keys
     }
 }
