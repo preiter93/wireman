@@ -147,7 +147,7 @@ impl EventHandler for RequestEventHandler {
                     RequestEvents::SaveHistory,
                 ),
                 (
-                    KeyEvent::ctrl(KeyCode::Char('d')),
+                    KeyEvent::ctrl(KeyCode::Char('q')),
                     RequestEvents::ResetHistory,
                 ),
                 (
