@@ -36,7 +36,7 @@ impl Widget for ReflectionDialog {
             let block = Block::default()
                 .borders(Borders::ALL)
                 .style(style)
-                .title_top(Line::from("|Server Reflection|").centered())
+                .title_top(Line::from("Reflection Settings").centered())
                 .title_style(title_style);
             let inner_area = block.inner(area);
             block.render(area, buf);

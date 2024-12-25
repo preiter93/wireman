@@ -27,7 +27,7 @@ impl Widget for HelpDialog {
         let style = theme.help_dialog.style;
         let block = Block::default()
             .borders(Borders::ALL)
-            .title_top(Line::from("|Help|").centered());
+            .title_top(Line::from("Help").centered());
         let mut rows = Vec::new();
         for (key, msg) in self.key_map {
             rows.push(Row::new(vec![
