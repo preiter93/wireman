@@ -74,7 +74,7 @@ impl Widget for SelectionPage<'_> {
         let services_state = &mut self.model.services_state;
         let mut services_block = block
             .clone()
-            .title("Services")
+            .title("|Services|")
             .title_style(theme.border.text.0)
             .border_style(theme.border.border.0)
             .border_type(theme.border.border_type.0);
@@ -128,7 +128,7 @@ impl Widget for SelectionPage<'_> {
         let methods_state = &mut self.model.methods_state;
         let mut methods_block = block
             .clone()
-            .title("Methods")
+            .title("|Methods|")
             .title_style(theme.border.text.0)
             .border_style(theme.border.border.0)
             .border_type(theme.border.border_type.0);

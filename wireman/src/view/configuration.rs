@@ -38,7 +38,7 @@ impl Widget for ConfigurationDialog<'_> {
             .title_style(theme.border.text.1)
             .border_style(theme.border.border.1)
             .border_type(theme.border.border_type.1)
-            .title("Configuration")
+            .title("|Configuration|")
             .title_alignment(Alignment::Center);
         let inner_area = block.inner(area);
         block.render(area, buf);
