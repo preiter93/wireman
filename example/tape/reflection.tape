@@ -17,7 +17,7 @@ Type "export WIREMAN_CONFIG_DIR=$PWD/configs/empty"
 Enter
 Type "wireman"
 Enter
-Sleep 1.5s
+Sleep 2.5s
 Set TypingSpeed 500ms
 Show
 
@@ -26,9 +26,11 @@ Sleep 1.0s
 
 # Reflection
 Ctrl+r
+Sleep 2.0s
+Type 'j'
 Sleep 1.0s
-Type 'jjlh'
-Sleep 0.5s
+Type 'j'
+Sleep 1.0s
 Enter
 
 # Select

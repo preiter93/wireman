@@ -1,6 +1,7 @@
 includes = [
     '$HOME/Rust/wireman/example/server/website',
 ]
+
 files = [
     'order/api.proto',
     'price/api.proto',

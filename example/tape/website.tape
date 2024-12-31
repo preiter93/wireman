@@ -62,7 +62,7 @@ Sleep 1s
 # Selection
 Tab
 Sleep 1s
-Type "c"
+Ctrl+e
 Sleep 1s
 Ctrl+S
 Sleep 1s
