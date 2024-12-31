@@ -8,14 +8,11 @@ pub static THEME: OnceCell<Theme> = OnceCell::new();
 #[derive(Debug, Default, Clone)]
 pub struct Theme {
     pub base: Base,
-    pub list: List,
+    pub highlight: Highlight,
     pub border: Border,
-    pub navbar: Navbar,
-    pub editor: Editor,
-    pub history: History,
-    pub headers: Headers,
-    pub footer: Footer,
-    pub help_dialog: HelpDialog,
+    pub title: Title,
+    pub hide_footer: bool,
+    pub hide_status: bool,
 }
 
 impl Theme {
@@ -26,84 +23,38 @@ impl Theme {
 
 #[derive(Debug, Clone, Default)]
 pub struct Base {
-    pub style: Style,
+    pub focused: Style,
+    pub unfocused: Style,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Highlight {
+    pub focused: Style,
+    pub unfocused: Style,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Title {
+    pub focused: Style,
+    pub unfocused: Style,
 }
 
 #[allow(clippy::struct_field_names)]
 #[derive(Debug, Clone)]
 pub struct Border {
-    pub border: (Style, Style),
-    pub text: (Style, Style),
-    pub border_type: (BorderType, BorderType),
+    pub focused: Style,
+    pub unfocused: Style,
+    pub border_type: BorderType,
 }
 
 impl Default for Border {
     fn default() -> Self {
         Self {
-            border: (Style::default(), Style::default()),
-            text: (Style::default(), Style::default()),
-            border_type: (BorderType::Rounded, BorderType::Rounded),
+            focused: Style::default(),
+            unfocused: Style::default(),
+            border_type: BorderType::Rounded,
         }
     }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Navbar {
-    pub title: Style,
-    pub tabs: (Style, Style),
-    pub tabs_bold: (bool, bool),
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct List {
-    pub active: ListStyle,
-    pub inactive: ListStyle,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct ListStyle {
-    pub selected: Style,
-    pub unselected: Style,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Editor {
-    pub text: Style,
-    pub cursor: Style,
-    pub selection: Style,
-    pub status_text: Style,
-    pub status_line: Style,
-    pub hide_status_line: bool,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct History {
-    pub active: (Style, Style),
-    pub inactive: (Style, Style),
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Headers {
-    pub titles: (Style, Style),
-    pub tabs: HeaderTabs,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct HeaderTabs {
-    pub active: (Style, Style),
-    pub inactive: (Style, Style),
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Footer {
-    pub tabs: Style,
-    pub text: Style,
-    pub hide: bool,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct HelpDialog {
-    pub style: Style,
 }
 
 impl Theme {

@@ -24,33 +24,32 @@ impl Widget for HelpDialog {
         Self: Sized,
     {
         let theme = Theme::global();
-        let style = theme.help_dialog.style;
         let block = Block::default()
             .borders(Borders::ALL)
-            .title_style(theme.border.text.1)
+            .title_style(theme.title.focused)
             .padding(Padding::horizontal(1))
             .title_top(Line::from(" Help ").centered());
 
         let mut rows = Vec::new();
         for (key, msg) in self.key_map {
             rows.push(Row::new(vec![
-                Cell::from(key.to_string()).style(theme.footer.tabs),
-                Cell::from(msg.to_string()).style(theme.footer.text),
+                Cell::from(key.to_string()).style(theme.title.unfocused),
+                Cell::from(msg.to_string()).style(theme.base.unfocused),
             ]));
         }
         rows.push(Row::new(vec![
-            Cell::from("?".to_string()).style(theme.footer.tabs),
-            Cell::from("Close help".to_string()).style(theme.footer.text),
+            Cell::from("?".to_string()).style(theme.title.unfocused),
+            Cell::from("Close help".to_string()).style(theme.base.unfocused),
         ]));
         rows.push(Row::new(vec![
-            Cell::from("C-c".to_string()).style(theme.footer.tabs),
-            Cell::from("Quit app".to_string()).style(theme.footer.text),
+            Cell::from("C-c".to_string()).style(theme.title.unfocused),
+            Cell::from("Quit app".to_string()).style(theme.base.unfocused),
         ]));
 
         let widths = [Constraint::Length(15), Constraint::Length(25)];
         let table = Table::new(rows, widths)
             .column_spacing(1)
-            .style(style)
+            .style(theme.base.focused)
             .block(block);
         table.render(area, buf);
     }

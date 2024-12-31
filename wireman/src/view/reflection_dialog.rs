@@ -30,13 +30,12 @@ impl Widget for ReflectionDialog {
     {
         use ratatui::layout::Constraint::{Length, Min};
         let theme = Theme::global();
-        let style = theme.base.style;
         let area = {
             let block = Block::default()
                 .borders(Borders::ALL)
-                .style(style)
+                .style(theme.base.focused)
                 .title_top(Line::from(" Reflection ").centered())
-                .title_style(theme.border.text.1);
+                .title_style(theme.title.focused);
             let inner_area = block.inner(area);
             block.render(area, buf);
             inner_area
@@ -49,9 +48,9 @@ impl Widget for ReflectionDialog {
         let [_, addr_title, addr_content, _, auth_title, auth_content] = layout;
 
         if self.model.headers.borrow().tab == HeadersTab::Addr {
-            ListElements::VDividerFocused(String::from(" Address ")).render(addr_title, buf);
+            ListElements::TitleFocused(String::from(" Address ")).render(addr_title, buf);
         } else {
-            ListElements::VDividerUnfocused(String::from(" Address ")).render(addr_title, buf);
+            ListElements::TitleUnfocused(String::from(" Address ")).render(addr_title, buf);
         }
         Address {
             state: self.model.headers.borrow().addr.state.clone(),
@@ -62,10 +61,9 @@ impl Widget for ReflectionDialog {
 
         // Authentication
         if self.model.headers.borrow().tab == HeadersTab::Auth {
-            ListElements::VDividerFocused(String::from(" Authentication ")).render(auth_title, buf);
+            ListElements::TitleFocused(String::from(" Authentication ")).render(auth_title, buf);
         } else {
-            ListElements::VDividerUnfocused(String::from(" Authentication "))
-                .render(auth_title, buf);
+            ListElements::TitleUnfocused(String::from(" Authentication ")).render(auth_title, buf);
         }
         let body = match self.model.headers.borrow().auth.selected {
             AuthSelection::Bearer => Authentication {
@@ -88,7 +86,7 @@ impl Widget for ReflectionDialog {
             Line::from(err).left_aligned().red()
         } else {
             Line::from("Press Enter ")
-                .style(theme.footer.text)
+                .style(theme.base.unfocused)
                 .right_aligned()
         };
 

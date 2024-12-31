@@ -35,8 +35,8 @@ pub fn spans_from_keys(keys: &[(&'static str, &'static str)]) -> Vec<Span<'stati
     let theme = theme::Theme::global();
     keys.iter()
         .flat_map(|(key, desc)| {
-            let key = Span::styled(format!("{key}: "), theme.footer.tabs);
-            let desc = Span::styled(format!("{desc}  "), theme.footer.text);
+            let key = Span::styled(format!("{key}: "), theme.title.unfocused);
+            let desc = Span::styled(format!("{desc}  "), theme.base.unfocused);
             [key, desc]
         })
         .collect()

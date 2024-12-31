@@ -63,42 +63,41 @@ impl Widget for SelectionPage<'_> {
             .padding(Padding::new(1, 1, 1, 1));
 
         // Services
-        let is_selected =
-            [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab);
+        let is_selected = [SelectionTab::Services].contains(&self.tab);
 
         let services = self.model.services();
         let services_state = &mut self.model.services_state;
-        let mut services_block = block
+
+        let (border_style, title_style) = if is_selected {
+            (theme.border.focused, theme.title.focused)
+        } else {
+            (theme.border.unfocused, theme.title.unfocused)
+        };
+        let services_block = block
             .clone()
             .title(" Services ")
-            .title_style(theme.border.text.0)
-            .border_style(theme.border.border.0)
-            .border_type(theme.border.border_type.0);
-        if is_selected {
-            services_block = services_block
-                .title_style(theme.border.text.1)
-                .border_style(theme.border.border.1)
-                .border_type(theme.border.border_type.1);
-        }
+            .title_style(title_style)
+            .border_style(border_style)
+            .border_type(theme.border.border_type);
         let inner_area = services_block.inner(svc_content);
-
-        let list_style = if is_selected {
-            theme.list.active.clone()
-        } else {
-            theme.list.inactive.clone()
-        };
 
         let item_count = services.len();
         let builder = ListBuilder::new(move |context| {
             let title = &services[context.index];
             let mut widget = ListItem::new(title.to_string());
 
+            let style = match (is_selected, context.is_selected) {
+                (true, true) => theme.highlight.focused.reversed(),
+                (true, false) => theme.base.focused,
+                (false, true) => theme.highlight.unfocused.reversed(),
+                (false, false) => theme.base.unfocused,
+            };
+
+            widget.style = style;
             if context.is_selected {
                 widget.prefix = Some(">>");
-                widget.style = list_style.selected;
-            } else {
-                widget.style = list_style.unselected;
             }
+
             (widget, 1)
         });
 
@@ -121,9 +120,9 @@ impl Widget for SelectionPage<'_> {
         // Search line for services
         if show_services_search == 1 {
             let style = if self.tab == SelectionTab::SearchServices {
-                theme.list.active.unselected
+                theme.base.focused
             } else {
-                theme.list.inactive.unselected
+                theme.base.unfocused
             };
             SearchLine::new(
                 self.model.services_filter.clone().unwrap_or_default(),
@@ -133,40 +132,40 @@ impl Widget for SelectionPage<'_> {
         }
 
         // Methods
-        let is_selected = [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab);
+        let is_selected = [SelectionTab::Methods].contains(&self.tab);
+
+        let (border_style, title_style) = if is_selected {
+            (theme.border.focused, theme.title.focused)
+        } else {
+            (theme.border.unfocused, theme.title.unfocused)
+        };
 
         let methods = self.model.methods();
         let methods_state = &mut self.model.methods_state;
-        let mut methods_block = block
+        let methods_block = block
             .clone()
             .title(" Methods ")
-            .title_style(theme.border.text.0)
-            .border_style(theme.border.border.0)
-            .border_type(theme.border.border_type.0);
+            .title_style(title_style)
+            .border_style(border_style)
+            .border_type(theme.border.border_type);
 
-        if is_selected {
-            methods_block = methods_block
-                .title_style(theme.border.text.1)
-                .border_style(theme.border.border.1)
-                .border_type(theme.border.border_type.1);
-        }
-
-        let list_style = if is_selected {
-            theme.list.active.clone()
-        } else {
-            theme.list.inactive.clone()
-        };
         let item_count = methods.len();
         let builder = ListBuilder::new(move |context| {
             let title = &methods[context.index];
             let mut widget = ListItem::new(title.to_string());
 
+            let style = match (is_selected, context.is_selected) {
+                (true, true) => theme.highlight.focused.reversed(),
+                (true, false) => theme.base.focused,
+                (false, true) => theme.highlight.unfocused.reversed(),
+                (false, false) => theme.base.unfocused,
+            };
+
             if context.is_selected {
                 widget.prefix = Some(">>");
-                widget.style = list_style.selected;
-            } else {
-                widget.style = list_style.unselected;
             }
+            widget.style = style;
+
             (widget, 1)
         });
 
@@ -178,9 +177,9 @@ impl Widget for SelectionPage<'_> {
         // Search line for methods
         if show_methods_search == 1 {
             let style = if self.tab == SelectionTab::SearchMethods {
-                theme.list.active.unselected
+                theme.base.focused
             } else {
-                theme.list.inactive.unselected
+                theme.base.unfocused
             };
             SearchLine::new(self.model.methods_filter.clone().unwrap_or_default(), style)
                 .render(mtd_search, buf);
