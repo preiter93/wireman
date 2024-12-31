@@ -32,20 +32,20 @@ impl Widget for HistoryTabs<'_> {
 
             if self.show_help {
                 Line::from(vec![
-                    Span::from("<C-s>: ").style(theme.footer.tabs),
-                    Span::from("Save  ").style(theme.footer.text),
-                    Span::from("<C-q>: ").style(theme.footer.tabs),
-                    Span::from("Reset").style(theme.footer.text),
+                    Span::from("<C-s>: ").style(theme.title.unfocused),
+                    Span::from("Save  ").style(theme.base.unfocused),
+                    Span::from("<C-q>: ").style(theme.title.unfocused),
+                    Span::from("Reset").style(theme.base.unfocused),
                 ])
                 .render(text, buf);
             }
 
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)
-                .style(theme.history.inactive.0)
-                .active_style(theme.history.active.0)
-                .highlight_style(theme.history.inactive.1)
-                .active_highlight_style(theme.history.active.1)
+                .style(theme.base.unfocused)
+                .active_style(theme.highlight.unfocused)
+                .highlight_style(theme.base.unfocused.reversed())
+                .active_highlight_style(theme.highlight.unfocused.reversed())
                 .select(self.model.save_spot().saturating_sub(1));
             if let Some(method) = &self.selected_method {
                 tabs = tabs.active(self.model.save_spots_enabled(method));

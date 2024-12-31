@@ -32,7 +32,7 @@ impl Widget for MessagesPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = theme::Theme::global();
-        let sl = u16::from(!theme.editor.hide_status_line);
+        let sl = u16::from(!theme.hide_status);
         let request_window_size = self.model.request.window_size;
         let [top, bottom, status] =
             Layout::vertical([Percentage(request_window_size), Min(0), Length(sl)]).areas(area);
@@ -54,7 +54,7 @@ impl Widget for MessagesPage<'_> {
         editor.render(bottom, buf);
 
         // Status line
-        if !theme.editor.hide_status_line {
+        if !theme.hide_status {
             let (mode, search) = match self.tab {
                 MessagesTab::Request => (
                     self.model.request.editor.state.mode,
@@ -67,8 +67,8 @@ impl Widget for MessagesPage<'_> {
             };
 
             let mut status_line = EditorStatusLine::default()
-                .style_text(theme.editor.status_text)
-                .style_line(theme.editor.status_line)
+                .style_text(theme.highlight.unfocused.reversed())
+                .style_line(theme.base.unfocused)
                 .mode(mode.name());
             if mode == EditorMode::Search {
                 status_line = status_line.search(Some(search));

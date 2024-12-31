@@ -1,76 +1,42 @@
 [colors]
 black = "#282a36"
 white = "#f8f8f2"
-gray = "#44475a"
+gray = "#585c74"
+pink = "#ff79c6"
 purple = "#bd93f9"
 orange = "#ffb86c"
-green = "#50fa7b"
+orange-dark = "#e9b781"
 cyan = "#8be9fd"
-pink = "#ff79c6"
-yellow = "#f1fa8c"
+cyan-dark = "#3d808f"
 
-[base]
-background = "black"
+[base.focused]
 foreground = "white"
+background = "black"
 
-[border.text.focused]
-foreground = "purple"
-
-[navbar.title]
-foreground = "purple"
-bold = true
-
-[navbar.tabs.focused]
-foreground = "black"
-background = "pink"
-
-[list.focused]
-foreground = "black"
-background = "orange"
-
-[history.inactive.unfocused]
+[base.unfocused]
 foreground = "gray"
+background = "black"
 
-[history.inactive.focused]
-foreground = "black"
-background = "gray"
-
-[history.active.unfocused]
+[highlight.focused]
 foreground = "orange"
+background = "black"
 
-[history.active.focused]
-foreground = "black"
-background = "orange"
+[highlight.unfocused]
+foreground = "orange-dark"
+background = "black"
 
-[headers.titles]
-foreground = "purple"
-bold = true
+[title.focused]
+foreground = "cyan"
+background = "black"
 
-[headers.tabs.focused]
-foreground = "black"
-background = "orange"
+[title.unfocused]
+foreground = "cyan-dark"
+background = "black"
 
-[editor.cursor]
-foreground = "black"
-background = "white"
+[border.focused]
+foreground = "white"
+background = "black"
 
-[editor.selection]
-foreground = "black"
-background = "orange"
-
-[editor.status_line]
-bold = false
-
-[editor.status_line.primary]
-foreground = "black"
-background = "pink"
-
-[footer]
-hide = false
-
-[footer.text]
+[border.unfocused]
 foreground = "gray"
-
-[footer.tabs]
-foreground = "black"
-background = "gray"
+background = "black"

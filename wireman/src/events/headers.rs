@@ -125,6 +125,7 @@ impl EventHandler for HeadersEventHandler {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, HeadersEvents)> {
         let headers = ctx.headers.borrow();
         let disabled_root_events = headers.disabled_root_events();

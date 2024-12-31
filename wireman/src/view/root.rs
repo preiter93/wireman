@@ -26,18 +26,12 @@ impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
         let [title, tabs] = layout(area, Direction::Horizontal, &[0, 31]);
-        Block::new().style(theme.base.style).render(area, buf);
+        Block::new().style(theme.base.focused).render(area, buf);
 
-        let mut style = theme.navbar.tabs.0;
-        if theme.navbar.tabs_bold.0 {
-            style = style.bold();
-        }
-        let mut highlight_style = theme.navbar.tabs.1;
-        if theme.navbar.tabs_bold.1 {
-            highlight_style = highlight_style.bold();
-        }
+        let style = theme.base.unfocused;
+        let highlight_style = theme.title.focused;
 
-        Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(title, buf);
+        Paragraph::new(Span::styled("WireMan", theme.highlight.focused).bold()).render(title, buf);
         let titles = vec!["Endpoints", "Headers", "Request"];
         Tabs::new(titles)
             .style(style)
@@ -101,9 +95,9 @@ impl Root<'_> {
 impl Widget for Root<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        Block::new().style(theme.base.style).render(area, buf);
+        Block::new().style(theme.base.focused).render(area, buf);
 
-        if theme.footer.hide {
+        if theme.hide_footer {
             let [header, content] = layout(area, Direction::Vertical, &[2, 0]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);

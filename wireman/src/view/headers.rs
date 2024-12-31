@@ -37,15 +37,15 @@ impl<'a> HeadersPage<'a> {
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let theme = theme::Theme::global();
-        let sl = u16::from(!theme.editor.hide_status_line);
+        let sl = u16::from(!theme.hide_status);
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
         // Address
         if self.model.tab == HeadersTab::Addr {
-            ListElements::VDividerFocused(String::from(" Address ")).render(addr_title, buf);
+            ListElements::TitleFocused(String::from(" Address ")).render(addr_title, buf);
         } else {
-            ListElements::VDividerUnfocused(String::from(" Address ")).render(addr_title, buf);
+            ListElements::TitleUnfocused(String::from(" Address ")).render(addr_title, buf);
         }
         Address {
             state: self.model.addr.state.clone(),
@@ -56,10 +56,9 @@ impl Widget for HeadersPage<'_> {
 
         // Authentication
         if self.model.tab == HeadersTab::Auth {
-            ListElements::VDividerFocused(String::from(" Authentication ")).render(auth_title, buf);
+            ListElements::TitleFocused(String::from(" Authentication ")).render(auth_title, buf);
         } else {
-            ListElements::VDividerUnfocused(String::from(" Authentication "))
-                .render(auth_title, buf);
+            ListElements::TitleUnfocused(String::from(" Authentication ")).render(auth_title, buf);
         }
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
@@ -79,9 +78,9 @@ impl Widget for HeadersPage<'_> {
 
         // Metadata
         if self.model.tab == HeadersTab::Meta {
-            ListElements::VDividerFocused(String::from(" Headers ")).render(meta_title, buf);
+            ListElements::TitleFocused(String::from(" Headers ")).render(meta_title, buf);
         } else {
-            ListElements::VDividerUnfocused(String::from(" Headers ")).render(meta_title, buf);
+            ListElements::TitleUnfocused(String::from(" Headers ")).render(meta_title, buf);
         }
         let headers = &self.model.meta.headers;
         let index = self.model.meta.selected;
@@ -106,10 +105,10 @@ impl Widget for HeadersPage<'_> {
         .render(meta_content, buf);
 
         // Show a combined status line for all editors
-        if !theme.editor.hide_status_line {
+        if !theme.hide_status {
             EditorStatusLine::default()
-                .style_text(theme.editor.status_text)
-                .style_line(theme.editor.status_line)
+                .style_text(theme.highlight.unfocused.reversed())
+                .style_line(theme.base.unfocused)
                 .mode(self.model.mode().name())
                 .render(status, buf);
         }
@@ -118,28 +117,28 @@ impl Widget for HeadersPage<'_> {
 
 #[allow(clippy::large_enum_variant)]
 pub enum ListElements {
-    VSpace(usize),
-    VDividerFocused(String),
-    VDividerUnfocused(String),
+    Space(usize),
+    TitleFocused(String),
+    TitleUnfocused(String),
 }
 
 impl Widget for ListElements {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = theme::Theme::global();
         match self {
-            Self::VSpace(_) => {}
-            Self::VDividerUnfocused(title) => {
+            Self::Space(_) => {}
+            Self::TitleUnfocused(title) => {
                 Block::default()
                     .title(title)
                     .title_alignment(Alignment::Center)
-                    .title_style(theme.headers.titles.0)
+                    .title_style(theme.title.unfocused)
                     .render(area, buf);
             }
-            Self::VDividerFocused(title) => {
+            Self::TitleFocused(title) => {
                 Block::default()
                     .title(title)
                     .title_alignment(Alignment::Center)
-                    .title_style(theme.headers.titles.1)
+                    .title_style(theme.title.focused)
                     .render(area, buf);
             }
         };
@@ -176,10 +175,10 @@ impl Widget for Authentication {
         let theme = Theme::global();
         let [title, content] = layout(area, Direction::Vertical, &[1, 0]);
 
-        let style = if self.selected {
-            theme.headers.tabs.active
+        let (highlight_style, style) = if self.selected {
+            (theme.title.focused, theme.base.unfocused)
         } else {
-            theme.headers.tabs.inactive
+            (theme.title.unfocused, theme.base.unfocused)
         };
 
         let titles = if self.selected {
@@ -188,8 +187,8 @@ impl Widget for Authentication {
             vec![" Bearer ", " Basic "]
         };
         Tabs::new(titles)
-            .style(style.0)
-            .highlight_style(style.1)
+            .style(style)
+            .highlight_style(highlight_style)
             .select(self.selected_tag)
             .divider("")
             .render(title.inner(Margin::new(0, 0)), buf);
@@ -218,7 +217,7 @@ impl Widget for Metadata {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(list_height),
-                Constraint::Length(self.focused as u16 * 2),
+                Constraint::Length(u16::from(self.focused) * 2),
             ])
             .areas(area);
 
@@ -239,13 +238,13 @@ impl Widget for Metadata {
                 .constraints([Constraint::Length(1), Constraint::Length(1)])
                 .areas(text);
             Line::from(vec![
-                Span::from("<C-a>: ").style(theme.footer.tabs),
-                Span::from("Add header").style(theme.footer.text),
+                Span::from("<C-a>: ").style(theme.title.unfocused),
+                Span::from("Add header").style(theme.base.unfocused),
             ])
             .render(add, buf);
             Line::from(vec![
-                Span::from("<C-d>: ").style(theme.footer.tabs),
-                Span::from("Delete header").style(theme.footer.text),
+                Span::from("<C-d>: ").style(theme.title.unfocused),
+                Span::from("Delete header").style(theme.base.unfocused),
             ])
             .render(del, buf);
         }

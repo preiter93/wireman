@@ -308,15 +308,15 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text.1)
-                    .border_style(theme.border.border.1)
-                    .border_type(theme.border.border_type.1)
+                    .title_style(theme.title.focused)
+                    .border_style(theme.border.focused)
+                    .border_type(theme.border.border_type)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
-            .base(theme.editor.text)
-            .cursor_style(theme.editor.cursor)
-            .selection_style(theme.editor.selection)
+            .base(theme.base.focused)
+            .cursor_style(theme.base.focused.reversed())
+            .selection_style(theme.highlight.focused.reversed())
             .hide_status_line(),
     )
 }
@@ -329,16 +329,16 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text.0)
-                    .border_style(theme.border.border.0)
-                    .border_type(theme.border.border_type.0)
+                    .title_style(theme.title.unfocused)
+                    .border_style(theme.border.unfocused)
+                    .border_type(theme.border.border_type)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
             .hide_status_line()
-            .base(theme.editor.text)
-            .cursor_style(theme.base.style)
-            .selection_style(theme.editor.selection),
+            .base(theme.base.unfocused)
+            .cursor_style(theme.base.unfocused)
+            .selection_style(theme.highlight.unfocused.reversed()),
     )
 }
 
@@ -350,16 +350,16 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text.1)
-                    .border_style(theme.border.border.1)
-                    .border_type(theme.border.border_type.1)
+                    .title_style(theme.title.focused)
+                    .border_style(theme.border.focused)
+                    .border_type(theme.border.border_type)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
             .hide_status_line()
-            .base(theme.editor.text)
-            .cursor_style(theme.editor.cursor)
-            .selection_style(theme.editor.selection),
+            .base(theme.base.focused)
+            .cursor_style(theme.base.focused.reversed())
+            .selection_style(theme.highlight.focused.reversed()),
     )
 }
 
@@ -371,17 +371,17 @@ pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S
             .block(
                 Block::new()
                     .borders(Borders::ALL)
-                    .title_style(theme.border.text.0)
-                    .border_style(theme.border.border.0)
-                    .border_type(theme.border.border_type.0)
-                    .style(theme.editor.text)
+                    .title_style(theme.title.unfocused)
+                    .border_style(theme.border.unfocused)
+                    .border_type(theme.border.border_type)
+                    .style(theme.base.unfocused)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
             .hide_status_line()
             .hide_cursor()
-            .base(theme.editor.text)
-            .cursor_style(theme.base.style)
-            .selection_style(theme.editor.selection),
+            .base(theme.base.unfocused)
+            .cursor_style(theme.base.unfocused)
+            .selection_style(theme.highlight.unfocused.reversed()),
     )
 }
