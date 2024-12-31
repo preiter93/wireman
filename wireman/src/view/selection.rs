@@ -107,14 +107,34 @@ impl Widget for SelectionPage<'_> {
             .render(svc_content, buf, services_state);
 
         if !self.model.has_services() {
-            let [l1, l2, l3, l4] =
-                Layout::vertical([Length(1), Length(1), Length(1), Min(0)]).areas(inner_area);
-            Span::from("It seems you don't have any proto services available. ").render(l1, buf);
-            Span::from("Please check your files and proto includes, see: ").render(l2, buf);
+            let [l1, l2, l3, l4, l5, l6] = Layout::vertical([
+                Length(1),
+                Length(1),
+                Length(1),
+                Length(1),
+                Length(1),
+                Min(0),
+            ])
+            .areas(inner_area);
+            Span::from("It seems you don't have any proto services available. ")
+                .style(theme.base.focused)
+                .render(l1, buf);
+            Span::from("(1) Please configure them in your wireman.toml, or")
+                .style(theme.base.focused)
+                .render(l2, buf);
+            Span::from("(2) use server reflection (<C-r>).")
+                .style(theme.base.focused)
+                .render(l3, buf);
+            Span::from("For further information see: ")
+                .style(theme.base.focused)
+                .render(l4, buf);
             Span::from("https://preiter93.github.io/wireman/")
                 .underlined()
-                .render(l3, buf);
-            Span::from("(Copy link with \"y\")").render(l4, buf);
+                .style(theme.title.focused)
+                .render(l5, buf);
+            Span::from("(Copy link with \"y\")")
+                .style(theme.base.unfocused)
+                .render(l6, buf);
         }
 
         // Search line for services
