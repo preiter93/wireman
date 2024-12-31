@@ -8,17 +8,7 @@ pub(crate) struct KV {
     pub(crate) val: EditorState,
     pub(crate) key_selected: bool,
     pub(crate) val_selected: bool,
-}
-
-impl KV {
-    fn new(key: &EditorState, val: &EditorState) -> Self {
-        Self {
-            key: key.clone(),
-            val: val.clone(),
-            key_selected: false,
-            val_selected: false,
-        }
-    }
+    pub(crate) show_border_title: bool,
 }
 
 impl Widget for KV {
@@ -26,15 +16,26 @@ impl Widget for KV {
         use ratatui::layout::Constraint::Percentage;
         let [left, right] = Layout::horizontal([Percentage(50), Percentage(50)]).areas(area);
 
-        if self.key_selected {
-            view_single_selected(&mut self.key, String::new()).render(left, buf);
+        let key_title = if self.show_border_title {
+            String::from(" Key (H) ")
         } else {
-            view_single_unselected(&mut self.key, String::new()).render(left, buf);
+            String::new()
+        };
+        let val_title = if self.show_border_title {
+            String::from(" Value (L) ")
+        } else {
+            String::new()
+        };
+
+        if self.key_selected {
+            view_single_selected(&mut self.key, key_title).render(left, buf);
+        } else {
+            view_single_unselected(&mut self.key, key_title).render(left, buf);
         }
         if self.val_selected {
-            view_single_selected(&mut self.val, String::new()).render(right, buf);
+            view_single_selected(&mut self.val, val_title).render(right, buf);
         } else {
-            view_single_unselected(&mut self.val, String::new()).render(right, buf);
+            view_single_unselected(&mut self.val, val_title).render(right, buf);
         }
     }
 }

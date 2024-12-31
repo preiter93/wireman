@@ -7,13 +7,19 @@ use ratatui::prelude::*;
 pub struct HistoryTabs<'a> {
     pub model: &'a HistoryModel,
     pub selected_method: Option<MethodDescriptor>,
+    pub show_help: bool,
 }
 
 impl<'a> HistoryTabs<'a> {
-    pub fn new(model: &'a HistoryModel, selected_method: Option<MethodDescriptor>) -> Self {
+    pub fn new(
+        model: &'a HistoryModel,
+        selected_method: Option<MethodDescriptor>,
+        show_help: bool,
+    ) -> Self {
         Self {
             model,
             selected_method,
+            show_help,
         }
     }
 }
@@ -22,9 +28,17 @@ impl Widget for HistoryTabs<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = theme::Theme::global();
         if !self.model.enabled {
-            let [_, _, right] = layout(area, Direction::Horizontal, &[0, 3, 25]);
+            let [text, _, right] = layout(area, Direction::Horizontal, &[0, 3, 25]);
 
-            // Line::from("💾").render(symbol, buf);
+            if self.show_help {
+                Line::from(vec![
+                    Span::from("<C-s>: ").style(theme.footer.tabs),
+                    Span::from("Save  ").style(theme.footer.text),
+                    Span::from("<C-q>: ").style(theme.footer.tabs),
+                    Span::from("Reset").style(theme.footer.text),
+                ])
+                .render(text, buf);
+            }
 
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)

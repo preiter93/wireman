@@ -38,7 +38,7 @@ impl Widget for ConfigurationDialog<'_> {
             .title_style(theme.border.text.1)
             .border_style(theme.border.border.1)
             .border_type(theme.border.border_type.1)
-            .title("Configuration")
+            .title(" Configuration ")
             .title_alignment(Alignment::Center);
         let inner_area = block.inner(area);
         block.render(area, buf);
@@ -70,7 +70,7 @@ impl Widget for ConfigurationDialog<'_> {
                 Message::Success(s) => Line::from(s.as_str()).green(),
                 Message::Error(s) => Line::from(s.as_str()).red(),
             };
-            line.render(info_line, buf);
+            line.style(theme.footer.text).render(info_line, buf);
         };
 
         let keys = Self::footer_keys();

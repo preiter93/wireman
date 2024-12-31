@@ -21,6 +21,10 @@ impl Default for MetaHeaders {
 }
 
 impl MetaHeaders {
+    pub fn len(&self) -> usize {
+        self.headers.len()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.headers.is_empty()
     }
@@ -151,7 +155,7 @@ impl MetaHeaders {
         }
     }
 
-    pub(super) fn clear(&mut self) {
+    pub(crate) fn clear(&mut self) {
         self.headers.clear();
         self.selected = None;
     }

@@ -354,7 +354,7 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
                     .border_style(theme.border.border.1)
                     .border_type(theme.border.border_type.1)
                     .title(title.into())
-                    .title_alignment(Alignment::Left),
+                    .title_alignment(Alignment::Center),
             )
             .hide_status_line()
             .base(theme.editor.text)
@@ -376,7 +376,7 @@ pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S
                     .border_type(theme.border.border_type.0)
                     .style(theme.editor.text)
                     .title(title.into())
-                    .title_alignment(Alignment::Left),
+                    .title_alignment(Alignment::Center),
             )
             .hide_status_line()
             .hide_cursor()

@@ -42,7 +42,7 @@ impl Default for Border {
         Self {
             border: (Style::default(), Style::default()),
             text: (Style::default(), Style::default()),
-            border_type: (BorderType::Plain, BorderType::Double),
+            border_type: (BorderType::Rounded, BorderType::Rounded),
         }
     }
 }
@@ -51,12 +51,19 @@ impl Default for Border {
 pub struct Navbar {
     pub title: Style,
     pub tabs: (Style, Style),
+    pub tabs_bold: (bool, bool),
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct List {
-    pub text: Style,
-    pub focused: Style,
+    pub active: ListStyle,
+    pub inactive: ListStyle,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ListStyle {
+    pub selected: Style,
+    pub unselected: Style,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -77,8 +84,14 @@ pub struct History {
 
 #[derive(Debug, Clone, Default)]
 pub struct Headers {
-    pub titles: Style,
-    pub tabs: (Style, Style),
+    pub titles: (Style, Style),
+    pub tabs: HeaderTabs,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct HeaderTabs {
+    pub active: (Style, Style),
+    pub inactive: (Style, Style),
 }
 
 #[derive(Debug, Clone, Default)]

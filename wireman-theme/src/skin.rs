@@ -78,19 +78,37 @@ impl Skin {
         if let Some(target) = &self.navbar.title {
             set_fg_bg!(theme.navbar.title, target, self.colors);
         }
-        if let Some(target) = &self.navbar.tabs.as_ref().and_then(|x| x.unfocused.as_ref()) {
+
+        let unfocused = self.navbar.tabs.as_ref().and_then(|x| x.unfocused.as_ref());
+        if let Some(target) = &unfocused {
             set_fg_bg!(theme.navbar.tabs.0, target, self.colors);
         }
-        if let Some(target) = &self.navbar.tabs.as_ref().and_then(|x| x.focused.as_ref()) {
+        if unfocused.and_then(|x| x.bold).unwrap_or(false) {
+            theme.navbar.tabs_bold.0 = true;
+        }
+
+        let focused = self.navbar.tabs.as_ref().and_then(|x| x.focused.as_ref());
+        if let Some(target) = &focused {
             set_fg_bg!(theme.navbar.tabs.1, target, self.colors);
+        }
+        if focused.and_then(|x| x.bold).unwrap_or(false) {
+            theme.navbar.tabs_bold.1 = true;
         }
 
         // List
-        if let Some(target) = &self.list.unfocused.as_ref() {
-            set_fg_bg!(theme.list.text, target, self.colors);
+        let active = &self.list.active;
+        if let Some(target) = active.as_ref().and_then(|x| x.unselected.as_ref()) {
+            set_fg_bg!(theme.list.active.unselected, target, self.colors);
         }
-        if let Some(target) = &self.list.focused {
-            set_fg_bg!(theme.list.focused, target, self.colors);
+        if let Some(target) = active.as_ref().and_then(|x| x.selected.as_ref()) {
+            set_fg_bg!(theme.list.active.selected, target, self.colors);
+        }
+        let inactive = &self.list.inactive;
+        if let Some(target) = inactive.as_ref().and_then(|x| x.unselected.as_ref()) {
+            set_fg_bg!(theme.list.inactive.unselected, target, self.colors);
+        }
+        if let Some(target) = inactive.as_ref().and_then(|x| x.selected.as_ref()) {
+            set_fg_bg!(theme.list.inactive.selected, target, self.colors);
         }
 
         // Editor
@@ -140,14 +158,29 @@ impl Skin {
 
         // Headers
         let headers = &self.headers;
-        if let Some(target) = headers.titles.as_ref() {
-            set_fg_bg!(theme.headers.titles, target, self.colors);
+        let unfocused = headers.titles.as_ref().and_then(|x| x.unfocused.as_ref());
+        if let Some(target) = unfocused {
+            set_fg_bg!(theme.headers.titles.0, target, self.colors);
         }
-        if let Some(target) = headers.tabs.as_ref().and_then(|x| x.unfocused.as_ref()) {
-            set_fg_bg!(theme.headers.tabs.0, target, self.colors);
+        let focused = headers.titles.as_ref().and_then(|x| x.focused.as_ref());
+        if let Some(target) = focused {
+            set_fg_bg!(theme.headers.titles.1, target, self.colors);
         }
-        if let Some(target) = headers.tabs.as_ref().and_then(|x| x.focused.as_ref()) {
-            set_fg_bg!(theme.headers.tabs.1, target, self.colors);
+
+        let active = headers.tabs.as_ref().and_then(|x| x.active.as_ref());
+        if let Some(target) = active.and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.active.0, target, self.colors);
+        }
+        if let Some(target) = active.and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.active.1, target, self.colors);
+        }
+
+        let inactive = headers.tabs.as_ref().and_then(|x| x.inactive.as_ref());
+        if let Some(target) = inactive.and_then(|x| x.unfocused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.inactive.0, target, self.colors);
+        }
+        if let Some(target) = inactive.and_then(|x| x.focused.as_ref()) {
+            set_fg_bg!(theme.headers.tabs.inactive.1, target, self.colors);
         }
 
         // Footer
@@ -198,8 +231,8 @@ pub(crate) struct Navbar {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct List {
-    unfocused: Option<FgBg>,
-    focused: Option<FgBg>,
+    active: Option<Selectable>,
+    inactive: Option<Selectable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -218,8 +251,14 @@ pub(crate) struct History {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Headers {
-    titles: Option<Title>,
-    tabs: Option<Focusable>,
+    titles: Option<Focusable>,
+    tabs: Option<HeaderTabs>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct HeaderTabs {
+    active: Option<Focusable>,
+    inactive: Option<Focusable>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -244,8 +283,14 @@ pub(crate) struct Title {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Focusable {
-    pub unfocused: Option<FgBg>,
-    pub focused: Option<FgBg>,
+    pub unfocused: Option<Title>,
+    pub focused: Option<Title>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct Selectable {
+    pub selected: Option<FgBg>,
+    pub unselected: Option<FgBg>,
 }
 
 #[derive(Debug, Deserialize, Default)]

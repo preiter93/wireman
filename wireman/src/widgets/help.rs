@@ -2,7 +2,7 @@ use crate::context::HelpContext;
 use ratatui::{
     prelude::{Buffer, Constraint, Rect},
     text::Line,
-    widgets::{Block, Borders, Cell, Row, Table, Widget},
+    widgets::{Block, Borders, Cell, Padding, Row, Table, Widget},
 };
 use theme::Theme;
 
@@ -27,21 +27,24 @@ impl Widget for HelpDialog {
         let style = theme.help_dialog.style;
         let block = Block::default()
             .borders(Borders::ALL)
-            .title_top(Line::from("Help").centered());
+            .title_style(theme.border.text.1)
+            .padding(Padding::horizontal(1))
+            .title_top(Line::from(" Help ").centered());
+
         let mut rows = Vec::new();
         for (key, msg) in self.key_map {
             rows.push(Row::new(vec![
-                Cell::from(key.to_string()),
-                Cell::from(msg.to_string()),
+                Cell::from(key.to_string()).style(theme.footer.tabs),
+                Cell::from(msg.to_string()).style(theme.footer.text),
             ]));
         }
         rows.push(Row::new(vec![
-            Cell::from("?".to_string()),
-            Cell::from("Close help".to_string()),
+            Cell::from("?".to_string()).style(theme.footer.tabs),
+            Cell::from("Close help".to_string()).style(theme.footer.text),
         ]));
         rows.push(Row::new(vec![
-            Cell::from("C-c".to_string()),
-            Cell::from("Quit app".to_string()),
+            Cell::from("C-c".to_string()).style(theme.footer.tabs),
+            Cell::from("Quit app".to_string()).style(theme.footer.text),
         ]));
 
         let widths = [Constraint::Length(15), Constraint::Length(25)];

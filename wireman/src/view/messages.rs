@@ -13,13 +13,15 @@ pub struct MessagesPage<'a> {
 }
 
 impl MessagesPage<'_> {
-    pub fn footer_keys(tab: MessagesTab) -> Vec<(&'static str, &'static str)> {
-        let mut keys = vec![("^c", "Quit"), ("Tab", "Next Page")];
+    pub fn footer_keys(tab: MessagesTab, insert_mode: bool) -> Vec<(&'static str, &'static str)> {
+        let mut keys = vec![("^c", "Quit")];
         if tab == MessagesTab::Request {
-            keys.push(("J", "Down"));
-            keys.push(("⏎", "Make request"));
+            keys.push(("⏎", "Request"));
+        }
+        if insert_mode {
+            keys.push(("Esc", "Normal"));
         } else {
-            keys.push(("K", "Up"));
+            keys.push(("i", "Insert"));
         }
         keys.push(("?", "Show help"));
         keys
@@ -37,17 +39,17 @@ impl Widget for MessagesPage<'_> {
 
         // Request
         let editor = if self.tab == MessagesTab::Request {
-            view_selected(&mut self.model.request.editor.state, "Request")
+            view_selected(&mut self.model.request.editor.state, " Request (K) ")
         } else {
-            view_unselected(&mut self.model.request.editor.state, "Request")
+            view_unselected(&mut self.model.request.editor.state, " Request (K) ")
         };
         editor.render(top, buf);
 
         // Request
         let editor = if self.tab == MessagesTab::Response {
-            view_selected(&mut self.model.response.editor.state, "Response")
+            view_selected(&mut self.model.response.editor.state, " Response (J) ")
         } else {
-            view_unselected(&mut self.model.response.editor.state, "Response")
+            view_unselected(&mut self.model.response.editor.state, " Response (J) ")
         };
         editor.render(bottom, buf);
 

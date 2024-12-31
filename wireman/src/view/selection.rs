@@ -6,7 +6,7 @@ use crate::view::reflection_dialog::ReflectionDialog;
 use crate::widgets::list::ListItem;
 use crate::widgets::modal::centered_rect;
 use crate::{context::SelectionTab, model::reflection::ReflectionModel};
-use ratatui::style::Stylize;
+use ratatui::style::{Style, Stylize};
 use ratatui::text::Span;
 use ratatui::{
     buffer::Buffer,
@@ -18,8 +18,7 @@ use ratatui::{
 use theme::Theme;
 use tui_widget_list::{ListBuilder, ListView};
 
-/// The page where to select services and methods.
-pub struct SelectionPage<'a> {
+pub(crate) struct SelectionPage<'a> {
     pub model: &'a mut SelectionModel,
     pub reflection_model: &'a mut ReflectionModel,
     pub tab: SelectionTab,
@@ -27,16 +26,11 @@ pub struct SelectionPage<'a> {
 
 impl SelectionPage<'_> {
     pub fn footer_keys(sub: SelectionTab) -> Vec<(&'static str, &'static str)> {
-        let mut keys = vec![
-            ("^c", "Quit"),
-            ("Tab", "Next Page"),
-            ("j/k", "Scroll"),
-            ("/", "Search"),
-            ("⏎", "Select"),
-        ];
+        let mut keys = vec![("^c", "Quit"), ("j/k", "Scroll"), ("⏎", "Select")];
         if sub == SelectionTab::Methods {
             keys.push(("Esc", "Unselect"));
         }
+        keys.push(("/", "Search"));
         keys.push(("?", "Show help"));
         keys
     }
@@ -63,22 +57,24 @@ impl Widget for SelectionPage<'_> {
         let [mtd_content, mtd_search] =
             Layout::vertical([Min(0), Length(show_methods_search)]).areas(bottom);
 
-        // Block
         let block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)
             .padding(Padding::new(1, 1, 1, 1));
 
         // Services
+        let is_selected =
+            [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab);
+
         let services = self.model.services();
         let services_state = &mut self.model.services_state;
         let mut services_block = block
             .clone()
-            .title("Services")
+            .title(" Services ")
             .title_style(theme.border.text.0)
             .border_style(theme.border.border.0)
             .border_type(theme.border.border_type.0);
-        if [SelectionTab::Services, SelectionTab::SearchServices].contains(&self.tab) {
+        if is_selected {
             services_block = services_block
                 .title_style(theme.border.text.1)
                 .border_style(theme.border.border.1)
@@ -86,17 +82,22 @@ impl Widget for SelectionPage<'_> {
         }
         let inner_area = services_block.inner(svc_content);
 
+        let list_style = if is_selected {
+            theme.list.active.clone()
+        } else {
+            theme.list.inactive.clone()
+        };
+
         let item_count = services.len();
         let builder = ListBuilder::new(move |context| {
-            let theme = Theme::global();
             let title = &services[context.index];
             let mut widget = ListItem::new(title.to_string());
 
             if context.is_selected {
-                widget.prefix = Some(">");
-                widget.style = theme.list.focused;
+                widget.prefix = Some(">>");
+                widget.style = list_style.selected;
             } else {
-                widget.style = theme.list.text;
+                widget.style = list_style.unselected;
             }
             (widget, 1)
         });
@@ -119,38 +120,52 @@ impl Widget for SelectionPage<'_> {
 
         // Search line for services
         if show_services_search == 1 {
-            SearchLine::new(self.model.services_filter.clone().unwrap_or_default())
-                .render(svc_search, buf);
+            let style = if self.tab == SelectionTab::SearchServices {
+                theme.list.active.unselected
+            } else {
+                theme.list.inactive.unselected
+            };
+            SearchLine::new(
+                self.model.services_filter.clone().unwrap_or_default(),
+                style,
+            )
+            .render(svc_search, buf);
         }
 
         // Methods
+        let is_selected = [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab);
+
         let methods = self.model.methods();
         let methods_state = &mut self.model.methods_state;
         let mut methods_block = block
             .clone()
-            .title("Methods")
+            .title(" Methods ")
             .title_style(theme.border.text.0)
             .border_style(theme.border.border.0)
             .border_type(theme.border.border_type.0);
 
-        if [SelectionTab::Methods, SelectionTab::SearchMethods].contains(&self.tab) {
+        if is_selected {
             methods_block = methods_block
                 .title_style(theme.border.text.1)
                 .border_style(theme.border.border.1)
                 .border_type(theme.border.border_type.1);
         }
 
+        let list_style = if is_selected {
+            theme.list.active.clone()
+        } else {
+            theme.list.inactive.clone()
+        };
         let item_count = methods.len();
         let builder = ListBuilder::new(move |context| {
-            let theme = Theme::global();
             let title = &methods[context.index];
             let mut widget = ListItem::new(title.to_string());
 
             if context.is_selected {
                 widget.prefix = Some(">>");
-                widget.style = theme.list.focused;
+                widget.style = list_style.selected;
             } else {
-                widget.style = theme.list.text;
+                widget.style = list_style.unselected;
             }
             (widget, 1)
         });
@@ -162,7 +177,12 @@ impl Widget for SelectionPage<'_> {
 
         // Search line for methods
         if show_methods_search == 1 {
-            SearchLine::new(self.model.methods_filter.clone().unwrap_or_default())
+            let style = if self.tab == SelectionTab::SearchMethods {
+                theme.list.active.unselected
+            } else {
+                theme.list.inactive.unselected
+            };
+            SearchLine::new(self.model.methods_filter.clone().unwrap_or_default(), style)
                 .render(mtd_search, buf);
         }
 
@@ -178,16 +198,22 @@ impl Widget for SelectionPage<'_> {
 
 struct SearchLine {
     text: String,
+    style: Style,
 }
 
 impl SearchLine {
-    fn new<T: Into<String>>(text: T) -> Self {
-        Self { text: text.into() }
+    fn new<T: Into<String>>(text: T, style: Style) -> Self {
+        Self {
+            text: text.into(),
+            style,
+        }
     }
 }
 
 impl Widget for SearchLine {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        Line::from(format!("/{}", self.text)).render(area, buf);
+        Line::from(format!("Search (/): {}", self.text))
+            .style(self.style)
+            .render(area, buf);
     }
 }

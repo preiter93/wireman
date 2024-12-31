@@ -1,7 +1,6 @@
 use crate::{
     events::ServicesSelectionEventsHandler,
     model::{headers::HeadersTab, selection::SelectionMode},
-    widgets::editor::TextEditor,
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 
@@ -74,10 +73,7 @@ impl EventHandler for ReflectionDialogEventHandler {
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, ReflectionDialogEvents)> {
         let headers = ctx.headers.borrow();
         let disabled_root_events = headers.disabled_root_events();
-        let selected_editor = headers.selected_editor();
         let selected_tab = ctx.headers.borrow().tab.clone();
-        let enable_switch_auth_tab =
-            selected_tab == HeadersTab::Auth && selected_editor.map_or(true, TextEditor::is_empty);
         let mut map = Vec::new();
         if !disabled_root_events {
             map.extend([
@@ -121,29 +117,12 @@ impl EventHandler for ReflectionDialogEventHandler {
                     KeyEvent::new(KeyCode::Char('k')),
                     ReflectionDialogEvents::Headers(HeadersEvents::PrevRow),
                 ),
-            ]);
-        }
-
-        if !disabled_root_events && enable_switch_auth_tab {
-            map.extend([
                 (
-                    KeyEvent::new(KeyCode::Right),
+                    KeyEvent::shift(KeyCode::Char('L')),
                     ReflectionDialogEvents::Headers(HeadersEvents::NextAuth),
                 ),
                 (
-                    KeyEvent::new(KeyCode::Char('l')),
-                    ReflectionDialogEvents::Headers(HeadersEvents::NextAuth),
-                ),
-            ]);
-        }
-        if !disabled_root_events && enable_switch_auth_tab {
-            map.extend([
-                (
-                    KeyEvent::new(KeyCode::Left),
-                    ReflectionDialogEvents::Headers(HeadersEvents::PrevAuth),
-                ),
-                (
-                    KeyEvent::new(KeyCode::Char('h')),
+                    KeyEvent::shift(KeyCode::Char('H')),
                     ReflectionDialogEvents::Headers(HeadersEvents::PrevAuth),
                 ),
             ]);
