@@ -1,3 +1,7 @@
+0.2.4 - 01 Jan 2025
+===================
+- Complete UI rework
+
 0.2.3 - 24 Dec 2024
 ===================
 - Server side Streaming
