@@ -28,17 +28,7 @@ impl Widget for HistoryTabs<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = theme::Theme::global();
         if !self.model.enabled {
-            let [text, _, right] = layout(area, Direction::Horizontal, &[0, 3, 25]);
-
-            if self.show_help {
-                Line::from(vec![
-                    Span::from("<C-s>: ").style(theme.title.unfocused),
-                    Span::from("Save  ").style(theme.base.unfocused),
-                    Span::from("<C-q>: ").style(theme.title.unfocused),
-                    Span::from("Reset").style(theme.base.unfocused),
-                ])
-                .render(text, buf);
-            }
+            let [_, right] = layout(area, Direction::Horizontal, &[0, 25]);
 
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
             let mut tabs = ActivatableTabs::new(titles)

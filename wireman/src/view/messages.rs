@@ -2,6 +2,7 @@
 
 use crate::context::MessagesTab;
 use crate::model::MessagesModel;
+use crate::view::history_tab::HistoryTabs;
 use crate::widgets::editor::{view_selected, view_unselected};
 use edtui::{EditorMode, EditorStatusLine};
 use ratatui::prelude::*;
@@ -23,6 +24,8 @@ impl MessagesPage<'_> {
         } else {
             keys.push(("i", "Insert"));
         }
+        keys.push(("<C-s>", "Save"));
+        keys.push(("<C-q>", "Reset"));
         keys.push(("?", "Show help"));
         keys
     }
@@ -74,7 +77,16 @@ impl Widget for MessagesPage<'_> {
                 status_line = status_line.search(Some(search));
             }
 
-            status_line.render(status, buf);
+            let [s, h] = Layout::horizontal([Min(0), Length(60)]).areas(status);
+
+            status_line.render(s, buf);
+
+            let history = HistoryTabs::new(
+                &self.model.history_model,
+                self.model.selected_method.clone(),
+                true,
+            );
+            history.render(h, buf);
         }
     }
 }
