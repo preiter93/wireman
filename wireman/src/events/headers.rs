@@ -94,9 +94,12 @@ impl EventHandler for HeadersEventHandler {
             HeadersEvents::DelHeaders => {
                 let selected = ctx.headers.borrow().meta.selected;
                 if let Some(index) = selected {
-                    ctx.headers.borrow_mut().meta.remove(index.row);
-                    if ctx.headers.borrow().meta.is_empty() {
+                    if ctx.headers.borrow_mut().meta.len() == 1 {
+                        ctx.headers.borrow_mut().meta.clear();
+                        ctx.headers.borrow_mut().meta.add();
                         ctx.headers.borrow_mut().tab = HeadersTab::None;
+                    } else {
+                        ctx.headers.borrow_mut().meta.remove(index.row);
                     }
                 }
             }
@@ -142,6 +145,7 @@ impl EventHandler for HeadersEventHandler {
         map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
         if !disabled_root_events {
             map.extend([
+                (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
                 (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
                 (KeyEvent::shift(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),

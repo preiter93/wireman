@@ -22,17 +22,12 @@ impl<'a> HeadersPage<'a> {
     }
 
     pub fn footer_keys(model: &'a HeadersModel) -> Vec<(&'static str, &'static str)> {
-        let mut keys = vec![
-            ("^c", "Quit"),
-            ("Tab", "Next Page"),
-            ("j/k/h/l", "Navigate"),
-        ];
+        let mut keys = vec![("^c", "Quit"), ("Tab", "Proceed"), ("j/k/h/l", "Navigate")];
         if model.mode() == EditorMode::Insert {
-            keys.push(("Esc", "Normal Mode"));
+            keys.push(("Esc", "Normal"));
         } else {
-            keys.push(("i", "Insert Mode"));
+            keys.push(("i", "Insert"));
         }
-        keys.push(("<C-a>", "Add Header"));
         keys.push(("?", "Help"));
 
         keys
@@ -47,7 +42,11 @@ impl Widget for HeadersPage<'_> {
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
         // Address
-        ListElements::VDivider(String::from(" Address ")).render(addr_title, buf);
+        if self.model.tab == HeadersTab::Addr {
+            ListElements::VDividerFocused(String::from(" Address ")).render(addr_title, buf);
+        } else {
+            ListElements::VDividerUnfocused(String::from(" Address ")).render(addr_title, buf);
+        }
         Address {
             state: self.model.addr.state.clone(),
             title: String::new(),
@@ -56,7 +55,12 @@ impl Widget for HeadersPage<'_> {
         .render(addr_content, buf);
 
         // Authentication
-        ListElements::VDivider(String::from(" Authentication ")).render(auth_title, buf);
+        if self.model.tab == HeadersTab::Auth {
+            ListElements::VDividerFocused(String::from(" Authentication ")).render(auth_title, buf);
+        } else {
+            ListElements::VDividerUnfocused(String::from(" Authentication "))
+                .render(auth_title, buf);
+        }
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -74,27 +78,32 @@ impl Widget for HeadersPage<'_> {
         body.render(auth_content, buf);
 
         // Metadata
-        if !self.model.meta.is_hidden() {
-            ListElements::VDivider(String::from(" Headers ")).render(meta_title, buf);
-            let headers = &self.model.meta.headers;
-            let index = self.model.meta.selected;
-            Metadata {
-                content: headers
-                    .iter()
-                    .enumerate()
-                    .map(|(i, x)| KV {
-                        key: x.0.state.clone(),
-                        val: x.1.state.clone(),
-                        key_selected: (self.model.tab == HeadersTab::Meta)
-                            && index.is_some_and(|x| x.row == i && x.col == 0),
-                        val_selected: (self.model.tab == HeadersTab::Meta)
-                            && index.is_some_and(|x| x.row == i && x.col == 1),
-                    })
-                    .collect(),
-                selected_row: index.map(|x| x.row),
-            }
-            .render(meta_content, buf);
+        if self.model.tab == HeadersTab::Meta {
+            ListElements::VDividerFocused(String::from(" Headers ")).render(meta_title, buf);
+        } else {
+            ListElements::VDividerUnfocused(String::from(" Headers ")).render(meta_title, buf);
         }
+        let headers = &self.model.meta.headers;
+        let index = self.model.meta.selected;
+        Metadata {
+            content: headers
+                .iter()
+                .enumerate()
+                .map(|(i, x)| KV {
+                    key: x.0.state.clone(),
+                    val: x.1.state.clone(),
+                    key_selected: (self.model.tab == HeadersTab::Meta)
+                        && index.is_some_and(|x| x.row == i && x.col == 0),
+                    val_selected: (self.model.tab == HeadersTab::Meta)
+                        && index.is_some_and(|x| x.row == i && x.col == 1),
+                    show_border_title: (self.model.tab == HeadersTab::Meta)
+                        && index.is_some_and(|x| x.row == i),
+                })
+                .collect(),
+            selected_row: index.map(|x| x.row),
+            focused: self.model.tab == HeadersTab::Meta,
+        }
+        .render(meta_content, buf);
 
         // Show a combined status line for all editors
         if !theme.editor.hide_status_line {
@@ -110,7 +119,8 @@ impl Widget for HeadersPage<'_> {
 #[allow(clippy::large_enum_variant)]
 pub enum ListElements {
     VSpace(usize),
-    VDivider(String),
+    VDividerFocused(String),
+    VDividerUnfocused(String),
 }
 
 impl Widget for ListElements {
@@ -118,11 +128,18 @@ impl Widget for ListElements {
         let theme = theme::Theme::global();
         match self {
             Self::VSpace(_) => {}
-            Self::VDivider(title) => {
+            Self::VDividerUnfocused(title) => {
                 Block::default()
                     .title(title)
                     .title_alignment(Alignment::Center)
-                    .title_style(theme.headers.titles)
+                    .title_style(theme.headers.titles.0)
+                    .render(area, buf);
+            }
+            Self::VDividerFocused(title) => {
+                Block::default()
+                    .title(title)
+                    .title_alignment(Alignment::Center)
+                    .title_style(theme.headers.titles.1)
                     .render(area, buf);
             }
         };
@@ -159,10 +176,20 @@ impl Widget for Authentication {
         let theme = Theme::global();
         let [title, content] = layout(area, Direction::Vertical, &[1, 0]);
 
-        let titles = vec![" Bearer ", " Basic "];
+        let style = if self.selected {
+            theme.headers.tabs.active
+        } else {
+            theme.headers.tabs.inactive
+        };
+
+        let titles = if self.selected {
+            vec![" Bearer (H) ", " Basic (L) "]
+        } else {
+            vec![" Bearer ", " Basic "]
+        };
         Tabs::new(titles)
-            .style(theme.headers.tabs.0)
-            .highlight_style(theme.headers.tabs.1)
+            .style(style.0)
+            .highlight_style(style.1)
             .select(self.selected_tag)
             .divider("")
             .render(title.inner(Margin::new(0, 0)), buf);
@@ -179,10 +206,22 @@ impl Widget for Authentication {
 struct Metadata {
     content: Vec<KV>,
     selected_row: Option<usize>,
+    focused: bool,
 }
 
 impl Widget for Metadata {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        let theme = Theme::global();
+
+        let list_height = self.content.len() as u16 * 3;
+        let [main, text] = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(list_height),
+                Constraint::Length(self.focused as u16 * 2),
+            ])
+            .areas(area);
+
         let mut state = ListState::default();
         state.selected = self.selected_row;
         let item_count = self.content.len();
@@ -193,6 +232,22 @@ impl Widget for Metadata {
             }),
             item_count,
         );
-        list.render(area, buf, &mut state);
+        list.render(main, buf, &mut state);
+        if self.focused {
+            let [add, del] = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(1), Constraint::Length(1)])
+                .areas(text);
+            Line::from(vec![
+                Span::from("<C-a>: ").style(theme.footer.tabs),
+                Span::from("Add header").style(theme.footer.text),
+            ])
+            .render(add, buf);
+            Line::from(vec![
+                Span::from("<C-d>: ").style(theme.footer.tabs),
+                Span::from("Delete header").style(theme.footer.text),
+            ])
+            .render(del, buf);
+        }
     }
 }

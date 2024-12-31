@@ -68,7 +68,7 @@ impl App {
                     }
                  }
             },
-            internal_event = self.internal_stream.rx.recv() =>{
+            internal_event = self.internal_stream.rx.recv() => {
                 if let Some(event) = internal_event {
                      self.handle_internal_event(&event);
                  }

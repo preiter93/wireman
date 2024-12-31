@@ -25,17 +25,25 @@ impl<'a> Root<'a> {
 impl Root<'_> {
     fn render_navbar(&self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        let [left, right] = layout(area, Direction::Horizontal, &[0, 34]);
+        let [title, tabs] = layout(area, Direction::Horizontal, &[0, 31]);
         Block::new().style(theme.base.style).render(area, buf);
 
-        Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(left, buf);
-        let titles = vec![" Endpoints ", " Headers ", " Request "];
+        let mut style = theme.navbar.tabs.0;
+        if theme.navbar.tabs_bold.0 {
+            style = style.bold();
+        }
+        let mut highlight_style = theme.navbar.tabs.1;
+        if theme.navbar.tabs_bold.1 {
+            highlight_style = highlight_style.bold();
+        }
+
+        Paragraph::new(Span::styled("WireMan", theme.navbar.title)).render(title, buf);
+        let titles = vec!["Endpoints", "Headers", "Request"];
         Tabs::new(titles)
-            .style(theme.navbar.tabs.0)
-            .highlight_style(theme.navbar.tabs.1)
+            .style(style)
+            .highlight_style(highlight_style)
             .select(self.ctx.tab.index())
-            .divider("")
-            .render(right, buf);
+            .render(tabs, buf);
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
@@ -52,6 +60,7 @@ impl Root<'_> {
                 HistoryTabs::new(
                     &self.ctx.messages.borrow().history_model,
                     self.ctx.messages.borrow().selected_method.clone(),
+                    true,
                 )
                 .render(history, buf);
                 MessagesPage {
@@ -61,15 +70,14 @@ impl Root<'_> {
                 .render(messages, buf);
             }
             Tab::Headers => {
-                //
-                let [history, headers] = Layout::vertical([Length(1), Min(0)]).areas(area);
-                HistoryTabs::new(
-                    &self.ctx.messages.borrow().history_model,
-                    self.ctx.messages.borrow().selected_method.clone(),
-                )
-                .render(history, buf);
+                // let [history, headers] = Layout::vertical([Length(1), Min(0)]).areas(area);
+                // HistoryTabs::new(
+                //     &self.ctx.messages.borrow().history_model,
+                //     self.ctx.messages.borrow().selected_method.clone(),
+                // )
+                // .render(history, buf);
 
-                HeadersPage::new(&self.ctx.headers.borrow()).render(headers, buf);
+                HeadersPage::new(&self.ctx.headers.borrow()).render(area, buf);
             }
         };
     }
@@ -77,7 +85,10 @@ impl Root<'_> {
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
         let keys = match self.ctx.tab {
             Tab::Selection => SelectionPage::footer_keys(self.ctx.selection_tab),
-            Tab::Messages => MessagesPage::footer_keys(self.ctx.messages_tab),
+            Tab::Messages => MessagesPage::footer_keys(
+                self.ctx.messages_tab,
+                self.ctx.messages.borrow().request.editor.insert_mode(),
+            ),
             Tab::Headers => HeadersPage::footer_keys(&self.ctx.headers.borrow()),
         };
         let spans = spans_from_keys(&keys);
@@ -132,25 +143,3 @@ pub fn layout<const N: usize>(area: Rect, direction: Direction, heights: &[u16])
         Layout::horizontal(constraints).areas(area)
     }
 }
-
-// /// simple helper method to split an area into multiple sub-areas
-// pub fn layout_margin<const N: usize>(
-//     area: Rect,
-//     direction: Direction,
-//     heights: &[u16],
-//     margin: u16,
-// ) -> [Rect; N] {
-//     use ratatui::layout::Constraint::{Length, Min};
-//     let constraints = heights
-//         .iter()
-//         .map(|&h| if h > 0 { Length(h) } else { Min(0) });
-//     if direction == Direction::Vertical {
-//         Layout::vertical(constraints)
-//             .margin(10)
-//             .areas(area)
-//     } else {
-//         Layout::horizontal(constraints)
-//             .horizontal_margin(margin)
-//             .areas(area)
-//     }
-// }

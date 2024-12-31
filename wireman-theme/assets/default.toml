@@ -2,41 +2,60 @@
 black = "#101116"
 white = "#f1f5f9"
 magenta = "#ff33cc"
-orange = "#ff9900"
+orange = "#fb9b64"
+orange-subdued = "#bb774f"
 green = "#00cc66"
 gray = "#44475a"
+cyan = "#27a1b9"
+cyan-subdued = "#226f82"
 
 [base]
 background = "black"
 foreground = "white"
 
+[disabled]
+background = "black"
+foreground = "gray"
+
 [border.focused]
 foreground = "white"
 
 [border.unfocused]
-foreground = "white"
+foreground = "gray"
 
 [border.text.unfocused]
-foreground = "white"
+foreground = "gray"
 
 [border.text.focused]
-foreground = "magenta"
+foreground = "cyan"
 
 [navbar.title]
-foreground = "magenta"
+foreground = "orange"
 bold = true
 
+[navbar.tabs.focused]
+foreground = "cyan"
+background = "black"
+
 [navbar.tabs.unfocused]
+foreground = "gray"
+background = "black"
+
+[list.active.selected]
+foreground = "black"
+background = "orange"
+
+[list.active.unselected]
 foreground = "white"
 background = "black"
 
-[navbar.tabs.focused]
+[list.inactive.selected]
 foreground = "black"
-background = "green"
+background = "orange-subdued"
 
-[list.focused]
-foreground = "black"
-background = "orange"
+[list.inactive.unselected]
+foreground = "gray"
+background = "black"
 
 [history.inactive.unfocused]
 foreground = "gray"
@@ -47,21 +66,32 @@ foreground = "black"
 background = "gray"
 
 [history.active.unfocused]
-foreground = "orange"
+foreground = "orange-subdued"
 background = "black"
 
 [history.active.focused]
 foreground = "black"
-background = "orange"
+background = "orange-subdued"
 
-[headers.titles]
-foreground = "magenta"
+[headers.titles.unfocused]
+foreground = "gray"
 background = "black"
-bold = true
 
-[headers.tabs.focused]
-foreground = "black"
-background = "orange"
+[headers.titles.focused]
+foreground = "cyan"
+background = "black"
+
+[headers.tabs.active.focused]
+foreground = "cyan"
+background = "black"
+
+[headers.tabs.inactive.focused]
+foreground = "cyan-subdued"
+background = "black"
+
+[headers.tabs.inactive.unfocused]
+foreground = "gray"
+background = "black"
 
 [editor.text]
 foreground = "white"
@@ -80,7 +110,7 @@ bold = false
 
 [editor.status_line.primary]
 foreground = "black"
-background = "green"
+background = "orange-subdued"
 
 [editor.status_line.secondary]
 background = "black"
@@ -93,8 +123,8 @@ foreground = "gray"
 background = "black"
 
 [footer.tabs]
-foreground = "black"
-background = "gray"
+foreground = "cyan-subdued"
+background = "black"
 
 [help_dialog]
 background = "black"
