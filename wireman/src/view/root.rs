@@ -4,7 +4,6 @@ use super::{
 };
 use crate::{
     context::{AppContext, Tab},
-    view::history_tab::HistoryTabs,
     widgets::{help::HelpDialog, modal::centered_rect},
 };
 use ratatui::{
@@ -41,7 +40,6 @@ impl Root<'_> {
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
-        use ratatui::layout::Constraint::{Length, Min};
         match self.ctx.tab {
             Tab::Selection => SelectionPage {
                 model: &mut self.ctx.selection.borrow_mut(),
@@ -50,27 +48,13 @@ impl Root<'_> {
             }
             .render(area, buf),
             Tab::Messages => {
-                let [history, messages] = Layout::vertical([Length(1), Min(0)]).areas(area);
-                HistoryTabs::new(
-                    &self.ctx.messages.borrow().history_model,
-                    self.ctx.messages.borrow().selected_method.clone(),
-                    true,
-                )
-                .render(history, buf);
                 MessagesPage {
                     model: &mut self.ctx.messages.borrow_mut(),
                     tab: self.ctx.messages_tab,
                 }
-                .render(messages, buf);
+                .render(area, buf);
             }
             Tab::Headers => {
-                // let [history, headers] = Layout::vertical([Length(1), Min(0)]).areas(area);
-                // HistoryTabs::new(
-                //     &self.ctx.messages.borrow().history_model,
-                //     self.ctx.messages.borrow().selected_method.clone(),
-                // )
-                // .render(history, buf);
-
                 HeadersPage::new(&self.ctx.headers.borrow()).render(area, buf);
             }
         };
