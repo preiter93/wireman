@@ -5,9 +5,9 @@ Set Margin 10
 Set Padding 2
 Set BorderRadius 10
 Set FontSize 44
-Set Width 2200
+Set Width 2100
 Set Height 1500
-Set PlaybackSpeed 0.5
+Set PlaybackSpeed 0.4
 
 Hide
 Type 'alias wireman="../target/debug/wireman"'
@@ -18,43 +18,42 @@ Enter
 # Initialization
 Type "export WIREMAN_CONFIG_DIR=$PWD/configs/default"
 Enter
-Sleep 1.0s
+Sleep 2.0s
 Type "wireman"
 Enter
-Sleep 1.5s
+Sleep 2.5s
 Show
 
 # Help
-Sleep 1.5s
+Sleep 2.5s
 Type '?'
 Sleep 5.0s
 Type '?'
 
 # Selection
-Set TypingSpeed 100ms
-Sleep 1.5s
+Set TypingSpeed 180ms
+Sleep 2.5s
 Type 'j'
-Sleep 1.0s
-Enter
-Sleep 1.0s
-Tab
 Sleep 1.5s
+Enter
+Sleep 1.5s
+Tab
+Sleep 2.0s
 
 # Address and token
-Type 'jji'
-Set TypingSpeed 80ms
-Type 'Here we can paste in a token or use a bash script enclosed in $()'
+Type 'j'
 Sleep 1.0s
-Escape
-Type 'ddi'
+Type 'ji'
 Type '$(getToken.sh)'
+Sleep 1.0s
 Escape
 Sleep 1.0s
 Tab
 Sleep 1.0s
 
 # Make the request
-Type 'jwwwwa'
+Sleep 1.0s
+Type 'jwwwa'
 Type 'John'
 Escape
 Sleep 1.0s
@@ -65,23 +64,30 @@ Sleep 1.5s
 Type '2'
 Sleep 1.0s
 Type 'hviwdi'
-Type 'This request will be saved in your history.'
+Type 'Paul'
 Escape
 Enter
+Sleep 3.0s
+
+# Highlight the response
+Type 'J'
 Sleep 1.0s
+Type 'Vjj'
+Sleep 3.0s
+
 
 # Show more features
-Type 'jjo'
-Type 'If autosave is enabled, each request is saved after send.'
-Sleep 0.4s
-Enter
-Type 'You can save this request manually with Ctrl+s.'
-Sleep 0.4s
-Enter
-Type 'Or copy the request as grpCurl command with Ctrl+y.'
-Escape
-Sleep 4.0s
-# Ctrl+c
+# Type 'jjo'
+# Type 'If autosave is enabled, each request is saved after send.'
+# Sleep 0.4s
+# Enter
+# Type 'You can save this request manually with Ctrl+s.'
+# Sleep 0.4s
+# Enter
+# Type 'Or copy the request as grpCurl command with Ctrl+y.'
+# Escape
+# Sleep 4.0s
+# # Ctrl+c
 
 # Type "You can even change the theme."
 # Sleep 1.0s

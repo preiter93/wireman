@@ -190,7 +190,6 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         display: block;
         margin: 0;
         width: 600px;
-        box-shadow: 0px 0px 3px var(--gray-light);
     }
 
     @media (max-width: 800px) {
