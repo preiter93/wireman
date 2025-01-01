@@ -1,8 +1,8 @@
-use super::headers::{Address, Authentication, ListElements};
+use super::headers::{Address, Authentication};
 use super::root::layout;
 use crate::model::headers::{AuthSelection, HeadersTab};
 use crate::model::reflection::ReflectionModel;
-use ratatui::layout::Layout;
+use ratatui::layout::{Alignment, Layout};
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::widgets::{Paragraph, Wrap};
@@ -47,11 +47,17 @@ impl Widget for ReflectionDialog {
         let layout = layout(m, Direction::Vertical, &[1, 1, 3, 1, 1, 4]);
         let [_, addr_title, addr_content, _, auth_title, auth_content] = layout;
 
-        if self.model.headers.borrow().tab == HeadersTab::Addr {
-            ListElements::TitleFocused(String::from(" Address ")).render(addr_title, buf);
+        let style = if self.model.headers.borrow().tab == HeadersTab::Addr {
+            theme.title.focused
         } else {
-            ListElements::TitleUnfocused(String::from(" Address ")).render(addr_title, buf);
-        }
+            theme.title.unfocused
+        };
+        Block::default()
+            .title(String::from(" Address "))
+            .title_alignment(Alignment::Center)
+            .title_style(style)
+            .render(addr_title, buf);
+
         Address {
             state: self.model.headers.borrow().addr.state.clone(),
             title: String::new(),
@@ -60,11 +66,17 @@ impl Widget for ReflectionDialog {
         .render(addr_content, buf);
 
         // Authentication
-        if self.model.headers.borrow().tab == HeadersTab::Auth {
-            ListElements::TitleFocused(String::from(" Authentication ")).render(auth_title, buf);
+        let style = if self.model.headers.borrow().tab == HeadersTab::Auth {
+            theme.title.focused
         } else {
-            ListElements::TitleUnfocused(String::from(" Authentication ")).render(auth_title, buf);
-        }
+            theme.title.unfocused
+        };
+        Block::default()
+            .title(String::from(" Authentication "))
+            .title_alignment(Alignment::Center)
+            .title_style(style)
+            .render(auth_title, buf);
+
         let body = match self.model.headers.borrow().auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.headers.borrow().auth.bearer.state.clone(),

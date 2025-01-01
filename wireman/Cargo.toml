@@ -23,7 +23,8 @@ logger = { package = "wireman-logger", version = "0.1" }
 # theme = { package = "wireman-theme", version = "0.2" }
 event-handler = { package = "wireman-event-handler", version = "0.1" }
 
-tui-widget-list = { version = "0.13" }
+tui-widget-list = { version = "0.13", path = "../../tui-widget-list" }
+# tui-widget-list = { version = "0.13" }
 edtui = "0.9"
 # edtui = { package = "edtui", path = "../../edtui", version = "0.9" }
 # edtui = { version = "0.9", git = "https://github.com/preiter93/edtui", branch = "tabs" }

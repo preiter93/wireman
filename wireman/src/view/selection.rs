@@ -7,7 +7,7 @@ use crate::widgets::list::ListItem;
 use crate::widgets::modal::centered_rect;
 use crate::{context::SelectionTab, model::reflection::ReflectionModel};
 use ratatui::style::{Style, Stylize};
-use ratatui::text::Span;
+use ratatui::text::Text;
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Layout, Rect},
@@ -60,7 +60,7 @@ impl Widget for SelectionPage<'_> {
         let block = Block::new()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)
-            .padding(Padding::new(1, 1, 1, 1));
+            .padding(Padding::uniform(1));
 
         // Services
         let is_selected = [SelectionTab::Services].contains(&self.tab);
@@ -103,38 +103,23 @@ impl Widget for SelectionPage<'_> {
 
         ListView::new(builder, item_count)
             .block(services_block.clone())
-            .scroll_padding(1)
+            .scroll_padding(0)
             .render(svc_content, buf, services_state);
 
         if !self.model.has_services() {
-            let [l1, l2, l3, l4, l5, l6] = Layout::vertical([
-                Length(1),
-                Length(1),
-                Length(1),
-                Length(1),
-                Length(1),
-                Min(0),
-            ])
-            .areas(inner_area);
-            Span::from("It seems you don't have any proto services available. ")
-                .style(theme.base.focused)
-                .render(l1, buf);
-            Span::from("(1) Please configure them in your wireman.toml, or")
-                .style(theme.base.focused)
-                .render(l2, buf);
-            Span::from("(2) use server reflection (<C-r>).")
-                .style(theme.base.focused)
-                .render(l3, buf);
-            Span::from("For further information see: ")
-                .style(theme.base.focused)
-                .render(l4, buf);
-            Span::from("https://preiter93.github.io/wireman/")
-                .underlined()
-                .style(theme.title.focused)
-                .render(l5, buf);
-            Span::from("(Copy link with \"y\")")
-                .style(theme.base.unfocused)
-                .render(l6, buf);
+            let text = Text::from(vec![
+                Line::from("It seems you don't have any proto services available. ")
+                    .style(theme.base.focused),
+                Line::from("(1) Please configure them in your wireman.toml, or")
+                    .style(theme.base.focused),
+                Line::from("(2) use server reflection (<C-r>).").style(theme.base.focused),
+                Line::from("For further information see: ").style(theme.base.focused),
+                Line::from("https://preiter93.github.io/wireman/")
+                    .underlined()
+                    .style(theme.title.focused),
+                Line::from("(Copy link with \"y\")").style(theme.base.unfocused),
+            ]);
+            text.render(inner_area, buf);
         }
 
         // Search line for services

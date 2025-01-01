@@ -42,11 +42,17 @@ impl Widget for HeadersPage<'_> {
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
         // Address
-        if self.model.tab == HeadersTab::Addr {
-            ListElements::TitleFocused(String::from(" Address ")).render(addr_title, buf);
+        let style = if self.model.tab == HeadersTab::Addr {
+            theme.title.focused
         } else {
-            ListElements::TitleUnfocused(String::from(" Address ")).render(addr_title, buf);
-        }
+            theme.title.unfocused
+        };
+        Block::default()
+            .title(String::from(" Address "))
+            .title_alignment(Alignment::Center)
+            .title_style(style)
+            .render(addr_title, buf);
+
         Address {
             state: self.model.addr.state.clone(),
             title: String::new(),
@@ -55,11 +61,17 @@ impl Widget for HeadersPage<'_> {
         .render(addr_content, buf);
 
         // Authentication
-        if self.model.tab == HeadersTab::Auth {
-            ListElements::TitleFocused(String::from(" Authentication ")).render(auth_title, buf);
+        let style = if self.model.tab == HeadersTab::Auth {
+            theme.title.focused
         } else {
-            ListElements::TitleUnfocused(String::from(" Authentication ")).render(auth_title, buf);
-        }
+            theme.title.unfocused
+        };
+        Block::default()
+            .title(String::from(" Authentication "))
+            .title_alignment(Alignment::Center)
+            .title_style(style)
+            .render(auth_title, buf);
+
         let body = match self.model.auth.selected {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
@@ -77,11 +89,17 @@ impl Widget for HeadersPage<'_> {
         body.render(auth_content, buf);
 
         // Metadata
-        if self.model.tab == HeadersTab::Meta {
-            ListElements::TitleFocused(String::from(" Headers ")).render(meta_title, buf);
+        let style = if self.model.tab == HeadersTab::Meta {
+            theme.title.focused
         } else {
-            ListElements::TitleUnfocused(String::from(" Headers ")).render(meta_title, buf);
-        }
+            theme.title.unfocused
+        };
+        Block::default()
+            .title(String::from(" Headers "))
+            .title_alignment(Alignment::Center)
+            .title_style(style)
+            .render(meta_title, buf);
+
         let headers = &self.model.meta.headers;
         let index = self.model.meta.selected;
         Metadata {
@@ -112,36 +130,6 @@ impl Widget for HeadersPage<'_> {
                 .mode(self.model.mode().name())
                 .render(status, buf);
         }
-    }
-}
-
-#[allow(clippy::large_enum_variant)]
-pub enum ListElements {
-    Space(usize),
-    TitleFocused(String),
-    TitleUnfocused(String),
-}
-
-impl Widget for ListElements {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let theme = theme::Theme::global();
-        match self {
-            Self::Space(_) => {}
-            Self::TitleUnfocused(title) => {
-                Block::default()
-                    .title(title)
-                    .title_alignment(Alignment::Center)
-                    .title_style(theme.title.unfocused)
-                    .render(area, buf);
-            }
-            Self::TitleFocused(title) => {
-                Block::default()
-                    .title(title)
-                    .title_alignment(Alignment::Center)
-                    .title_style(theme.title.focused)
-                    .render(area, buf);
-            }
-        };
     }
 }
 
