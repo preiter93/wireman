@@ -1,3 +1,11 @@
+0.2.5 - Unpublished
+===================
+- Add usage info to "Bearer" and "Basic" authentication section
+
+0.2.4 - 01 Dec 2024
+===================
+- UI Rework
+
 0.2.3 - 24 Dec 2024
 ===================
 - Server side Streaming
