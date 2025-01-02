@@ -38,6 +38,7 @@ impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let theme = theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
+        let is_auth_selected = self.model.tab == HeadersTab::Auth;
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
@@ -76,13 +77,13 @@ impl Widget for HeadersPage<'_> {
             AuthSelection::Bearer => Authentication {
                 state: self.model.auth.bearer.state.clone(),
                 title: String::new(),
-                selected: self.model.tab == HeadersTab::Auth,
+                selected: is_auth_selected,
                 selected_tag: 0,
             },
             AuthSelection::Basic => Authentication {
                 state: self.model.auth.basic.state.clone(),
                 title: String::new(),
-                selected: self.model.tab == HeadersTab::Auth,
+                selected: is_auth_selected,
                 selected_tag: 1,
             },
         };
@@ -161,13 +162,33 @@ pub struct Authentication {
 impl Widget for Authentication {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        let [title, content] = layout(area, Direction::Vertical, &[1, 0]);
+        let [title, content] = layout(area, Direction::Vertical, &[1, 3]);
 
         let (highlight_style, style) = if self.selected {
             (theme.title.focused, theme.base.unfocused)
         } else {
             (theme.title.unfocused, theme.base.unfocused)
         };
+
+        let mut info_text = "";
+        if self.selected {
+            if self.selected_tag == 0 {
+                info_text = "Without \"Bearer\".";
+            } else {
+                info_text = "Base64 encoded username:password. Without \"Basic\".";
+            };
+        }
+        if info_text.len() as u16 > area.width - 28 {
+            info_text = "";
+        }
+
+        let [left, right] = layout(title, Direction::Horizontal, &[0, info_text.len() as u16]);
+
+        if self.selected {
+            Line::from(info_text)
+                .style(theme.base.unfocused)
+                .render(right, buf);
+        }
 
         let titles = if self.selected {
             vec![" Bearer (H) ", " Basic (L) "]
@@ -179,7 +200,7 @@ impl Widget for Authentication {
             .highlight_style(highlight_style)
             .select(self.selected_tag)
             .divider("")
-            .render(title.inner(Margin::new(0, 0)), buf);
+            .render(left.inner(Margin::new(0, 0)), buf);
 
         if self.selected {
             view_single_selected(&mut self.state, self.title).render(content, buf);
