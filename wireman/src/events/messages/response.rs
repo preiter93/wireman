@@ -92,10 +92,6 @@ impl EventHandler for ResponseEventHandler {
     }
 
     fn pass_through_key_events(event: &KeyEvent, ctx: &mut Self::Context) {
-        // read only
-        if event.code == KeyCode::Char('i') {
-            return;
-        }
         let response = &mut ctx.messages.borrow_mut().response.editor;
         response.on_key(event.clone().into());
         ctx.disable_root_events = !response.normal_mode();
