@@ -50,7 +50,8 @@
             <p style="text-align: center; line-height:1.4em">
                 Edit the server address and headers. Insert with <code>i</code> and go to normal mode with <code>Esc</code>.
                 Add headers with <code>&ltC-a&gt</code>.
-                Use scripts for auth headers by enclosing them in <code>$()</code>. Press <code>Tab</code> to continue.
+                Use scripts for auth headers by enclosing them in <code>$()</code>. Omit the "Bearer" or "Basic" prefixes in the auth headers.
+                Press <code>Tab</code> to continue.
             </p>
 `
         },
