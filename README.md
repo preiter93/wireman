@@ -5,7 +5,8 @@
 
 <div align="center">
     
-[![Crate Badge]](https://crates.io/crates/wireman) [![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml) [![Deps.rs Badge]](https://deps.rs/repo/github/preiter93/wireman?path=wireman) [![License Badge]](./LICENSE)
+[![Crate Badge]](https://crates.io/crates/wireman) [![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml) [![Deps.rs Badge]](https://deps.rs/repo/github/preiter93/wireman?path=wireman) ![Crates.io MSRV](https://img.shields.io/crates/msrv/wireman)
+ [![License Badge]](./LICENSE)
 
 </div>
 
