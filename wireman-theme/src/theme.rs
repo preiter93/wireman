@@ -1,81 +1,100 @@
-use crate::{skin, Config};
+use std::error::Error;
+
+use crate::Config;
 use logger::Logger;
 use once_cell::sync::OnceCell;
-use ratatui::{style::Style, widgets::BorderType};
+use ratatheme::{DeserializeTheme, Subtheme};
+use ratatui::style::Style;
+use serde::Deserialize;
 
 pub static THEME: OnceCell<Theme> = OnceCell::new();
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone, DeserializeTheme)]
 pub struct Theme {
+    #[theme(styles(focused, unfocused))]
     pub base: Base,
+
+    #[theme(styles(focused, unfocused))]
     pub highlight: Highlight,
+
+    #[theme(styles(focused, unfocused))]
     pub border: Border,
+
+    #[theme(styles(focused, unfocused))]
     pub title: Title,
-    pub hide_footer: bool,
-    pub hide_status: bool,
+
+    pub footer: Footer,
+
+    pub status: Status,
 }
 
-impl Theme {
-    pub(crate) fn update_from_skin(&mut self, skin: &skin::Skin) {
-        skin.apply_to(self);
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct Footer {
+    pub hide: bool,
+}
+
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct Status {
+    pub hide: bool,
+}
+
+impl Default for Theme {
+    fn default() -> Self {
+        let toml_str = include_str!("../assets/default.toml");
+        let deserializer = toml::Deserializer::new(toml_str);
+        Self::deserialize_theme(deserializer).unwrap()
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Subtheme)]
 pub struct Base {
+    #[theme(style)]
     pub focused: Style,
+
+    #[theme(style)]
     pub unfocused: Style,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Subtheme)]
 pub struct Highlight {
+    #[theme(style)]
     pub focused: Style,
+
+    #[theme(style)]
     pub unfocused: Style,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Subtheme)]
 pub struct Title {
+    #[theme(style)]
     pub focused: Style,
+
+    #[theme(style)]
     pub unfocused: Style,
 }
 
 #[allow(clippy::struct_field_names)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Subtheme)]
 pub struct Border {
+    #[theme(style)]
     pub focused: Style,
-    pub unfocused: Style,
-    pub border_type: BorderType,
-}
 
-impl Default for Border {
-    fn default() -> Self {
-        Self {
-            focused: Style::default(),
-            unfocused: Style::default(),
-            border_type: BorderType::Rounded,
-        }
-    }
+    #[theme(style)]
+    pub unfocused: Style,
 }
 
 impl Theme {
     /// Initializes the `Theme` from a config.
     pub fn init(config: &Config) {
-        let skin = config
+        let theme = config
             .skin
-            .as_deref()
-            .and_then(|skin_file| match skin::Skin::from_file(skin_file) {
-                Ok(skin) => Some(skin),
-                Err(err) => {
-                    Logger::debug(format!(
-                        "Failed to read skin from file {skin_file}, err: {err}"
-                    ));
-                    None
-                }
+            .as_ref()
+            .and_then(|f| read_toml(f).ok())
+            .and_then(|t| {
+                let deserializer = toml::Deserializer::new(&t);
+                Theme::deserialize_theme(deserializer).ok()
             })
             .unwrap_or_default();
-
-        let mut theme = Theme::default();
-        theme.update_from_skin(&skin);
 
         let _ = THEME.set(theme.clone());
     }
@@ -88,4 +107,12 @@ impl Theme {
             Theme::default()
         })
     }
+}
+
+fn read_toml(file_path: &str) -> Result<String, Box<dyn Error>> {
+    let f = shellexpand::env(file_path).map_or(file_path.to_string(), |x| x.to_string());
+
+    let toml_str = std::fs::read_to_string(f)?;
+
+    Ok(toml_str)
 }

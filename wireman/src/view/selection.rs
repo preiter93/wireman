@@ -8,6 +8,7 @@ use crate::widgets::modal::centered_rect;
 use crate::{context::SelectionTab, model::reflection::ReflectionModel};
 use ratatui::style::{Style, Stylize};
 use ratatui::text::Text;
+use ratatui::widgets::BorderType;
 use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Layout, Rect},
@@ -78,7 +79,7 @@ impl Widget for SelectionPage<'_> {
             .title(" Services ")
             .title_style(title_style)
             .border_style(border_style)
-            .border_type(theme.border.border_type);
+            .border_type(BorderType::Rounded);
         let inner_area = services_block.inner(svc_content);
 
         let item_count = services.len();
@@ -152,7 +153,7 @@ impl Widget for SelectionPage<'_> {
             .title(" Methods ")
             .title_style(title_style)
             .border_style(border_style)
-            .border_type(theme.border.border_type);
+            .border_type(BorderType::Rounded);
 
         let item_count = methods.len();
         let builder = ListBuilder::new(move |context| {

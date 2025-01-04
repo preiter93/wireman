@@ -16,6 +16,7 @@ ratatui = "0.29.0"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
 toml = "0.8.10"
+ratatheme = { version = "0.1.0", git = "https://github.com/preiter93/ratatheme.git", package = "ratatheme" }
 
 [[example]]
 name = "parse"

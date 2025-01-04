@@ -81,7 +81,7 @@ impl Widget for Root<'_> {
         let theme = Theme::global();
         Block::new().style(theme.base.focused).render(area, buf);
 
-        if theme.hide_footer {
+        if theme.footer.hide {
             let [header, content] = layout(area, Direction::Vertical, &[2, 0]);
             self.render_navbar(header, buf);
             self.render_content(content, buf);

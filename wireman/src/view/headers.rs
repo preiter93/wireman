@@ -37,7 +37,7 @@ impl<'a> HeadersPage<'a> {
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         let theme = theme::Theme::global();
-        let sl = u16::from(!theme.hide_status);
+        let sl = u16::from(!theme.status.hide);
         let is_auth_selected = self.model.tab == HeadersTab::Auth;
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
@@ -124,7 +124,7 @@ impl Widget for HeadersPage<'_> {
         .render(meta_content, buf);
 
         // Show a combined status line for all editors
-        if !theme.hide_status {
+        if !theme.status.hide {
             EditorStatusLine::default()
                 .style_text(theme.highlight.unfocused.reversed())
                 .style_line(theme.base.unfocused)

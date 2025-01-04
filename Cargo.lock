@@ -1685,6 +1685,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "ratatheme"
+version = "0.1.0"
+source = "git+https://github.com/preiter93/ratatheme.git#4f2f1f6fec6259215aef06da0e163b9eecf35448"
+dependencies = [
+ "ratatheme-derive",
+ "ratatheme-types",
+]
+
+[[package]]
+name = "ratatheme-derive"
+version = "0.1.0"
+source = "git+https://github.com/preiter93/ratatheme.git#4f2f1f6fec6259215aef06da0e163b9eecf35448"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "ratatheme-types"
+version = "0.1.0"
+source = "git+https://github.com/preiter93/ratatheme.git#4f2f1f6fec6259215aef06da0e163b9eecf35448"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "ratatui"
 version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2700,11 +2727,11 @@ dependencies = [
  "tokio",
  "tui-widget-list",
  "unicode-width 0.1.14",
- "wireman-config 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-config",
  "wireman-core 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme",
 ]
 
 [[package]]
@@ -2717,22 +2744,7 @@ dependencies = [
  "thiserror",
  "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "wireman-config"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f37973c1c0a77c934f9011343e403bbed767e7b933bf08828391f44c1bc24788"
-dependencies = [
- "clap",
- "serde",
- "shellexpand",
- "thiserror",
- "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme",
 ]
 
 [[package]]
@@ -2817,21 +2829,7 @@ version = "0.2.3"
 dependencies = [
  "cssparser",
  "once_cell",
- "ratatui",
- "serde",
- "shellexpand",
- "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "wireman-theme"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "494fd784224ffd71de355db7018dc3ef5fe40b985558ce5ade1433dce0660cf5"
-dependencies = [
- "cssparser",
- "once_cell",
+ "ratatheme",
  "ratatui",
  "serde",
  "shellexpand",

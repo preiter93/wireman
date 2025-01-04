@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Alignment, Layout},
     style::Stylize,
     text::Line,
-    widgets::{Block, Borders, Paragraph, Widget},
+    widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 
 use crate::{
@@ -37,7 +37,7 @@ impl Widget for ConfigurationDialog<'_> {
             .style(theme.base.focused)
             .title_style(theme.title.focused)
             .border_style(theme.border.focused)
-            .border_type(theme.border.border_type)
+            .border_type(BorderType::Rounded)
             .title(" Configuration ")
             .title_alignment(Alignment::Center);
         let inner_area = block.inner(area);
