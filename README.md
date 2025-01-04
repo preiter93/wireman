@@ -5,7 +5,7 @@
 
 <div align="center">
     
-[![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml)
+[![Crate Badge]](https://crates.io/crates/wireman) [![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml) [![License Badge]](./LICENSE)
 
 </div>
 
@@ -197,3 +197,7 @@ You can manage your configuration directly within the app:
 - [x] Server reflection
 - [x] Edit config file in app
 - [x] Server side Streaming
+
+
+[Crate Badge]: https://img.shields.io/crates/v/wireman?logo=rust&style=flat-square&logoColor=E05D44&color=E05D44
+[License Badge]: https://img.shields.io/crates/l/ratatui?style=flat-square&color=1370D3
