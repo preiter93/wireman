@@ -14,7 +14,6 @@ pub enum HeadersEvents {
     PrevColForce,
     NextAuth,
     PrevAuth,
-    Unselect,
     AddHeaders,
     DelHeaders,
     SaveHistory,
@@ -38,7 +37,6 @@ impl fmt::Display for HeadersEvents {
             HeadersEvents::PrevAuth => "Prev auth mode",
             HeadersEvents::NextColForce => "Next Column (Force)",
             HeadersEvents::PrevColForce => "Prev Column (Force)",
-            HeadersEvents::Unselect => "Unselect",
             HeadersEvents::AddHeaders => "Add Headers",
             HeadersEvents::DelHeaders => "Del Headers",
             HeadersEvents::SaveHistory => "Save Request",
@@ -84,9 +82,6 @@ impl EventHandler for HeadersEventHandler {
             }
             HeadersEvents::PrevCol | HeadersEvents::PrevAuth | HeadersEvents::PrevColForce => {
                 ctx.headers.borrow_mut().prev_col();
-            }
-            HeadersEvents::Unselect => {
-                ctx.headers.borrow_mut().tab = HeadersTab::None;
             }
             HeadersEvents::AddHeaders => {
                 ctx.headers.borrow_mut().meta.add();
@@ -146,7 +141,6 @@ impl EventHandler for HeadersEventHandler {
         map.extend([(KeyEvent::new(KeyCode::Enter), HeadersEvents::NextTab)]);
         if !disabled_root_events {
             map.extend([
-                (KeyEvent::new(KeyCode::Esc), HeadersEvents::Unselect),
                 (KeyEvent::new(KeyCode::Tab), HeadersEvents::NextTab),
                 (KeyEvent::shift(KeyCode::BackTab), HeadersEvents::PrevTab),
                 (KeyEvent::new(KeyCode::Down), HeadersEvents::NextRow),
