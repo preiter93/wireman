@@ -7,12 +7,12 @@ use edtui::{
     clipboard::ClipboardTrait,
     EditorMode, EditorState, EditorTheme, EditorView, Index2, Lines, RowIndex,
 };
-use once_cell::sync::Lazy;
+use logger::Logger;
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders},
 };
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 use theme::Theme;
 
 /// Basic editor. Supports different modes, json formatting
@@ -45,7 +45,7 @@ impl TextEditor {
     /// Returns an empty editor
     pub fn new() -> Self {
         let mut state = EditorState::default();
-        state.set_clipboard(Lazy::force(&CLIPBOARD));
+        state.set_clipboard(get_clipboard());
         Self {
             state,
             handler: EditorEventHandler::default(),
@@ -57,7 +57,7 @@ impl TextEditor {
     /// Returns an empty single line editor
     pub fn single() -> Self {
         let mut state = EditorState::default();
-        state.set_clipboard(Lazy::force(&CLIPBOARD));
+        state.set_clipboard(get_clipboard());
         Self {
             state,
             handler: EditorEventHandler::default(),
@@ -205,44 +205,6 @@ impl TextEditor {
     }
 }
 
-static CLIPBOARD: Lazy<GlobalClipboard> = Lazy::new(GlobalClipboard::new);
-
-struct GlobalClipboard(Mutex<Option<Clipboard>>);
-
-impl GlobalClipboard {
-    pub fn new() -> Self {
-        Self(Mutex::new(Clipboard::new().ok()))
-    }
-}
-
-impl ClipboardTrait for &GlobalClipboard {
-    fn set_text(&mut self, text: String) {
-        if let Ok(mut clipboard) = self.0.lock() {
-            if let Some(clipboard) = &mut *clipboard {
-                let _ = clipboard.set_text(text);
-            }
-        }
-    }
-
-    fn get_text(&mut self) -> String {
-        if let Ok(mut clipboard) = self.0.lock() {
-            if let Some(clipboard) = &mut *clipboard {
-                return clipboard.get_text().unwrap_or_default();
-            }
-        }
-        String::new()
-    }
-}
-
-/// Yank text to clipboard
-pub fn yank_to_clipboard(text: &str) {
-    if let Ok(mut clipboard) = CLIPBOARD.0.lock() {
-        if let Some(clipboard) = &mut *clipboard {
-            let _res = clipboard.set_text(text.to_string());
-        }
-    }
-}
-
 /// The error of the request. Can hold a kind value
 /// to distinguish between format and grpc errors.
 #[derive(Clone, Debug)]
@@ -384,4 +346,48 @@ pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S
             .cursor_style(theme.base.unfocused)
             .selection_style(theme.highlight.unfocused.reversed()),
     )
+}
+
+static CLIPBOARD: OnceLock<Option<Mutex<Clipboard>>> = OnceLock::new();
+
+#[must_use]
+pub fn get_clipboard() -> ClipboardWrapper {
+    let clipboard = CLIPBOARD
+        .get_or_init(|| match Clipboard::new() {
+            Ok(clipboard) => Some(Mutex::new(clipboard)),
+            Err(err) => {
+                Logger::debug(format!("failed to initialize clipboard: {err}"));
+                None
+            }
+        })
+        .as_ref();
+    ClipboardWrapper(clipboard)
+}
+
+pub struct ClipboardWrapper(Option<&'static Mutex<Clipboard>>);
+
+// Implementing ClipboardTrait for OnceLock Clipboard
+impl ClipboardTrait for ClipboardWrapper {
+    fn set_text(&mut self, text: String) {
+        if let Some(clipboard_mutex) = &mut self.0 {
+            if let Ok(mut clipboard) = clipboard_mutex.lock() {
+                let _ = clipboard.set_text(text);
+            }
+        }
+    }
+
+    fn get_text(&mut self) -> String {
+        if let Some(clipboard_mutex) = &mut self.0 {
+            if let Ok(mut clipboard) = clipboard_mutex.lock() {
+                return clipboard.get_text().unwrap_or_default();
+            }
+        }
+        String::new()
+    }
+}
+
+/// Yank text to clipboard
+pub fn yank_to_clipboard(text: &str) {
+    let mut clipboard = get_clipboard();
+    clipboard.set_text(text.to_string());
 }
