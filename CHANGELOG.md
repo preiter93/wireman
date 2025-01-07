@@ -1,3 +1,9 @@
+0.2.5 - ?
+===================
+- fix: Do not allow unselect fully on headers page
+- refac: Use once instead of once_cell for clibpboard
+- chore: Update README
+
 0.2.4 - 01 Jan 2025
 ===================
 - Complete UI rework
