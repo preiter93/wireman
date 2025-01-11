@@ -2528,7 +2528,6 @@ dependencies = [
  "serde_json",
  "tokio",
  "tui-widget-list",
- "unicode-width 0.1.14",
  "wireman-config 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-core 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
