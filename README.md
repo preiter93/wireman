@@ -93,11 +93,13 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
     ```toml
     includes = [
-        "$HOME/your-project"
+        '$HOME/my-project/services',
+        '$HOME/my-project/protos'
     ]
     
     files = [
-        "a-proto-file-in-your-project.proto"
+        'order/api.proto',
+        'price/api.proto'
     ]
     
     [server]
