@@ -33,17 +33,17 @@ impl Widget for HelpDialog {
         let mut rows = Vec::new();
         for (key, msg) in self.key_map {
             rows.push(Row::new(vec![
-                Cell::from(key.to_string()).style(theme.title.unfocused),
-                Cell::from(msg.to_string()).style(theme.base.unfocused),
+                Cell::from(key.to_string()).style(theme.title.focused),
+                Cell::from(msg.to_string()).style(theme.base.focused),
             ]));
         }
         rows.push(Row::new(vec![
-            Cell::from("?".to_string()).style(theme.title.unfocused),
-            Cell::from("Close help".to_string()).style(theme.base.unfocused),
+            Cell::from("?".to_string()).style(theme.title.focused),
+            Cell::from("Close help".to_string()).style(theme.base.focused),
         ]));
         rows.push(Row::new(vec![
-            Cell::from("C-c".to_string()).style(theme.title.unfocused),
-            Cell::from("Quit app".to_string()).style(theme.base.unfocused),
+            Cell::from("C-c".to_string()).style(theme.title.focused),
+            Cell::from("Quit app".to_string()).style(theme.base.focused),
         ]));
 
         let widths = [Constraint::Length(15), Constraint::Length(25)];
