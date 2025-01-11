@@ -201,5 +201,5 @@ You can manage your configuration directly within the app:
 
 
 [Crate Badge]: https://img.shields.io/crates/v/wireman?logo=rust&style=flat-square&logoColor=E05D44&color=E05D44
-[License Badge]: https://img.shields.io/crates/l/ratatui?style=flat-square&color=1370D3
-[Deps.rs Badge]: https://deps.rs/repo/github/ratatui/ratatui/status.svg?path=ratatui&style=flat-square
+[License Badge]: https://img.shields.io/crates/l/wireman?style=flat-square&color=1370D3
+[Deps.rs Badge]: https://deps.rs/repo/github/preiter93/wireman/status.svg?path=ratatui&style=flat-square
