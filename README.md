@@ -5,8 +5,8 @@
 
 <div align="center">
     
-[![Crate Badge]](https://crates.io/crates/wireman) [![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml) [![Deps.rs Badge]](https://deps.rs/repo/github/preiter93/wireman?path=wireman) ![Crates.io MSRV](https://img.shields.io/crates/msrv/wireman)
- [![License Badge]](./LICENSE)
+[![Crate IO](https://img.shields.io/crates/v/wireman?logo=rust&style=flat-square&logoColor=E05D44&color=E05D44)](https://crates.io/crates/wireman) [![Continuous Integration](https://github.com/preiter93/wireman/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/wireman/actions/workflows/ci.yml) [![Deps Status](https://deps.rs/repo/github/preiter93/wireman/status.svg?path=wireman&style=flat-square)](https://deps.rs/repo/github/preiter93/wireman?path=wireman) ![Crates.io MSRV](https://img.shields.io/crates/msrv/wireman)
+ [![License](https://img.shields.io/crates/l/wireman?style=flat-square&color=09bd66)](./LICENSE)
 
 </div>
 
@@ -200,6 +200,4 @@ You can manage your configuration directly within the app:
 - [x] Server side Streaming
 
 
-[Crate Badge]: https://img.shields.io/crates/v/wireman?logo=rust&style=flat-square&logoColor=E05D44&color=E05D44
-[License Badge]: https://img.shields.io/crates/l/wireman?style=flat-square&color=1370D3
 [Deps.rs Badge]: https://deps.rs/repo/github/preiter93/wireman/status.svg?path=wireman&style=flat-square
