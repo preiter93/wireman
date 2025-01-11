@@ -1,8 +1,9 @@
-0.2.5 - ?
+0.2.5 - 11 Jan 2025
 ===================
 - fix: Do not allow unselect fully on headers page
 - refac: Use once instead of once_cell for clibpboard
 - chore: Update README
+- chore: Update dependencies
 
 0.2.4 - 01 Jan 2025
 ===================
