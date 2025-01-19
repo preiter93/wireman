@@ -1,4 +1,8 @@
-use std::{env::var, io::Write, path::Path};
+use std::{
+    env::var,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 
@@ -83,14 +87,37 @@ fn read_input(prompt: &str) -> String {
 
 pub(crate) fn expand_path(path: &str) -> String {
     enforce_absolute_path(
-        shellexpand::tilde(&shellexpand::env(path).map_or(path.to_string(), |x| x.to_string()))
-            .as_ref(),
+        shellexpand::tilde(
+            &shellexpand::env(&expand_current_dir(path))
+                .map_or(path.to_string(), |x| x.to_string()),
+        )
+        .as_ref(),
     )
 }
 
 pub(crate) fn expand_file(path: &str) -> String {
-    shellexpand::tilde(&shellexpand::env(path).map_or(path.to_string(), |x| x.to_string()))
-        .to_string()
+    shellexpand::tilde(
+        &shellexpand::env(&expand_current_dir(path)).map_or(path.to_string(), |x| x.to_string()),
+    )
+    .to_string()
+}
+
+pub(crate) fn make_absolute_path(config_path: &str) -> String {
+    let path = Path::new(config_path);
+
+    if path.is_absolute()
+        || config_path.starts_with('.')
+        || config_path.starts_with('~')
+        || config_path.starts_with('$')
+    {
+        config_path.to_string()
+    } else {
+        std::env::current_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .join(path)
+            .to_string_lossy()
+            .to_string()
+    }
 }
 
 fn create_directory_if_missing<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
@@ -125,6 +152,18 @@ fn enforce_absolute_path(path: &str) -> String {
         path.to_string()
     } else {
         format!("/{path}")
+    }
+}
+
+fn expand_current_dir(path: &str) -> String {
+    if let Some(stripped) = path.strip_prefix('.') {
+        std::env::current_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .join(stripped)
+            .to_string_lossy()
+            .to_string()
+    } else {
+        path.to_string()
     }
 }
 
