@@ -10,6 +10,10 @@ pub struct Args {
     /// Optional path to the configuration file
     #[arg(short, long)]
     pub config: Option<String>,
+
+    /// Use local protobuf files
+    #[arg(short, long)]
+    pub local_protos: bool,
 }
 
 #[derive(Debug, Subcommand)]
