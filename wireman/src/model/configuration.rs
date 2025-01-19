@@ -17,13 +17,13 @@ pub(crate) struct ConfigurationModel {
     /// The editor for the configuration.
     pub editor: Option<TextEditor>,
     /// The path to the configuration file.
-    pub file_path: String,
+    pub file_path: Option<String>,
     /// Display a info/error message.
     pub message: Option<Message>,
 }
 
 impl ConfigurationModel {
-    pub fn new(file_path: String) -> Self {
+    pub fn new(file_path: Option<String>) -> Self {
         Self {
             editor: None,
             file_path,
@@ -33,14 +33,17 @@ impl ConfigurationModel {
 
     /// Toggles the configuration mode.
     pub fn toggle(&mut self) {
+        let Some(file_path) = &self.file_path else {
+            return;
+        };
         if self.editor.is_some() {
             self.editor = None;
         } else {
             let mut editor = TextEditor::new();
-            let content = Config::read_to_string(&self.file_path).unwrap();
+            let content = Config::read_to_string(file_path).unwrap();
             editor.set_text_raw(&content);
             self.editor = Some(editor);
-            self.message = Some(Message::Info(String::from(&self.file_path)));
+            self.message = Some(Message::Info(String::from(file_path)));
         }
     }
 
@@ -51,12 +54,15 @@ impl ConfigurationModel {
 
     /// Save the file
     pub fn save_to_file(&mut self) -> Option<Config> {
+        let Some(file_path) = &self.file_path else {
+            return None;
+        };
         let editor = self.editor.clone()?;
 
         let data = editor.get_text_raw();
         match Config::from_str(&data) {
             Ok(config) => {
-                if let Err(err) = std::fs::write(&self.file_path, data) {
+                if let Err(err) = std::fs::write(file_path, data) {
                     let err = format!("failed to write to file: {err}");
                     Logger::critical(&err);
                     self.message = Some(Message::Error(err));

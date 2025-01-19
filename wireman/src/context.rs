@@ -54,7 +54,7 @@ impl HelpContext {
 }
 
 impl AppContext {
-    pub fn new(env: &Config, config_file: String) -> Result<Self> {
+    pub fn new(env: &Config, config_file: Option<String>) -> Result<Self> {
         // The core client
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 

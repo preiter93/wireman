@@ -1,4 +1,3 @@
-#![allow(clippy::module_name_repetitions)]
 use std::env::var;
 use std::error::Error as StdError;
 use std::fmt::{self};
@@ -19,7 +18,7 @@ use std::result::Result as StdResult;
 ///
 /// # Errors
 /// See [`setup`].
-pub fn init_from_env(args: &Args) -> Result<(Config, String)> {
+pub fn init_from_env(args: &Args) -> Result<(Config, Option<String>)> {
     setup(false, args)
 }
 
@@ -35,91 +34,146 @@ pub fn init_from_env(args: &Args) -> Result<(Config, String)> {
 /// - `Logger Init Errors`: Error initializing the logger.
 /// - `History Init Errors`: Error initializing the history.
 #[allow(clippy::too_many_lines)]
-pub fn setup(dry_run: bool, args: &Args) -> Result<(Config, String)> {
-    let (config_dir, config_file) = if let Some(config_file) = &args.config {
-        let config_file = expand_file(&make_absolute_path(config_file));
-        let path = Path::new(&config_file);
-        let config_dir = path.parent().map_or(
-            std::env::current_dir()
-                .unwrap()
-                .to_string_lossy()
-                .to_string(),
-            |dir| dir.to_string_lossy().to_string(),
-        );
-
-        (config_dir, config_file)
+pub fn setup(dry_run: bool, args: &Args) -> Result<(Config, Option<String>)> {
+    let (config_dir_str, config_file) = if let Some(config_file) = &args.config {
+        let config_file_abs = expand_file(&make_absolute_path(config_file));
+        let config_dir_str = get_parent_dir(&config_file_abs);
+        (config_dir_str, config_file.to_string())
     } else {
-        let config_dir = match config_dir_checked() {
-            Err(err) => {
-                if dry_run {
-                    println!("{:<20} Error: {}", "Config:", err);
-                }
-                return Err(Error::SetupError(err));
-            }
-            Ok(config_dir) => config_dir,
-        };
-        let config_dir_path = Path::new(&config_dir);
+        let config_dir_str = get_config_dir(dry_run)?;
+        let config_dir = Path::new(&config_dir_str);
+        let config_file = get_config_file(config_dir, dry_run)?;
+        (config_dir_str, config_file)
+    };
+    let config_dir = Path::new(&config_dir_str);
 
-        let config_file = match config_file_checked(config_dir_path) {
-            Err(err) => {
-                if dry_run {
-                    println!("{:<20} Error: {}", "Config:", err);
-                }
-                return Err(Error::SetupError(err));
+    let mut config = match load_config(&config_file, dry_run) {
+        Ok(config) => config,
+        Err(err) => {
+            if args.local_protos {
+                Config::default()
+            } else {
+                return Err(err);
             }
-            Ok(config_dir) => {
-                if dry_run {
-                    println!("{:<20} {}", "Config:", config_dir);
-                }
-                config_dir
-            }
-        };
-
-        (config_dir, config_file)
+        }
+    };
+    if args.local_protos {
+        update_config_with_local_protos(&mut config)?;
     };
 
-    let config_dir_path = Path::new(&config_dir);
+    init_history(&mut config, config_dir, dry_run)?;
 
-    let mut config = match Config::load(&config_file) {
+    init_logger(&mut config, config_dir, dry_run)?;
+
+    if !dry_run {
+        Theme::init(&config.ui);
+    }
+
+    Ok((config, Some(config_file)))
+}
+
+fn get_config_dir(dry_run: bool) -> Result<String> {
+    match config_dir_checked() {
         Err(err) => {
             if dry_run {
                 println!("{:<20} Error: {}", "Config:", err);
             }
-            return Err(err);
+            Err(Error::SetupError(err))
         }
-        Ok(config) => config,
-    };
+        Ok(config_dir) => Ok(config_dir),
+    }
+}
 
+fn get_config_file(config_dir: &Path, dry_run: bool) -> Result<String> {
+    match config_file_checked(config_dir) {
+        Err(err) => {
+            if dry_run {
+                println!("{:<20} Error: {}", "Config:", err);
+            }
+            Err(Error::SetupError(err))
+        }
+        Ok(config_file) => {
+            if dry_run {
+                println!("{:<20} {}", "Config:", config_file);
+            }
+            Ok(config_file)
+        }
+    }
+}
+
+fn get_parent_dir(config_file: &str) -> String {
+    let path = Path::new(&config_file);
+    path.parent().map_or(
+        std::env::current_dir()
+            .unwrap()
+            .to_string_lossy()
+            .to_string(),
+        |dir| dir.to_string_lossy().to_string(),
+    )
+}
+
+fn load_config(config_file: &str, dry_run: bool) -> Result<Config> {
+    match Config::load(config_file) {
+        Ok(config) => Ok(config),
+        Err(err) => {
+            if dry_run {
+                println!("{:<20} Error: {}", "Config:", err);
+            }
+            Err(err)
+        }
+    }
+}
+
+fn update_config_with_local_protos(config: &mut Config) -> Result<()> {
+    let (current_dir, protos) =
+        list_local_protos().map_err(|err| Error::SetupError(SetupError::ListLocalProtos(err)))?;
+
+    config.files = protos;
+    config.includes = vec![current_dir];
+
+    Ok(())
+}
+
+fn init_history(config: &mut Config, config_dir: &Path, dry_run: bool) -> Result<()> {
     if config.history.disabled {
         if dry_run {
             println!("{:<20} disabled", "History:");
         }
-    } else {
-        let history_dir = match history_dir_checked(config_dir_path, &config.history) {
-            Err(err) => {
-                if dry_run {
-                    println!("{:<20} Error: {}", "History:", err);
-                }
-                return Err(Error::SetupError(err));
-            }
-            Ok(history_dir) => {
-                if dry_run {
-                    println!("{:<20} {}", "History:", history_dir);
-                }
-                history_dir
-            }
-        };
-        config.history.directory.clone_from(&history_dir);
-        if !dry_run && !Path::new(&history_dir).exists() {
-            if let Err(err) = std::fs::create_dir(&history_dir) {
-                return Err(Error::SetupError(SetupError::CreateDirectory(Box::new(
-                    err,
-                ))));
-            }
-        }
+        return Ok(());
     }
 
-    let logger_file = match logger_dir_checked(config_dir_path, &config.logging) {
+    let history_dir = match history_dir_checked(config_dir, &config.history) {
+        Err(err) => {
+            if dry_run {
+                println!("{:<20} Error: {}", "History:", err);
+            }
+            return Err(Error::SetupError(err));
+        }
+        Ok(history_dir) => {
+            if dry_run {
+                println!("{:<20} {}", "History:", history_dir);
+            }
+            history_dir
+        }
+    };
+
+    config.history.directory.clone_from(&history_dir);
+    if dry_run {
+        return Ok(());
+    }
+
+    if !Path::new(&history_dir).exists() {
+        if let Err(err) = std::fs::create_dir(&history_dir) {
+            return Err(Error::SetupError(SetupError::CreateDirectory(Box::new(
+                err,
+            ))));
+        }
+    }
+    Ok(())
+}
+
+fn init_logger(config: &mut Config, config_dir: &Path, dry_run: bool) -> Result<()> {
+    let logger_file = match logger_dir_checked(config_dir, &config.logging) {
         Err(err) => {
             if dry_run {
                 println!("{:<20} Error: {}", "Logging:", err);
@@ -135,19 +189,18 @@ pub fn setup(dry_run: bool, args: &Args) -> Result<(Config, String)> {
             logger_file
         }
     };
-    if !dry_run {
-        if let Err(err) = Logger::init(logger_file, config.logging.level) {
-            return Err(Error::SetupError(SetupError::InitializeLogger(Box::new(
-                err,
-            ))));
-        }
+
+    if dry_run {
+        return Ok(());
     }
 
-    if !dry_run {
-        Theme::init(&config.ui);
+    if let Err(err) = Logger::init(logger_file, config.logging.level) {
+        return Err(Error::SetupError(SetupError::InitializeLogger(Box::new(
+            err,
+        ))));
     }
 
-    Ok((config, config_file))
+    Ok(())
 }
 
 fn config_dir_checked() -> StdResult<String, SetupError> {
@@ -173,13 +226,13 @@ fn config_file_checked(config_path: &Path) -> StdResult<String, SetupError> {
 }
 
 fn history_dir_checked(
-    config_path: &Path,
+    config_dir: &Path,
     history: &HistoryConfig,
 ) -> StdResult<String, SetupError> {
     let mut history_dir_path = history.directory_expanded();
     if history_dir_path.is_empty() {
         let default_history_path = {
-            let path = config_path.join("history").clone();
+            let path = config_dir.join("history").clone();
             path.to_string_lossy().to_string()
         };
         history_dir_path = default_history_path.to_string();
@@ -214,6 +267,24 @@ fn logger_dir_checked(
     Ok(logger_dir)
 }
 
+fn list_local_protos() -> std::io::Result<(String, Vec<String>)> {
+    let current_dir = std::env::current_dir()?;
+    let current_dir_str = current_dir.to_string_lossy().to_string();
+
+    let mut proto_files = Vec::new();
+    for entry in std::fs::read_dir(current_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() && path.extension().is_some_and(|ext| ext == "proto") {
+            if let Some(file_name) = path.file_name().and_then(|name| name.to_str()) {
+                proto_files.push(file_name.to_string());
+            }
+        }
+    }
+    Ok((current_dir_str, proto_files))
+}
+
 #[derive(Debug)]
 pub enum SetupError {
     ConfigDirEnvNotFound,
@@ -223,6 +294,7 @@ pub enum SetupError {
     LoggerPathNotFound(String),
     CreateDirectory(Box<dyn StdError>),
     InitializeLogger(Box<dyn StdError>),
+    ListLocalProtos(std::io::Error),
 }
 
 impl fmt::Display for SetupError {
@@ -247,6 +319,7 @@ impl fmt::Display for SetupError {
                 write!(f, "The loggers parent path {path} does not exist.")
             }
             SetupError::InitializeLogger(err) => write!(f, "Failed to initialize logger: {err}."),
+            SetupError::ListLocalProtos(err) => write!(f, "Cannot list local protos: {err}."),
         }
         // let general_error_msg = "Check the README for tips on how to set up wireman: \
         // https://github.com/preiter93/wireman";

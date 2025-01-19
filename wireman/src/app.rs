@@ -28,7 +28,7 @@ pub struct App {
 
 impl App {
     #[allow(clippy::needless_pass_by_value)]
-    pub fn new(env: Config, config_file: String) -> Result<App> {
+    pub fn new(env: Config, config_file: Option<String>) -> Result<App> {
         Ok(App {
             term: Term::new()?,
             ctx: AppContext::new(&env, config_file)?,
@@ -39,7 +39,7 @@ impl App {
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    pub async fn run(env: Config, config_file: String) -> Result<()> {
+    pub async fn run(env: Config, config_file: Option<String>) -> Result<()> {
         let mut app = Self::new(env, config_file)?;
         while !app.should_quit {
             app.draw()?;
