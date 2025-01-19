@@ -3,13 +3,17 @@ use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
 #[clap(name = "wireman", version)]
-struct App {
+pub struct Args {
     #[clap(subcommand)]
-    command: Command,
+    pub command: Option<Command>,
+
+    /// Optional path to the configuration file
+    #[arg(short, long)]
+    pub config: Option<String>,
 }
 
 #[derive(Debug, Subcommand)]
-enum Command {
+pub enum Command {
     /// Runs a health check and prompts configuration details.
     Check,
     /// Setup wireman and create a default configuration file.
@@ -17,14 +21,17 @@ enum Command {
     Init,
 }
 
-pub fn parse() {
-    let app = App::parse();
-    match app.command {
-        Command::Check => {
-            let _ = setup(true);
+#[must_use]
+pub fn parse() -> Args {
+    let args = Args::parse();
+    match args.command {
+        Some(Command::Check) => {
+            let _ = setup(true, &args);
         }
-        Command::Init => {
+        Some(Command::Init) => {
             install();
         }
+        None => {}
     }
+    args
 }

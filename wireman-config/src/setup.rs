@@ -6,8 +6,9 @@ use std::path::Path;
 
 use logger::Logger;
 
+use crate::cli::Args;
 use crate::config::{HistoryConfig, LoggingConfig};
-use crate::install::expand_path;
+use crate::install::{expand_file, expand_path, make_absolute_path};
 use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 use theme::Theme;
 
@@ -18,8 +19,8 @@ use std::result::Result as StdResult;
 ///
 /// # Errors
 /// See [`setup`].
-pub fn init_from_env() -> Result<(Config, String)> {
-    setup(false)
+pub fn init_from_env(args: &Args) -> Result<(Config, String)> {
+    setup(false, args)
 }
 
 /// Runs the setup, allowing for a dry-run mode where no files are created.
@@ -33,32 +34,51 @@ pub fn init_from_env() -> Result<(Config, String)> {
 /// - `Config Init Errors`: Error initializing the configuration.
 /// - `Logger Init Errors`: Error initializing the logger.
 /// - `History Init Errors`: Error initializing the history.
-pub fn setup(dry_run: bool) -> Result<(Config, String)> {
-    let config_dir = match config_dir_checked() {
-        Err(err) => {
-            if dry_run {
-                println!("{:<20} Error: {}", "Config:", err);
-            }
-            return Err(Error::SetupError(err));
-        }
-        Ok(config_dir) => config_dir,
-    };
-    let config_dir_path = Path::new(&config_dir);
+#[allow(clippy::too_many_lines)]
+pub fn setup(dry_run: bool, args: &Args) -> Result<(Config, String)> {
+    let (config_dir, config_file) = if let Some(config_file) = &args.config {
+        let config_file = expand_file(&make_absolute_path(config_file));
+        let path = Path::new(&config_file);
+        let config_dir = path.parent().map_or(
+            std::env::current_dir()
+                .unwrap()
+                .to_string_lossy()
+                .to_string(),
+            |dir| dir.to_string_lossy().to_string(),
+        );
 
-    let config_file = match config_file_checked(config_dir_path) {
-        Err(err) => {
-            if dry_run {
-                println!("{:<20} Error: {}", "Config:", err);
+        (config_dir, config_file)
+    } else {
+        let config_dir = match config_dir_checked() {
+            Err(err) => {
+                if dry_run {
+                    println!("{:<20} Error: {}", "Config:", err);
+                }
+                return Err(Error::SetupError(err));
             }
-            return Err(Error::SetupError(err));
-        }
-        Ok(config_dir) => {
-            if dry_run {
-                println!("{:<20} {}", "Config:", config_dir);
+            Ok(config_dir) => config_dir,
+        };
+        let config_dir_path = Path::new(&config_dir);
+
+        let config_file = match config_file_checked(config_dir_path) {
+            Err(err) => {
+                if dry_run {
+                    println!("{:<20} Error: {}", "Config:", err);
+                }
+                return Err(Error::SetupError(err));
             }
-            config_dir
-        }
+            Ok(config_dir) => {
+                if dry_run {
+                    println!("{:<20} {}", "Config:", config_dir);
+                }
+                config_dir
+            }
+        };
+
+        (config_dir, config_file)
     };
+
+    let config_dir_path = Path::new(&config_dir);
 
     let mut config = match Config::load(&config_file) {
         Err(err) => {
@@ -67,7 +87,7 @@ pub fn setup(dry_run: bool) -> Result<(Config, String)> {
             }
             return Err(err);
         }
-        Ok(config_dir) => config_dir,
+        Ok(config) => config,
     };
 
     if config.history.disabled {
@@ -136,7 +156,7 @@ fn config_dir_checked() -> StdResult<String, SetupError> {
 
     let config_path = Path::new(&config_dir_expanded);
     if config_dir.is_empty() || !config_path.exists() {
-        return Err(SetupError::ConfigDirInvalid);
+        return Err(SetupError::ConfigDirInvalid(config_dir));
     }
 
     Ok(config_dir_expanded)
@@ -197,7 +217,7 @@ fn logger_dir_checked(
 #[derive(Debug)]
 pub enum SetupError {
     ConfigDirEnvNotFound,
-    ConfigDirInvalid,
+    ConfigDirInvalid(String),
     ConfigFileNotFound(String),
     HistoryPathNotFound(String),
     LoggerPathNotFound(String),
@@ -211,8 +231,8 @@ impl fmt::Display for SetupError {
             SetupError::ConfigDirEnvNotFound => {
                 write!(f, "The config dir ${ENV_CONFIG_DIR} was not found.")
             }
-            SetupError::ConfigDirInvalid => {
-                write!(f, "The config dir ${ENV_CONFIG_DIR} is not a valid path.")
+            SetupError::ConfigDirInvalid(d) => {
+                write!(f, "The config dir ${d} is not a valid path.")
             }
             SetupError::CreateDirectory(err) => {
                 write!(f, "Could not create directory in ${ENV_CONFIG_DIR}: {err}.")

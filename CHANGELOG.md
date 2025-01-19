@@ -1,3 +1,7 @@
+0.2.6 - ?
+===================
+- feat: Allow users to pass a config file via --config
+
 0.2.5 - 11 Jan 2025
 ===================
 - fix: Do not allow unselect fully on headers page
