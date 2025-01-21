@@ -142,6 +142,23 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
 7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard.
 
+
+## Command line flags
+
+### Commands
+- **`check`**  
+  Runs a health check and displays configuration details.
+  
+- **`init`**  
+  Sets up wireman by creating a default configuration file.
+
+### Options
+- **`-c, --config <CONFIG>`**  
+  Specifies an optional path to a configuration file. If not provided, wireman uses the default configuration path.
+
+- **`-l, --local-protos`**  
+  Uses local protobuf files instead of the files and includes which specified in the configuration.
+
 ## Troubleshooting
 
 Wireman logs important information and errors to assist in troubleshooting. By default, logs are stored in `$WIREMAN_CONFIG_DIR/wireman.log`.Make sure to check this log file if you encounter any unexpected behavior or errors while using the application.
