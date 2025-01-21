@@ -89,7 +89,7 @@ files = [
         <CodeContainer command="wireman" />
     </ContentCard>
 
-    <ContentCard title="Advanced">
+    <ContentCard title="Advanced configuration">
         <p>
             Wireman is very customizable. You can change the default configuration directory by exporting the following environment
             variable:
@@ -139,6 +139,22 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         </p>
     </ContentCard>
 
+    <ContentCard title="Command line flags" initiallyExpanded={false}>
+        <h3>Commands</h3>
+        <ul>
+            <li><code>check</code> - Runs a health check and displays configuration details to ensure proper setup.</li>
+            <li><code>init</code> - Sets up Wireman by creating a default configuration file.</li>
+        </ul>
+        <h3>Options</h3>
+        <ul>
+            <li>
+                <code>-c, --config &lt;CONFIG&gt;</code> - Specifies an optional path to a configuration file. If not provided, Wireman uses
+                the default configuration path.
+            </li>
+            <li><code>-l, --local-protos</code> - Uses local protobuf files instead of fetching them remotely.</li>
+        </ul>
+    </ContentCard>
+
     <h2>A Tour of Wireman</h2>
 
     <Tour></Tour>
@@ -167,6 +183,16 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         text-align: left;
         color: var(--gray-lightest);
         font-size: var(--font-size-code);
+    }
+    h3,
+    ul {
+        text-align: left;
+        color: var(--gray-lightest);
+        font-size: var(--font-size-code);
+    }
+
+    li {
+        margin: 10px 0;
     }
 
     .header {
