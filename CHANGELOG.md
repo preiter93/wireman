@@ -1,6 +1,7 @@
-0.2.6 - ?
+0.2.6 - 21 Jan 2025
 ===================
-- feat: Allow users to pass a config file via --config
+- feat: Add `--config` flag to allow user specifying a custom config. This is helpful if you have different projects. You could define a config value in each project.
+- feat: Add `--local-protos` flag to use local protos instead of the values from the config map.
 
 0.2.5 - 11 Jan 2025
 ===================
