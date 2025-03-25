@@ -9,6 +9,7 @@ pub enum ResponseEvents {
     PrevTab,
     GoToRequest,
     CopyAsGrpCurl,
+    CopyResponse,
     IncreaseSize,
     DecreaseSize,
 }
@@ -19,6 +20,7 @@ impl fmt::Display for ResponseEvents {
             ResponseEvents::NextTab => "Next Page",
             ResponseEvents::PrevTab => "Prev Page",
             ResponseEvents::GoToRequest => "Go to Request",
+            ResponseEvents::CopyResponse => "Copy Response",
             ResponseEvents::CopyAsGrpCurl => "Copy as cURL",
             ResponseEvents::IncreaseSize => "Increase Size",
             ResponseEvents::DecreaseSize => "Decrease Size",
@@ -54,6 +56,9 @@ impl EventHandler for ResponseEventHandler {
             ResponseEvents::CopyAsGrpCurl => {
                 ctx.messages.borrow_mut().yank_grpcurl();
             }
+            ResponseEvents::CopyResponse => {
+                ctx.messages.borrow_mut().yank_response();
+            }
             ResponseEvents::IncreaseSize => {
                 ctx.messages.borrow_mut().request.decrease_window_size();
             }
@@ -73,6 +78,10 @@ impl EventHandler for ResponseEventHandler {
                 (
                     KeyEvent::shift(KeyCode::Char('K')),
                     ResponseEvents::GoToRequest,
+                ),
+                (
+                    KeyEvent::shift(KeyCode::Char('Y')),
+                    ResponseEvents::CopyResponse,
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('y')),
