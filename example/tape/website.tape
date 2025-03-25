@@ -66,7 +66,7 @@ Ctrl+e
 Sleep 1s
 Ctrl+S
 Sleep 1s
-Escape
+Ctrl+e
 Sleep 1s
 Ctrl+r
 Sleep 1.0s
