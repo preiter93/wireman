@@ -1,3 +1,8 @@
+0.2.7 - 26 Mar 2025
+===================
+- feat: Wayland clipboard compatibility (@ChausseBenjamin)
+- feat: Add keymapping to yank request/response
+
 0.2.6 - 21 Jan 2025
 ===================
 - feat: Add `--config` flag to allow user specifying a custom config. This is helpful if you have different projects. You could define a config value in each project.
