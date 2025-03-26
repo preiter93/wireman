@@ -138,7 +138,7 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
 5. The third page is the config screen where you can edit the address or metadata. Wireman allows for using bash scripts to get your tokens. Place the name of your script in the bearer token field, which must be in your PATH, between `$()`. For example, if you have a bash script named `getToken.sh` that prints the Bearer token `ey...`, you would use `$(getToken.sh)` (the script output should not include the word 'Bearer', as it is automatically added). Additional headers can be added with `Ctrl+a` and deleted with `Ctrl+d`. Go to the request page with Shift+Tab or click tab twice.
 
-6. Now you can make the request by clicking Enter. You can save it with `Ctrl+s`. Saved requests are stored in spots 1 to 5. Switch to a spot by clicking the respective number. You can restore the default request with `Ctrl+d`, which deletes the history. You can also cancel a request with Esc. To copy the response: Navigate to the response by clicking down, enter visual mode by pressing `v`, select everything and copy the selected text by pressing `y`. Or follow step 6.
+6. Now you can make the request by clicking Enter. You can save it with `Ctrl+s`. Saved requests are stored in spots 1 to 5. Switch to a spot by clicking the respective number. You can restore the default request with `Ctrl+d`, which deletes the history. You can also cancel a request with Esc. Switch between request and response with `J/K`.To copy the request or response click `Y`. Or follow step 6.
 
 7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard.
 
@@ -217,6 +217,7 @@ You can manage your configuration directly within the app:
 - [x] Server reflection
 - [x] Edit config file in app
 - [x] Server side Streaming
+- [x] Supports wayland
 
 
 [Deps.rs Badge]: https://deps.rs/repo/github/preiter93/wireman/status.svg?path=wireman&style=flat-square

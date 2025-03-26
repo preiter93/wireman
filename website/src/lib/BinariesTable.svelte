@@ -36,32 +36,32 @@
         <tr>
             {@render linux()}
             <td>ARM (aarch64)</td>
-            {@render link('wireman-0.2.6-aarch64-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.2.7-aarch64-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render linux()}
             <td>x86 (i686)</td>
-            {@render link('wireman-0.2.6-i686-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.2.7-i686-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render linux()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.6-x86_64-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.2.7-x86_64-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render macos()}
             <td>ARM (aarch64)</td>
-            {@render link('wireman-0.2.6-aarch64-apple-darwin.tar.gz')}
+            {@render link('wireman-0.2.7-aarch64-apple-darwin.tar.gz')}
         </tr>
         <tr>
             {@render macos()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.6-x86_64-apple-darwin.tar.gz')}
+            {@render link('wireman-0.2.7-x86_64-apple-darwin.tar.gz')}
         </tr>
         <tr>
             {@render windows()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.6-x86_64-pc-windows-msvc.zip')}
+            {@render link('wireman-0.2.7-x86_64-pc-windows-msvc.zip')}
         </tr>
     </tbody>
 </table>
