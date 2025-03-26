@@ -11,6 +11,7 @@ pub enum RequestEvents {
     AbortRequest,
     GoToResponse,
     CopyAsGrpCurl,
+    CopyRequest,
     FormatMessage,
     ResetHistory,
     SaveHistory,
@@ -31,6 +32,7 @@ impl fmt::Display for RequestEvents {
             RequestEvents::MakeRequest => "Make Request",
             RequestEvents::AbortRequest => "Abort Request",
             RequestEvents::GoToResponse => "Go to Response",
+            RequestEvents::CopyRequest => "Copy Request",
             RequestEvents::CopyAsGrpCurl => "Copy as cURL",
             RequestEvents::FormatMessage => "Format Message",
             RequestEvents::ResetHistory => "Reset Request",
@@ -86,6 +88,9 @@ impl EventHandler for RequestEventHandler {
             RequestEvents::CopyAsGrpCurl => {
                 ctx.messages.borrow_mut().yank_grpcurl();
             }
+            RequestEvents::CopyRequest => {
+                ctx.messages.borrow_mut().yank_request();
+            }
             RequestEvents::FormatMessage => {
                 ctx.messages.borrow_mut().request.editor.format_json();
             }
@@ -133,6 +138,10 @@ impl EventHandler for RequestEventHandler {
                 (
                     KeyEvent::shift(KeyCode::Char('J')),
                     RequestEvents::GoToResponse,
+                ),
+                (
+                    KeyEvent::shift(KeyCode::Char('Y')),
+                    RequestEvents::CopyRequest,
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('y')),

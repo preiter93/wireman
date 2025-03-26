@@ -204,6 +204,22 @@ impl MessagesModel {
         }
     }
 
+    /// Yanks the request message.
+    pub fn yank_request(&mut self) {
+        if self.selected_method.is_some() {
+            let message = self.request.editor.get_text_raw();
+            yank_to_clipboard(&message);
+        }
+    }
+
+    /// Yanks the response message.
+    pub fn yank_response(&mut self) {
+        if self.selected_method.is_some() {
+            let message = self.response.editor.get_text_raw();
+            yank_to_clipboard(&message);
+        }
+    }
+
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
