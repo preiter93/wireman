@@ -151,7 +151,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 <code>-c, --config &lt;CONFIG&gt;</code> - Specifies an optional path to a configuration file. If not provided, Wireman uses
                 the default configuration path.
             </li>
-            <li><code>-l, --local-protos</code> - Uses local protobuf files instead of fetching them remotely.</li>
+            <li><code>-l, --local-protos</code> - Uses the proto files from the current directory and ignores the wirman config.</li>
         </ul>
     </ContentCard>
 
