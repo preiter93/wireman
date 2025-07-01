@@ -34,7 +34,7 @@ The configuration <code>wireman.toml</code> can be added in-app. On the services
             img: ImgReflection,
             body: `
 <p style="text-align: center; line-height:1.4em">
-Wireman supports server reflection. Enter <code>c-r</code>. Specify the server address and optional headers. Press <code>Enter</code> to send a reflection request. If reflection is successful, the services and the method list are updated. Exit reflection mode with <code>c-r</code>.
+Wireman supports server reflection. Enter <code>c-r</code>. Specify the server address and optional headers. Press <code>Enter</code> to send a reflection request. Exit reflection mode with <code>c-r</code>.
 </p>
 `
         }
