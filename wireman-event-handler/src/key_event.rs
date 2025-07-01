@@ -28,6 +28,7 @@ impl fmt::Display for KeyEvent {
 
 impl KeyEvent {
     /// Creates a new `KeyEvent` instance.
+    #[must_use]
     pub fn new(code: KeyCode) -> Self {
         Self {
             code,
@@ -35,6 +36,7 @@ impl KeyEvent {
         }
     }
     /// Creates a new `KeyEvent` instance with the shift modifier.
+    #[must_use]
     pub fn shift(code: KeyCode) -> Self {
         Self {
             modifiers: KeyModifiers::shift(),
@@ -43,6 +45,7 @@ impl KeyEvent {
     }
 
     /// Creates a new `KeyEvent` instance with the ctrl modifier.
+    #[must_use]
     pub fn ctrl(code: KeyCode) -> Self {
         Self {
             modifiers: KeyModifiers::ctrl(),
@@ -50,7 +53,8 @@ impl KeyEvent {
         }
     }
 
-    /// Creates a new `KeyEvent` instance from a KeyCode.
+    /// Creates a new `KeyEvent` instance from a `KeyCode`.
+    #[must_use]
     pub fn modifier(mut self, modifier: KeyModifier) -> Self {
         self.modifiers = self.modifiers.add_modifier(modifier);
         self
@@ -85,20 +89,24 @@ pub struct KeyModifiers(u32);
 
 impl KeyModifiers {
     /// Creates a new `KeyModifiers` instance with no modifiers.
+    #[must_use]
     pub fn new() -> Self {
         KeyModifiers(0)
     }
 
     /// Creates a new `KeyModifiers` instance with the shift modifier.
+    #[must_use]
     pub fn shift() -> Self {
         KeyModifiers(0).add_modifier(KeyModifier::Shift)
     }
 
     /// Creates a new `KeyModifiers` instance with the ctrl modifier.
+    #[must_use]
     pub fn ctrl() -> Self {
         KeyModifiers(0).add_modifier(KeyModifier::Control)
     }
 
+    #[must_use]
     pub fn add_modifier(mut self, modifier: KeyModifier) -> Self {
         match modifier {
             KeyModifier::Shift => self.0 |= 0b0000_0001,
@@ -107,10 +115,11 @@ impl KeyModifiers {
             KeyModifier::Super => self.0 |= 0b0000_1000,
             KeyModifier::Hyper => self.0 |= 0b0001_0000,
             KeyModifier::Meta => self.0 |= 0b0010_0000,
-        };
+        }
         self
     }
 
+    #[must_use]
     pub fn remove_modifier(mut self, modifier: KeyModifier) -> Self {
         match modifier {
             KeyModifier::Shift => self.0 &= !0b0000_0001,
@@ -119,10 +128,11 @@ impl KeyModifiers {
             KeyModifier::Super => self.0 &= !0b0000_1000,
             KeyModifier::Hyper => self.0 &= !0b0001_0000,
             KeyModifier::Meta => self.0 &= !0b0010_0000,
-        };
+        }
         self
     }
 
+    #[must_use]
     pub fn contains(&self, modifier: KeyModifier) -> bool {
         match modifier {
             KeyModifier::Shift => self.0 & 0b0000_0001 != 0,
@@ -189,8 +199,8 @@ impl fmt::Display for KeyCode {
             KeyCode::BackTab => write!(f, "BackTab"),
             KeyCode::Delete => write!(f, "Delete"),
             KeyCode::Insert => write!(f, "Insert"),
-            KeyCode::F(n) => write!(f, "F{}", n),
-            KeyCode::Char(c) => write!(f, "{}", c),
+            KeyCode::F(n) => write!(f, "F{n}"),
+            KeyCode::Char(c) => write!(f, "{c}"),
             KeyCode::Null => write!(f, "Null"),
             KeyCode::Esc => write!(f, "Esc"),
             KeyCode::Unknown => write!(f, "Unknown"),

@@ -7,6 +7,7 @@ use ::crossterm::event::MouseEvent;
 pub use key_event::KeyCode;
 pub use key_event::KeyEvent;
 pub use key_event::{KeyModifier, KeyModifiers};
+use std::fmt::Write as _;
 
 /// A trait for handling events with associated contexts.
 pub trait EventHandler {
@@ -88,9 +89,9 @@ pub trait EventHandler {
             let event_str = event.to_string();
 
             if let Some(&index) = event_indices.get(&event_str) {
-                formatted_events[index]
-                    .0
-                    .push_str(&format!(", {}", key_event_str));
+                let mut s = String::new();
+                let _ = write!(s, ", {key_event_str}");
+                formatted_events[index].0.push_str(&s);
             } else {
                 formatted_events.push((key_event_str, event_str.clone()));
                 event_indices.insert(event_str, formatted_events.len() - 1);
