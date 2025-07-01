@@ -113,9 +113,8 @@ impl From<KeyCode> for CTKeyCode {
             KeyCode::Insert => Self::Insert,
             KeyCode::F(f) => Self::F(f),
             KeyCode::Char(c) => Self::Char(c),
-            KeyCode::Null => Self::Null,
             KeyCode::Esc => Self::Esc,
-            KeyCode::Unknown => Self::Null,
+            KeyCode::Null | KeyCode::Unknown => Self::Null,
         }
     }
 }
