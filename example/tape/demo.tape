@@ -1,5 +1,5 @@
 # To run this script, install vhs and run `vhs tape/demo.tape`
-# Make sure to delete the rquest history/ folder before.
+# Make sure to delete the request history/ folder before.
 Output "tape/demo.gif"
 Set Margin 10
 Set Padding 2

@@ -187,7 +187,7 @@ impl SelectionModel {
         None
     }
 
-    /// Return the descrption of the currently selected method
+    /// Return the description of the currently selected method
     pub fn selected_method(&self) -> Option<MethodDescriptor> {
         if let (Some(service_index), Some(method_index)) =
             (self.services_state.selected, self.methods_state.selected)

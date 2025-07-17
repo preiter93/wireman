@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
                 println!("Setup error: {err}");
                 println!();
             } else {
-                println!("An unknown error occured:\n{err}");
+                println!("An unknown error occurred:\n{err}");
                 println!();
             }
             println!("Did you install wireman?");

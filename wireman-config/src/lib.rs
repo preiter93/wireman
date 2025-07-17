@@ -29,6 +29,6 @@ pub const ENV_CONFIG_DIR: &str = "WIREMAN_CONFIG_DIR";
 pub const CONFIG_FNAME: &str = "wireman.toml";
 
 /// The default wireman config directory.
-/// TOOD: Use the `config_dir` crate to determine the default
+/// TODO: Use the `config_dir` crate to determine the default
 /// based on the operating system
 pub const DEFAULT_CONFIG_DIR: &str = "~/.config/wireman";
