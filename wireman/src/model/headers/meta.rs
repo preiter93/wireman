@@ -105,7 +105,7 @@ impl MetaHeaders {
         false
     }
 
-    /// Block selection of previos header in case we are inside
+    /// Block selection of previous header in case we are inside
     /// the metadata list selection.
     pub(crate) fn block_prev(&self) -> bool {
         if let Some(selected) = self.selected {

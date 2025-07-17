@@ -35,7 +35,7 @@ pub struct MessagesModel {
     /// The model for the request history.
     pub history_model: HistoryModel,
 
-    /// Wheter a grpc request should be dispatched
+    /// Whether a grpc request should be dispatched
     pub dispatch: bool,
 
     /// The task handler of the grpc request. Is None

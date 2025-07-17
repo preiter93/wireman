@@ -13,7 +13,7 @@ pub struct ActivatableTabs<'a> {
     block: Option<Block<'a>>,
     /// One title for each tab
     titles: Vec<Line<'a>>,
-    /// Whether a tab should be displayed as diabled.
+    /// Whether a tab should be displayed as disabled.
     active: Option<Vec<bool>>,
     /// The index of the selected tabs
     selected: usize,
@@ -87,7 +87,7 @@ impl<'a> ActivatableTabs<'a> {
         self
     }
 
-    /// Sets the style for the actice but not hightlighted tab.
+    /// Sets the style for the active but not highlighted tab.
     ///
     /// Highlighted tab can be selected with [`Tabs::select`].
     pub fn active_style(mut self, style: Style) -> ActivatableTabs<'a> {
@@ -95,7 +95,7 @@ impl<'a> ActivatableTabs<'a> {
         self
     }
 
-    /// Sets the style for the actice but not hightlighted tab.
+    /// Sets the style for the active but not highlighted tab.
     ///
     /// Highlighted tab can be selected with [`Tabs::select`].
     pub fn active_highlight_style(mut self, style: Style) -> ActivatableTabs<'a> {

@@ -77,7 +77,7 @@ impl App {
                     return;
                 }
 
-                // Route specifc key event.
+                // Route specific key event.
                 match self.ctx.tab {
                     Tab::Selection => match self.ctx.selection_tab {
                         SelectionTab::Services | SelectionTab::Methods
@@ -132,7 +132,7 @@ impl App {
             }
         }
 
-        // Dispatch a grpc request event in a seperate thread.
+        // Dispatch a grpc request event in a separate thread.
         if self.ctx.messages.borrow().dispatch {
             let mut messages_model = self.ctx.messages.borrow_mut();
             let tls = messages_model.request.core_client.borrow().get_tls_config();
@@ -164,7 +164,7 @@ impl App {
             }
         }
 
-        // Dispatch a server reflection event in a seperate thread.
+        // Dispatch a server reflection event in a separate thread.
         if self.ctx.reflection.borrow().dispatch_reflection {
             self.ctx.reflection.borrow_mut().handle_reflection(sx2);
         }
