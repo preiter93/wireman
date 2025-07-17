@@ -19,7 +19,7 @@ pub struct ReflectionModel {
     pub selection: Rc<RefCell<SelectionModel>>,
     /// Dispatch a reflection event
     pub dispatch_reflection: bool,
-    /// An error that occured during reflection
+    /// An error that occurred during reflection
     pub error: Option<String>,
 }
 

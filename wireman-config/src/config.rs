@@ -145,7 +145,7 @@ pub struct HistoryConfig {
     /// The directory where the history is saved
     #[serde(default)]
     pub directory: String,
-    /// Wheter autosave should be enables
+    /// Whether autosave should be enables
     #[serde(default = "default_autosave")]
     pub autosave: bool,
     /// Whether the history is disabled
