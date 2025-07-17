@@ -89,7 +89,7 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
     wireman init
     ```
 
-3. The previos step creates a `wireman.toml` file in your configuration directory. Here's an example configuration:
+3. The previous step creates a `wireman.toml` file in your configuration directory. Here's an example configuration:
 
     ```toml
     includes = [

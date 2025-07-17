@@ -138,7 +138,7 @@ impl TextEditor {
     }
 
     /// Pretty formats the editors text. The error is stored
-    /// internall in the error buffer.
+    /// internal in the error buffer.
     pub fn format_json(&mut self) {
         match pretty_format_json(&self.get_text_raw()) {
             Ok(pretty) => {
