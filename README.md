@@ -39,6 +39,12 @@ cargo install wireman
 brew install preiter93/wireman/wireman
 ```
 
+### Install with X-CMD
+
+```
+x install wireman
+```
+
 ### Download Binary
 
 You can download the latest wireman binary from the [releases page](https://github.com/preiter93/wireman/releases).
