@@ -17,6 +17,7 @@ pub enum HeadersEvents {
     AddHeaders,
     DelHeaders,
     SaveHistory,
+    ResetHistory,
     LoadHistory1,
     LoadHistory2,
     LoadHistory3,
@@ -40,6 +41,7 @@ impl fmt::Display for HeadersEvents {
             HeadersEvents::AddHeaders => "Add Headers",
             HeadersEvents::DelHeaders => "Del Headers",
             HeadersEvents::SaveHistory => "Save Request",
+            HeadersEvents::ResetHistory => "Reset Request",
             HeadersEvents::LoadHistory1 => "Load History 1",
             HeadersEvents::LoadHistory2 => "Load History 2",
             HeadersEvents::LoadHistory3 => "Load History 3",
@@ -117,6 +119,14 @@ impl EventHandler for HeadersEventHandler {
                 let history = &ctx.messages.borrow().history;
                 history.borrow_mut().save(&ctx.messages.borrow());
             }
+            HeadersEvents::ResetHistory => {
+                let method = ctx.messages.borrow().selected_method.clone();
+                if let Some(method) = method {
+                    ctx.history.borrow_mut().delete(&method);
+                    ctx.messages.borrow_mut().request.load_template(&method);
+                    ctx.messages.borrow_mut().headers.borrow_mut().clear();
+                }
+            }
         }
     }
 
@@ -172,6 +182,10 @@ impl EventHandler for HeadersEventHandler {
                 (
                     KeyEvent::ctrl(KeyCode::Char('s')),
                     HeadersEvents::SaveHistory,
+                ),
+                (
+                    KeyEvent::ctrl(KeyCode::Char('q')),
+                    HeadersEvents::ResetHistory,
                 ),
             ]);
         }
