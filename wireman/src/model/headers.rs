@@ -27,6 +27,12 @@ pub struct HeadersModel {
 
     /// The model for the request history.
     pub history: Rc<RefCell<HistoryModel>>,
+
+    /// The default address
+    pub default_address: String,
+
+    /// The default auth header
+    pub default_auth_header: String,
 }
 
 impl Default for HeadersModel {
@@ -53,6 +59,8 @@ impl HeadersModel {
             tab: HeadersTab::default(),
             selected_method: None,
             history,
+            default_auth_header: default_auth_header.to_string(),
+            default_address: default_address.to_string(),
         }
     }
 
@@ -223,7 +231,9 @@ impl HeadersModel {
     /// Clears the headers state.
     pub fn clear(&mut self) {
         self.auth.clear();
+        self.auth.set_text(&self.default_auth_header);
         self.meta.clear();
+        self.meta.add();
         self.tab = HeadersTab::None;
     }
 }
