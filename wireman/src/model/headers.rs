@@ -1,10 +1,11 @@
 pub mod auth;
 pub use auth::{AuthHeader, AuthSelection};
 pub mod meta;
-use crate::widgets::editor::TextEditor;
+use crate::{model::history::HistoryModel, widgets::editor::TextEditor};
+use core::MethodDescriptor;
 use edtui::EditorMode;
 pub use meta::MetaHeaders;
-use std::{collections::HashMap, process::Command};
+use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
 
 /// The data model for the `gRPC` headers. Contains authorization
 /// headers and metadata key value headers.
@@ -20,17 +21,27 @@ pub struct HeadersModel {
 
     /// The selection state.
     pub tab: HeadersTab,
+
+    /// The currently selected method
+    pub selected_method: Option<MethodDescriptor>,
+
+    /// The model for the request history.
+    pub history: Rc<RefCell<HistoryModel>>,
 }
 
 impl Default for HeadersModel {
     fn default() -> Self {
-        Self::new("", "")
+        Self::new("", "", Rc::new(RefCell::new(HistoryModel::default())))
     }
 }
 
 impl HeadersModel {
     /// Create a new `HeadersModel` instance
-    pub fn new(default_address: &str, default_auth_header: &str) -> Self {
+    pub fn new(
+        default_address: &str,
+        default_auth_header: &str,
+        history: Rc<RefCell<HistoryModel>>,
+    ) -> Self {
         let mut address = TextEditor::single();
         address.set_text_raw(default_address);
         let mut auth_header = AuthHeader::default();
@@ -40,11 +51,19 @@ impl HeadersModel {
             auth: auth_header,
             meta: MetaHeaders::default(),
             tab: HeadersTab::default(),
+            selected_method: None,
+            history,
         }
     }
+
     /// Get the address as a string
     pub fn address(&self) -> String {
         self.addr.get_text_raw()
+    }
+
+    /// Sets the selected method
+    pub fn set_method(&mut self, method: &MethodDescriptor) {
+        self.selected_method = Some(method.clone());
     }
 
     /// Get the selected editor

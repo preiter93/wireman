@@ -2,17 +2,18 @@ use super::root::layout;
 use crate::{model::history::HistoryModel, widgets::tabs::ActivatableTabs};
 
 use core::MethodDescriptor;
+use logger::Logger;
 use ratatui::prelude::*;
 
-pub struct HistoryTabs<'a> {
-    pub model: &'a HistoryModel,
+pub struct HistoryTabs {
+    pub model: HistoryModel,
     pub selected_method: Option<MethodDescriptor>,
     pub show_help: bool,
 }
 
-impl<'a> HistoryTabs<'a> {
+impl HistoryTabs {
     pub fn new(
-        model: &'a HistoryModel,
+        model: HistoryModel,
         selected_method: Option<MethodDescriptor>,
         show_help: bool,
     ) -> Self {
@@ -24,7 +25,7 @@ impl<'a> HistoryTabs<'a> {
     }
 }
 
-impl Widget for HistoryTabs<'_> {
+impl Widget for HistoryTabs {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let theme = theme::Theme::global();
         if !self.model.enabled {

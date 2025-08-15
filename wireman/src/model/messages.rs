@@ -30,10 +30,10 @@ pub struct MessagesModel {
     pub(crate) selected_method: Option<MethodDescriptor>,
 
     /// A reference to the headers model
-    pub headers_model: Rc<RefCell<HeadersModel>>,
+    pub headers: Rc<RefCell<HeadersModel>>,
 
     /// The model for the request history.
-    pub history_model: HistoryModel,
+    pub history: Rc<RefCell<HistoryModel>>,
 
     /// Whether a grpc request should be dispatched
     pub dispatch: bool,
@@ -48,7 +48,7 @@ impl Default for MessagesModel {
         Self::new(
             Rc::new(RefCell::new(CoreClient::default())),
             Rc::new(RefCell::new(HeadersModel::default())),
-            HistoryModel::default(),
+            Rc::new(RefCell::new(HistoryModel::default())),
         )
     }
 }
@@ -58,8 +58,8 @@ impl MessagesModel {
     /// the common messages model.
     pub fn new(
         core_client: Rc<RefCell<CoreClient>>,
-        headers_model: Rc<RefCell<HeadersModel>>,
-        history_model: HistoryModel,
+        headers: Rc<RefCell<HeadersModel>>,
+        history: Rc<RefCell<HistoryModel>>,
     ) -> Self {
         let request = RequestModel::new(core_client);
         let response = ResponseModel::new();
@@ -69,8 +69,8 @@ impl MessagesModel {
             cache: HashMap::new(),
             loaded_cache_id: String::new(),
             selected_method: None,
-            headers_model,
-            history_model,
+            headers,
+            history,
             dispatch: false,
             handler: None,
         }
@@ -87,7 +87,9 @@ impl MessagesModel {
         // Mark method as selected
         self.selected_method = Some(method.clone());
         // Load the request message
-        if self.request.editor.is_empty() && self.history_model.clone().load(self).is_none() {
+        let history = self.history.borrow().clone();
+        let request_from_history = history.load(self);
+        if self.request.editor.is_empty() && request_from_history.is_none() {
             self.request.load_template(method);
         }
         // Clear the error state
@@ -186,15 +188,15 @@ impl MessagesModel {
         }
 
         // Metadata
-        let headers_model = self.headers_model.borrow();
-        for (key, val) in headers_model.headers_expanded() {
+        let headers = self.headers.borrow();
+        for (key, val) in headers.headers_expanded() {
             if !key.is_empty() {
                 let _ = req.insert_metadata(&key, &val);
             }
         }
 
         // Address
-        req.set_address(&headers_model.address());
+        req.set_address(&headers.address());
         Ok(req)
     }
 
@@ -223,9 +225,9 @@ impl MessagesModel {
     /// Yanks the request message in grpcurl format
     pub fn yank_grpcurl(&mut self) {
         if let Some(method) = &self.selected_method {
-            let address = self.headers_model.borrow().address();
+            let address = self.headers.borrow().address();
             let message = self.request.editor.get_text_raw();
-            let header = self.headers_model.borrow().headers();
+            let header = self.headers.borrow().headers();
 
             if let Ok(text) = self
                 .request
@@ -239,10 +241,10 @@ impl MessagesModel {
     }
 
     pub fn handle_history_reload(&mut self, index: usize) {
-        self.history_model.select(index);
+        self.history.borrow_mut().select(index);
 
-        let history_model = self.history_model.clone();
-        let _ = history_model.load(self);
+        let history = self.history.clone();
+        let _ = history.borrow_mut().load(self);
     }
 }
 

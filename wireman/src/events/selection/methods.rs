@@ -64,6 +64,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::NextTab => {
                 if let Some(method) = ctx.selection.borrow().selected_method() {
                     ctx.messages.borrow_mut().load_method(&method);
+                    ctx.headers.borrow_mut().set_method(&method);
                 } else {
                     ctx.messages.borrow_mut().set_no_method_error();
                 }
@@ -72,6 +73,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::PrevTab => {
                 if let Some(method) = ctx.selection.borrow().selected_method() {
                     ctx.messages.borrow_mut().load_method(&method);
+                    ctx.headers.borrow_mut().set_method(&method);
                 } else {
                     ctx.messages.borrow_mut().set_no_method_error();
                 }

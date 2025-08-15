@@ -82,7 +82,7 @@ impl Widget for MessagesPage<'_> {
             status_line.render(s, buf);
 
             let history = HistoryTabs::new(
-                &self.model.history_model,
+                self.model.history.borrow().clone(),
                 self.model.selected_method.clone(),
                 true,
             );
