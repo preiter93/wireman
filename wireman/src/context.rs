@@ -39,6 +39,9 @@ pub struct AppContext {
     /// The model for the headers
     pub headers: Rc<RefCell<HeadersModel>>,
 
+    /// The model for the history
+    pub history: Rc<RefCell<HistoryModel>>,
+
     /// The model for the configuration dialog
     pub configuration: Rc<RefCell<ConfigurationModel>>,
 }
@@ -58,12 +61,16 @@ impl AppContext {
         // The core client
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 
+        // The history model
+        let history = Rc::new(RefCell::new(HistoryModel::new(env)?));
+
         // The metadata model
         let server_address = &core_client_rc.borrow().get_default_address();
         let server_auth_header = &core_client_rc.borrow().get_default_auth_header();
         let headers = Rc::new(RefCell::new(HeadersModel::new(
             server_address,
             server_auth_header,
+            Rc::clone(&history),
         )));
 
         // The selection model
@@ -81,14 +88,11 @@ impl AppContext {
             Rc::clone(&selection),
         )));
 
-        // The history model
-        let history_model = HistoryModel::new(env)?;
-
         // The messages model
         let messages = Rc::new(RefCell::new(MessagesModel::new(
             core_client_rc,
             Rc::clone(&headers),
-            history_model,
+            Rc::clone(&history),
         )));
 
         Ok(Self {
@@ -100,6 +104,7 @@ impl AppContext {
             selection,
             messages,
             headers,
+            history,
             reflection,
             configuration,
         })

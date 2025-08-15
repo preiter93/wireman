@@ -1,3 +1,8 @@
+0.2.8 - 15 Aug 2025
+===================
+- feat: show history tabs on headers page
+- ui: style help dialog with rounded borders
+
 0.2.7 - 26 Mar 2025
 ===================
 - feat: Wayland clipboard compatibility (@ChausseBenjamin)

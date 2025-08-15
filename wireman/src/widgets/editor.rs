@@ -263,7 +263,7 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
 }
 
 /// Returns the editors view when selected.
-pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
     EditorView::new(state).theme(
         EditorTheme::default()
@@ -284,7 +284,7 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
 }
 
 /// Returns the editors view when unselected
-pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
     EditorView::new(state).theme(
         EditorTheme::default()
@@ -305,7 +305,10 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
 }
 
 /// Returns the editors view for a single line editor when selected.
-pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+pub fn view_single_selected<S: Into<String>>(
+    state: &mut EditorState,
+    title: S,
+) -> EditorView<'_, '_> {
     let theme = Theme::global();
     EditorView::new(state).wrap(false).theme(
         EditorTheme::default()
@@ -326,7 +329,10 @@ pub fn view_single_selected<S: Into<String>>(state: &mut EditorState, title: S) 
 }
 
 /// Returns the editors view for a single line editor when unselected.
-pub fn view_single_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView {
+pub fn view_single_unselected<S: Into<String>>(
+    state: &mut EditorState,
+    title: S,
+) -> EditorView<'_, '_> {
     let theme = Theme::global();
     EditorView::new(state).wrap(false).theme(
         EditorTheme::default()
