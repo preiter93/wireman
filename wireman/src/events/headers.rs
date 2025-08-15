@@ -114,8 +114,8 @@ impl EventHandler for HeadersEventHandler {
                 ctx.messages.borrow_mut().handle_history_reload(5);
             }
             HeadersEvents::SaveHistory => {
-                let history = &ctx.messages.borrow().history_model;
-                history.save(&ctx.messages.borrow());
+                let history = &ctx.messages.borrow().history;
+                history.borrow_mut().save(&ctx.messages.borrow());
             }
         }
     }

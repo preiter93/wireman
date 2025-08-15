@@ -1,9 +1,8 @@
 use super::root::layout;
-use crate::{
-    model::headers::{AuthSelection, HeadersModel, HeadersTab},
-    widgets::editor::{view_single_selected, view_single_unselected},
-    widgets::kv::KV,
-};
+use crate::model::headers::{AuthSelection, HeadersModel, HeadersTab};
+use crate::view::history_tab::HistoryTabs;
+use crate::widgets::editor::{view_single_selected, view_single_unselected};
+use crate::widgets::kv::KV;
 use edtui::{EditorMode, EditorState, EditorStatusLine};
 use ratatui::{
     prelude::*,
@@ -36,6 +35,7 @@ impl<'a> HeadersPage<'a> {
 
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
+        use ratatui::layout::Constraint::{Length, Min};
         let theme = theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
         let is_auth_selected = self.model.tab == HeadersTab::Auth;
@@ -123,14 +123,17 @@ impl Widget for HeadersPage<'_> {
         }
         .render(meta_content, buf);
 
-        // Show a combined status line for all editors
-        if !theme.hide_status {
-            EditorStatusLine::default()
-                .style_text(theme.highlight.unfocused.reversed())
-                .style_line(theme.base.unfocused)
-                .mode(self.model.mode().name())
-                .render(status, buf);
-        }
+        let [s, h] = Layout::horizontal([Min(0), Length(60)]).areas(status);
+
+        let status_line = EditorStatusLine::default()
+            .style_text(theme.highlight.unfocused.reversed())
+            .style_line(theme.base.unfocused)
+            .mode(self.model.mode().name());
+        status_line.render(s, buf);
+
+        let history = self.model.history.borrow();
+        let history = HistoryTabs::new(history.clone(), self.model.selected_method.clone(), true);
+        history.render(h, buf);
     }
 }
 
