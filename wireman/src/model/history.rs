@@ -100,10 +100,10 @@ impl HistoryModel {
             return;
         }
 
-        let address = messages.headers_model.borrow().address();
-        let auth_str = messages.headers_model.borrow().auth.value();
+        let address = messages.headers.borrow().address();
+        let auth_str = messages.headers.borrow().auth.value();
         let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
-        let metadata = messages.headers_model.borrow().meta.as_btree();
+        let metadata = messages.headers.borrow().meta.as_btree();
         let request = HistoryData {
             message,
             address,
@@ -211,17 +211,17 @@ impl HistoryData {
 
     /// Applies a history.
     fn apply(&self, messages: &mut MessagesModel) {
-        let mut headers_model = messages.headers_model.borrow_mut();
-        headers_model.clear();
-        headers_model.addr.set_text_raw(&self.address);
+        let mut headers = messages.headers.borrow_mut();
+        headers.clear();
+        headers.addr.set_text_raw(&self.address);
         if let Some(auth) = &self.authentication {
-            headers_model.auth.set_text(auth);
+            headers.auth.set_text(auth);
         } else {
-            headers_model.auth.set_text("");
+            headers.auth.set_text("");
         }
-        headers_model.meta.set_btree(&self.metadata);
-        if headers_model.meta.headers.is_empty() {
-            headers_model.meta = MetaHeaders::default();
+        headers.meta.set_btree(&self.metadata);
+        if headers.meta.headers.is_empty() {
+            headers.meta = MetaHeaders::default();
         }
         messages.request.editor.set_text_raw(&self.message);
     }
@@ -285,9 +285,9 @@ mod tests {
         assert_eq!(messages.request.editor.get_text_raw(), expected_message);
 
         let expected_address = "Test address";
-        assert_eq!(messages.headers_model.borrow().address(), expected_address);
+        assert_eq!(messages.headers.borrow().address(), expected_address);
 
         let expected_auth = "Bearer test";
-        assert_eq!(messages.headers_model.borrow().auth.value(), expected_auth);
+        assert_eq!(messages.headers.borrow().auth.value(), expected_auth);
     }
 }

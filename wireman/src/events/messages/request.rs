@@ -72,9 +72,9 @@ impl EventHandler for RequestEventHandler {
             }
             RequestEvents::MakeRequest => {
                 {
-                    let history = &ctx.messages.borrow().history_model;
-                    if history.autosave {
-                        history.save(&ctx.messages.borrow());
+                    let history = &ctx.messages.borrow().history;
+                    if history.borrow().autosave {
+                        history.borrow_mut().save(&ctx.messages.borrow());
                     }
                 }
                 ctx.messages.borrow_mut().start_request();
@@ -95,15 +95,15 @@ impl EventHandler for RequestEventHandler {
                 ctx.messages.borrow_mut().request.editor.format_json();
             }
             RequestEvents::SaveHistory => {
-                let history = &ctx.messages.borrow().history_model;
-                history.save(&ctx.messages.borrow());
+                let history = &ctx.messages.borrow().history;
+                history.borrow_mut().save(&ctx.messages.borrow());
             }
             RequestEvents::ResetHistory => {
                 let method = ctx.messages.borrow().selected_method.clone();
                 if let Some(method) = method {
-                    ctx.messages.borrow().history_model.delete(&method);
+                    ctx.history.borrow_mut().delete(&method);
                     ctx.messages.borrow_mut().request.load_template(&method);
-                    ctx.messages.borrow_mut().headers_model.borrow_mut().clear();
+                    ctx.messages.borrow_mut().headers.borrow_mut().clear();
                 }
             }
             RequestEvents::LoadHistory1 => {

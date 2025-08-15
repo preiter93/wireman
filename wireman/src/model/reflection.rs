@@ -60,14 +60,14 @@ impl ReflectionModel {
 
     // Builds the grpc request
     pub fn build_request(&mut self) -> ReflectionRequest {
-        let headers_model = self.headers.borrow();
+        let headers = self.headers.borrow();
 
         // Address
-        let address = headers_model.address();
+        let address = headers.address();
         let mut req = ReflectionRequest::new(&address);
 
         // Metadata
-        for (key, val) in headers_model.auth_headers_expanded() {
+        for (key, val) in headers.auth_headers_expanded() {
             if !key.is_empty() {
                 let _ = req.insert_metadata(&key, &val);
             }
