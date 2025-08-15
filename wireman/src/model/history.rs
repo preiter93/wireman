@@ -62,9 +62,7 @@ impl HistoryModel {
     pub fn save_spots_enabled(&self, method: &MethodDescriptor) -> Vec<bool> {
         (1..=5)
             .map(|i| {
-                Logger::debug(format!("save spots enabled {i}"));
                 let Some(path) = self.path(i, method).clone() else {
-                    Logger::debug(format!("false"));
                     return false;
                 };
                 path.exists()
