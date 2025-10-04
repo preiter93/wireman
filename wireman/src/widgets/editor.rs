@@ -203,6 +203,11 @@ impl TextEditor {
     pub fn on_mouse(&mut self, event: MouseEvent) {
         self.handler.on_mouse_event(event, &mut self.state);
     }
+
+    /// Handle paste events.
+    pub fn on_paste(&mut self, text: String) {
+        self.handler.on_paste_event(text, &mut self.state);
+    }
 }
 
 /// The error of the request. Can hold a kind value

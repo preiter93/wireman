@@ -202,4 +202,9 @@ impl EventHandler for RequestEventHandler {
         let editor = &mut ctx.messages.borrow_mut().request.editor;
         editor.on_mouse(*event);
     }
+
+    fn pass_through_paste_events(text: String, ctx: &mut Self::Context) {
+        let editor = &mut ctx.messages.borrow_mut().request.editor;
+        editor.on_paste(text);
+    }
 }

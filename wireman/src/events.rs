@@ -183,6 +183,30 @@ impl App {
         }
     }
 
+    pub(crate) fn handle_crossterm_paste_event(&mut self, text: String) {
+        if self.ctx.configuration.borrow().toggled() {
+            ConfigurationEventHandler::handle_paste_event(&mut self.ctx, text);
+            return;
+        }
+
+        match self.ctx.tab {
+            Tab::Messages => {
+                match self.ctx.messages_tab {
+                    MessagesTab::Request => {
+                        RequestEventHandler::handle_paste_event(&mut self.ctx, text);
+                    }
+                    MessagesTab::Response => {
+                        ResponseEventHandler::handle_paste_event(&mut self.ctx, text);
+                    }
+                };
+            }
+            Tab::Headers => {
+                HeadersEventHandler::handle_paste_event(&mut self.ctx, text);
+            }
+            Tab::Selection => {}
+        }
+    }
+
     pub(crate) fn handle_internal_event(&mut self, data: &InternalStreamData) {
         match data {
             InternalStreamData::Request(resp) => {
