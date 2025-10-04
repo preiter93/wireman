@@ -54,4 +54,11 @@ impl EventHandler for ConfigurationEventHandler {
             editor.on_mouse(*event);
         }
     }
+
+    fn pass_through_paste_events(text: String, ctx: &mut Self::Context) {
+        if let Some(editor) = &mut ctx.configuration.borrow_mut().editor {
+            editor.on_paste(text)
+        }
+    }
 }
+

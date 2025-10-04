@@ -262,4 +262,25 @@ impl EventHandler for HeadersEventHandler {
             HeadersTab::None => (),
         }
     }
+
+    fn pass_through_paste_events(text: String, ctx: &mut Self::Context) {
+        let tab = ctx.headers.borrow().tab.clone();
+        match tab {
+            HeadersTab::Meta => {
+                if let Some(input) = ctx.headers.borrow_mut().selected_editor_mut() {
+                    input.on_paste(text);
+                }
+            }
+            HeadersTab::Addr => {
+                let input = &mut ctx.headers.borrow_mut().addr;
+                input.on_paste(text);
+            }
+            HeadersTab::Auth => {
+                let mut headers = ctx.headers.borrow_mut();
+                let input = headers.auth.selected_editor_mut();
+                input.on_paste(text);
+            }
+            HeadersTab::None => (),
+        }
+    }
 }

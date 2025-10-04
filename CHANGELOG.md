@@ -1,3 +1,7 @@
+0.2.9 - 04 Oct 2025
+===================
+- feat: Support bracketed paste (ctrl+y or cmd+y). See https://github.com/preiter93/wireman/issues/31
+
 0.2.8 - 15 Aug 2025
 ===================
 - feat: show history tabs on headers page

@@ -64,6 +64,7 @@ impl App {
                     match event {
                         Event::Key(event) => self.handle_crossterm_key_event(event),
                         Event::Mouse(event) => self.handle_crossterm_mouse_event(event),
+                        Event::Paste(text) => self.handle_crossterm_paste_event(text),
                         _ => (),
                     }
                  }
