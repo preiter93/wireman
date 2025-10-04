@@ -61,4 +61,3 @@ impl EventHandler for ConfigurationEventHandler {
         }
     }
 }
-
