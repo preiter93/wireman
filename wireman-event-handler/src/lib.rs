@@ -31,11 +31,17 @@ pub trait EventHandler {
     /// registering any specific handling logic.
     fn pass_through_key_events(_: &KeyEvent, _: &mut Self::Context) {}
 
-    /// Passes through key events without any specific handling.
+    /// Passes through mouse events without any specific handling.
     ///
     /// This method is optional and can be used to simply pass through character events without
     /// registering any specific handling logic.
     fn pass_through_mouse_events(_: &MouseEvent, _: &mut Self::Context) {}
+
+    /// Passes through paste events without any specific handling.
+    ///
+    /// This method is optional and can be used to simply pass through character events without
+    /// registering any specific handling logic.
+    fn pass_through_paste_events(_: String, _: &mut Self::Context) {}
 
     /// Retrieves the key event mappings to their corresponding application events.
     ///
@@ -62,11 +68,21 @@ pub trait EventHandler {
     ///
     /// # Arguments
     ///
-    /// * `ctx` - The context in which the key event is handled.
+    /// * `ctx` - The context in which the mouse event is handled.
     /// * `event` - The mouse event to handle.
     fn handle_mouse_event<T: Into<MouseEvent>>(ctx: &mut Self::Context, event: T) {
         let event = event.into();
         Self::pass_through_mouse_events(&event, ctx);
+    }
+
+    /// Handles a paste event by dispatching it to the corresponding application event handler.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context in which the paste event is handled.
+    /// * `text` - The text to paste.
+    fn handle_paste_event(ctx: &mut Self::Context, text: String) {
+        Self::pass_through_paste_events(text, ctx);
     }
 
     /// Converts the key event mappings into a vector of string representations, i.e.
