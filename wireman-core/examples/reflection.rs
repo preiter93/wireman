@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
     let request = ReflectionRequest::new("http://localhost:50051");
     let desc = ProtoDescriptor::from_reflection(request).await?;
     let service = &desc.get_services()[0];
-    let method = &desc.get_methods(service)[1];
+    let method = &desc.get_methods(service)[0];
     println!("Service: {:}", service.full_name());
     println!("Method:  {:}", method.full_name());
     //
