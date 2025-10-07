@@ -1,3 +1,7 @@
+0.2.10 - ?
+===================
+- feat: Support v1alpha server reflection
+
 0.2.9 - 04 Oct 2025
 ===================
 - feat: Support bracketed paste (ctrl+y or cmd+y). See https://github.com/preiter93/wireman/issues/31
