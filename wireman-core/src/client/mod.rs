@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions)]
-//! Module for all grpc related stuff
 pub(crate) mod codec;
 pub mod reflection;
 pub mod tls;
