@@ -6,21 +6,13 @@ pub mod request;
 pub mod response;
 
 pub use message::DynamicMessage;
-use prost_types::{FileDescriptorProto, FileDescriptorSet};
 pub use reflection_request::ReflectionRequest;
 pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
-use crate::{
-    client::reflection::{
-        handle_reflection_dependencies, make_file_by_symbol_reflection_request,
-        make_list_service_reflection_request,
-    },
-    error::Error,
-    Result,
-};
+use crate::{client::reflection::build_file_descriptor_set, error::Error, Result};
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
-use std::{collections::HashMap, path::Path};
+use std::path::Path;
 
 #[derive(Default, Debug, Clone)]
 pub struct ProtoDescriptor {
@@ -51,22 +43,7 @@ impl ProtoDescriptor {
     /// # Errors
     /// Errors if server reflection or dependency resolving fails.
     pub async fn from_reflection(request: ReflectionRequest) -> Result<Self> {
-        let services = make_list_service_reflection_request(&request).await?;
-
-        let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();
-        for service in &services {
-            if service.contains("ServerReflection") {
-                continue;
-            }
-
-            let file_descriptor = make_file_by_symbol_reflection_request(&request, service).await?;
-            handle_reflection_dependencies(&request, &file_descriptor, &mut file_descriptors)
-                .await?;
-            file_descriptors.insert(file_descriptor.name().to_string(), file_descriptor);
-        }
-        let file_descriptor_set = FileDescriptorSet {
-            file: file_descriptors.into_values().collect(),
-        };
+        let file_descriptor_set = build_file_descriptor_set(request).await?;
 
         let pool = DescriptorPool::from_file_descriptor_set(file_descriptor_set)
             .map_err(|e| Error::Internal(format!("err {e}")))?;
