@@ -13,7 +13,10 @@ pub(crate) async fn build_file_descriptor_set(
     let v1_result = v1::build_file_descriptor_set(request.clone()).await;
     if let Err(Error::GrpcError(status)) = &v1_result {
         if status.code == Code::Unimplemented {
-            return v1alpha::build_file_descriptor_set(request).await;
+            match v1alpha::build_file_descriptor_set(request).await {
+                Ok(alpha_result) => return Ok(alpha_result),
+                Err(_) => return v1_result,
+            }
         }
     }
     v1_result
