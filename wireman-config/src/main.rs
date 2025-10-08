@@ -1,5 +1,6 @@
 use wireman_config::cli;
 
 fn main() {
-    let _ = cli::parse();
+    let version = env!("CARGO_PKG_VERSION");
+    let _ = cli::parse(version);
 }
