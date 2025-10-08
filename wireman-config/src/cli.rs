@@ -1,8 +1,9 @@
 use crate::{install::install, setup::setup};
+use clap::{CommandFactory, FromArgMatches};
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
-#[clap(name = "wireman", version)]
+#[clap(name = "wireman")]
 pub struct Args {
     #[clap(subcommand)]
     pub command: Option<Command>,
@@ -26,8 +27,9 @@ pub enum Command {
 }
 
 #[must_use]
-pub fn parse() -> Args {
-    let args = Args::parse();
+pub fn parse(version: &'static str) -> Args {
+    let matches = Args::command().version(version).get_matches();
+    let args = Args::from_arg_matches(&matches).unwrap();
     match args.command {
         Some(Command::Check) => {
             let _ = setup(true, &args);
