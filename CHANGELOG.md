@@ -1,6 +1,7 @@
 0.2.10 - 08 Oct 2025
 ===================
 - feat: Support v1alpha server reflection
+- fix: Show correct wireman version with `--version`
 
 0.2.9 - 04 Oct 2025
 ===================
