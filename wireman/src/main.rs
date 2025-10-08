@@ -15,7 +15,8 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let args = cli::parse();
+    let version = env!("CARGO_PKG_VERSION");
+    let args = cli::parse(version);
     if args.command.is_some() {
         return Ok(());
     }
