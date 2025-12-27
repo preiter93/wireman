@@ -7,3 +7,6 @@ updates:
     groups:
       cargo-dependencies:
         patterns: ["*"]
+    commit-message:
+      prefix: "chore"
+      include: scope
