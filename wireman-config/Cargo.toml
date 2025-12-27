@@ -16,5 +16,5 @@ logger = { package = "wireman-logger", version = "0.1.0" }
 theme = { package = "wireman-theme", version = "0.3.0" }
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
-thiserror = "1.0"
-toml = "0.8.10"
+thiserror = "2.0"
+toml = "0.9.10"
