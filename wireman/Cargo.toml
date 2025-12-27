@@ -1,6 +1,6 @@
 [package]
 name = "wireman"
-version = "0.2.10"
+version = "0.2.11"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
@@ -14,22 +14,22 @@ rust-version = "1.70.0"
 # core = { package = "wireman-core", path = "../wireman-core", version = "0.1.2" }
 # config = { package = "wireman-config", path = "../wireman-config", version = "0.3" }
 # logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
-# theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.2" }
-# event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.1.1" }
+# theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.3" }
+# event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.2" }
 
 core = { package = "wireman-core", version = "0.1.2" }
-config = { package = "wireman-config", version = "0.4" }
+config = { package = "wireman-config", version = "0.5" }
 logger = { package = "wireman-logger", version = "0.1" }
-theme = { package = "wireman-theme", version = "0.2" }
-event-handler = { package = "wireman-event-handler", version = "0.1" }
+theme = { package = "wireman-theme", version = "0.3" }
+event-handler = { package = "wireman-event-handler", version = "0.2" }
 
-# tui-widget-list = { version = "0.13", path = "../../tui-widget-list" }
-tui-widget-list = { version = "0.13" }
-edtui = { version = "0.9", default-features = false, features = ["mouse-support"] }
-# edtui = { package = "edtui", path = "../../edtui", version = "0.9.8" }
-# edtui = { version = "0.9", git = "https://github.com/preiter93/edtui", branch = "tabs" }
-crossterm = { version = "0.28", features = ["events", "event-stream"] }
-ratatui = { package = "ratatui", version = "0.29", features = ["unstable"] }
+# tui-widget-list = { version = "0.14", path = "../../tui-widget-list" }
+tui-widget-list = { version = "0.14" }
+edtui = { version = "0.10", default-features = false, features = ["mouse-support"] }
+# edtui = { package = "edtui", path = "../../edtui", version = "0.10" }
+# edtui = { version = "0.10", git = "https://github.com/preiter93/edtui", branch = "tabs" }
+crossterm = { version = "0.29", features = ["events", "event-stream"] }
+ratatui = { package = "ratatui", version = "0.30", features = ["unstable"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 http = "1"
