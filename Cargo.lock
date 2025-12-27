@@ -3464,7 +3464,7 @@ dependencies = [
 
 [[package]]
 name = "wireman"
-version = "0.2.10"
+version = "0.2.11"
 dependencies = [
  "arboard",
  "crossterm",
