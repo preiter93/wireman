@@ -1,3 +1,7 @@
+0.2.11 - 27 Dec 2025
+===================
+- deps: Bump ratatui version to 0.30
+
 0.2.10 - 08 Oct 2025
 ===================
 - feat: Support v1alpha server reflection
