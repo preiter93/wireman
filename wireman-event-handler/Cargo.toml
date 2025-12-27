@@ -9,5 +9,5 @@ keywords = ["wireman", "event", "hander"]
 license = "MIT"
 
 [dependencies]
-crossterm = "0.28.0"
+crossterm = "0.29.0"
 serde = { version = "1.0", features = ["derive"] }
