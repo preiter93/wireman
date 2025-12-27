@@ -1,6 +1,6 @@
 [package]
 name = "wireman-theme"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "Theme for wireman"
@@ -12,7 +12,7 @@ license = "MIT"
 cssparser = "0.33.0"
 logger = { package = "wireman-logger", version = "0.1" }
 once_cell = "1.19"
-ratatui = "0.29.0"
+ratatui = "0.30.0"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
 toml = "0.8.10"
