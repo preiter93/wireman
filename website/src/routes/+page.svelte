@@ -57,7 +57,7 @@
     <ContentCard title="Configuration" initiallyExpanded={true}>
         <p>
             After initializing wireman, the most important step is to specify proto includes and files. Say you have a project with the
-            following structure
+            following structure:
         </p>
         <pre>
 $HOME/my-project/
@@ -111,7 +111,7 @@ default_auth_header = 'Bearer $(getToken.sh)'
 directory = '$WIREMAN_CONFIG_DIR/history'
 
 # Optional. Autosaves history on request. Defaults to true.
-autosave = true                            
+autosave = true
 
 # Optional. History is enabled by default.
 disabled = false
@@ -121,10 +121,10 @@ disabled = false
 directory = '$WIREMAN_CONFIG_DIR'
 
 # Optional. Defaults to Debug.
-level = 'Debug'                            
+level = 'Debug'
 
 [ui]
-# Optional. Set a UI theme. 
+# Optional. Set a UI theme.
 skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         />
         <p style="padding-top: 18px;">
@@ -180,9 +180,18 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     }
 
     pre {
-        text-align: left;
-        color: var(--gray-lightest);
+        font-family: var(--font-family-mono);
         font-size: var(--font-size-code);
+        font-weight: var(--font-weight-code);
+        color: var(--gray-lightest);
+        text-align: left;
+        background-color: var(--gray-darkest);
+        border: 1px solid var(--gray-light);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 16px 0;
+        overflow-x: auto;
+        line-height: 1.5;
     }
     h3,
     ul {
@@ -238,12 +247,6 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         .header {
             width: 100%;
         }
-    }
-
-    pre {
-        text-align: left;
-        color: var(--gray-lightest);
-        font-size: var(--font-size-code);
     }
 
     p {

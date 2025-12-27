@@ -7,13 +7,15 @@
 {@render children()}
 <svelte:head>
     <style>
-        @import url('https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
     </style>
 </svelte:head>
 
 <style>
     :root {
-        --font-family: 'Raleway', sans-serif;
+        --font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
 
         --font-size-h1: 48px;
         --font-size-h2: 36px;
@@ -28,7 +30,7 @@
         --font-weight-h3: 600;
         --font-weight-h4: 400;
         --font-weight-body: 400;
-        --font-weight-code: 400;
+        --font-weight-code: 500;
 
         --gray-darkest: hsl(230, 16%, 7.5%);
         --gray-dark: hsl(210, 24%, 15%);
@@ -36,16 +38,30 @@
         --gray-light: hsl(210, 30%, 70%);
         --gray-lightest: hsl(210, 40%, 96%);
         --orange: hsl(36, 100%, 50%);
+        --orange-light: hsl(36, 100%, 65%);
         --magenta: hsl(315, 100%, 60%);
+        --magenta-light: hsl(315, 100%, 75%);
         --green: hsl(150, 100%, 40%);
+        --green-light: hsl(150, 100%, 55%);
 
         --icon-size: 18px;
         --icon-size-large: 36px;
         --icon-size-xlarge: 48px;
 
         --text-margin: 18px;
+        --content-spacing: 24px;
+        --border-radius: 12px;
+        --border-radius-small: 8px;
 
         --max-width: 800px;
+
+        --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --shadow-large: 0 8px 25px rgba(0, 0, 0, 0.25);
+
+        --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @media (max-width: 600px) {
@@ -66,6 +82,10 @@
         }
     }
 
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+
     :global(body) {
         margin: 0;
         padding: 0;
@@ -75,7 +95,11 @@
         justify-content: start;
         align-items: center;
         flex-direction: column;
-        height: 100vh;
+        min-height: 100vh;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
 
     :global(h1) {
@@ -133,11 +157,52 @@
     }
 
     :global(code) {
+        font-family: var(--font-family-mono);
         background-color: var(--gray-darkest);
         color: var(--gray-lightest);
         border-radius: 4px;
-        padding: 1px 4px;
-        border: 1px solid var(--gray-light);
+        padding: 2px 6px;
+        border: 1px solid rgba(124, 139, 154, 0.3);
         font-size: var(--font-size-code);
+        font-weight: var(--font-weight-code);
+    }
+
+    :global(*) {
+        box-sizing: border-box;
+    }
+
+    :global(::selection) {
+        background: var(--orange);
+        color: var(--gray-darkest);
+    }
+
+    :global(::-moz-selection) {
+        background: var(--orange);
+        color: var(--gray-darkest);
+    }
+
+    :global(:focus-visible) {
+        outline: 2px solid var(--orange);
+        outline-offset: 2px;
+    }
+
+    /* Scrollbar styling */
+    :global(::-webkit-scrollbar) {
+        width: 8px;
+        height: 8px;
+    }
+
+    :global(::-webkit-scrollbar-track) {
+        background: var(--gray-dark);
+        border-radius: 4px;
+    }
+
+    :global(::-webkit-scrollbar-thumb) {
+        background: var(--gray-medium);
+        border-radius: 4px;
+    }
+
+    :global(::-webkit-scrollbar-thumb:hover) {
+        background: var(--gray-light);
     }
 </style>
