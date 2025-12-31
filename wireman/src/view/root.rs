@@ -39,6 +39,22 @@ impl Root<'_> {
             .render(tabs, buf);
     }
 
+    fn render_info(&self, area: Rect, buf: &mut Buffer) {
+        let theme = Theme::global();
+        let selection = self.ctx.selection.borrow();
+
+        let info = match (
+            selection.selected_service().map(|s| s.name().to_string()),
+            selection.selected_method().map(|m| m.name().to_string()),
+        ) {
+            (Some(service), Some(method)) => format!("{service} > {method}"),
+            (Some(service), None) => service.to_string(),
+            _ => String::new(),
+        };
+
+        Paragraph::new(Span::styled(info, theme.base.focused)).render(area, buf);
+    }
+
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
         match self.ctx.tab {
             Tab::Selection => SelectionPage {
@@ -82,12 +98,14 @@ impl Widget for Root<'_> {
         Block::new().style(theme.base.focused).render(area, buf);
 
         if theme.hide_footer {
-            let [header, content] = layout(area, Direction::Vertical, &[2, 0]);
+            let [header, info, content] = layout(area, Direction::Vertical, &[1, 1, 0]);
             self.render_navbar(header, buf);
+            self.render_info(info, buf);
             self.render_content(content, buf);
         } else {
-            let [header, content, footer] = layout(area, Direction::Vertical, &[2, 0, 1]);
+            let [header, info, content, footer] = layout(area, Direction::Vertical, &[1, 1, 0, 1]);
             self.render_navbar(header, buf);
+            self.render_info(info, buf);
             self.render_content(content, buf);
             self.render_footer(footer, buf);
         }
@@ -110,9 +128,9 @@ impl Widget for Root<'_> {
 }
 
 /// simple helper method to split an area into multiple sub-areas
-pub fn layout<const N: usize>(area: Rect, direction: Direction, heights: &[u16]) -> [Rect; N] {
+pub fn layout<const N: usize>(area: Rect, direction: Direction, sizes: &[u16]) -> [Rect; N] {
     use ratatui::layout::Constraint::{Length, Min};
-    let constraints = heights
+    let constraints = sizes
         .iter()
         .map(|&h| if h > 0 { Length(h) } else { Min(0) });
     if direction == Direction::Vertical {
