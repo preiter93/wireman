@@ -1,3 +1,7 @@
+0.2.12 - ?
+===================
+- feat: Show selected service and method in TUI
+
 0.2.11 - 27 Dec 2025
 ===================
 - deps: Bump ratatui version to 0.30

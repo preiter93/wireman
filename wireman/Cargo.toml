@@ -1,6 +1,6 @@
 [package]
 name = "wireman"
-version = "0.2.11"
+version = "0.2.12"
 edition = "2021"
 authors = ["preiter <phil.reiter93@gmail.com>"]
 description = "A TUI based gRPC client"
