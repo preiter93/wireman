@@ -270,6 +270,11 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
 /// Returns the editors view when selected.
 pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
+    let line_numbers = match theme.editor.line_numbers {
+        theme::LineNumbers::None => edtui::LineNumbers::None,
+        theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
+        theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
+    };
     EditorView::new(state)
         .theme(
             EditorTheme::default()
@@ -288,12 +293,17 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
                 .selection_style(theme.highlight.focused.reversed())
                 .hide_status_line(),
         )
-        .line_numbers(edtui::LineNumbers::Relative)
+        .line_numbers(line_numbers)
 }
 
 /// Returns the editors view when unselected
 pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
+    let line_numbers = match theme.editor.line_numbers {
+        theme::LineNumbers::None => edtui::LineNumbers::None,
+        theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
+        theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
+    };
     EditorView::new(state)
         .theme(
             EditorTheme::default()
@@ -312,7 +322,7 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
                 .cursor_style(theme.base.unfocused)
                 .selection_style(theme.highlight.unfocused.reversed()),
         )
-        .line_numbers(edtui::LineNumbers::Relative)
+        .line_numbers(line_numbers)
 }
 
 /// Returns the editors view for a single line editor when selected.
