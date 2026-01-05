@@ -46,4 +46,4 @@ hide = false
 hide = false
 
 [editor]
-line_numbers = "relative"
+line_numbers = "absolute"

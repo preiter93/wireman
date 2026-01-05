@@ -80,7 +80,7 @@ pub struct Editor {
 impl Default for Editor {
     fn default() -> Self {
         Self {
-            line_numbers: LineNumbers::Relative,
+            line_numbers: LineNumbers::Absolute,
         }
     }
 }

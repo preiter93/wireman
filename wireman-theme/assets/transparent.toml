@@ -32,4 +32,4 @@ foreground = "white"
 foreground = "gray"
 
 [editor]
-line_numbers = "relative"
+line_numbers = "absolute"
