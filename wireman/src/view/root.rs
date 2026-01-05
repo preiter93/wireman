@@ -48,11 +48,10 @@ impl Root<'_> {
             selection.selected_method().map(|m| m.name().to_string()),
         ) {
             (Some(service), Some(method)) => format!("{service} > {method}"),
-            (Some(service), None) => service.to_string(),
             _ => String::new(),
         };
 
-        Paragraph::new(Span::styled(info, theme.base.focused)).render(area, buf);
+        Paragraph::new(Span::styled(info, theme.base.unfocused)).render(area, buf);
     }
 
     fn render_content(&self, area: Rect, buf: &mut Buffer) {
