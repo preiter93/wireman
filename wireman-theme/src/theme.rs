@@ -2,8 +2,22 @@ use crate::{skin, Config};
 use logger::Logger;
 use once_cell::sync::OnceCell;
 use ratatui::{style::Style, widgets::BorderType};
+use serde::{Deserialize, Serialize};
 
 pub static THEME: OnceCell<Theme> = OnceCell::new();
+
+/// Configuration for line numbers in the editor.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LineNumbers {
+    /// Line numbers are disabled (default).
+    #[default]
+    None,
+    /// Display absolute line numbers.
+    Absolute,
+    /// Display relative line numbers.
+    Relative,
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct Theme {
@@ -11,6 +25,7 @@ pub struct Theme {
     pub highlight: Highlight,
     pub border: Border,
     pub title: Title,
+    pub editor: Editor,
     pub hide_footer: bool,
     pub hide_status: bool,
 }
@@ -53,6 +68,19 @@ impl Default for Border {
             focused: Style::default(),
             unfocused: Style::default(),
             border_type: BorderType::Rounded,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Editor {
+    pub line_numbers: LineNumbers,
+}
+
+impl Default for Editor {
+    fn default() -> Self {
+        Self {
+            line_numbers: LineNumbers::Relative,
         }
     }
 }

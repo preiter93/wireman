@@ -706,9 +706,7 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dccc55d23698744432f4be611f47b2c24352d42c7b8d1591912b21f555bd9459"
+version = "0.10.2"
 dependencies = [
  "crossterm",
  "edtui-jagged",
@@ -3810,7 +3808,7 @@ dependencies = [
  "wireman-core 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.0",
 ]
 
 [[package]]
@@ -3823,7 +3821,7 @@ dependencies = [
  "thiserror 2.0.17",
  "toml 0.9.10+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.0",
 ]
 
 [[package]]
@@ -3838,7 +3836,7 @@ dependencies = [
  "thiserror 1.0.69",
  "toml 0.8.23",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.0",
 ]
 
 [[package]]
@@ -3920,19 +3918,6 @@ dependencies = [
 [[package]]
 name = "wireman-theme"
 version = "0.3.0"
-dependencies = [
- "cssparser 0.36.0",
- "once_cell",
- "ratatui",
- "serde",
- "shellexpand",
- "toml 0.9.10+spec-1.1.0",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "wireman-theme"
-version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db42a19fd7e5062e69f7ccc2b9be96cb8b28ec227023f30d3eb8a811d63b68d7"
 dependencies = [
@@ -3942,6 +3927,19 @@ dependencies = [
  "serde",
  "shellexpand",
  "toml 0.8.23",
+ "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wireman-theme"
+version = "0.3.1"
+dependencies = [
+ "cssparser 0.36.0",
+ "once_cell",
+ "ratatui",
+ "serde",
+ "shellexpand",
+ "toml 0.9.10+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

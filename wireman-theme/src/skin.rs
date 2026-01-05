@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, str::FromStr};
 
 use serde::Deserialize;
 
-use crate::{color::Color, set_fg_bg, Theme};
+use crate::{color::Color, set_fg_bg, theme::LineNumbers, Theme};
 
 #[derive(Debug, Deserialize)]
 pub struct Skin {
@@ -20,6 +20,8 @@ pub struct Skin {
     pub footer: Footer,
     #[serde(default)]
     pub status: Status,
+    #[serde(default)]
+    pub editor: Editor,
 }
 
 impl Default for Skin {
@@ -84,6 +86,11 @@ impl Skin {
         } else {
             theme.hide_status = false;
         }
+
+        // Editor
+        if let Some(line_numbers) = self.editor.line_numbers {
+            theme.editor.line_numbers = line_numbers;
+        }
     }
 }
 
@@ -119,6 +126,11 @@ pub(crate) struct Footer {
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Status {
     hide: Option<bool>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct Editor {
+    pub line_numbers: Option<LineNumbers>,
 }
 
 #[derive(Debug, Deserialize, Default)]
