@@ -1,4 +1,4 @@
-0.2.12 - ?
+0.2.12 - 08 Jan 2026
 ===================
 - feat: Show selected service and method in TUI
 - feat: Show absolute line numbers in editor
