@@ -110,11 +110,13 @@ impl Widget for SelectionPage<'_> {
             let text = Text::from(vec![
                 Line::from("It seems you don't have any proto services available. ")
                     .style(theme.base.focused),
-                Line::from("(1) Please configure them in your wireman.toml, or")
+                Line::from(""),
+                Line::from(" 1. Please configure them in your wireman.toml, or")
                     .style(theme.base.focused),
-                Line::from("(2) use server reflection (<C-r>), or").style(theme.base.focused),
-                Line::from("(3) use protos from the current folder (wireman --local-protos).")
+                Line::from(" 2. use server reflection (<C-r>), or").style(theme.base.focused),
+                Line::from(" 3. use protos from the current folder via `wireman --local-protos`")
                     .style(theme.base.focused),
+                Line::from(""),
                 Line::from("For further information see: ").style(theme.base.focused),
                 Line::from("https://preiter93.github.io/wireman/")
                     .underlined()
