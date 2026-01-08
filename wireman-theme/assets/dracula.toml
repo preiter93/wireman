@@ -40,3 +40,6 @@ background = "black"
 [border.unfocused]
 foreground = "gray"
 background = "black"
+
+[editor]
+line_numbers = "absolute"

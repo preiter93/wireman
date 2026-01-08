@@ -1,6 +1,5 @@
 <p align="center">
-    <img src="https://github.com/preiter93/wireman/blob/main/resources/logo-light.png?raw=true#gh-light-mode-only" width="300"/>
-    <img src="https://github.com/preiter93/wireman/blob/main/resources/logo-dark.png?raw=true#gh-dark-mode-only" width="300"/>
+    <img src="https://raw.githubusercontent.com/preiter93/wireman/main/resources/logo-dark.png" width="300"/>
 </p>
 
 <div align="center">

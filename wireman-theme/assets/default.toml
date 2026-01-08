@@ -44,3 +44,6 @@ hide = false
 
 [status]
 hide = false
+
+[editor]
+line_numbers = "absolute"

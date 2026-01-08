@@ -30,3 +30,6 @@ foreground = "white"
 
 [border.unfocused]
 foreground = "gray"
+
+[editor]
+line_numbers = "absolute"

@@ -527,19 +527,6 @@ dependencies = [
 
 [[package]]
 name = "cssparser"
-version = "0.33.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9be934d936a0fbed5bcdc01042b770de1398bf79d0e192f49fa7faea0e99281e"
-dependencies = [
- "cssparser-macros",
- "dtoa-short",
- "itoa",
- "phf 0.11.3",
- "smallvec",
-]
-
-[[package]]
-name = "cssparser"
 version = "0.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2"
@@ -706,9 +693,9 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.10.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dccc55d23698744432f4be611f47b2c24352d42c7b8d1591912b21f555bd9459"
+checksum = "fe3a88a30a90f11f25b195ee7d7f2f9b5fb719a26b23f72db4949dda2a939e4b"
 dependencies = [
  "crossterm",
  "edtui-jagged",
@@ -2543,15 +2530,6 @@ dependencies = [
 
 [[package]]
 name = "serde_spanned"
-version = "0.6.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "serde_spanned"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8bbf91e5a4d6315eee45e704372590b30e260ee83af6639d64557f51b067776"
@@ -2937,38 +2915,17 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.8.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc1beb996b9d83529a9e75c17a1686767d148d70663143c7854d8b4a09ced362"
-dependencies = [
- "serde",
- "serde_spanned 0.6.9",
- "toml_datetime 0.6.11",
- "toml_edit",
-]
-
-[[package]]
-name = "toml"
 version = "0.9.10+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0825052159284a1a8b4d6c0c86cbc801f2da5afd2b225fa548c72f2e74002f48"
 dependencies = [
  "indexmap 2.12.1",
  "serde_core",
- "serde_spanned 1.0.4",
- "toml_datetime 0.7.5+spec-1.1.0",
+ "serde_spanned",
+ "toml_datetime",
  "toml_parser",
  "toml_writer",
  "winnow",
-]
-
-[[package]]
-name = "toml_datetime"
-version = "0.6.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22cddaf88f4fbc13c51aebbf5f8eceb5c7c5a9da2ac40a13519eb5b0a0e8f11c"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -2981,20 +2938,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "toml_edit"
-version = "0.22.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a"
-dependencies = [
- "indexmap 2.12.1",
- "serde",
- "serde_spanned 0.6.9",
- "toml_datetime 0.6.11",
- "toml_write",
- "winnow",
-]
-
-[[package]]
 name = "toml_parser"
 version = "1.0.6+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3002,12 +2945,6 @@ checksum = "a3198b4b0a8e11f09dd03e133c0280504d0801269e9afa46362ffde1cbeebf44"
 dependencies = [
  "winnow",
 ]
-
-[[package]]
-name = "toml_write"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d99f8c9a7727884afe522e9bd5edbfc91a3312b36a77b5fb8926e4c31a41801"
 
 [[package]]
 name = "toml_writer"
@@ -3788,9 +3725,6 @@ name = "winnow"
 version = "0.7.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a5364e9d77fcdeeaa6062ced926ee3381faa2ee02d3eb83a5c27a8825540829"
-dependencies = [
- "memchr",
-]
 
 [[package]]
 name = "wireman"
@@ -3806,39 +3740,39 @@ dependencies = [
  "serde_json",
  "tokio",
  "tui-widget-list",
- "wireman-config 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-config 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-core 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "wireman-config"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "clap",
  "serde",
  "shellexpand",
  "thiserror 2.0.17",
- "toml 0.9.10+spec-1.1.0",
+ "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "wireman-config"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "857438dee3d6bfe78feba09d7b214ca6de64ae84e71ccc063679dbde4eaae048"
+checksum = "9f4fbaafb18426a55476c06678bbe435b67f605e4b704f40002d29340bc2a6b7"
 dependencies = [
  "clap",
  "serde",
  "shellexpand",
- "thiserror 1.0.69",
- "toml 0.8.23",
+ "thiserror 2.0.17",
+ "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3919,29 +3853,29 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
- "cssparser 0.36.0",
+ "cssparser",
  "once_cell",
  "ratatui",
  "serde",
  "shellexpand",
- "toml 0.9.10+spec-1.1.0",
+ "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "wireman-theme"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db42a19fd7e5062e69f7ccc2b9be96cb8b28ec227023f30d3eb8a811d63b68d7"
+checksum = "ae659361e6533fc0522f5f3abade504bbd368e307464b21ddd84e7229ba3ee3d"
 dependencies = [
- "cssparser 0.33.0",
+ "cssparser",
  "once_cell",
  "ratatui",
  "serde",
  "shellexpand",
- "toml 0.8.23",
+ "toml",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
