@@ -53,7 +53,7 @@ Sleep 1.0s
 
 # Make the request
 Sleep 1.0s
-Type 'jwwwa'
+Type 'jwwwwa'
 Type 'John'
 Escape
 Sleep 1.0s
