@@ -21,7 +21,7 @@ core = { package = "wireman-core", version = "0.1.2" }
 config = { package = "wireman-config", version = "0.5.1" }
 logger = { package = "wireman-logger", version = "0.1" }
 theme = { package = "wireman-theme", version = "0.3.1" }
-event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.2" }
+event-handler = { package = "wireman-event-handler", version = "0.3" }
 
 # tui-widget-list = { version = "0.14", path = "../../tui-widget-list" }
 tui-widget-list = { version = "0.14" }
