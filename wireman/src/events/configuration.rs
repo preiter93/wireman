@@ -1,6 +1,8 @@
 use crate::context::AppContext;
 use crossterm::event::MouseEvent;
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 use std::fmt;
 
 pub enum ConfigurationEvents {
@@ -42,9 +44,13 @@ impl EventHandler for ConfigurationEventHandler {
         map
     }
 
-    fn pass_through_key_events(key_event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events<B: Backend>(
+        key_event: &KeyEvent,
+        ctx: &mut Self::Context,
+        terminal: &mut Terminal<B>,
+    ) {
         if let Some(editor) = &mut ctx.configuration.borrow_mut().editor {
-            editor.on_key(key_event.clone().into());
+            editor.on_key(key_event.clone().into(), terminal);
             ctx.disable_root_events = !editor.normal_mode();
         }
     }

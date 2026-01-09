@@ -3,6 +3,8 @@ use crate::{
     model::{headers::HeadersTab, selection::SelectionMode},
 };
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 
 use crate::{
     context::AppContext,
@@ -131,18 +133,22 @@ impl EventHandler for ReflectionDialogEventHandler {
         map
     }
 
-    fn pass_through_key_events(key_event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events<B: Backend>(
+        key_event: &KeyEvent,
+        ctx: &mut Self::Context,
+        terminal: &mut Terminal<B>,
+    ) {
         let tab = ctx.headers.borrow().tab.clone();
         match tab {
             HeadersTab::Addr => {
                 let input = &mut ctx.headers.borrow_mut().addr;
-                input.on_key(key_event.clone().into());
+                input.on_key(key_event.clone().into(), terminal);
                 ctx.disable_root_events = !(input.normal_mode());
             }
             HeadersTab::Auth => {
                 let mut headers = ctx.headers.borrow_mut();
                 let input = headers.auth.selected_editor_mut();
-                input.on_key(key_event.clone().into());
+                input.on_key(key_event.clone().into(), terminal);
                 ctx.disable_root_events = !(input.normal_mode());
             }
             HeadersTab::Meta | HeadersTab::None => (),

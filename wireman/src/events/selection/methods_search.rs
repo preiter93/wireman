@@ -1,5 +1,7 @@
 use crate::context::{AppContext, SelectionTab};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -37,7 +39,11 @@ impl EventHandler for MethodsSearchEventsHandler {
         }
     }
 
-    fn pass_through_key_events(key_event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events<B: Backend>(
+        key_event: &KeyEvent,
+        ctx: &mut Self::Context,
+        _terminal: &mut Terminal<B>,
+    ) {
         if let KeyCode::Char(ch) = key_event.code {
             ctx.selection.borrow_mut().push_char_methods_filter(ch);
         }

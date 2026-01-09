@@ -1,6 +1,8 @@
 use crate::context::{AppContext, MessagesTab};
 use crossterm::event::MouseEvent;
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -100,9 +102,16 @@ impl EventHandler for ResponseEventHandler {
         map
     }
 
-    fn pass_through_key_events(event: &KeyEvent, ctx: &mut Self::Context) {
+    fn pass_through_key_events<B: Backend>(
+        event: &KeyEvent,
+        ctx: &mut Self::Context,
+        terminal: &mut Terminal<B>,
+    ) {
         let response = &mut ctx.messages.borrow_mut().response.editor;
-        response.on_key(event.clone().into());
+        response.on_key(event.clone().into(), terminal);
+        if edtui::system_editor::is_pending(&response.state) {
+            let _ = edtui::system_editor::open(&mut response.state, terminal);
+        }
         ctx.disable_root_events = !response.normal_mode();
     }
 

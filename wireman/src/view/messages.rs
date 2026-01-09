@@ -23,6 +23,7 @@ impl MessagesPage<'_> {
             keys.push(("Esc", "Normal"));
         } else {
             keys.push(("i", "Insert"));
+            keys.push(("<C-e>", "Open in Editor"));
         }
         keys.push(("<C-s>", "Save"));
         keys.push(("<C-q>", "Reset"));

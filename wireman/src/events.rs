@@ -68,11 +68,24 @@ impl App {
                 }
                 // Configuration dialog key events
                 if self.ctx.configuration.borrow().toggled() {
+                    let can_exit = self
+                        .ctx
+                        .configuration
+                        .borrow()
+                        .editor
+                        .as_ref()
+                        .map(|e| e.normal_mode())
+                        .unwrap_or(true);
+
                     match event.code {
-                        KeyCode::Char('e') if event.modifiers == KeyModifiers::CONTROL => {
+                        KeyCode::Esc if can_exit => {
                             self.ctx.configuration.borrow_mut().toggle();
                         }
-                        _ => ConfigurationEventHandler::handle_key_event(&mut self.ctx, event),
+                        _ => ConfigurationEventHandler::handle_key_event(
+                            &mut self.ctx,
+                            event,
+                            &mut self.term,
+                        ),
                     }
                     return;
                 }
@@ -84,45 +97,73 @@ impl App {
                             if self.ctx.selection.borrow().selection_mode.clone()
                                 == SelectionMode::ReflectionDialog =>
                         {
-                            ReflectionDialogEventHandler::handle_key_event(&mut self.ctx, event);
+                            ReflectionDialogEventHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, ReflectionDialogEventHandler);
                             }
                         }
                         SelectionTab::Services => {
-                            ServicesSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
+                            ServicesSelectionEventsHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, ServicesSelectionEventsHandler);
                             }
                         }
                         SelectionTab::Methods => {
-                            MethodsSelectionEventsHandler::handle_key_event(&mut self.ctx, event);
+                            MethodsSelectionEventsHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, MethodsSelectionEventsHandler);
                             }
                         }
                         SelectionTab::SearchServices => {
-                            ServicesSearchEventsHandler::handle_key_event(&mut self.ctx, event);
+                            ServicesSearchEventsHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                         }
                         SelectionTab::SearchMethods => {
-                            MethodsSearchEventsHandler::handle_key_event(&mut self.ctx, event);
+                            MethodsSearchEventsHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                         }
                     },
                     Tab::Headers => {
-                        HeadersEventHandler::handle_key_event(&mut self.ctx, event);
+                        HeadersEventHandler::handle_key_event(&mut self.ctx, event, &mut self.term);
                         if event.code == HELP_KEY && !self.ctx.disable_root_events {
                             Self::toggle_help(&mut self.ctx, HeadersEventHandler);
                         }
                     }
                     Tab::Messages => match self.ctx.messages_tab {
                         MessagesTab::Request => {
-                            RequestEventHandler::handle_key_event(&mut self.ctx, event);
+                            RequestEventHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, RequestEventHandler);
                             }
                         }
                         MessagesTab::Response => {
-                            ResponseEventHandler::handle_key_event(&mut self.ctx, event);
+                            ResponseEventHandler::handle_key_event(
+                                &mut self.ctx,
+                                event,
+                                &mut self.term,
+                            );
                             if event.code == HELP_KEY && !self.ctx.disable_root_events {
                                 Self::toggle_help(&mut self.ctx, ResponseEventHandler);
                             }

@@ -1,4 +1,4 @@
-use edtui::{EditorStatusLine, EditorTheme, EditorView};
+use edtui::{EditorMode, EditorStatusLine, EditorTheme, EditorView};
 use ratatui::{
     layout::{Alignment, Layout},
     style::Stylize,
@@ -16,8 +16,11 @@ pub struct ConfigurationDialog<'a> {
 }
 
 impl ConfigurationDialog<'_> {
-    pub fn footer_keys() -> Vec<(&'static str, &'static str)> {
-        let keys = vec![("<C-e>", "Quit"), ("<C-s>", "Save")];
+    pub fn footer_keys(normal_mode: bool) -> Vec<(&'static str, &'static str)> {
+        let mut keys = vec![("Esc", "Quit"), ("<C-s>", "Save")];
+        if normal_mode {
+            keys.push(("<C-e>", "Open in Editor"));
+        }
         keys
     }
 }
@@ -46,6 +49,12 @@ impl Widget for ConfigurationDialog<'_> {
         let [main, status, info_line] =
             Layout::vertical([Min(0), Length(1), Length(1)]).areas(inner_area);
 
+        let normal_mode = self
+            .model
+            .editor
+            .as_ref()
+            .map_or(false, |e| e.state.mode == EditorMode::Normal);
+
         if let Some(editor) = &mut self.model.editor {
             let view = EditorView::new(&mut editor.state).theme(
                 EditorTheme::default()
@@ -73,7 +82,7 @@ impl Widget for ConfigurationDialog<'_> {
             line.style(theme.base.unfocused).render(info_line, buf);
         };
 
-        let keys = Self::footer_keys();
+        let keys = Self::footer_keys(normal_mode);
         let spans = spans_from_keys(&keys);
         Paragraph::new(Line::from(spans))
             .style(theme.base.focused)

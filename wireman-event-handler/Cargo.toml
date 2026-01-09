@@ -10,4 +10,5 @@ license = "MIT"
 
 [dependencies]
 crossterm = "0.29.0"
+ratatui = "0.30"
 serde = { version = "1.0", features = ["derive"] }
