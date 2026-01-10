@@ -8,72 +8,77 @@ use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
 
 pub fn install() {
     print_header("Install Wireman");
-    println!();
 
-    let mut config_dir = if let Ok(env_config_dir) = var(ENV_CONFIG_DIR) {
-        env_config_dir
-    } else {
-        DEFAULT_CONFIG_DIR.to_string()
-    };
+    // Determine config directory
+    let mut config_dir = var(ENV_CONFIG_DIR).unwrap_or_else(|_| DEFAULT_CONFIG_DIR.to_string());
 
-    let input = read_input(&format!("Install wireman to {config_dir}? [y/n]"));
+    let input = read_input(&format!(
+        "Do you want to install Wireman to \x1b[1;33m{config_dir}\x1b[0m? [y/N] "
+    ));
     if input.trim().to_lowercase() != "y" {
-        let input = read_input("Install instead in");
+        let input = read_input("Install instead in: ");
         config_dir = input.trim().to_string();
     }
+
     let is_default_directory = expand_path(&config_dir) == expand_path(DEFAULT_CONFIG_DIR);
 
+    // Create directory if missing
     if let Err(err) = create_directory_if_missing(expand_path(&config_dir)) {
-        println!("Could not create {config_dir:?}: {err}. ABORT.");
+        println!("\x1b[1;31mError:\x1b[0m Could not create {config_dir:?}: {err}. ABORT.");
         return;
     }
 
+    // Write config
     match write_config_to_toml(expand_path(&config_dir)) {
-        Ok(should_continue) => {
-            if !should_continue {
-                return;
-            }
-        }
+        Ok(should_continue) if !should_continue => return,
         Err(err) => {
-            println!("Could not write config: {err}. ABORT.");
+            println!("\x1b[1;31mError:\x1b[0m Could not write config: {err}. ABORT.");
             return;
         }
+        _ => {}
     }
 
     println!();
     print_header("Further Information");
     println!();
-    println!("- The Wireman configuration file is here: ");
+
+    // Config file path
+    println!("\x1b[1;34mWireman configuration file:\x1b[0m");
     println!();
-    println!("```");
-    println!("{config_dir}/{CONFIG_FNAME}");
-    println!("```");
+    println!("    \x1b[0;37m{config_dir}/{CONFIG_FNAME}\x1b[0m");
     println!();
+
+    // Shell config line if non-default
     if !is_default_directory {
-        println!("- Add the following line to your shell configuration file:");
+        println!("\x1b[1;33mAdd this line to your shell configuration file:\x1b[0m");
         println!();
-        println!("```");
-        println!("export {ENV_CONFIG_DIR}={config_dir}");
-        println!("```");
+        println!("    \x1b[0;37mexport {ENV_CONFIG_DIR}={config_dir}\x1b[0m");
         println!();
     }
-    println!("- Specify the include directories and proto files:");
+
+    // Include directories and proto files
+    println!("\x1b[1;34mInclude directories and proto files:\x1b[0m");
     println!();
-    println!("```");
-    println!("includes = [");
-    println!("    \"$HOME/my-project/services\",");
-    println!("    \"$HOME/my-project/protos\",");
-    println!("]");
-    println!("files = [");
-    println!("    \"order/api.proto\",");
-    println!("    \"price/api.proto\"");
-    println!("]");
-    println!("```");
+    println!("    \x1b[0;37mincludes = [");
+    println!("        \"$HOME/my-project/services\",");
+    println!("        \"$HOME/my-project/protos\",");
+    println!("    ]");
+    println!("    files = [");
+    println!("        \"order/api.proto\",");
+    println!("        \"price/api.proto\"");
+    println!("    ]\x1b[0m");
     println!();
-    println!("For more information, visit the Wireman configuration guide:");
-    println!("🔗 https://github.com/preiter93/wireman?tab=readme-ov-file#setupconfiguration");
+
+    // More info
+    println!("\x1b[1;36mMore information:\x1b[0m");
+    println!("    \x1b[0;34mhttps://github.com/preiter93/wireman?tab=readme-ov-file#setupconfiguration\x1b[0m");
     println!();
-    println!("✅ Once you've completed these steps, you're ready to use Wireman!");
+    println!("\x1b[1;32mSetup complete! You're ready to use Wireman.\x1b[0m");
+}
+
+fn print_header(text: &str) {
+    // Bold + orange text
+    println!("\x1b[1;33m{}\x1b[0m", text);
 }
 
 fn read_input(prompt: &str) -> String {
@@ -165,18 +170,6 @@ fn expand_current_dir(path: &str) -> String {
     } else {
         path.to_string()
     }
-}
-
-fn print_header(text: &str) {
-    let width = 60;
-
-    let decoration = "-".repeat(width);
-    let num_whitespaces = width - text.len();
-    let whitespaces_left = " ".repeat(num_whitespaces / 2);
-    let whitespaces_right = " ".repeat(num_whitespaces / 2 + num_whitespaces % 2);
-    println!("*{decoration}*");
-    println!("*{whitespaces_left}{text}{whitespaces_right}*");
-    println!("*{decoration}*");
 }
 
 // let file_path = config_dir.join("wireman.toml");
