@@ -1,7 +1,7 @@
 # vhs tape/website.tape
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
-# cp website_001.png website_026.png website_080.png website_170.png website_225.png  website_271.png website_326.png website_439.png website_476.png ../../../website/src/lib/assets/.
+# cp website_001.png website_026.png website_080.png website_170.png website_225.png website_249.png website_277.png website_326.png website_460.png website_526.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
@@ -42,9 +42,16 @@ Escape
 Sleep 1s
 Tab
 
+# Request
 Sleep 1s
-Type "jwwwa123"
+Type "jwwwwa123"
 Escape
+Sleep 1s
+# Open external editor (nvim) in request field
+Ctrl+e
+Sleep 1s
+Type ":wq"
+Enter
 Sleep 1s
 Enter
 Sleep 1s
@@ -66,7 +73,7 @@ Ctrl+e
 Sleep 1s
 Ctrl+S
 Sleep 1s
-Ctrl+e
+Escape
 Sleep 1s
 Ctrl+r
 Sleep 1.0s

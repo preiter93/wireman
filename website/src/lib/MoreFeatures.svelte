@@ -1,7 +1,8 @@
 <script lang="ts">
-    import ImgResponse from '$lib/assets/website_271.png';
-    import ImgConfig from '$lib/assets/website_439.png';
-    import ImgReflection from '$lib/assets/website_476.png';
+    import ImgOpenEditor from '$lib/assets/website_249.png';
+    import ImgResponse from '$lib/assets/website_277.png';
+    import ImgConfig from '$lib/assets/website_460.png';
+    import ImgReflection from '$lib/assets/website_526.png';
 
     type ShowElement = {
         title: string;
@@ -11,6 +12,15 @@
     };
 
     let elements: ShowElement[] = [
+        {
+            title: 'Open in system editor',
+            img: ImgOpenEditor,
+            body: `
+          <p style="text-align: center; line-height:1.6em">
+              Press <code>&ltC-e&gt</code> in any input field in normal mode to open the content in your system editor.
+          </p>
+`
+        },
         {
             title: 'Save history',
             img: ImgResponse,
