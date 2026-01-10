@@ -17,13 +17,13 @@
         --font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
         --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
 
-        --font-size-h1: 48px;
-        --font-size-h2: 36px;
-        --font-size-h3: 22px;
-        --font-size-h4: 22px;
-        --font-size-h5: 26px;
-        --font-size-body: 16px;
-        --font-size-code: 14px;
+        --font-size-h1: 40px;
+        --font-size-h2: 28px;
+        --font-size-h3: 18px;
+        --font-size-h4: 18px;
+        --font-size-h5: 22px;
+        --font-size-body: 14px;
+        --font-size-code: 12px;
 
         --font-weight-h1: 900;
         --font-weight-h2: 500;
@@ -44,16 +44,24 @@
         --green: hsl(150, 100%, 40%);
         --green-light: hsl(150, 100%, 55%);
 
-        --icon-size: 18px;
-        --icon-size-large: 36px;
-        --icon-size-xlarge: 48px;
+        --icon-size: 16px;
+        --icon-size-large: 30px;
+        --icon-size-xlarge: 40px;
 
-        --text-margin: 18px;
-        --content-spacing: 24px;
-        --border-radius: 12px;
-        --border-radius-small: 8px;
+        --text-margin: 14px;
+        --content-spacing: 20px;
+        --border-radius: 10px;
+        --border-radius-small: 6px;
 
-        --max-width: 800px;
+        --max-width: 720px;
+        --img-max-width: 540px;
+
+        --card-padding: 24px 20px;
+        --card-margin: 20px 14px 0 14px;
+        --dot-size: 8px;
+        --dot-gap: 10px;
+        --chevron-btn-size: 28px;
+        --chevron-size: 14px;
 
         --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
         --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -66,19 +74,27 @@
 
     @media (max-width: 600px) {
         :root {
-            --font-size-h1: 26px;
-            --font-size-h2: 22px;
-            --font-size-h3: 14px;
-            --font-size-h4: 14px;
-            --font-size-h5: 16px;
-            --font-size-body: 14px;
-            --font-size-code: 12px;
+            --font-size-h1: 22px;
+            --font-size-h2: 18px;
+            --font-size-h3: 13px;
+            --font-size-h4: 13px;
+            --font-size-h5: 14px;
+            --font-size-body: 13px;
+            --font-size-code: 11px;
 
-            --icon-size: 16px;
-            --icon-size-large: 24px;
-            --icon-size-xlarge: 32px;
+            --icon-size: 14px;
+            --icon-size-large: 20px;
+            --icon-size-xlarge: 28px;
 
-            --text-margin: 16px;
+            --text-margin: 12px;
+            --img-max-width: 100%;
+
+            --card-padding: 20px 14px;
+            --card-margin: 16px 10px 0 10px;
+            --dot-size: 6px;
+            --dot-gap: 8px;
+            --chevron-btn-size: 24px;
+            --chevron-size: 12px;
         }
     }
 

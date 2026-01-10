@@ -146,9 +146,9 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
     .container {
         background-color: var(--gray-dark);
         border: 1px solid rgba(124, 139, 154, 0.2);
-        border-radius: 12px;
-        margin: 24px 16px 0 16px;
-        padding: 32px 24px;
+        border-radius: var(--border-radius);
+        margin: var(--card-margin);
+        padding: var(--card-padding);
         position: relative;
         overflow: hidden;
         transition:
@@ -176,14 +176,14 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
     .navigation-dots {
         display: flex;
         justify-content: center;
-        gap: 12px;
-        margin-bottom: 24px;
+        gap: var(--dot-gap);
+        margin-bottom: var(--content-spacing);
     }
 
     .dot {
         all: unset;
-        width: 10px;
-        height: 10px;
+        width: var(--dot-size);
+        height: var(--dot-size);
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.3);
         cursor: pointer;
@@ -213,7 +213,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-bottom: 24px;
+        margin-bottom: var(--content-spacing);
         padding: 0 16px;
     }
 
@@ -221,7 +221,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         padding: 0;
         margin: 0;
         color: var(--orange);
-        font-size: var(--font-size-h2);
+        font-size: var(--font-size-h3);
         font-weight: 600;
         text-align: center;
         flex: 1;
@@ -233,7 +233,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         flex-direction: column;
         align-items: center;
         width: 100%;
-        gap: 24px;
+        gap: var(--content-spacing);
     }
 
     .description {
@@ -266,8 +266,8 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
+        width: var(--chevron-btn-size);
+        height: var(--chevron-btn-size);
         cursor: pointer;
         transition: all 0.2s ease;
     }
@@ -288,8 +288,8 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
     }
 
     .chevron {
-        width: 16px;
-        height: 16px;
+        width: var(--chevron-size);
+        height: var(--chevron-size);
         fill: var(--gray-lightest);
         transition: fill 0.2s ease;
     }
@@ -300,7 +300,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
 
     .img-container {
         width: 100%;
-        max-width: 600px;
+        max-width: var(--img-max-width);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -309,7 +309,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
     .img-wrapper {
         position: relative;
         width: 100%;
-        border-radius: 12px;
+        border-radius: var(--border-radius);
         overflow: hidden;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         transition: box-shadow 0.3s ease;
@@ -327,47 +327,16 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
 
     /* Mobile optimizations */
     @media (max-width: 600px) {
-        .container {
-            margin: 20px 10px 0 10px;
-            padding: 24px 16px;
-            border-radius: 8px;
-        }
-
         .title-section {
             padding: 0 8px;
-            margin-bottom: 20px;
         }
 
         .feature-title {
             font-size: var(--font-size-h3);
         }
 
-        .chevron-btn {
-            width: 28px;
-            height: 28px;
-        }
-
-        .chevron {
-            width: 14px;
-            height: 14px;
-        }
-
-        .body-section {
-            gap: 20px;
-        }
-
         .description :global(p) {
             font-size: var(--font-size-body);
-        }
-
-        .navigation-dots {
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
         }
     }
 

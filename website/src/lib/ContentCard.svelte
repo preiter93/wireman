@@ -127,10 +127,6 @@
         background: rgba(255, 255, 255, 0.05);
     }
 
-    .header:not([disabled]):active {
-        transform: scale(0.99);
-    }
-
     .header:focus-visible {
         outline: 2px solid var(--orange);
         outline-offset: -2px;
@@ -148,7 +144,7 @@
         transition: color 0.3s ease;
     }
 
-    .content-card:hover .title {
+    .content-card.collapsed:hover .title {
         color: var(--orange);
     }
 
