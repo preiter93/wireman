@@ -170,9 +170,9 @@
 <style>
     .container {
         background-color: var(--gray-dark);
-        border: 1px solid rgba(124, 139, 154, 0.2);
-        border-radius: var(--border-radius);
-        margin: var(--card-margin);
+        border: 1px solid rgba(255, 165, 0, 0.2);
+        border-radius: 12px;
+        margin: 14px 10px 0 10px;
         padding: var(--card-padding);
         position: relative;
         overflow: hidden;
@@ -182,19 +182,8 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    .container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: var(--orange);
-        opacity: 0.4;
-    }
-
     .container:hover {
-        border-color: rgba(124, 139, 154, 0.4);
+        border-color: rgba(255, 165, 0, 0.3);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
 
@@ -202,7 +191,7 @@
         display: flex;
         justify-content: center;
         gap: var(--dot-gap);
-        margin-bottom: var(--content-spacing);
+        margin-bottom: calc(var(--content-spacing) * 0.7);
     }
 
     .dot {
@@ -238,8 +227,8 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-bottom: var(--content-spacing);
-        padding: 0 16px;
+        margin-bottom: calc(var(--content-spacing) * 0.7);
+        padding: 0 12px;
     }
 
     .step-title {
@@ -258,7 +247,7 @@
         flex-direction: column;
         align-items: center;
         width: 100%;
-        gap: var(--content-spacing);
+        gap: calc(var(--content-spacing) * 0.7);
     }
 
     .description {

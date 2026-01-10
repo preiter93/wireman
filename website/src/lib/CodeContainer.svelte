@@ -67,8 +67,8 @@
         padding: 6px;
         cursor: pointer;
         transition: all 0.2s ease;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         z-index: 1;
     }
 

@@ -79,7 +79,7 @@
         border: 1px solid rgba(124, 139, 154, 0.2);
         border-radius: 12px;
         padding: 0;
-        margin: 24px 16px 0 16px;
+        margin: 14px 10px 0 10px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -100,23 +100,12 @@
         border-color: rgba(255, 165, 0, 0.2);
     }
 
-    .content-card.expanded::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: var(--orange);
-        opacity: 0.4;
-    }
-
     .header {
         all: unset;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 24px;
+        padding: 10px 14px;
         cursor: pointer;
         transition: background-color 0.2s ease;
         border-radius: 12px;
@@ -182,14 +171,14 @@
     }
 
     .content {
-        padding: 0 24px 24px 24px;
+        padding: 0 14px 14px 14px;
         overflow: hidden;
         background: rgba(255, 255, 255, 0.02);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .content :global(p:first-child) {
-        margin-top: 16px;
+        margin-top: 10px;
     }
 
     .content :global(p:last-child) {
@@ -227,16 +216,16 @@
     /* Mobile optimizations */
     @media (max-width: 600px) {
         .content-card {
-            margin: 20px 10px 0 10px;
+            margin: 10px 6px 0 6px;
             border-radius: 8px;
         }
 
         .header {
-            padding: 16px 18px;
+            padding: 8px 12px;
         }
 
         .content {
-            padding: 0 18px 20px 18px;
+            padding: 0 12px 12px 12px;
         }
 
         .title {

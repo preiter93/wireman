@@ -32,11 +32,11 @@
         --font-weight-body: 400;
         --font-weight-code: 500;
 
-        --gray-darkest: hsl(230, 16%, 7.5%);
-        --gray-dark: hsl(210, 24%, 15%);
-        --gray-medium: hsl(210, 27%, 50%);
-        --gray-light: hsl(210, 30%, 70%);
-        --gray-lightest: hsl(210, 40%, 96%);
+        --gray-darkest: hsl(215, 21%, 7%);
+        --gray-dark: hsl(215, 19%, 13%);
+        --gray-medium: hsl(215, 14%, 45%);
+        --gray-light: hsl(215, 18%, 65%);
+        --gray-lightest: hsl(215, 28%, 92%);
         --orange: hsl(36, 100%, 50%);
         --orange-light: hsl(36, 100%, 65%);
         --magenta: hsl(315, 100%, 60%);
