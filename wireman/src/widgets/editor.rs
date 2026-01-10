@@ -185,13 +185,13 @@ impl TextEditor {
     }
 
     /// Handle key events.
-    pub fn on_key(&mut self, key: KeyEvent) {
+    pub fn on_key<B: Backend>(&mut self, key: KeyEvent, terminal: &mut Terminal<B>) {
         match key.code {
             KeyCode::Tab | KeyCode::BackTab if self.single_line && self.insert_mode() => {
                 SwitchMode(EditorMode::Normal).execute(&mut self.state);
             }
             _ => {
-                self.handler.on_key_event(key, &mut self.state);
+                self.handler.on_key_event(key, &mut self.state, terminal);
             }
         }
 

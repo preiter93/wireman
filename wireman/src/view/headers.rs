@@ -26,6 +26,7 @@ impl<'a> HeadersPage<'a> {
             keys.push(("Esc", "Normal"));
         } else {
             keys.push(("i", "Insert"));
+            keys.push(("<C-e>", "Open in Editor"));
         }
         keys.push(("?", "Help"));
 

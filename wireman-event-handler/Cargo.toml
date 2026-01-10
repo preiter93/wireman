@@ -1,6 +1,6 @@
 [package]
 name = "wireman-event-handler"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Event handler for wireman"
 authors = ["preiter <phil.reiter93@gmail.com>"]
@@ -10,4 +10,5 @@ license = "MIT"
 
 [dependencies]
 crossterm = "0.29.0"
+ratatui = "0.30"
 serde = { version = "1.0", features = ["derive"] }

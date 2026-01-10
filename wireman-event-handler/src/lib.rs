@@ -7,6 +7,8 @@ use ::crossterm::event::MouseEvent;
 pub use key_event::KeyCode;
 pub use key_event::KeyEvent;
 pub use key_event::{KeyModifier, KeyModifiers};
+use ratatui::backend::Backend;
+use ratatui::Terminal;
 use std::fmt::Write as _;
 
 /// A trait for handling events with associated contexts.
@@ -29,7 +31,12 @@ pub trait EventHandler {
     ///
     /// This method is optional and can be used to simply pass through character events without
     /// registering any specific handling logic.
-    fn pass_through_key_events(_: &KeyEvent, _: &mut Self::Context) {}
+    fn pass_through_key_events<B: Backend>(
+        _: &KeyEvent,
+        _: &mut Self::Context,
+        _: &mut Terminal<B>,
+    ) {
+    }
 
     /// Passes through mouse events without any specific handling.
     ///
@@ -54,13 +61,18 @@ pub trait EventHandler {
     ///
     /// * `ctx` - The context in which the key event is handled.
     /// * `event` - The key event to handle.
-    fn handle_key_event<T: Into<KeyEvent>>(ctx: &mut Self::Context, event: T) {
+    /// * `terminal` - The terminal instance for system editor operations.
+    fn handle_key_event<T: Into<KeyEvent>, B: Backend>(
+        ctx: &mut Self::Context,
+        event: T,
+        terminal: &mut Terminal<B>,
+    ) {
         let mappings = Self::key_event_mappings(ctx);
         let event = event.into();
         if let Some(item) = mappings.iter().find(|item| item.0 == event) {
             Self::handle_event(&item.1, ctx);
         } else {
-            Self::pass_through_key_events(&event, ctx);
+            Self::pass_through_key_events(&event, ctx, terminal);
         }
     }
 

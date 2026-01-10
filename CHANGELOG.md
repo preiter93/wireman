@@ -1,3 +1,7 @@
+0.2.13 - 10 Jan 2026
+===================
+- feat: Open system editor with `ctrl+e` to edit e.g. with nvim
+
 0.2.12 - 08 Jan 2026
 ===================
 - feat: Show selected service and method in TUI

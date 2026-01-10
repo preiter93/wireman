@@ -147,6 +147,9 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
 7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard.
 
+## External System Editor
+
+Wireman allows you to open the current editor content in your system's default editor (e.g., `export EDITOR=nvim`). When you're in normal mode on any input field, press `Ctrl+e` to open the content in your external editor. After saving and closing the external editor, the content will be updated in Wireman.
 
 ## Command line flags
 
