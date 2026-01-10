@@ -209,6 +209,7 @@ You can manage your configuration directly within the app:
 - Navigate to the services page.
 - Type `Ctrl-e` to edit the configuration.
 - Save your changes with `Ctrl-s`.
+- Exit with `Esc`.
 
 ## Features
 
