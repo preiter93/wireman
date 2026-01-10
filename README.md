@@ -228,6 +228,11 @@ You can manage your configuration directly within the app:
 - [x] Edit config file in app
 - [x] Server side Streaming
 - [x] Supports wayland
+- [x] Edit with system editor
+
+## Roadmap
+
+- [ ] Mouse navigation
 
 
 [Deps.rs Badge]: https://deps.rs/repo/github/preiter93/wireman/status.svg?path=wireman&style=flat-square
