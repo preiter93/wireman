@@ -1,3 +1,7 @@
+0.2.14 - 10 Jan 2026
+===================
+- feat: Improve UI of `wireman init`
+
 0.2.13 - 10 Jan 2026
 ===================
 - feat: Open system editor with `ctrl+e` to edit e.g. with nvim
