@@ -163,9 +163,9 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
+        height: 1px;
         background-color: var(--orange);
-        opacity: 0.8;
+        opacity: 0.4;
     }
 
     .container:hover {

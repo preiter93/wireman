@@ -97,7 +97,7 @@
     }
 
     .content-card.expanded {
-        border-color: rgba(255, 165, 0, 0.3);
+        border-color: rgba(255, 165, 0, 0.2);
     }
 
     .content-card.expanded::after {
@@ -106,9 +106,9 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
+        height: 1px;
         background-color: var(--orange);
-        opacity: 0.6;
+        opacity: 0.4;
     }
 
     .header {
