@@ -151,6 +151,8 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
 Wireman allows you to open the current editor content in your system's default editor (e.g., `export EDITOR=nvim`). When you're in normal mode on any input field, press `Ctrl+e` to open the content in your external editor. After saving and closing the external editor, the content will be updated in Wireman.
 
+This feature was introduced in v0.2.13.
+
 ## Command line flags
 
 ### Commands
