@@ -53,7 +53,7 @@ impl Widget for ConfigurationDialog<'_> {
             .model
             .editor
             .as_ref()
-            .map_or(false, |e| e.state.mode == EditorMode::Normal);
+            .is_some_and(|e| e.state.mode == EditorMode::Normal);
 
         if let Some(editor) = &mut self.model.editor {
             let view = EditorView::new(&mut editor.state).theme(
