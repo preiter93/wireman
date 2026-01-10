@@ -1,12 +1,15 @@
-# To run this script, install vhs and run `vhs tape/reflection.tape`
-# Make sure to delete the request history/ folder before.
+# VHS demo script for Wireman
+# Run `vhs tape/reflection.tape`
+# Generates tape/reflection.gif
+
 Output "tape/reflection.gif"
 Set Margin 10
 Set Padding 2
 Set BorderRadius 10
 Set Width 1200
 Set Height 750
-Set PlaybackSpeed 0.5
+Set PlaybackSpeed 0.3
+Set TypingSpeed 60ms
 
 Hide
 Type 'alias wireman="../target/debug/wireman"'
@@ -17,25 +20,31 @@ Type "export WIREMAN_CONFIG_DIR=$PWD/configs/empty"
 Enter
 Type "wireman"
 Enter
-Sleep 2.5s
-Set TypingSpeed 500ms
+Sleep 0.3s
 Show
 
-# Initialization
-Sleep 1.0s
+# initialization
+Sleep 0.2s
 
-# Reflection
+# reflection
 Ctrl+r
-Sleep 2.0s
+Sleep 0.2s
 Type 'j'
-Sleep 1.0s
+Sleep 0.2s
 Type 'j'
-Sleep 1.0s
+Sleep 0.2s
 Enter
+Sleep 0.2s
 
-# Select
+# select
 Type 'j'
 Enter
+Sleep 0.2s
 Enter
+Sleep 0.2s
 Enter
-Sleep 1s
+Sleep 0.2s
+Type 'jjwwwwa123'
+Escape
+Enter
+Sleep 0.4s

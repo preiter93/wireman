@@ -48,7 +48,7 @@ func (s *Server) ListFeatures(req *pb.ListFeaturesReq, stream pb.StreamingServic
 	}
 
 	for _, feature := range features {
-		time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 		resp := &pb.ListFeaturesResp{
 			Name: feature,
 		}

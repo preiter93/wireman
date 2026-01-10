@@ -13,7 +13,7 @@ Set PlaybackSpeed 0.3
 Set TypingSpeed 60ms
 
 Hide
-Type 'alias wireman="../target/debug/wireman"'   # setup alias
+Type 'alias wireman="../target/debug/wireman"'
 Enter
 Type 'clear'
 Enter

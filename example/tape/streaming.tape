@@ -1,12 +1,15 @@
-# To run this script, install vhs and run `vhs tape/streaming.tape`
-# Make sure to delete the request history/ folder before.
+# VHS demo script for Wireman
+# Run `vhs tape/streaming.tape`
+# Generates tape/streaming.gif
+
 Output "tape/streaming.gif"
 Set Margin 10
 Set Padding 2
 Set BorderRadius 10
 Set Width 1200
 Set Height 750
-Set PlaybackSpeed 0.5
+Set PlaybackSpeed 0.4
+Set TypingSpeed 60ms
 
 Hide
 Type 'alias wireman="../target/debug/wireman"'
@@ -17,21 +20,23 @@ Type "export WIREMAN_CONFIG_DIR=$PWD/configs/default"
 Enter
 Type "wireman"
 Enter
-Sleep 1.5s
-Set TypingSpeed 500ms
+Sleep 0.3s
 Show
 
-# Initialization
-Sleep 1.0s
+# initialization
+Sleep 0.2s
 
-Sleep 1.0s
+# navigation
+Sleep 0.2s
 Type 'jjj'
-Sleep 0.5s
+Sleep 0.2s
 Enter
-Sleep 0.5s
+Sleep 0.2s
 Enter
-Sleep 0.5s
+Sleep 0.2s
 Enter
-Sleep 0.5s
+
+# streaming
+Sleep 0.2s
 Enter
-Sleep 10s
+Sleep 5.s
