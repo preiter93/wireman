@@ -155,6 +155,20 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         </ul>
     </ContentCard>
 
+    <h2>Use It Your Way</h2>
+
+    <ContentCard title="Use it your way" initiallyExpanded={true}>
+        <p>WireMan works however you prefer:</p>
+        <ul>
+            <li><strong>Vim-style navigation</strong>: Navigate with vim-style keybindings. Hit <code>?</code> to see what's available.</li>
+            <li>
+                <strong>Mouse & system editor</strong>: Wireman can also be operated with the mouse. And you can pop open your system editor
+                with
+                <code>Ctrl+e</code>.
+            </li>
+        </ul>
+    </ContentCard>
+
     <h2>A Tour of Wireman</h2>
 
     <Tour></Tour>
