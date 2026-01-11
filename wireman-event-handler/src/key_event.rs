@@ -14,8 +14,8 @@ impl fmt::Display for KeyEvent {
         let code = format!("{}", self.code);
         let modifiers = self.modifiers.iter().map(|m| match m {
             KeyModifier::Shift => "",
-            KeyModifier::Control => "C-",
-            KeyModifier::Alt => "A-",
+            KeyModifier::Control => "Ctrl-",
+            KeyModifier::Alt => "Alt-",
             KeyModifier::Super => "Su-",
             KeyModifier::Hyper => "H-",
             KeyModifier::Meta => "M-",
@@ -49,6 +49,15 @@ impl KeyEvent {
     pub fn ctrl(code: KeyCode) -> Self {
         Self {
             modifiers: KeyModifiers::ctrl(),
+            code,
+        }
+    }
+
+    /// Creates a new `KeyEvent` instance with the alt modifier.
+    #[must_use]
+    pub fn alt(code: KeyCode) -> Self {
+        Self {
+            modifiers: KeyModifiers::alt(),
             code,
         }
     }
@@ -104,6 +113,12 @@ impl KeyModifiers {
     #[must_use]
     pub fn ctrl() -> Self {
         KeyModifiers(0).add_modifier(KeyModifier::Control)
+    }
+
+    /// Creates a new `KeyModifiers` instance with the alt modifier.
+    #[must_use]
+    pub fn alt() -> Self {
+        KeyModifiers(0).add_modifier(KeyModifier::Alt)
     }
 
     #[must_use]
