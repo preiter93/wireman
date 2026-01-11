@@ -1,3 +1,7 @@
+0.3.1 - 11 Jan 2026
+===================
+- fix: Escape key now correctly exits visual mode after mouse selection
+
 0.3.0 - 11 Jan 2026
 ===================
 - feat: Add mouse navigation support

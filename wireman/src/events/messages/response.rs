@@ -115,6 +115,7 @@ impl EventHandler for ResponseEventHandler {
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
         let editor = &mut ctx.messages.borrow_mut().response.editor;
         editor.on_mouse(*event);
+        ctx.disable_root_events = !editor.normal_mode();
     }
 
     fn pass_through_paste_events(text: String, ctx: &mut Self::Context) {

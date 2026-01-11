@@ -58,6 +58,7 @@ impl EventHandler for ConfigurationEventHandler {
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
         if let Some(editor) = &mut ctx.configuration.borrow_mut().editor {
             editor.on_mouse(*event);
+            ctx.disable_root_events = !editor.normal_mode();
         }
     }
 

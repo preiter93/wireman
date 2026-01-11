@@ -208,6 +208,7 @@ impl EventHandler for RequestEventHandler {
         // Forward the mouse event to the request editor
         let editor = &mut ctx.messages.borrow_mut().request.editor;
         editor.on_mouse(*event);
+        ctx.disable_root_events = !editor.normal_mode();
     }
 
     fn pass_through_paste_events(text: String, ctx: &mut Self::Context) {
