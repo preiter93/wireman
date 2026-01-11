@@ -32,14 +32,13 @@ impl<'a> HeadersPage<'a> {
     }
 
     pub fn footer_keys(model: &HeadersModel) -> Vec<(&'static str, &'static str)> {
-        let mut keys = vec![("^c", "Quit"), ("Tab", "Proceed"), ("j/k/h/l", "Navigate")];
+        let mut keys = vec![("Tab", "Proceed"), ("j/k/h/l", "Navigate")];
         if model.mode() == EditorMode::Insert {
             keys.push(("Esc", "Normal"));
         } else {
             keys.push(("i", "Insert"));
             keys.push(("<C-e>", "Open in Editor"));
         }
-        keys.push(("?", "Help"));
 
         keys
     }
