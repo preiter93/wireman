@@ -28,7 +28,7 @@ impl Root<'_> {
         let [title, tabs] = layout(area, Direction::Horizontal, &[0, 31]);
         Block::new().style(theme.base.focused).render(area, buf);
 
-        let style = theme.base.unfocused;
+        let style = theme.base.unfocused.bold();
         let highlight_style = theme.title.focused;
 
         Paragraph::new(Span::styled("WireMan", theme.highlight.focused).bold()).render(title, buf);

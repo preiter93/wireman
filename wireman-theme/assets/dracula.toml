@@ -28,10 +28,12 @@ background = "black"
 [title.focused]
 foreground = "cyan"
 background = "black"
+bold = true
 
 [title.unfocused]
 foreground = "cyan-dark"
 background = "black"
+bold = true
 
 [border.focused]
 foreground = "orange-dark"

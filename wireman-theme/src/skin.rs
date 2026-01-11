@@ -27,7 +27,7 @@ pub struct Skin {
 
 impl Default for Skin {
     fn default() -> Self {
-        toml::from_str(include_str!("../assets/transparent.toml")).unwrap()
+        toml::from_str(include_str!("../assets/default.toml")).unwrap()
     }
 }
 
@@ -78,10 +78,24 @@ impl Skin {
 
         // Title
         if let Some(target) = &self.title.focused {
-            set_fg_bg!(theme.title.focused, target, self.colors);
+            if let Some(style) = &target.style {
+                set_fg_bg!(theme.title.focused, style, self.colors);
+            }
+            if target.bold.unwrap_or(true) {
+                theme.title.focused = theme.title.focused.bold();
+            }
+        } else {
+            theme.title.focused = theme.title.focused.bold();
         }
         if let Some(target) = &self.title.unfocused {
-            set_fg_bg!(theme.title.unfocused, target, self.colors);
+            if let Some(style) = &target.style {
+                set_fg_bg!(theme.title.unfocused, style, self.colors);
+            }
+            if target.bold.unwrap_or(true) {
+                theme.title.unfocused = theme.title.unfocused.bold();
+            }
+        } else {
+            theme.title.unfocused = theme.title.unfocused.bold();
         }
 
         // Footer
@@ -119,8 +133,15 @@ pub(crate) struct Highlight {
 
 #[derive(Default, Debug, Deserialize)]
 pub(crate) struct Title {
-    pub focused: Option<FgBg>,
-    pub unfocused: Option<FgBg>,
+    pub focused: Option<TitleConfig>,
+    pub unfocused: Option<TitleConfig>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct TitleConfig {
+    #[serde(flatten)]
+    pub style: Option<FgBg>,
+    pub bold: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Default)]
