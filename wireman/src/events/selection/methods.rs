@@ -4,6 +4,7 @@ use crate::{
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::layout::Direction;
 use std::fmt;
 use tui_widget_list::hit_test::Hit;
 
@@ -21,6 +22,7 @@ pub enum MethodsSelectionEvents {
     ToggleReflectionMode,
     UntoggleReflectionMode,
     EditConfig,
+    ToggleMainSplit,
 }
 
 impl fmt::Display for MethodsSelectionEvents {
@@ -38,6 +40,7 @@ impl fmt::Display for MethodsSelectionEvents {
             MethodsSelectionEvents::ToggleReflectionMode => "Toggle Reflection Mode",
             MethodsSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
             MethodsSelectionEvents::EditConfig => "Edit Configuration",
+            MethodsSelectionEvents::ToggleMainSplit => "Toggle main split",
         };
         write!(f, "{display_str}")
     }
@@ -106,13 +109,23 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::EditConfig => {
                 ctx.configuration.borrow_mut().toggle();
             }
+            MethodsSelectionEvents::ToggleMainSplit => {
+                let mut ui = ctx.ui.borrow_mut();
+                ui.main_split = match ui.main_split {
+                    Direction::Vertical => Direction::Horizontal,
+                    Direction::Horizontal => Direction::Vertical,
+                };
+            }
         }
     }
 
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, MethodsSelectionEvents)> {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
         let filter_active = ctx.selection.borrow_mut().methods_filter.is_some();
-        let mut map = vec![];
+        let mut map = vec![(
+            KeyEvent::alt(KeyCode::Char('s')),
+            MethodsSelectionEvents::ToggleMainSplit,
+        )];
         if method_selected {
             map.extend([
                 (

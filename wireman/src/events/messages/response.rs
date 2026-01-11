@@ -2,6 +2,7 @@ use crate::context::{AppContext, MessagesTab};
 use crossterm::event::MouseEvent;
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
+use ratatui::layout::Direction;
 use ratatui::Terminal;
 use std::fmt;
 
@@ -14,6 +15,7 @@ pub enum ResponseEvents {
     CopyResponse,
     IncreaseSize,
     DecreaseSize,
+    ToggleMainSplit,
 }
 
 impl fmt::Display for ResponseEvents {
@@ -26,6 +28,7 @@ impl fmt::Display for ResponseEvents {
             ResponseEvents::CopyAsGrpCurl => "Copy as cURL",
             ResponseEvents::IncreaseSize => "Increase Size",
             ResponseEvents::DecreaseSize => "Decrease Size",
+            ResponseEvents::ToggleMainSplit => "Toggle main split",
         };
         write!(f, "{display_str}")
     }
@@ -67,18 +70,31 @@ impl EventHandler for ResponseEventHandler {
             ResponseEvents::DecreaseSize => {
                 ctx.messages.borrow_mut().request.increase_window_size();
             }
+            ResponseEvents::ToggleMainSplit => {
+                let mut ui = ctx.ui.borrow_mut();
+                ui.main_split = match ui.main_split {
+                    Direction::Vertical => Direction::Horizontal,
+                    Direction::Horizontal => Direction::Vertical,
+                };
+            }
         }
     }
 
     fn key_event_mappings(ctx: &Self::Context) -> Vec<(KeyEvent, ResponseEvents)> {
         let disabled_root_events = ctx.disable_root_events;
+
+        let go_to_request = match ctx.ui.borrow().main_split {
+            Direction::Vertical => 'K',
+            Direction::Horizontal => 'H',
+        };
+
         let mut map = Vec::new();
         if !disabled_root_events {
             map.extend([
                 (KeyEvent::new(KeyCode::Tab), ResponseEvents::NextTab),
                 (KeyEvent::shift(KeyCode::BackTab), ResponseEvents::PrevTab),
                 (
-                    KeyEvent::shift(KeyCode::Char('K')),
+                    KeyEvent::shift(KeyCode::Char(go_to_request)),
                     ResponseEvents::GoToRequest,
                 ),
                 (
@@ -96,6 +112,10 @@ impl EventHandler for ResponseEventHandler {
                 (
                     KeyEvent::new(KeyCode::Char('-')),
                     ResponseEvents::DecreaseSize,
+                ),
+                (
+                    KeyEvent::alt(KeyCode::Char('s')),
+                    ResponseEvents::ToggleMainSplit,
                 ),
             ]);
         }

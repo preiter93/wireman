@@ -12,6 +12,7 @@ pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
     pub tab: MessagesTab,
     pub history_tabs_area: Option<&'a mut Option<[Rect; 5]>>,
+    pub main_split: Direction,
 }
 
 impl MessagesPage<'_> {
@@ -40,26 +41,42 @@ impl Widget for MessagesPage<'_> {
         let theme = theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
         let request_window_size = self.model.request.window_size;
-        let [top, bottom, status] =
-            Layout::vertical([Percentage(request_window_size), Min(0), Length(sl)]).areas(area);
+        let [main, status] = Layout::vertical([Min(0), Length(sl)]).areas(area);
+
+        let [request, response] =
+            Layout::new(self.main_split, [Percentage(request_window_size), Min(0)]).areas(main);
 
         // Request
+        let key = match self.main_split {
+            Direction::Vertical => "K",
+            Direction::Horizontal => "H",
+        };
+        let title = format!(" Request ({key}) ");
+
         let editor = if self.tab == MessagesTab::Request {
-            view_selected(&mut self.model.request.editor.state, " Request (K) ")
+            view_selected(&mut self.model.request.editor.state, title)
         } else {
-            view_unselected(&mut self.model.request.editor.state, " Request (K) ")
+            view_unselected(&mut self.model.request.editor.state, title)
         };
-        editor.render(top, buf);
-        self.model.request.content_area = Some(top);
+
+        editor.render(request, buf);
+        self.model.request.content_area = Some(request);
 
         // Request
-        let editor = if self.tab == MessagesTab::Response {
-            view_selected(&mut self.model.response.editor.state, " Response (J) ")
-        } else {
-            view_unselected(&mut self.model.response.editor.state, " Response (J) ")
+        let key = match self.main_split {
+            Direction::Vertical => "J",
+            Direction::Horizontal => "L",
         };
-        editor.render(bottom, buf);
-        self.model.response.content_area = Some(bottom);
+        let title = format!(" Response ({key}) ");
+
+        let editor = if self.tab == MessagesTab::Response {
+            view_selected(&mut self.model.response.editor.state, title)
+        } else {
+            view_unselected(&mut self.model.response.editor.state, title)
+        };
+
+        editor.render(response, buf);
+        self.model.response.content_area = Some(response);
 
         // Status line
         if !theme.hide_status {

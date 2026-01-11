@@ -5,6 +5,7 @@ use crate::{
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
+use ratatui::layout::Direction;
 use std::fmt;
 use tui_widget_list::hit_test::Hit;
 
@@ -20,6 +21,7 @@ pub enum ServicesSelectionEvents {
     UntoggleReflectionMode,
     EditConfig,
     YankWebsiteLink,
+    ToggleMainSplit,
 }
 
 impl fmt::Display for ServicesSelectionEvents {
@@ -35,6 +37,7 @@ impl fmt::Display for ServicesSelectionEvents {
             ServicesSelectionEvents::UntoggleReflectionMode => "Untoggle Reflection Mode",
             ServicesSelectionEvents::EditConfig => "Edit Configuration",
             ServicesSelectionEvents::YankWebsiteLink => "Yank website link",
+            ServicesSelectionEvents::ToggleMainSplit => "Toggle main split",
         };
         write!(f, "{display_str}")
     }
@@ -85,6 +88,13 @@ impl EventHandler for ServicesSelectionEventsHandler {
             ServicesSelectionEvents::YankWebsiteLink => {
                 yank_to_clipboard("https://preiter93.github.io/wireman/");
             }
+            ServicesSelectionEvents::ToggleMainSplit => {
+                let mut ui = ctx.ui.borrow_mut();
+                ui.main_split = match ui.main_split {
+                    Direction::Vertical => Direction::Horizontal,
+                    Direction::Horizontal => Direction::Vertical,
+                };
+            }
         }
     }
 
@@ -112,6 +122,10 @@ impl EventHandler for ServicesSelectionEventsHandler {
             (
                 KeyEvent::shift(KeyCode::Char('J')),
                 ServicesSelectionEvents::GoToMethods,
+            ),
+            (
+                KeyEvent::alt(KeyCode::Char('s')),
+                ServicesSelectionEvents::ToggleMainSplit,
             ),
         ]);
         if ctx.selection.borrow().selection_mode == SelectionMode::File {

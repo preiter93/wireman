@@ -11,10 +11,10 @@ license = "MIT"
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
 # logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
-theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.3.0" }
+# theme = { package = "wireman-theme", path = "../wireman-theme", version = "0.3.0" }
 
 logger = { package = "wireman-logger", version = "0.1.0" }
-# theme = { package = "wireman-theme", version = "0.3.1" }
+theme = { package = "wireman-theme", version = "^0.3.3" }
 
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"

@@ -84,6 +84,7 @@ impl Root<'_> {
                 model: &mut self.ctx.selection.borrow_mut(),
                 reflection_model: &mut self.ctx.reflection.borrow_mut(),
                 tab: self.ctx.selection_tab,
+                main_split: self.ctx.ui.borrow().main_split,
             }
             .render(area, buf),
             Tab::Messages => {
@@ -92,6 +93,7 @@ impl Root<'_> {
                     model: &mut self.ctx.messages.borrow_mut(),
                     tab: self.ctx.messages_tab,
                     history_tabs_area: Some(&mut history_tabs_area),
+                    main_split: self.ctx.ui.borrow().main_split,
                 }
                 .render(area, buf);
                 self.ctx.ui.borrow_mut().history_tabs = history_tabs_area;

@@ -1,7 +1,7 @@
 use std::{cell::RefCell, error::Error, rc::Rc};
 
 use config::Config;
-use ratatui::prelude::Rect;
+use ratatui::{layout::Direction, prelude::Rect};
 
 use crate::model::{
     configuration::ConfigurationModel, headers::HeadersModel, history::HistoryModel,
@@ -14,6 +14,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 pub struct UiState {
     pub navbar_tabs: Option<[Rect; 3]>,
     pub history_tabs: Option<[Rect; 5]>,
+    pub main_split: Direction,
 }
 
 pub struct AppContext {
@@ -105,6 +106,11 @@ impl AppContext {
             Rc::clone(&history),
         )));
 
+        // The ui model
+        let mut ui = UiState::default();
+        let theme = theme::Theme::global();
+        ui.main_split = theme.layout.main_split;
+
         Ok(Self {
             tab: Tab::default(),
             selection_tab: SelectionTab::default(),
@@ -116,7 +122,7 @@ impl AppContext {
             headers,
             history,
             reflection,
-            ui: Rc::new(RefCell::new(UiState::default())),
+            ui: Rc::new(RefCell::new(ui)),
             configuration,
         })
     }

@@ -6,6 +6,7 @@ use crate::view::reflection_dialog::ReflectionDialog;
 use crate::widgets::list::ListItem;
 use crate::widgets::modal::centered_rect;
 use crate::{context::SelectionTab, model::reflection::ReflectionModel};
+use ratatui::layout::Direction;
 use ratatui::style::{Style, Stylize};
 use ratatui::text::Text;
 use ratatui::{
@@ -22,6 +23,7 @@ pub(crate) struct SelectionPage<'a> {
     pub model: &'a mut SelectionModel,
     pub reflection_model: &'a mut ReflectionModel,
     pub tab: SelectionTab,
+    pub main_split: Direction,
 }
 
 impl SelectionPage<'_> {
@@ -41,7 +43,8 @@ impl Widget for SelectionPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
         let theme = Theme::global();
-        let [top, bottom] = Layout::vertical([Percentage(50), Percentage(50)]).areas(area);
+        let [top, bottom] =
+            Layout::new(self.main_split, [Percentage(50), Percentage(50)]).areas(area);
 
         let mut show_services_search = 0;
         if self.model.services_filter.is_some() || self.tab == SelectionTab::SearchServices {
