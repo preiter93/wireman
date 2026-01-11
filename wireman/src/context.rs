@@ -19,6 +19,7 @@ pub struct UiState {
     pub headers_auth_content: Option<Rect>,
     pub headers_meta_title: Option<Rect>,
     pub headers_meta_content: Option<Rect>,
+    pub history_tabs: Option<[Rect; 5]>,
 }
 
 pub struct AppContext {

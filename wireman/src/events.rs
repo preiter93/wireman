@@ -225,14 +225,29 @@ impl App {
             ..
         } = event
         {
+            let pos = ratatui::prelude::Position { x: column, y: row };
             if let Some(areas) = self.ctx.ui.borrow().navbar_tabs {
-                let pos = ratatui::prelude::Position { x: column, y: row };
                 if areas[0].contains(pos) {
                     self.ctx.tab = Tab::Selection;
                 } else if areas[1].contains(pos) {
                     self.ctx.tab = Tab::Headers;
                 } else if areas[2].contains(pos) {
                     self.ctx.tab = Tab::Messages;
+                }
+            }
+
+            if let Some(areas) = self.ctx.ui.borrow().history_tabs {
+                for (i, area) in areas.iter().enumerate() {
+                    if area.contains(pos) {
+                        let save_spot = i + 1; // Save spots are 1-indexed
+                        self.ctx.history.borrow_mut().select(save_spot);
+                        // Load the history for the selected save spot
+                        self.ctx
+                            .history
+                            .borrow()
+                            .load(&mut self.ctx.messages.borrow_mut());
+                        return;
+                    }
                 }
             }
         }

@@ -13,13 +13,22 @@ use ratatui::{
 use theme::Theme;
 use tui_widget_list::{ListBuilder, ListState, ListView};
 
-pub struct HeadersPage {
+pub struct HeadersPage<'a> {
     model: Rc<std::cell::RefCell<HeadersModel>>,
+    pub history_tabs_area: Option<&'a mut Option<[Rect; 5]>>,
 }
 
-impl HeadersPage {
+impl<'a> HeadersPage<'a> {
     pub fn new(model: std::rc::Rc<std::cell::RefCell<HeadersModel>>) -> Self {
-        Self { model }
+        Self {
+            model,
+            history_tabs_area: None,
+        }
+    }
+
+    pub fn with_history_tabs_area(mut self, area: &'a mut Option<[Rect; 5]>) -> Self {
+        self.history_tabs_area = Some(area);
+        self
     }
 
     pub fn footer_keys(model: &HeadersModel) -> Vec<(&'static str, &'static str)> {
@@ -36,7 +45,7 @@ impl HeadersPage {
     }
 }
 
-impl Widget for HeadersPage {
+impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min};
         let theme = theme::Theme::global();
@@ -147,8 +156,13 @@ impl Widget for HeadersPage {
             .mode(model.mode().name());
         status_line.render(s, buf);
 
-        let history = model.history.borrow();
-        let history = HistoryTabs::new(history.clone(), model.selected_method.clone(), true);
+        let history_model = model.history.borrow().clone();
+        let selected_method = model.selected_method.clone();
+        drop(model);
+        let mut history = HistoryTabs::new(history_model, selected_method, true);
+        if let Some(areas_ref) = self.history_tabs_area {
+            history = history.with_tab_areas(areas_ref);
+        }
         history.render(h, buf);
     }
 }

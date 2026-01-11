@@ -11,6 +11,7 @@ use ratatui::prelude::*;
 pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
     pub tab: MessagesTab,
+    pub history_tabs_area: Option<&'a mut Option<[Rect; 5]>>,
 }
 
 impl MessagesPage<'_> {
@@ -85,11 +86,14 @@ impl Widget for MessagesPage<'_> {
 
             status_line.render(s, buf);
 
-            let history = HistoryTabs::new(
+            let mut history = HistoryTabs::new(
                 self.model.history.borrow().clone(),
                 self.model.selected_method.clone(),
                 true,
             );
+            if let Some(areas_ref) = self.history_tabs_area {
+                history = history.with_tab_areas(areas_ref);
+            }
             history.render(h, buf);
         }
     }

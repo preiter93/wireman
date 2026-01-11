@@ -702,9 +702,9 @@ dependencies = [
 
 [[package]]
 name = "edtui"
-version = "0.10.4"
+version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16bc255eb88742830010940680848fd9f704a460ec868365856f26ad89db1734"
+checksum = "6885d5b8c9e92622905e15149f6e879dba067bdde0a34d66927ad3e0048a098f"
 dependencies = [
  "crossterm",
  "edit",
@@ -3801,7 +3801,7 @@ checksum = "5a5364e9d77fcdeeaa6062ced926ee3381faa2ee02d3eb83a5c27a8825540829"
 
 [[package]]
 name = "wireman"
-version = "0.2.14"
+version = "0.3.0"
 dependencies = [
  "arboard",
  "crossterm",

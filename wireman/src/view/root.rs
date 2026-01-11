@@ -87,15 +87,22 @@ impl Root<'_> {
             }
             .render(area, buf),
             Tab::Messages => {
+                let mut history_tabs_area = self.ctx.ui.borrow().history_tabs;
                 MessagesPage {
                     model: &mut self.ctx.messages.borrow_mut(),
                     tab: self.ctx.messages_tab,
+                    history_tabs_area: Some(&mut history_tabs_area),
                 }
                 .render(area, buf);
+                self.ctx.ui.borrow_mut().history_tabs = history_tabs_area;
             }
             Tab::Headers => {
                 let headers_rc = Rc::clone(&self.ctx.headers);
-                HeadersPage::new(headers_rc).render(area, buf);
+                let mut history_tabs_area = self.ctx.ui.borrow().history_tabs;
+                HeadersPage::new(headers_rc)
+                    .with_history_tabs_area(&mut history_tabs_area)
+                    .render(area, buf);
+                self.ctx.ui.borrow_mut().history_tabs = history_tabs_area;
             }
         };
     }
