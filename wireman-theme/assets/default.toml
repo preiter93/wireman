@@ -44,7 +44,7 @@ background = "black"
 border_type = "rounded"
 
 [layout]
-main_split = "horizontal"
+main_split = "vertical"
 
 [footer]
 hide = false

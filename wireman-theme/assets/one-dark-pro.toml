@@ -46,5 +46,8 @@ foreground = "gray"
 background = "black"
 border_type = "rounded"
 
+[layout]
+main_split = "vertical"
+
 [editor]
 line_numbers = "absolute"
