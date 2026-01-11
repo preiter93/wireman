@@ -11,6 +11,7 @@ use ratatui::prelude::*;
 pub struct MessagesPage<'a> {
     pub model: &'a mut MessagesModel,
     pub tab: MessagesTab,
+    pub history_tabs_area: Option<&'a mut Option<[Rect; 5]>>,
 }
 
 impl MessagesPage<'_> {
@@ -48,6 +49,7 @@ impl Widget for MessagesPage<'_> {
             view_unselected(&mut self.model.request.editor.state, " Request (K) ")
         };
         editor.render(top, buf);
+        self.model.request.content_area = Some(top);
 
         // Request
         let editor = if self.tab == MessagesTab::Response {
@@ -56,6 +58,7 @@ impl Widget for MessagesPage<'_> {
             view_unselected(&mut self.model.response.editor.state, " Response (J) ")
         };
         editor.render(bottom, buf);
+        self.model.response.content_area = Some(bottom);
 
         // Status line
         if !theme.hide_status {
@@ -71,7 +74,8 @@ impl Widget for MessagesPage<'_> {
             };
 
             let mut status_line = EditorStatusLine::default()
-                .style_text(theme.highlight.unfocused.reversed())
+                .style_mode(theme.highlight.unfocused.reversed())
+                .style_search(theme.base.unfocused)
                 .style_line(theme.base.unfocused)
                 .mode(mode.name());
             if mode == EditorMode::Search {
@@ -82,11 +86,14 @@ impl Widget for MessagesPage<'_> {
 
             status_line.render(s, buf);
 
-            let history = HistoryTabs::new(
+            let mut history = HistoryTabs::new(
                 self.model.history.borrow().clone(),
                 self.model.selected_method.clone(),
                 true,
             );
+            if let Some(areas_ref) = self.history_tabs_area {
+                history = history.with_tab_areas(areas_ref);
+            }
             history.render(h, buf);
         }
     }

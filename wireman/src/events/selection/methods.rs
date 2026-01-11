@@ -2,8 +2,10 @@ use crate::{
     context::{AppContext, SelectionTab},
     model::selection::SelectionMode,
 };
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use std::fmt;
+use tui_widget_list::hit_test::Hit;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MethodsSelectionEvents {
@@ -178,5 +180,44 @@ impl EventHandler for MethodsSelectionEventsHandler {
             MethodsSelectionEvents::EditConfig,
         )]);
         map
+    }
+
+    fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        if let MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            ..
+        } = *event
+        {
+            let hit = {
+                let selection = ctx.selection.borrow();
+                selection.methods_state.hit_test(column, row)
+            };
+
+            match hit {
+                Some(Hit::Item(index)) => {
+                    if ctx.selection_tab == SelectionTab::Methods {
+                        {
+                            let state = &mut ctx.selection.borrow_mut().methods_state;
+                            state.select(Some(index));
+                        }
+                        if let Some(method) = ctx.selection.borrow().selected_method() {
+                            ctx.messages.borrow_mut().load_method(&method);
+                            ctx.headers.borrow_mut().set_method(&method);
+                        } else {
+                            ctx.messages.borrow_mut().set_no_method_error();
+                        }
+                        ctx.tab = ctx.tab.next();
+                    } else {
+                        ctx.selection_tab = SelectionTab::Methods;
+                    }
+                }
+                Some(Hit::Area) => {
+                    ctx.selection_tab = SelectionTab::Methods;
+                }
+                None => {}
+            }
+        }
     }
 }

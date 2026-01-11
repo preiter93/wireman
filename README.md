@@ -14,6 +14,13 @@
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
 
+## Use It Your Way
+
+WireMan works however you prefer:
+
+- **Vim-style navigation**: Navigate with vim-style keybindings. Hit `?` to see what's available.
+- **Mouse & system editor**: Wireman can also be operated with the mouse. And you can pop open your system editor with `Ctrl+e`.
+
 # Quick Start
 
 If you prefer a quick overview, you can check out the official [website](https://preiter93.github.io/wireman).
@@ -230,6 +237,7 @@ You can manage your configuration directly within the app:
 - [x] Server side Streaming
 - [x] Supports wayland
 - [x] Edit with system editor
+- [x] Mouse support
 
 ## Roadmap
 

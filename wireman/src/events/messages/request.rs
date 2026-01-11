@@ -205,6 +205,7 @@ impl EventHandler for RequestEventHandler {
     }
 
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        // Forward the mouse event to the request editor
         let editor = &mut ctx.messages.borrow_mut().request.editor;
         editor.on_mouse(*event);
     }

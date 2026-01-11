@@ -7,6 +7,7 @@ use core::{
     MethodDescriptor,
 };
 use futures::{self, stream::once, Stream, StreamExt};
+use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
 use tokio::task::JoinHandle;
 
@@ -326,6 +327,9 @@ pub struct RequestModel {
 
     /// The window size in percentage.
     pub window_size: u16,
+
+    /// Hit-test area of the request editor
+    pub content_area: Option<Rect>,
 }
 
 impl RequestModel {
@@ -337,6 +341,7 @@ impl RequestModel {
             editor: TextEditor::new(),
             metadata: String::new(),
             window_size: 50,
+            content_area: None,
         }
     }
 
@@ -373,6 +378,9 @@ impl RequestModel {
 pub struct ResponseModel {
     // The response text field
     pub editor: TextEditor,
+
+    /// Hit-test area of the response editor
+    pub content_area: Option<Rect>,
 }
 
 impl ResponseModel {
@@ -380,6 +388,7 @@ impl ResponseModel {
     pub fn new() -> Self {
         Self {
             editor: TextEditor::new(),
+            content_area: None,
         }
     }
 

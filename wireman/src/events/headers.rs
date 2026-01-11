@@ -1,4 +1,6 @@
 use crate::{context::AppContext, model::headers::HeadersTab, widgets::editor::TextEditor};
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+use edtui::EditorMode;
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
@@ -287,6 +289,108 @@ impl EventHandler for HeadersEventHandler {
                 input.on_paste(text);
             }
             HeadersTab::None => (),
+        }
+    }
+
+    fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        if let MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            ..
+        } = *event
+        {
+            let disabled = ctx.headers.borrow().disabled_root_events();
+            if disabled {
+                let current_tab = {
+                    let h = ctx.headers.borrow();
+                    h.tab.clone()
+                };
+                match current_tab {
+                    HeadersTab::Meta => {
+                        if let Some(input) = ctx.headers.borrow_mut().selected_editor_mut() {
+                            input.state.mode = EditorMode::Normal;
+                        }
+                    }
+                    HeadersTab::Addr => {
+                        let input = &mut ctx.headers.borrow_mut().addr;
+                        input.state.mode = EditorMode::Normal;
+                    }
+                    HeadersTab::Auth => {
+                        let mut headers = ctx.headers.borrow_mut();
+                        let input = headers.auth.selected_editor_mut();
+                        input.state.mode = EditorMode::Normal;
+                    }
+                    HeadersTab::None => {}
+                }
+                ctx.disable_root_events = false;
+                return;
+            }
+            let pos = ratatui::prelude::Position { x: column, y: row };
+
+            let headers_ref = ctx.headers.borrow();
+            let current = headers_ref.tab.clone();
+            let mut target = None;
+            let mut meta_key_clicked = false;
+            let mut meta_value_clicked = false;
+
+            if headers_ref.addr_title_area.is_some_and(|r| r.contains(pos))
+                || headers_ref
+                    .addr_content_area
+                    .is_some_and(|r| r.contains(pos))
+            {
+                target = Some(HeadersTab::Addr);
+            } else if headers_ref.auth_title_area.is_some_and(|r| r.contains(pos))
+                || headers_ref
+                    .auth_content_area
+                    .is_some_and(|r| r.contains(pos))
+            {
+                target = Some(HeadersTab::Auth);
+            } else if headers_ref.meta_title_area.is_some_and(|r| r.contains(pos)) {
+                target = Some(HeadersTab::Meta);
+                meta_key_clicked = true;
+            } else if let Some(r) = headers_ref.meta_content_area {
+                // TODO: Handle more then one row
+                if r.contains(pos) {
+                    target = Some(HeadersTab::Meta);
+                    let mid_x = r.x + r.width / 2;
+                    if column < mid_x {
+                        meta_key_clicked = true;
+                    } else {
+                        meta_value_clicked = true;
+                    }
+                }
+            }
+            drop(headers_ref);
+
+            if let Some(t) = target {
+                if t != current {
+                    // First click focuses section; if meta is selected select appropriate column.
+                    let mut headers = ctx.headers.borrow_mut();
+                    let is_meta = t == HeadersTab::Meta;
+                    headers.tab = t;
+                    if is_meta {
+                        headers.meta.select();
+                        if meta_value_clicked {
+                            headers.meta.next_col();
+                        }
+                    }
+                    return;
+                }
+            }
+
+            let tab = ctx.headers.borrow().tab.clone();
+            if tab == HeadersTab::Meta {
+                let mut headers = ctx.headers.borrow_mut();
+                if let Some(sel) = headers.meta.selected {
+                    if meta_value_clicked && sel.col == 0 {
+                        headers.meta.next_col();
+                    } else if meta_key_clicked && sel.col == 1 {
+                        headers.meta.prev_col();
+                    }
+                }
+            }
+            // Do not forward mouse to editor here
         }
     }
 }

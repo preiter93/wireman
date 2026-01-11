@@ -5,6 +5,7 @@ use crate::{model::history::HistoryModel, widgets::editor::TextEditor};
 use core::MethodDescriptor;
 use edtui::EditorMode;
 pub use meta::MetaHeaders;
+use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
 
 /// The data model for the `gRPC` headers. Contains authorization
@@ -33,6 +34,14 @@ pub struct HeadersModel {
 
     /// The default auth header
     pub default_auth_header: String,
+
+    /// UI hit-test areas for headers sections
+    pub addr_title_area: Option<Rect>,
+    pub addr_content_area: Option<Rect>,
+    pub auth_title_area: Option<Rect>,
+    pub auth_content_area: Option<Rect>,
+    pub meta_title_area: Option<Rect>,
+    pub meta_content_area: Option<Rect>,
 }
 
 impl Default for HeadersModel {
@@ -61,6 +70,12 @@ impl HeadersModel {
             history,
             default_auth_header: default_auth_header.to_string(),
             default_address: default_address.to_string(),
+            addr_title_area: None,
+            addr_content_area: None,
+            auth_title_area: None,
+            auth_content_area: None,
+            meta_title_area: None,
+            meta_content_area: None,
         }
     }
 

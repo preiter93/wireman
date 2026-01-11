@@ -10,14 +10,15 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Clear, Paragraph, Tabs, Widget},
 };
+use std::rc::Rc;
 use theme::{self, Theme};
 
 pub struct Root<'a> {
-    ctx: &'a AppContext,
+    ctx: &'a mut AppContext,
 }
 
 impl<'a> Root<'a> {
-    pub fn new(ctx: &'a AppContext) -> Self {
+    pub fn new(ctx: &'a mut AppContext) -> Self {
         Root { ctx }
     }
 }
@@ -37,6 +38,29 @@ impl Root<'_> {
             .highlight_style(highlight_style)
             .select(self.ctx.tab.index())
             .render(tabs, buf);
+
+        // Capture tab areas for hit-testing
+        let third = tabs.width / 3;
+        let rem = tabs.width % 3;
+        let r0 = Rect {
+            x: tabs.x,
+            y: tabs.y,
+            width: third,
+            height: tabs.height,
+        };
+        let r1 = Rect {
+            x: tabs.x + third,
+            y: tabs.y,
+            width: third,
+            height: tabs.height,
+        };
+        let r2 = Rect {
+            x: tabs.x + third * 2,
+            y: tabs.y,
+            width: third + rem,
+            height: tabs.height,
+        };
+        self.ctx.ui.borrow_mut().navbar_tabs = Some([r0, r1, r2]);
     }
 
     fn render_info(&self, area: Rect, buf: &mut Buffer) {
@@ -63,14 +87,22 @@ impl Root<'_> {
             }
             .render(area, buf),
             Tab::Messages => {
+                let mut history_tabs_area = self.ctx.ui.borrow().history_tabs;
                 MessagesPage {
                     model: &mut self.ctx.messages.borrow_mut(),
                     tab: self.ctx.messages_tab,
+                    history_tabs_area: Some(&mut history_tabs_area),
                 }
                 .render(area, buf);
+                self.ctx.ui.borrow_mut().history_tabs = history_tabs_area;
             }
             Tab::Headers => {
-                HeadersPage::new(&self.ctx.headers.borrow()).render(area, buf);
+                let headers_rc = Rc::clone(&self.ctx.headers);
+                let mut history_tabs_area = self.ctx.ui.borrow().history_tabs;
+                HeadersPage::new(headers_rc)
+                    .with_history_tabs_area(&mut history_tabs_area)
+                    .render(area, buf);
+                self.ctx.ui.borrow_mut().history_tabs = history_tabs_area;
             }
         };
     }

@@ -109,9 +109,6 @@ impl EventHandler for ResponseEventHandler {
     ) {
         let response = &mut ctx.messages.borrow_mut().response.editor;
         response.on_key(event.clone().into(), terminal);
-        if edtui::system_editor::is_pending(&response.state) {
-            let _ = edtui::system_editor::open(&mut response.state, terminal);
-        }
         ctx.disable_root_events = !response.normal_mode();
     }
 

@@ -11,7 +11,7 @@ use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{server_streaming, unary, RequestResult};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use event_handler::EventHandler;
 use futures::{Stream, StreamExt};
 use logger::Logger;
@@ -212,16 +212,98 @@ impl App {
     }
 
     pub(crate) fn handle_crossterm_mouse_event(&mut self, event: MouseEvent) {
-        if self.ctx.tab == Tab::Messages {
-            match self.ctx.messages_tab {
-                MessagesTab::Request => {
-                    RequestEventHandler::handle_mouse_event(&mut self.ctx, event);
-                }
-                MessagesTab::Response => {
-                    ResponseEventHandler::handle_mouse_event(&mut self.ctx, event);
-                }
-            };
+        if self.ctx.configuration.borrow().toggled() {
+            ConfigurationEventHandler::handle_mouse_event(&mut self.ctx, event);
+            return;
         }
+
+        // Handle navbar tab area click to switch pages (only on left mouse down)
+        if let MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            ..
+        } = event
+        {
+            let pos = ratatui::prelude::Position { x: column, y: row };
+            if let Some(areas) = self.ctx.ui.borrow().navbar_tabs {
+                if areas[0].contains(pos) {
+                    self.ctx.tab = Tab::Selection;
+                } else if areas[1].contains(pos) {
+                    self.ctx.tab = Tab::Headers;
+                } else if areas[2].contains(pos) {
+                    self.ctx.tab = Tab::Messages;
+                }
+            }
+
+            if let Some(areas) = self.ctx.ui.borrow().history_tabs {
+                for (i, area) in areas.iter().enumerate() {
+                    if area.contains(pos) {
+                        let save_spot = i + 1; // Save spots are 1-indexed
+                        self.ctx.history.borrow_mut().select(save_spot);
+                        // Load the history for the selected save spot
+                        self.ctx
+                            .history
+                            .borrow()
+                            .load(&mut self.ctx.messages.borrow_mut());
+                        return;
+                    }
+                }
+            }
+        }
+
+        match self.ctx.tab {
+            Tab::Selection => {
+                ServicesSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
+                MethodsSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
+            }
+            Tab::Headers => {
+                if let MouseEvent {
+                    kind: MouseEventKind::Down(MouseButton::Left),
+                    ..
+                } = event
+                {
+                    HeadersEventHandler::handle_mouse_event(&mut self.ctx, event);
+                }
+            }
+            Tab::Messages => {
+                // Hit-test: switch tabs on click in request/response areas
+                if let MouseEvent {
+                    kind: MouseEventKind::Down(MouseButton::Left),
+                    column,
+                    row,
+                    ..
+                } = event
+                {
+                    let pos = ratatui::prelude::Position { x: column, y: row };
+                    let model_ref = self.ctx.messages.borrow();
+                    if let Some(area) = model_ref.request.content_area {
+                        if area.contains(pos) && self.ctx.messages_tab != MessagesTab::Request {
+                            drop(model_ref);
+                            self.ctx.messages_tab = MessagesTab::Request;
+                            return;
+                        }
+                    }
+                    if let Some(area) = model_ref.response.content_area {
+                        if area.contains(pos) && self.ctx.messages_tab != MessagesTab::Response {
+                            drop(model_ref);
+                            self.ctx.messages_tab = MessagesTab::Response;
+                            return;
+                        }
+                    }
+                    drop(model_ref);
+                }
+
+                match self.ctx.messages_tab {
+                    MessagesTab::Request => {
+                        RequestEventHandler::handle_mouse_event(&mut self.ctx, event);
+                    }
+                    MessagesTab::Response => {
+                        ResponseEventHandler::handle_mouse_event(&mut self.ctx, event);
+                    }
+                };
+            }
+        };
     }
 
     pub(crate) fn handle_crossterm_paste_event(&mut self, text: String) {
