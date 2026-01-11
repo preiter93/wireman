@@ -13,11 +13,11 @@ use ratatui::{
 use theme::{self, Theme};
 
 pub struct Root<'a> {
-    ctx: &'a AppContext,
+    ctx: &'a mut AppContext,
 }
 
 impl<'a> Root<'a> {
-    pub fn new(ctx: &'a AppContext) -> Self {
+    pub fn new(ctx: &'a mut AppContext) -> Self {
         Root { ctx }
     }
 }
@@ -37,6 +37,29 @@ impl Root<'_> {
             .highlight_style(highlight_style)
             .select(self.ctx.tab.index())
             .render(tabs, buf);
+
+        // Capture tab areas for hit-testing
+        let third = tabs.width / 3;
+        let rem = tabs.width % 3;
+        let r0 = Rect {
+            x: tabs.x,
+            y: tabs.y,
+            width: third,
+            height: tabs.height,
+        };
+        let r1 = Rect {
+            x: tabs.x + third,
+            y: tabs.y,
+            width: third,
+            height: tabs.height,
+        };
+        let r2 = Rect {
+            x: tabs.x + third * 2,
+            y: tabs.y,
+            width: third + rem,
+            height: tabs.height,
+        };
+        self.ctx.ui.borrow_mut().navbar_tabs = Some([r0, r1, r2]);
     }
 
     fn render_info(&self, area: Rect, buf: &mut Buffer) {

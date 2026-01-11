@@ -11,7 +11,7 @@ use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
 use crate::model::messages::{server_streaming, unary, RequestResult};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use event_handler::EventHandler;
 use futures::{Stream, StreamExt};
 use logger::Logger;
@@ -215,6 +215,26 @@ impl App {
         if self.ctx.configuration.borrow().toggled() {
             ConfigurationEventHandler::handle_mouse_event(&mut self.ctx, event);
             return;
+        }
+
+        // Handle navbar tab area click to switch pages (only on left mouse down)
+        if let MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            ..
+        } = event
+        {
+            if let Some(areas) = self.ctx.ui.borrow().navbar_tabs {
+                let pos = ratatui::prelude::Position { x: column, y: row };
+                if areas[0].contains(pos) {
+                    self.ctx.tab = Tab::Selection;
+                } else if areas[1].contains(pos) {
+                    self.ctx.tab = Tab::Headers;
+                } else if areas[2].contains(pos) {
+                    self.ctx.tab = Tab::Messages;
+                }
+            }
         }
 
         match self.ctx.tab {

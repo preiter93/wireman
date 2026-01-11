@@ -51,7 +51,7 @@ impl App {
 
     fn draw(&mut self) -> Result<()> {
         self.term.draw(|frame| {
-            let root = Root::new(&self.ctx);
+            let root = Root::new(&mut self.ctx);
             frame.render_widget(root, frame.area());
         })?;
         Ok(())

@@ -1,6 +1,7 @@
 use std::{cell::RefCell, error::Error, rc::Rc};
 
 use config::Config;
+use ratatui::prelude::Rect;
 
 use crate::model::{
     configuration::ConfigurationModel, headers::HeadersModel, history::HistoryModel,
@@ -8,6 +9,11 @@ use crate::model::{
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+#[derive(Default)]
+pub struct UiState {
+    pub navbar_tabs: Option<[Rect; 3]>,
+}
 
 pub struct AppContext {
     /// The main tab.
@@ -41,6 +47,9 @@ pub struct AppContext {
 
     /// The model for the history
     pub history: Rc<RefCell<HistoryModel>>,
+
+    /// Common UI state (e.g., navbar tabs hit-test areas)
+    pub ui: Rc<RefCell<UiState>>,
 
     /// The model for the configuration dialog
     pub configuration: Rc<RefCell<ConfigurationModel>>,
@@ -106,6 +115,7 @@ impl AppContext {
             headers,
             history,
             reflection,
+            ui: Rc::new(RefCell::new(UiState::default())),
             configuration,
         })
     }
