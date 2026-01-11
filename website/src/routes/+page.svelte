@@ -157,7 +157,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 
     <h2>Use It Your Way</h2>
 
-    <ContentCard title="Use it your way" initiallyExpanded={true}>
+    <ContentCard title="Operate with keys or mouse" initiallyExpanded={true}>
         <p>WireMan works however you prefer:</p>
         <ul>
             <li><strong>Vim-style navigation</strong>: Navigate with vim-style keybindings. Hit <code>?</code> to see what's available.</li>
@@ -168,6 +168,15 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
             </li>
         </ul>
     </ContentCard>
+
+    <ContentCard title="Integrate with nvim" initiallyExpanded={true}>
+        <p>
+            Use Wireman in nvim with a floating terminal with
+            <a href="https://github.com/preiter93/wireman.nvim" class="custom-link" target="_blank" rel="noopener noreferrer"
+                >wireman.nvim</a
+            >.
+        </p></ContentCard
+    >
 
     <h2>A Tour of Wireman</h2>
 
