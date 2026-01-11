@@ -19,15 +19,16 @@ impl MessagesPage<'_> {
         let mut keys = vec![("^c", "Quit")];
         if tab == MessagesTab::Request {
             keys.push(("⏎", "Request"));
+            keys.push(("<C-s>", "Save"));
+            keys.push(("<C-q>", "Reset"));
+        } else {
+            keys.push(("Y", "Copy"));
         }
         if insert_mode {
             keys.push(("Esc", "Normal"));
         } else {
-            keys.push(("i", "Insert"));
             keys.push(("<C-e>", "Open in Editor"));
         }
-        keys.push(("<C-s>", "Save"));
-        keys.push(("<C-q>", "Reset"));
         keys.push(("?", "Show help"));
         keys
     }
