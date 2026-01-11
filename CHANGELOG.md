@@ -1,3 +1,7 @@
+0.3.0 - 11 Jan 2026
+===================
+- feat: Add mouse navigation support
+
 0.2.14 - 10 Jan 2026
 ===================
 - feat: Improve UI of `wireman init`
