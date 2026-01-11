@@ -212,16 +212,31 @@ impl App {
     }
 
     pub(crate) fn handle_crossterm_mouse_event(&mut self, event: MouseEvent) {
-        if self.ctx.tab == Tab::Messages {
-            match self.ctx.messages_tab {
-                MessagesTab::Request => {
-                    RequestEventHandler::handle_mouse_event(&mut self.ctx, event);
-                }
-                MessagesTab::Response => {
-                    ResponseEventHandler::handle_mouse_event(&mut self.ctx, event);
-                }
-            };
+        if self.ctx.configuration.borrow().toggled() {
+            ConfigurationEventHandler::handle_mouse_event(&mut self.ctx, event);
+            return;
         }
+
+        match self.ctx.tab {
+            Tab::Selection => {
+                match self.ctx.selection_tab {
+                    SelectionTab::Services => {}
+                    SelectionTab::Methods => {}
+                    _ => {}
+                };
+            }
+            Tab::Messages => {
+                match self.ctx.messages_tab {
+                    MessagesTab::Request => {
+                        RequestEventHandler::handle_mouse_event(&mut self.ctx, event);
+                    }
+                    MessagesTab::Response => {
+                        ResponseEventHandler::handle_mouse_event(&mut self.ctx, event);
+                    }
+                };
+            }
+            _ => {}
+        };
     }
 
     pub(crate) fn handle_crossterm_paste_event(&mut self, text: String) {
