@@ -23,10 +23,10 @@ logger = { package = "wireman-logger", version = "0.1" }
 theme = { package = "wireman-theme", version = "0.3.1" }
 # event-handler = { package = "wireman-event-handler", version = "0.3" }
 
-tui-widget-list = { version = "0.15", path = "../../tui-widget-list" }
-# tui-widget-list = { version = "0.14" }
-# edtui = { version = "0.10.2", default-features = false, features = ["mouse-support", "system-editor"] }
-edtui = { package = "edtui", path = "../../edtui", version = "0.10", default-features = false, features = ["mouse-support", "system-editor"] }
+# tui-widget-list = { version = "0.15", path = "../../tui-widget-list" }
+tui-widget-list = { version = "0.15" }
+edtui = { version = "0.10.4", default-features = false, features = ["mouse-support", "system-editor"] }
+# edtui = { package = "edtui", path = "../../edtui", version = "0.10", default-features = false, features = ["mouse-support", "system-editor"] }
 # edtui = { version = "0.10", git = "https://github.com/preiter93/edtui", branch = "tabs" }
 crossterm = { version = "0.29", features = ["events", "event-stream"] }
 ratatui = { package = "ratatui", version = "0.30", features = ["unstable"] }

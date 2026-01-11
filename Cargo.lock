@@ -703,6 +703,8 @@ dependencies = [
 [[package]]
 name = "edtui"
 version = "0.10.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16bc255eb88742830010940680848fd9f704a460ec868365856f26ad89db1734"
 dependencies = [
  "crossterm",
  "edit",
@@ -2042,12 +2044,12 @@ dependencies = [
 
 [[package]]
 name = "prost"
-version = "0.14.1"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7231bd9b3d3d33c86b58adbac74b5ec0ad9f496b19d22801d773636feaa95f3d"
+checksum = "d2ea70524a2f82d518bce41317d0fae74151505651af45faf1ffbd6fd33f0568"
 dependencies = [
  "bytes",
- "prost-derive 0.14.1",
+ "prost-derive 0.14.3",
 ]
 
 [[package]]
@@ -2065,9 +2067,9 @@ dependencies = [
 
 [[package]]
 name = "prost-derive"
-version = "0.14.1"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9120690fafc389a67ba3803df527d0ec9cbbc9cc45e4cc20b332996dfb672425"
+checksum = "27c6023962132f4b30eb4c172c91ce92d933da334c59c23cddee82358ddafb0b"
 dependencies = [
  "anyhow",
  "itertools 0.14.0",
@@ -2101,8 +2103,8 @@ dependencies = [
  "base64",
  "logos 0.15.1",
  "miette",
- "prost 0.14.1",
- "prost-types 0.14.1",
+ "prost 0.14.3",
+ "prost-types 0.14.3",
  "serde",
  "serde-value",
 ]
@@ -2118,11 +2120,11 @@ dependencies = [
 
 [[package]]
 name = "prost-types"
-version = "0.14.1"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9b4db3d6da204ed77bb26ba83b6122a73aeb2e87e25fbf7ad2e84c4ccbf8f72"
+checksum = "8991c4cbdb8bc5b11f0b074ffe286c30e523de90fee5ba8132f1399f23cb3dd7"
 dependencies = [
- "prost 0.14.1",
+ "prost 0.14.3",
 ]
 
 [[package]]
@@ -2148,9 +2150,9 @@ checksum = "4f25a07a73c6717f0b9bbbd685918f5df9815f7efba450b83d9c9dea41f0e3a1"
 dependencies = [
  "bytes",
  "miette",
- "prost 0.14.1",
+ "prost 0.14.3",
  "prost-reflect 0.16.3",
- "prost-types 0.14.1",
+ "prost-types 0.14.3",
  "protox-parse 0.9.0",
  "thiserror 2.0.17",
 ]
@@ -2175,7 +2177,7 @@ checksum = "072eee358134396a4643dff81cfff1c255c9fbd3fb296be14bdb6a26f9156366"
 dependencies = [
  "logos 0.15.1",
  "miette",
- "prost-types 0.14.1",
+ "prost-types 0.14.3",
  "thiserror 2.0.17",
 ]
 
@@ -3072,7 +3074,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "66bd50ad6ce1252d87ef024b3d64fe4c3cf54a86fb9ef4c631fdd0ded7aeaa67"
 dependencies = [
  "bytes",
- "prost 0.14.1",
+ "prost 0.14.3",
  "tonic 0.14.2",
 ]
 
@@ -3095,8 +3097,8 @@ version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34da53e8387581d66db16ff01f98a70b426b091fdf76856e289d5c1bd386ed7b"
 dependencies = [
- "prost 0.14.1",
- "prost-types 0.14.1",
+ "prost 0.14.3",
+ "prost-types 0.14.3",
  "tokio",
  "tokio-stream",
  "tonic 0.14.2",
@@ -3205,6 +3207,8 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 [[package]]
 name = "tui-widget-list"
 version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81a82508e870aa543ffbd7a1720fff6dab4f985f629261de8db7502a462959d3"
 dependencies = [
  "ratatui-core",
  "ratatui-widgets",
@@ -3849,9 +3853,9 @@ name = "wireman-core"
 version = "0.1.6"
 dependencies = [
  "http",
- "prost 0.14.1",
+ "prost 0.14.3",
  "prost-reflect 0.16.3",
- "prost-types 0.14.1",
+ "prost-types 0.14.3",
  "protox 0.9.1",
  "serde",
  "serde_json",
