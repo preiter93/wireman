@@ -222,6 +222,9 @@ You can manage your configuration directly within the app:
 
 Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).
 
+![](https://raw.githubusercontent.com/preiter93/wireman.nvim/main/assets/demo.png?raw=true)
+(theme: [one-dark-pro](https://github.com/preiter93/wireman/blob/main/wireman-theme/assets/one-dark-pro.toml))
+
 ## Features
 
 - [x] Unary gRPC
