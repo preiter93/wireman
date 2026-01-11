@@ -19,7 +19,7 @@ WireMan is an ideal choice for developers testing gRPC endpoints directly from t
 WireMan works however you prefer:
 
 - **Vim-style navigation**: Navigate with vim-style keybindings. Hit `?` to see what's available.
-- **Mouse & system editor**: Wireman can also be operated with the mouse. And you can pop open your system editor with `Ctrl+e`.
+- **Mouse & system editor**: Wireman can also be operated with the mouse. And you can open your system editor with `Ctrl+e`.
 
 # Quick Start
 
