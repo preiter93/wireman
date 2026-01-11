@@ -3815,11 +3815,7 @@ dependencies = [
  "tui-widget-list",
  "wireman-config",
  "wireman-core 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
-<<<<<<< Updated upstream
- "wireman-event-handler 0.3.0",
-=======
- "wireman-event-handler",
->>>>>>> Stashed changes
+ "wireman-event-handler 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-theme",
 ]
@@ -3877,18 +3873,6 @@ dependencies = [
 
 [[package]]
 name = "wireman-event-handler"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "865fbf9363fb94f421238ba453e37bac2ad0fa60f50a325858ecab0530b3bddd"
-dependencies = [
- "crossterm",
- "ratatui",
- "serde",
-]
-
-[[package]]
-<<<<<<< Updated upstream
-name = "wireman-event-handler"
 version = "0.3.1"
 dependencies = [
  "crossterm",
@@ -3897,8 +3881,17 @@ dependencies = [
 ]
 
 [[package]]
-=======
->>>>>>> Stashed changes
+name = "wireman-event-handler"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7cc832bc4e135e11f75b6502e31650d8ecd1a147e0d0b8c8308d37f4b0e6ee53"
+dependencies = [
+ "crossterm",
+ "ratatui",
+ "serde",
+]
+
+[[package]]
 name = "wireman-logger"
 version = "0.1.0"
 dependencies = [
@@ -3920,7 +3913,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "cssparser",
  "once_cell",

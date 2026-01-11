@@ -1,7 +1,7 @@
 use crate::{skin, Config};
 use logger::Logger;
 use once_cell::sync::OnceCell;
-use ratatui::{style::Style, widgets::BorderType};
+use ratatui::{layout::Direction, style::Style, widgets::BorderType};
 use serde::{Deserialize, Serialize};
 
 pub static THEME: OnceCell<Theme> = OnceCell::new();
@@ -21,6 +21,7 @@ pub enum LineNumbers {
 
 #[derive(Debug, Default, Clone)]
 pub struct Theme {
+    pub layout: Layout,
     pub base: Base,
     pub highlight: Highlight,
     pub border: Border,
@@ -34,6 +35,11 @@ impl Theme {
     pub(crate) fn update_from_skin(&mut self, skin: &skin::Skin) {
         skin.apply_to(self);
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Layout {
+    pub main_split: Direction,
 }
 
 #[derive(Debug, Clone, Default)]

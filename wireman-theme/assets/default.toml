@@ -43,6 +43,9 @@ foreground = "gray"
 background = "black"
 border_type = "rounded"
 
+[layout]
+main_split = "horizontal"
+
 [footer]
 hide = false
 

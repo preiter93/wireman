@@ -23,6 +23,8 @@ pub struct Skin {
     pub status: Status,
     #[serde(default)]
     pub editor: Editor,
+    #[serde(default)]
+    pub layout: Layout,
 }
 
 impl Default for Skin {
@@ -42,6 +44,14 @@ impl Skin {
 
     #[allow(clippy::too_many_lines)]
     pub(crate) fn apply_to(&self, theme: &mut Theme) {
+        // Layout
+        if let Some(main_split) = &self.layout.main_split {
+            theme.layout.main_split = match main_split {
+                SplitDirection::Vertical => ratatui::layout::Direction::Vertical,
+                SplitDirection::Horizontal => ratatui::layout::Direction::Horizontal,
+            }
+        }
+
         // Base
         if let Some(target) = &self.base.focused {
             set_fg_bg!(theme.base.focused, target, self.colors);
@@ -178,6 +188,19 @@ pub(crate) struct Editor {
 pub(crate) struct FgBg {
     pub foreground: Option<String>,
     pub background: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct Layout {
+    pub main_split: Option<SplitDirection>,
+}
+
+#[derive(Default, Debug, Deserialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum SplitDirection {
+    #[default]
+    Vertical,
+    Horizontal,
 }
 
 pub(crate) fn resolve_color(colors: &HashMap<String, Color>, color: Option<&str>) -> Option<Color> {
