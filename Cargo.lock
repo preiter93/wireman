@@ -703,8 +703,6 @@ dependencies = [
 [[package]]
 name = "edtui"
 version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1757cf6d748d08ce1066d636f55748890e5c0f1f44f3c68632a1ba94a7a3d0c"
 dependencies = [
  "crossterm",
  "edit",

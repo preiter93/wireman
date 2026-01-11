@@ -71,7 +71,8 @@ impl Widget for MessagesPage<'_> {
             };
 
             let mut status_line = EditorStatusLine::default()
-                .style_text(theme.highlight.unfocused.reversed())
+                .style_mode(theme.highlight.unfocused.reversed())
+                .style_search(theme.base.unfocused)
                 .style_line(theme.base.unfocused)
                 .mode(mode.name());
             if mode == EditorMode::Search {

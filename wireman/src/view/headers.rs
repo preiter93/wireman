@@ -141,7 +141,8 @@ impl Widget for HeadersPage {
         let [s, h] = Layout::horizontal([Min(0), Length(60)]).areas(status);
 
         let status_line = EditorStatusLine::default()
-            .style_text(theme.highlight.unfocused.reversed())
+            .style_mode(theme.highlight.unfocused.reversed())
+            .style_search(theme.base.unfocused)
             .style_line(theme.base.unfocused)
             .mode(model.mode().name());
         status_line.render(s, buf);

@@ -191,7 +191,15 @@ impl TextEditor {
                 SwitchMode(EditorMode::Normal).execute(&mut self.state);
             }
             _ => {
-                self.handler.on_key_event(key, &mut self.state, terminal);
+                self.handler.on_key_event(key, &mut self.state);
+                if edtui::system_editor::is_pending(&self.state) {
+                    let _ = edtui::system_editor::open(&mut self.state, terminal);
+                    let _ = crossterm::execute!(
+                        std::io::stdout(),
+                        crossterm::event::EnableMouseCapture,
+                        crossterm::event::EnableBracketedPaste
+                    );
+                }
             }
         }
 
