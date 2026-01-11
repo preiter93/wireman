@@ -69,7 +69,7 @@
             img: ImgCopy,
             body: `
             <p style="text-align: center; line-height:1.6em">
-                Switch between the request and response editors using <code>J/K</code>. Copy the response with <code>VGy</code> to your clipboard.
+                Switch between the request and response editors using <code>J/K</code>. Copy the response with <code>Y</code> to your clipboard.
             </p>
 `
         }
