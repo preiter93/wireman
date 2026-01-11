@@ -18,7 +18,7 @@
 
 {#snippet link(/** @type {string} */ name)}
     <td>
-        <a href="https://github.com/preiter93/wireman/releases/download/v0.2.14/{name}" download>
+        <a href="https://github.com/preiter93/wireman/releases/download/v0.3.0/{name}" download>
             {name}
         </a>
     </td>
@@ -36,32 +36,32 @@
         <tr>
             {@render linux()}
             <td>ARM (aarch64)</td>
-            {@render link('wireman-0.2.14-aarch64-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.3.0-aarch64-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render linux()}
             <td>x86 (i686)</td>
-            {@render link('wireman-0.2.14-i686-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.3.0-i686-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render linux()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.14-x86_64-unknown-linux-gnu.tar.gz')}
+            {@render link('wireman-0.3.0-x86_64-unknown-linux-gnu.tar.gz')}
         </tr>
         <tr>
             {@render macos()}
             <td>ARM (aarch64)</td>
-            {@render link('wireman-0.2.14-aarch64-apple-darwin.tar.gz')}
+            {@render link('wireman-0.3.0-aarch64-apple-darwin.tar.gz')}
         </tr>
         <tr>
             {@render macos()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.14-x86_64-apple-darwin.tar.gz')}
+            {@render link('wireman-0.3.0-x86_64-apple-darwin.tar.gz')}
         </tr>
         <tr>
             {@render windows()}
             <td>x86_64</td>
-            {@render link('wireman-0.2.14-x86_64-pc-windows-msvc.zip')}
+            {@render link('wireman-0.3.0-x86_64-pc-windows-msvc.zip')}
         </tr>
     </tbody>
 </table>
