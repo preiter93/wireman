@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use super::root::layout;
 use crate::model::headers::{AuthSelection, HeadersModel, HeadersTab};
 use crate::view::history_tab::HistoryTabs;
@@ -11,16 +13,16 @@ use ratatui::{
 use theme::Theme;
 use tui_widget_list::{ListBuilder, ListState, ListView};
 
-pub struct HeadersPage<'a> {
-    model: &'a HeadersModel,
+pub struct HeadersPage {
+    model: Rc<std::cell::RefCell<HeadersModel>>,
 }
 
-impl<'a> HeadersPage<'a> {
-    pub fn new(model: &'a HeadersModel) -> Self {
+impl HeadersPage {
+    pub fn new(model: std::rc::Rc<std::cell::RefCell<HeadersModel>>) -> Self {
         Self { model }
     }
 
-    pub fn footer_keys(model: &'a HeadersModel) -> Vec<(&'static str, &'static str)> {
+    pub fn footer_keys(model: &HeadersModel) -> Vec<(&'static str, &'static str)> {
         let mut keys = vec![("^c", "Quit"), ("Tab", "Proceed"), ("j/k/h/l", "Navigate")];
         if model.mode() == EditorMode::Insert {
             keys.push(("Esc", "Normal"));
@@ -34,17 +36,29 @@ impl<'a> HeadersPage<'a> {
     }
 }
 
-impl Widget for HeadersPage<'_> {
+impl Widget for HeadersPage {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min};
         let theme = theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
-        let is_auth_selected = self.model.tab == HeadersTab::Auth;
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);
 
+        {
+            let mut model_mut = self.model.borrow_mut();
+            model_mut.addr_title_area = Some(addr_title);
+            model_mut.addr_content_area = Some(addr_content);
+            model_mut.auth_title_area = Some(auth_title);
+            model_mut.auth_content_area = Some(auth_content);
+            model_mut.meta_title_area = Some(meta_title);
+            model_mut.meta_content_area = Some(meta_content);
+        }
+
+        let model = self.model.borrow();
+        let is_auth_selected = model.tab == HeadersTab::Auth;
+
         // Address
-        let style = if self.model.tab == HeadersTab::Addr {
+        let style = if model.tab == HeadersTab::Addr {
             theme.title.focused
         } else {
             theme.title.unfocused
@@ -56,14 +70,14 @@ impl Widget for HeadersPage<'_> {
             .render(addr_title, buf);
 
         Address {
-            state: self.model.addr.state.clone(),
+            state: model.addr.state.clone(),
             title: String::new(),
-            selected: self.model.tab == HeadersTab::Addr,
+            selected: model.tab == HeadersTab::Addr,
         }
         .render(addr_content, buf);
 
         // Authentication
-        let style = if self.model.tab == HeadersTab::Auth {
+        let style = if model.tab == HeadersTab::Auth {
             theme.title.focused
         } else {
             theme.title.unfocused
@@ -74,15 +88,15 @@ impl Widget for HeadersPage<'_> {
             .title_style(style)
             .render(auth_title, buf);
 
-        let body = match self.model.auth.selected {
+        let body = match model.auth.selected {
             AuthSelection::Bearer => Authentication {
-                state: self.model.auth.bearer.state.clone(),
+                state: model.auth.bearer.state.clone(),
                 title: String::new(),
                 selected: is_auth_selected,
                 selected_tag: 0,
             },
             AuthSelection::Basic => Authentication {
-                state: self.model.auth.basic.state.clone(),
+                state: model.auth.basic.state.clone(),
                 title: String::new(),
                 selected: is_auth_selected,
                 selected_tag: 1,
@@ -91,7 +105,7 @@ impl Widget for HeadersPage<'_> {
         body.render(auth_content, buf);
 
         // Metadata
-        let style = if self.model.tab == HeadersTab::Meta {
+        let style = if model.tab == HeadersTab::Meta {
             theme.title.focused
         } else {
             theme.title.unfocused
@@ -102,8 +116,8 @@ impl Widget for HeadersPage<'_> {
             .title_style(style)
             .render(meta_title, buf);
 
-        let headers = &self.model.meta.headers;
-        let index = self.model.meta.selected;
+        let headers = &model.meta.headers;
+        let index = model.meta.selected;
         Metadata {
             content: headers
                 .iter()
@@ -111,16 +125,16 @@ impl Widget for HeadersPage<'_> {
                 .map(|(i, x)| KV {
                     key: x.0.state.clone(),
                     val: x.1.state.clone(),
-                    key_selected: (self.model.tab == HeadersTab::Meta)
+                    key_selected: (model.tab == HeadersTab::Meta)
                         && index.is_some_and(|x| x.row == i && x.col == 0),
-                    val_selected: (self.model.tab == HeadersTab::Meta)
+                    val_selected: (model.tab == HeadersTab::Meta)
                         && index.is_some_and(|x| x.row == i && x.col == 1),
-                    show_border_title: (self.model.tab == HeadersTab::Meta)
+                    show_border_title: (model.tab == HeadersTab::Meta)
                         && index.is_some_and(|x| x.row == i),
                 })
                 .collect(),
             selected_row: index.map(|x| x.row),
-            focused: self.model.tab == HeadersTab::Meta,
+            focused: model.tab == HeadersTab::Meta,
         }
         .render(meta_content, buf);
 
@@ -129,11 +143,11 @@ impl Widget for HeadersPage<'_> {
         let status_line = EditorStatusLine::default()
             .style_text(theme.highlight.unfocused.reversed())
             .style_line(theme.base.unfocused)
-            .mode(self.model.mode().name());
+            .mode(model.mode().name());
         status_line.render(s, buf);
 
-        let history = self.model.history.borrow();
-        let history = HistoryTabs::new(history.clone(), self.model.selected_method.clone(), true);
+        let history = model.history.borrow();
+        let history = HistoryTabs::new(history.clone(), model.selected_method.clone(), true);
         history.render(h, buf);
     }
 }

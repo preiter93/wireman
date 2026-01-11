@@ -242,6 +242,15 @@ impl App {
                 ServicesSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
                 MethodsSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
             }
+            Tab::Headers => {
+                if let MouseEvent {
+                    kind: MouseEventKind::Down(MouseButton::Left),
+                    ..
+                } = event
+                {
+                    HeadersEventHandler::handle_mouse_event(&mut self.ctx, event);
+                }
+            }
             Tab::Messages => {
                 match self.ctx.messages_tab {
                     MessagesTab::Request => {
@@ -252,7 +261,6 @@ impl App {
                     }
                 };
             }
-            _ => {}
         };
     }
 

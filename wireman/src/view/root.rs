@@ -10,6 +10,7 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Clear, Paragraph, Tabs, Widget},
 };
+use std::rc::Rc;
 use theme::{self, Theme};
 
 pub struct Root<'a> {
@@ -93,7 +94,8 @@ impl Root<'_> {
                 .render(area, buf);
             }
             Tab::Headers => {
-                HeadersPage::new(&self.ctx.headers.borrow()).render(area, buf);
+                let headers_rc = Rc::clone(&self.ctx.headers);
+                HeadersPage::new(headers_rc).render(area, buf);
             }
         };
     }

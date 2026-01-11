@@ -13,6 +13,12 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 #[derive(Default)]
 pub struct UiState {
     pub navbar_tabs: Option<[Rect; 3]>,
+    pub headers_addr_title: Option<Rect>,
+    pub headers_addr_content: Option<Rect>,
+    pub headers_auth_title: Option<Rect>,
+    pub headers_auth_content: Option<Rect>,
+    pub headers_meta_title: Option<Rect>,
+    pub headers_meta_content: Option<Rect>,
 }
 
 pub struct AppContext {
