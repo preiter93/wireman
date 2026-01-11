@@ -1,0 +1,50 @@
+[colors]
+black = "#14161a"
+white = "#e6e6e6"
+gray = "#5c6370"
+red = "#ef596f"
+green = "#89ca78"
+yellow = "#e5c07b"
+blue = "#52adf2"
+magenta = "#d55fde"
+cyan = "#2bbac5"
+orange = "#d19a66"
+
+[base.focused]
+foreground = "white"
+background = "black"
+
+[base.unfocused]
+foreground = "gray"
+background = "black"
+
+[highlight.focused]
+foreground = "cyan"
+background = "black"
+
+[highlight.unfocused]
+foreground = "gray"
+background = "black"
+
+[title.focused]
+foreground = "magenta"
+background = "black"
+bold = true
+
+[title.unfocused]
+foreground = "gray"
+background = "black"
+bold = false
+
+[border.focused]
+foreground = "green"
+background = "black"
+border_type = "rounded"
+
+[border.unfocused]
+foreground = "gray"
+background = "black"
+border_type = "rounded"
+
+[editor]
+line_numbers = "absolute"
