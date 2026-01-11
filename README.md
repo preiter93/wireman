@@ -244,11 +244,6 @@ Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.c
 - [x] Server side Streaming
 - [x] Supports wayland
 - [x] Edit with system editor
-- [x] Mouse support
-
-## Roadmap
-
-- [ ] Mouse navigation
-
+- [x] Mouse navigation
 
 [Deps.rs Badge]: https://deps.rs/repo/github/preiter93/wireman/status.svg?path=wireman&style=flat-square
