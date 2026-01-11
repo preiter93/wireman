@@ -169,12 +169,19 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         </ul>
     </ContentCard>
 
-    <ContentCard title="Integrate with nvim" initiallyExpanded={true}>
+    <ContentCard title="Integrate with Neovim" initiallyExpanded={true}>
         <p>
             Use Wireman in nvim with a floating terminal with
             <a href="https://github.com/preiter93/wireman.nvim" class="custom-link" target="_blank" rel="noopener noreferrer"
                 >wireman.nvim</a
-            >.
+            >
+            <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
+                alt="Neovim logo"
+                width="14"
+                height="14"
+                style="vertical-align: middle;"
+            />.
         </p></ContentCard
     >
 
