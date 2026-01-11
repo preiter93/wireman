@@ -27,7 +27,7 @@ pub struct Skin {
 
 impl Default for Skin {
     fn default() -> Self {
-        toml::from_str(include_str!("../assets/default.toml")).unwrap()
+        toml::from_str(include_str!("../assets/transparent.toml")).unwrap()
     }
 }
 

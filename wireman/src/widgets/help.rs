@@ -2,7 +2,7 @@ use crate::context::HelpContext;
 use ratatui::{
     prelude::{Buffer, Constraint, Rect},
     text::Line,
-    widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table, Widget},
+    widgets::{Block, Borders, Cell, Padding, Row, Table, Widget},
 };
 use theme::Theme;
 

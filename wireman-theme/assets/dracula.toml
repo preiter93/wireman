@@ -34,7 +34,7 @@ foreground = "cyan-dark"
 background = "black"
 
 [border.focused]
-foreground = "white"
+foreground = "orange-dark"
 background = "black"
 border_type = "rounded"
 
