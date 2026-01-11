@@ -6,10 +6,11 @@ Output "tape/streaming.gif"
 Set Margin 10
 Set Padding 2
 Set BorderRadius 10
+Set FontSize 24
 Set Width 1200
-Set Height 750
-Set PlaybackSpeed 0.4
-Set TypingSpeed 60ms
+Set Height 800
+Set PlaybackSpeed 0.35
+Set TypingSpeed 50ms
 
 Hide
 Type 'alias wireman="../target/debug/wireman"'

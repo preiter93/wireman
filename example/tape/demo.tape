@@ -6,11 +6,11 @@ Output "tape/demo.gif"
 Set Margin 10
 Set Padding 2
 Set BorderRadius 10
-Set FontSize 44
-Set Width 2100
-Set Height 1500
-Set PlaybackSpeed 0.3
-Set TypingSpeed 60ms
+Set FontSize 24
+Set Width 1200
+Set Height 800
+Set PlaybackSpeed 0.35
+Set TypingSpeed 50ms
 
 Hide
 Type 'alias wireman="../target/debug/wireman"'

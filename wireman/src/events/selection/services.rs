@@ -124,7 +124,7 @@ impl EventHandler for ServicesSelectionEventsHandler {
                 ServicesSelectionEvents::GoToMethods,
             ),
             (
-                KeyEvent::alt(KeyCode::Char('s')),
+                KeyEvent::ctrl(KeyCode::Char('s')),
                 ServicesSelectionEvents::ToggleMainSplit,
             ),
         ]);

@@ -7,7 +7,6 @@ Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
 
 Set Margin 10
-Set MarginFill "#1d262f"
 Set Padding 2
 Set BorderRadius 2
 Set FontSize 16
@@ -78,4 +77,10 @@ Sleep 1s
 Ctrl+r
 Sleep 1.0s
 Sleep 1.0s
-Ctrl+c
+Ctrl+r
+Sleep 1.0s
+
+# Toggle horizontal split
+# This is usually Alt+S but alt does not seem to work in vhs
+Ctrl+S
+Sleep 1.0s
