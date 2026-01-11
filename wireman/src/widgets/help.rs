@@ -27,6 +27,7 @@ impl Widget for HelpDialog {
         let block = Block::default()
             .borders(Borders::ALL)
             .border_style(theme.border.focused)
+            .border_type(theme.border.border_type_focused)
             .title_style(theme.title.focused)
             .padding(Padding::horizontal(1))
             .title_top(Line::from(" Help ").centered());
