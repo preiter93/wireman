@@ -160,18 +160,25 @@ impl EventHandler for ServicesSelectionEventsHandler {
             match hit {
                 Some(Hit::Item(index)) => {
                     if ctx.selection_tab == SelectionTab::Services {
-                        {
+                        let changed = {
+                            let mut sel = ctx.selection.borrow_mut();
+                            let state = &mut sel.services_state;
+
+                            let prev = state.selected;
+                            state.select(Some(index));
+
+                            prev != Some(index)
+                        };
+
+                        if changed {
                             let mut selection = ctx.selection.borrow_mut();
-                            selection.services_state.select(Some(index));
+                            selection.load_methods();
+                            selection.methods_filter = None;
+                            selection.methods_state.select(None);
+                            selection.next_method();
+                        } else {
+                            ctx.selection_tab = SelectionTab::Methods;
                         }
-
-                        ctx.selection_tab = SelectionTab::Methods;
-
-                        let mut selection = ctx.selection.borrow_mut();
-                        selection.load_methods();
-                        selection.methods_filter = None;
-                        selection.methods_state.select(None);
-                        selection.next_method();
                     } else {
                         ctx.selection_tab = SelectionTab::Services;
                     }

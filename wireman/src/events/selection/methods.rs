@@ -198,17 +198,26 @@ impl EventHandler for MethodsSelectionEventsHandler {
             match hit {
                 Some(Hit::Item(index)) => {
                     if ctx.selection_tab == SelectionTab::Methods {
-                        {
-                            let state = &mut ctx.selection.borrow_mut().methods_state;
+                        let changed = {
+                            let mut sel = ctx.selection.borrow_mut();
+                            let state = &mut sel.methods_state;
+
+                            let prev = state.selected;
                             state.select(Some(index));
-                        }
+
+                            prev != Some(index)
+                        };
+
                         if let Some(method) = ctx.selection.borrow().selected_method() {
                             ctx.messages.borrow_mut().load_method(&method);
                             ctx.headers.borrow_mut().set_method(&method);
                         } else {
                             ctx.messages.borrow_mut().set_no_method_error();
                         }
-                        ctx.tab = ctx.tab.next();
+
+                        if !changed {
+                            ctx.tab = ctx.tab.next();
+                        }
                     } else {
                         ctx.selection_tab = SelectionTab::Methods;
                         if ctx.selection.borrow().selected_method().is_none() {
