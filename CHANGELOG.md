@@ -1,6 +1,8 @@
-0.3.2 - ?
+0.3.2 - 11 Jan 2026
 ===================
 - feat: Make border type configurable
+- fix: Service selection panicked on mouse click in some cases
+- feat: Make title boldness configurable
 
 0.3.1 - 11 Jan 2026
 ===================
