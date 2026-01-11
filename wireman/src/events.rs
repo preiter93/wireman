@@ -219,11 +219,8 @@ impl App {
 
         match self.ctx.tab {
             Tab::Selection => {
-                match self.ctx.selection_tab {
-                    SelectionTab::Services => {}
-                    SelectionTab::Methods => {}
-                    _ => {}
-                };
+                ServicesSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
+                MethodsSelectionEventsHandler::handle_mouse_event(&mut self.ctx, event);
             }
             Tab::Messages => {
                 match self.ctx.messages_tab {

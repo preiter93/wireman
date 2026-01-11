@@ -3,8 +3,10 @@ use crate::{
     model::selection::SelectionMode,
     widgets::editor::yank_to_clipboard,
 };
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use event_handler::{EventHandler, KeyCode, KeyEvent};
 use std::fmt;
+use tui_widget_list::hit_test::Hit;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServicesSelectionEvents {
@@ -140,5 +142,47 @@ impl EventHandler for ServicesSelectionEventsHandler {
             )]);
         }
         map
+    }
+
+    fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
+        if let MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            ..
+        } = *event
+        {
+            let hit = {
+                let selection = ctx.selection.borrow();
+                selection.services_state.hit_test(column, row)
+            };
+
+            match hit {
+                Some(Hit::Item(index)) => {
+                    if ctx.selection_tab == SelectionTab::Services {
+                        {
+                            let mut selection = ctx.selection.borrow_mut();
+                            selection.services_state.select(Some(index));
+                        }
+
+                        ctx.selection_tab = SelectionTab::Methods;
+
+                        let mut selection = ctx.selection.borrow_mut();
+                        selection.load_methods();
+                        selection.methods_filter = None;
+
+                        if selection.selected_method().is_none() {
+                            selection.next_method();
+                        }
+                    } else {
+                        ctx.selection_tab = SelectionTab::Services;
+                    }
+                }
+                Some(Hit::Area) => {
+                    ctx.selection_tab = SelectionTab::Services;
+                }
+                None => {}
+            }
+        }
     }
 }
