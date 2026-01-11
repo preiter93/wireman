@@ -20,7 +20,7 @@ rust-version = "1.70.0"
 core = { package = "wireman-core", version = "0.1.2" }
 config = { package = "wireman-config", version = "^0.5.2" }
 logger = { package = "wireman-logger", version = "0.1" }
-theme = { package = "wireman-theme", version = "^0.3.3" }
+theme = { package = "wireman-theme", version = "^0.3.4" }
 event-handler = { package = "wireman-event-handler", version = "^0.3.1" }
 
 # tui-widget-list = { version = "0.15", path = "../../tui-widget-list" }
