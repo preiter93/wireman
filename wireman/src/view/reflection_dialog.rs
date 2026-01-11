@@ -33,6 +33,8 @@ impl Widget for ReflectionDialog {
         let area = {
             let block = Block::default()
                 .borders(Borders::ALL)
+                .border_style(theme.border.focused)
+                .border_type(theme.border.border_type_focused)
                 .style(theme.base.focused)
                 .title_top(Line::from(" Reflection ").centered())
                 .title_style(theme.title.focused);

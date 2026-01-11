@@ -59,7 +59,8 @@ pub struct Title {
 pub struct Border {
     pub focused: Style,
     pub unfocused: Style,
-    pub border_type: BorderType,
+    pub border_type_focused: BorderType,
+    pub border_type_unfocused: BorderType,
 }
 
 impl Default for Border {
@@ -67,7 +68,8 @@ impl Default for Border {
         Self {
             focused: Style::default(),
             unfocused: Style::default(),
-            border_type: BorderType::Rounded,
+            border_type_focused: BorderType::Rounded,
+            border_type_unfocused: BorderType::Rounded,
         }
     }
 }

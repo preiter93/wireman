@@ -40,7 +40,7 @@ impl Widget for ConfigurationDialog<'_> {
             .style(theme.base.focused)
             .title_style(theme.title.focused)
             .border_style(theme.border.focused)
-            .border_type(theme.border.border_type)
+            .border_type(theme.border.border_type_focused)
             .title(" Configuration ")
             .title_alignment(Alignment::Center);
         let inner_area = block.inner(area);

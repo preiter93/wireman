@@ -170,10 +170,8 @@ impl EventHandler for ServicesSelectionEventsHandler {
                         let mut selection = ctx.selection.borrow_mut();
                         selection.load_methods();
                         selection.methods_filter = None;
-
-                        if selection.selected_method().is_none() {
-                            selection.next_method();
-                        }
+                        selection.methods_state.select(None);
+                        selection.next_method();
                     } else {
                         ctx.selection_tab = SelectionTab::Services;
                     }

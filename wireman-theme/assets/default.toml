@@ -32,12 +32,14 @@ foreground = "cyan-dark"
 background = "black"
 
 [border.focused]
-foreground = "white"
+foreground = "orange"
 background = "black"
+border_type = "rounded"
 
 [border.unfocused]
 foreground = "gray"
 background = "black"
+border_type = "rounded"
 
 [footer]
 hide = false

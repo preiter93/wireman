@@ -2,7 +2,7 @@ use crate::context::HelpContext;
 use ratatui::{
     prelude::{Buffer, Constraint, Rect},
     text::Line,
-    widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table, Widget},
+    widgets::{Block, Borders, Cell, Padding, Row, Table, Widget},
 };
 use theme::Theme;
 
@@ -26,7 +26,7 @@ impl Widget for HelpDialog {
         let theme = Theme::global();
         let block = Block::default()
             .borders(Borders::ALL)
-            .border_type(BorderType::Rounded)
+            .border_style(theme.border.focused)
             .title_style(theme.title.focused)
             .padding(Padding::horizontal(1))
             .title_top(Line::from(" Help ").centered());

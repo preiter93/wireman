@@ -34,12 +34,14 @@ foreground = "cyan-dark"
 background = "black"
 
 [border.focused]
-foreground = "white"
+foreground = "orange-dark"
 background = "black"
+border_type = "rounded"
 
 [border.unfocused]
 foreground = "gray"
 background = "black"
+border_type = "plain"
 
 [editor]
 line_numbers = "absolute"

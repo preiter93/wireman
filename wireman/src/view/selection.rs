@@ -73,12 +73,17 @@ impl Widget for SelectionPage<'_> {
         } else {
             (theme.border.unfocused, theme.title.unfocused)
         };
+        let border_type = if is_selected {
+            theme.border.border_type_focused
+        } else {
+            theme.border.border_type_unfocused
+        };
         let services_block = block
             .clone()
             .title(" Services ")
             .title_style(title_style)
             .border_style(border_style)
-            .border_type(theme.border.border_type);
+            .border_type(border_type);
         let inner_area = services_block.inner(svc_content);
 
         let item_count = services.len();
@@ -151,12 +156,17 @@ impl Widget for SelectionPage<'_> {
 
         let methods = self.model.methods();
         let methods_state = &mut self.model.methods_state;
+        let border_type = if is_selected {
+            theme.border.border_type_focused
+        } else {
+            theme.border.border_type_unfocused
+        };
         let methods_block = block
             .clone()
             .title(" Methods ")
             .title_style(title_style)
             .border_style(border_style)
-            .border_type(theme.border.border_type);
+            .border_type(border_type);
 
         let item_count = methods.len();
         let builder = ListBuilder::new(move |context| {

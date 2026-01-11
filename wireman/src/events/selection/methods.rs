@@ -211,6 +211,9 @@ impl EventHandler for MethodsSelectionEventsHandler {
                         ctx.tab = ctx.tab.next();
                     } else {
                         ctx.selection_tab = SelectionTab::Methods;
+                        if ctx.selection.borrow().selected_method().is_none() {
+                            ctx.selection.borrow_mut().next_method();
+                        }
                     }
                 }
                 Some(Hit::Area) => {
