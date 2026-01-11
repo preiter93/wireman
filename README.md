@@ -218,6 +218,10 @@ You can manage your configuration directly within the app:
 - Save your changes with `Ctrl-s`.
 - Exit with `Esc`.
 
+## Neovim Integration
+
+Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).
+
 ## Features
 
 - [x] Unary gRPC
