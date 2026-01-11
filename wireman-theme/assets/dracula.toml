@@ -36,10 +36,12 @@ background = "black"
 [border.focused]
 foreground = "white"
 background = "black"
+border_type = "rounded"
 
 [border.unfocused]
 foreground = "gray"
 background = "black"
+border_type = "plain"
 
 [editor]
 line_numbers = "absolute"

@@ -1,3 +1,7 @@
+0.3.2 - ?
+===================
+- feat: Make border type configurable
+
 0.3.1 - 11 Jan 2026
 ===================
 - fix: Escape key now correctly exits visual mode after mouse selection

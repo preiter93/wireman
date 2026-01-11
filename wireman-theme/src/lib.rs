@@ -3,4 +3,4 @@ mod config;
 mod skin;
 mod theme;
 pub use config::Config;
-pub use theme::{Editor, LineNumbers, Theme};
+pub use theme::{Border, Editor, LineNumbers, Theme};

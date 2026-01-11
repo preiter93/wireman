@@ -1,5 +1,6 @@
 use std::{collections::HashMap, error::Error, str::FromStr};
 
+use ratatui::widgets::BorderType;
 use serde::Deserialize;
 
 use crate::{color::Color, set_fg_bg, theme::LineNumbers, Theme};
@@ -59,10 +60,20 @@ impl Skin {
 
         // Border
         if let Some(target) = &self.border.unfocused {
-            set_fg_bg!(theme.border.unfocused, target, self.colors);
+            if let Some(style) = &target.style {
+                set_fg_bg!(theme.border.unfocused, style, self.colors);
+            }
+            if let Some(border_type) = target.border_type {
+                theme.border.border_type_unfocused = border_type.into();
+            }
         }
         if let Some(target) = &self.border.focused {
-            set_fg_bg!(theme.border.focused, target, self.colors);
+            if let Some(style) = &target.style {
+                set_fg_bg!(theme.border.focused, style, self.colors);
+            }
+            if let Some(border_type) = target.border_type {
+                theme.border.border_type_focused = border_type.into();
+            }
         }
 
         // Title
@@ -114,8 +125,36 @@ pub(crate) struct Title {
 
 #[derive(Debug, Deserialize, Default)]
 pub(crate) struct Border {
-    pub focused: Option<FgBg>,
-    pub unfocused: Option<FgBg>,
+    pub focused: Option<BorderConfig>,
+    pub unfocused: Option<BorderConfig>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub(crate) struct BorderConfig {
+    #[serde(flatten)]
+    pub style: Option<FgBg>,
+    pub border_type: Option<SkinBorderType>,
+}
+
+/// Border type configuration that can be deserialized from skin files.
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum SkinBorderType {
+    Plain,
+    Rounded,
+    Double,
+    Thick,
+}
+
+impl From<SkinBorderType> for BorderType {
+    fn from(value: SkinBorderType) -> Self {
+        match value {
+            SkinBorderType::Plain => BorderType::Plain,
+            SkinBorderType::Rounded => BorderType::Rounded,
+            SkinBorderType::Double => BorderType::Double,
+            SkinBorderType::Thick => BorderType::Thick,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Default)]

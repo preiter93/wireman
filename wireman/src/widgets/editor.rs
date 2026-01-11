@@ -291,7 +291,7 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
                         .borders(Borders::ALL)
                         .title_style(theme.title.focused)
                         .border_style(theme.border.focused)
-                        .border_type(theme.border.border_type)
+                        .border_type(theme.border.border_type_focused)
                         .title(title.into())
                         .title_alignment(Alignment::Center),
                 )
@@ -320,7 +320,7 @@ pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> Ed
                         .borders(Borders::ALL)
                         .title_style(theme.title.unfocused)
                         .border_style(theme.border.unfocused)
-                        .border_type(theme.border.border_type)
+                        .border_type(theme.border.border_type_unfocused)
                         .title(title.into())
                         .title_alignment(Alignment::Center),
                 )
@@ -346,7 +346,7 @@ pub fn view_single_selected<S: Into<String>>(
                     .borders(Borders::ALL)
                     .title_style(theme.title.focused)
                     .border_style(theme.border.focused)
-                    .border_type(theme.border.border_type)
+                    .border_type(theme.border.border_type_focused)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
             )
@@ -370,7 +370,7 @@ pub fn view_single_unselected<S: Into<String>>(
                     .borders(Borders::ALL)
                     .title_style(theme.title.unfocused)
                     .border_style(theme.border.unfocused)
-                    .border_type(theme.border.border_type)
+                    .border_type(theme.border.border_type_unfocused)
                     .style(theme.base.unfocused)
                     .title(title.into())
                     .title_alignment(Alignment::Center),
