@@ -1,3 +1,7 @@
+0.3.4 - 11 Jan 2026
+===================
+- fix: Fix split pane keymapping
+
 0.3.3 - 11 Jan 2026
 ===================
 - feat: Toggle main pane split with `alt-s`

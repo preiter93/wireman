@@ -123,7 +123,7 @@ impl EventHandler for MethodsSelectionEventsHandler {
         let method_selected = ctx.selection.borrow().selected_method().is_some();
         let filter_active = ctx.selection.borrow_mut().methods_filter.is_some();
         let mut map = vec![(
-            KeyEvent::ctrl(KeyCode::Char('s')),
+            KeyEvent::alt(KeyCode::Char('s')),
             MethodsSelectionEvents::ToggleMainSplit,
         )];
         if method_selected {
