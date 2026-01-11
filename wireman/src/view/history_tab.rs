@@ -54,13 +54,13 @@ impl Widget for HistoryTabs<'_> {
                 let mut areas = [Rect::default(); 5];
                 let title_width = 3u16;
 
-                for i in 0..5 {
+                for (i, area) in areas.iter_mut().enumerate() {
                     let x = right
                         .left()
                         .saturating_add(1)
                         .saturating_add((i as u16) * 5);
                     if x < right.right() {
-                        areas[i] = Rect {
+                        *area = Rect {
                             x,
                             y: right.top(),
                             width: title_width.min(right.right().saturating_sub(x)),

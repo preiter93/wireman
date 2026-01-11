@@ -334,39 +334,30 @@ impl EventHandler for HeadersEventHandler {
             let mut meta_key_clicked = false;
             let mut meta_value_clicked = false;
 
-            if headers_ref
-                .addr_title_area
-                .map_or(false, |r| r.contains(pos))
+            if headers_ref.addr_title_area.is_some_and(|r| r.contains(pos))
                 || headers_ref
                     .addr_content_area
-                    .map_or(false, |r| r.contains(pos))
+                    .is_some_and(|r| r.contains(pos))
             {
                 target = Some(HeadersTab::Addr);
-            } else if headers_ref
-                .auth_title_area
-                .map_or(false, |r| r.contains(pos))
+            } else if headers_ref.auth_title_area.is_some_and(|r| r.contains(pos))
                 || headers_ref
                     .auth_content_area
-                    .map_or(false, |r| r.contains(pos))
+                    .is_some_and(|r| r.contains(pos))
             {
                 target = Some(HeadersTab::Auth);
-            } else {
-                if headers_ref
-                    .meta_title_area
-                    .map_or(false, |r| r.contains(pos))
-                {
+            } else if headers_ref.meta_title_area.is_some_and(|r| r.contains(pos)) {
+                target = Some(HeadersTab::Meta);
+                meta_key_clicked = true;
+            } else if let Some(r) = headers_ref.meta_content_area {
+                // TODO: Handle more then one row
+                if r.contains(pos) {
                     target = Some(HeadersTab::Meta);
-                    meta_key_clicked = true;
-                } else if let Some(r) = headers_ref.meta_content_area {
-                    // TODO: Handle more then one row
-                    if r.contains(pos) {
-                        target = Some(HeadersTab::Meta);
-                        let mid_x = r.x + r.width / 2;
-                        if column < mid_x {
-                            meta_key_clicked = true;
-                        } else {
-                            meta_value_clicked = true;
-                        }
+                    let mid_x = r.x + r.width / 2;
+                    if column < mid_x {
+                        meta_key_clicked = true;
+                    } else {
+                        meta_value_clicked = true;
                     }
                 }
             }
@@ -389,21 +380,17 @@ impl EventHandler for HeadersEventHandler {
             }
 
             let tab = ctx.headers.borrow().tab.clone();
-            match tab {
-                // While key is selected (or value vice versa) switch column
-                HeadersTab::Meta => {
-                    let mut headers = ctx.headers.borrow_mut();
-                    if let Some(sel) = headers.meta.selected {
-                        if meta_value_clicked && sel.col == 0 {
-                            headers.meta.next_col();
-                        } else if meta_key_clicked && sel.col == 1 {
-                            headers.meta.prev_col();
-                        }
+            if tab == HeadersTab::Meta {
+                let mut headers = ctx.headers.borrow_mut();
+                if let Some(sel) = headers.meta.selected {
+                    if meta_value_clicked && sel.col == 0 {
+                        headers.meta.next_col();
+                    } else if meta_key_clicked && sel.col == 1 {
+                        headers.meta.prev_col();
                     }
                 }
-                _ => (),
-                // Do not forward mouse to editor here
             }
+            // Do not forward mouse to editor here
         }
     }
 }
