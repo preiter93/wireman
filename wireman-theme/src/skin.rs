@@ -78,25 +78,13 @@ impl Skin {
 
         // Title
         if let Some(target) = &self.title.focused {
-            if let Some(style) = &target.style {
-                set_fg_bg!(theme.title.focused, style, self.colors);
-            }
-            if target.bold.unwrap_or(true) {
-                theme.title.focused = theme.title.focused.bold();
-            }
-        } else {
-            theme.title.focused = theme.title.focused.bold();
+            set_fg_bg!(theme.title.focused, target, self.colors);
         }
         if let Some(target) = &self.title.unfocused {
-            if let Some(style) = &target.style {
-                set_fg_bg!(theme.title.unfocused, style, self.colors);
-            }
-            if target.bold.unwrap_or(true) {
-                theme.title.unfocused = theme.title.unfocused.bold();
-            }
-        } else {
-            theme.title.unfocused = theme.title.unfocused.bold();
+            set_fg_bg!(theme.title.unfocused, target, self.colors);
         }
+        theme.title.focused = theme.title.focused.bold();
+        theme.title.unfocused = theme.title.unfocused.bold();
 
         // Footer
         if let Some(hide_footer) = self.footer.hide {
@@ -133,15 +121,8 @@ pub(crate) struct Highlight {
 
 #[derive(Default, Debug, Deserialize)]
 pub(crate) struct Title {
-    pub focused: Option<TitleConfig>,
-    pub unfocused: Option<TitleConfig>,
-}
-
-#[derive(Debug, Deserialize, Default)]
-pub(crate) struct TitleConfig {
-    #[serde(flatten)]
-    pub style: Option<FgBg>,
-    pub bold: Option<bool>,
+    pub focused: Option<FgBg>,
+    pub unfocused: Option<FgBg>,
 }
 
 #[derive(Debug, Deserialize, Default)]

@@ -23,7 +23,7 @@ foreground = "cyan"
 background = "black"
 
 [highlight.unfocused]
-foreground = "gray"
+foreground = "blue"
 background = "black"
 
 [title.focused]
