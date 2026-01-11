@@ -1,3 +1,7 @@
+0.3.3 - 11 Jan 2026
+===================
+- feat: Toggle main pane split with `alt-s`
+
 0.3.2 - 11 Jan 2026
 ===================
 - feat: Make border type configurable
