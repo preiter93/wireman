@@ -3,6 +3,7 @@
     import ImgResponse from '$lib/assets/website_277.png';
     import ImgConfig from '$lib/assets/website_460.png';
     import ImgReflection from '$lib/assets/website_526.png';
+    import ImgSplitLayout from '$lib/assets/website_601.png';
 
     type ShowElement = {
         title: string;
@@ -45,6 +46,15 @@ The configuration <code>wireman.toml</code> can be added in-app. On the services
             body: `
 <p style="text-align: center; line-height:1.6em">
 Wireman supports server reflection. Enter <code>c-r</code>. Specify the server address and optional headers. Press <code>Enter</code> to send a reflection request. Exit reflection mode with <code>c-r</code>.
+</p>
+`
+        },
+        {
+            title: 'Toggle Main Split Layout',
+            img: ImgSplitLayout,
+            body: `
+<p style="text-align: center; line-height:1.6em">
+Wireman lets you switch the main pane layout between horizontal and vertical splits. Press <code>Als-s</code> to change the orientation. The services/methods and request/response panes will rearrange.
 </p>
 `
         }

@@ -2,6 +2,7 @@
 # cd tape/website
 # ffmpeg -i website.gif website_%03d.png
 # cp website_001.png website_026.png website_080.png website_170.png website_225.png website_249.png website_277.png website_326.png website_460.png website_526.png ../../../website/src/lib/assets/.
+# cp website_601.png ../../../website/src/lib/assets/.
 
 Output "tape/website/website.gif"
 # Output "tape/website/" # does not work
@@ -83,4 +84,4 @@ Sleep 1.0s
 # Toggle horizontal split
 # This is usually Alt+S but alt does not seem to work in vhs
 Ctrl+S
-Sleep 1.0s
+Sleep 2.0s
