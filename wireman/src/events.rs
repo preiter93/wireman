@@ -252,6 +252,33 @@ impl App {
                 }
             }
             Tab::Messages => {
+                // Hit-test: switch tabs on click in request/response areas
+                if let MouseEvent {
+                    kind: MouseEventKind::Down(MouseButton::Left),
+                    column,
+                    row,
+                    ..
+                } = event
+                {
+                    let pos = ratatui::prelude::Position { x: column, y: row };
+                    let model_ref = self.ctx.messages.borrow();
+                    if let Some(area) = model_ref.request.content_area {
+                        if area.contains(pos) && self.ctx.messages_tab != MessagesTab::Request {
+                            drop(model_ref);
+                            self.ctx.messages_tab = MessagesTab::Request;
+                            return;
+                        }
+                    }
+                    if let Some(area) = model_ref.response.content_area {
+                        if area.contains(pos) && self.ctx.messages_tab != MessagesTab::Response {
+                            drop(model_ref);
+                            self.ctx.messages_tab = MessagesTab::Response;
+                            return;
+                        }
+                    }
+                    drop(model_ref);
+                }
+
                 match self.ctx.messages_tab {
                     MessagesTab::Request => {
                         RequestEventHandler::handle_mouse_event(&mut self.ctx, event);

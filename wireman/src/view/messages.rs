@@ -48,6 +48,7 @@ impl Widget for MessagesPage<'_> {
             view_unselected(&mut self.model.request.editor.state, " Request (K) ")
         };
         editor.render(top, buf);
+        self.model.request.content_area = Some(top);
 
         // Request
         let editor = if self.tab == MessagesTab::Response {
@@ -56,6 +57,7 @@ impl Widget for MessagesPage<'_> {
             view_unselected(&mut self.model.response.editor.state, " Response (J) ")
         };
         editor.render(bottom, buf);
+        self.model.response.content_area = Some(bottom);
 
         // Status line
         if !theme.hide_status {
