@@ -159,49 +159,85 @@ impl EventHandler for ServicesSelectionEventsHandler {
     }
 
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
-        if let MouseEvent {
-            kind: MouseEventKind::Down(MouseButton::Left),
-            column,
-            row,
-            ..
-        } = *event
-        {
-            let hit = {
-                let selection = ctx.selection.borrow();
-                selection.services_state.hit_test(column, row)
-            };
+        match event {
+            MouseEvent {
+                kind: MouseEventKind::ScrollDown,
+                column,
+                row,
+                ..
+            } => {
+                let hit = ctx
+                    .selection
+                    .borrow()
+                    .services_state
+                    .hit_test(*column, *row);
+                if hit.is_some() {
+                    ctx.selection.borrow_mut().scroll_service_down();
+                    ctx.selection.borrow_mut().clear_methods_selection();
+                    ctx.selection.borrow_mut().next_method();
+                }
+            }
+            MouseEvent {
+                kind: MouseEventKind::ScrollUp,
+                column,
+                row,
+                ..
+            } => {
+                let hit = ctx
+                    .selection
+                    .borrow()
+                    .services_state
+                    .hit_test(*column, *row);
+                if hit.is_some() {
+                    ctx.selection.borrow_mut().scroll_service_up();
+                    ctx.selection.borrow_mut().clear_methods_selection();
+                    ctx.selection.borrow_mut().next_method();
+                }
+            }
+            MouseEvent {
+                kind: MouseEventKind::Down(MouseButton::Left),
+                column,
+                row,
+                ..
+            } => {
+                let hit = {
+                    let selection = ctx.selection.borrow();
+                    selection.services_state.hit_test(*column, *row)
+                };
 
-            match hit {
-                Some(Hit::Item(index)) => {
-                    if ctx.selection_tab == SelectionTab::Services {
-                        let changed = {
-                            let mut sel = ctx.selection.borrow_mut();
-                            let state = &mut sel.services_state;
+                match hit {
+                    Some(Hit::Item(index)) => {
+                        if ctx.selection_tab == SelectionTab::Services {
+                            let changed = {
+                                let mut sel = ctx.selection.borrow_mut();
+                                let state = &mut sel.services_state;
 
-                            let prev = state.selected;
-                            state.select(Some(index));
+                                let prev = state.selected;
+                                state.select(Some(index));
 
-                            prev != Some(index)
-                        };
+                                prev != Some(index)
+                            };
 
-                        if changed {
-                            let mut selection = ctx.selection.borrow_mut();
-                            selection.load_methods();
-                            selection.methods_filter = None;
-                            selection.methods_state.select(None);
-                            selection.next_method();
+                            if changed {
+                                let mut selection = ctx.selection.borrow_mut();
+                                selection.load_methods();
+                                selection.methods_filter = None;
+                                selection.methods_state.select(None);
+                                selection.next_method();
+                            } else {
+                                ctx.selection_tab = SelectionTab::Methods;
+                            }
                         } else {
-                            ctx.selection_tab = SelectionTab::Methods;
+                            ctx.selection_tab = SelectionTab::Services;
                         }
-                    } else {
+                    }
+                    Some(Hit::Area) => {
                         ctx.selection_tab = SelectionTab::Services;
                     }
+                    None => {}
                 }
-                Some(Hit::Area) => {
-                    ctx.selection_tab = SelectionTab::Services;
-                }
-                None => {}
             }
+            _ => {}
         }
     }
 }

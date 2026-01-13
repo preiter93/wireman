@@ -1,3 +1,7 @@
+0.3.5 - 14 Jan 2026
+===================
+- feat: Add mouse scrolling support
+
 0.3.4 - 11 Jan 2026
 ===================
 - fix: Fix split pane keymapping
