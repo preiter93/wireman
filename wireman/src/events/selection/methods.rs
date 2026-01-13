@@ -196,53 +196,77 @@ impl EventHandler for MethodsSelectionEventsHandler {
     }
 
     fn pass_through_mouse_events(event: &MouseEvent, ctx: &mut Self::Context) {
-        if let MouseEvent {
-            kind: MouseEventKind::Down(MouseButton::Left),
-            column,
-            row,
-            ..
-        } = *event
-        {
-            let hit = {
-                let selection = ctx.selection.borrow();
-                selection.methods_state.hit_test(column, row)
-            };
+        match event {
+            MouseEvent {
+                kind: MouseEventKind::ScrollDown,
+                column,
+                row,
+                ..
+            } => {
+                let hit = ctx.selection.borrow().methods_state.hit_test(*column, *row);
+                if hit.is_some() {
+                    ctx.selection.borrow_mut().scroll_method_down();
+                }
+            }
+            MouseEvent {
+                kind: MouseEventKind::ScrollUp,
+                column,
+                row,
+                ..
+            } => {
+                let hit = ctx.selection.borrow().methods_state.hit_test(*column, *row);
+                if hit.is_some() {
+                    ctx.selection.borrow_mut().scroll_method_up();
+                }
+            }
+            MouseEvent {
+                kind: MouseEventKind::Down(MouseButton::Left),
+                column,
+                row,
+                ..
+            } => {
+                let hit = {
+                    let selection = ctx.selection.borrow();
+                    selection.methods_state.hit_test(*column, *row)
+                };
 
-            match hit {
-                Some(Hit::Item(index)) => {
-                    if ctx.selection_tab == SelectionTab::Methods {
-                        let changed = {
-                            let mut sel = ctx.selection.borrow_mut();
-                            let state = &mut sel.methods_state;
+                match hit {
+                    Some(Hit::Item(index)) => {
+                        if ctx.selection_tab == SelectionTab::Methods {
+                            let changed = {
+                                let mut sel = ctx.selection.borrow_mut();
+                                let state = &mut sel.methods_state;
 
-                            let prev = state.selected;
-                            state.select(Some(index));
+                                let prev = state.selected;
+                                state.select(Some(index));
 
-                            prev != Some(index)
-                        };
+                                prev != Some(index)
+                            };
 
-                        if let Some(method) = ctx.selection.borrow().selected_method() {
-                            ctx.messages.borrow_mut().load_method(&method);
-                            ctx.headers.borrow_mut().set_method(&method);
+                            if let Some(method) = ctx.selection.borrow().selected_method() {
+                                ctx.messages.borrow_mut().load_method(&method);
+                                ctx.headers.borrow_mut().set_method(&method);
+                            } else {
+                                ctx.messages.borrow_mut().set_no_method_error();
+                            }
+
+                            if !changed {
+                                ctx.tab = ctx.tab.next();
+                            }
                         } else {
-                            ctx.messages.borrow_mut().set_no_method_error();
-                        }
-
-                        if !changed {
-                            ctx.tab = ctx.tab.next();
-                        }
-                    } else {
-                        ctx.selection_tab = SelectionTab::Methods;
-                        if ctx.selection.borrow().selected_method().is_none() {
-                            ctx.selection.borrow_mut().next_method();
+                            ctx.selection_tab = SelectionTab::Methods;
+                            if ctx.selection.borrow().selected_method().is_none() {
+                                ctx.selection.borrow_mut().next_method();
+                            }
                         }
                     }
+                    Some(Hit::Area) => {
+                        ctx.selection_tab = SelectionTab::Methods;
+                    }
+                    None => {}
                 }
-                Some(Hit::Area) => {
-                    ctx.selection_tab = SelectionTab::Methods;
-                }
-                None => {}
             }
+            _ => {}
         }
     }
 }

@@ -134,6 +134,70 @@ impl SelectionModel {
         self.load_methods();
     }
 
+    /// Select service by index. Returns true if the index was valid.
+    pub fn select_service_by_index(&mut self, index: usize) -> bool {
+        let services = self.services();
+        if services.is_empty() || index >= services.len() {
+            return false;
+        }
+        self.services_state.select(Some(index));
+        self.load_methods();
+        self.methods_filter = None;
+        true
+    }
+
+    /// Select the first service.
+    pub fn select_first_service(&mut self) {
+        self.select_service_by_index(0);
+    }
+
+    /// Select the last service.
+    pub fn select_last_service(&mut self) {
+        let len = self.services().len();
+        if len > 0 {
+            self.select_service_by_index(len - 1);
+        }
+    }
+
+    /// Select the next service without wrapping (for mouse scroll).
+    pub fn scroll_service_down(&mut self) {
+        if self.services().is_empty() {
+            return;
+        }
+        let i = match self.services_state.selected {
+            Some(i) => {
+                if i >= self.services().len() - 1 {
+                    i // Stay at last
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.services_state.select(Some(i));
+        self.load_methods();
+        self.methods_filter = None;
+    }
+
+    /// Select the previous service without wrapping (for mouse scroll).
+    pub fn scroll_service_up(&mut self) {
+        if self.services().is_empty() {
+            return;
+        }
+        let i = match self.services_state.selected {
+            Some(i) => {
+                if i == 0 {
+                    0 // Stay at first
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.services_state.select(Some(i));
+        self.load_methods();
+    }
+
     /// Load the methods after a services was selected
     pub fn load_methods(&mut self) {
         if let Some(service_index) = self.services_state.selected {
@@ -169,6 +233,42 @@ impl SelectionModel {
             Some(i) => {
                 if i == 0 {
                     self.methods().len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.methods_state.select(Some(i));
+    }
+
+    /// Select the next method without wrapping (for mouse scroll).
+    pub fn scroll_method_down(&mut self) {
+        if self.methods().is_empty() {
+            return;
+        }
+        let i = match self.methods_state.selected {
+            Some(i) => {
+                if i >= self.methods().len() - 1 {
+                    i // Stay at last
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.methods_state.select(Some(i));
+    }
+
+    /// Select the previous method without wrapping (for mouse scroll).
+    pub fn scroll_method_up(&mut self) {
+        if self.methods().is_empty() {
+            return;
+        }
+        let i = match self.methods_state.selected {
+            Some(i) => {
+                if i == 0 {
+                    0 // Stay at first
                 } else {
                     i - 1
                 }
