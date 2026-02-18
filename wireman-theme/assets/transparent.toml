@@ -28,7 +28,7 @@ foreground = "cyan-dark"
 bold = true
 
 [border.focused]
-foreground = "orange"
+foreground = "white"
 
 [border.unfocused]
 foreground = "gray"
