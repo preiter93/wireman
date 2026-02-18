@@ -1,6 +1,4 @@
-<p align="center">
-   WireMan 
-</p>
+<h1 align="center">WireMan</h1>
 
 <div align="center">
     
