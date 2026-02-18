@@ -3832,7 +3832,7 @@ dependencies = [
  "wireman-core 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-event-handler 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.4",
 ]
 
 [[package]]
@@ -3845,7 +3845,7 @@ dependencies = [
  "thiserror 2.0.18",
  "toml 1.0.1+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.4",
 ]
 
 [[package]]
@@ -3860,7 +3860,7 @@ dependencies = [
  "thiserror 2.0.18",
  "toml 0.9.12+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-theme 0.3.4",
 ]
 
 [[package]]
@@ -3944,6 +3944,8 @@ dependencies = [
 [[package]]
 name = "wireman-theme"
 version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5a2d4b4635a2f49b4922575d2fcd2ac7581d6874227b128b021892e0e65b84a"
 dependencies = [
  "cssparser",
  "once_cell",
@@ -3956,9 +3958,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-theme"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5a2d4b4635a2f49b4922575d2fcd2ac7581d6874227b128b021892e0e65b84a"
+version = "0.3.5"
 dependencies = [
  "cssparser",
  "once_cell",
