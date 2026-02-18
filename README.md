@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/preiter93/wireman/main/resources/logo-dark.png" width="300"/>
+   WireMan 
 </p>
 
 <div align="center">
