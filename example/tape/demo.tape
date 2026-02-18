@@ -24,7 +24,7 @@ Enter
 Sleep 0.3s
 Type "wireman"
 Enter
-Sleep 0.4s
+Sleep 1.0s
 Show
 
 # show help
