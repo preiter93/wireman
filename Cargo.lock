@@ -371,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.59"
+version = "4.5.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5caf74d17c3aec5495110c34cc3f78644bfa89af6c8993ed4de2790e49b6499"
+checksum = "2797f34da339ce31042b27d23607e051786132987f595b02ba4f6a6dffb7030a"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -381,9 +381,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.59"
+version = "4.5.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "370daa45065b80218950227371916a1633217ae42b2715b2287b606dcd618e24"
+checksum = "24a241312cea5059b13574bb9b3861cabf758b879c15190b37b6d6fd63ab6876"
 dependencies = [
  "anstream",
  "anstyle",
@@ -3007,9 +3007,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "1.0.2+spec-1.1.0"
+version = "1.0.3+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1dfefef6a142e93f346b64c160934eb13b5594b84ab378133ac6815cb2bd57f"
+checksum = "c7614eaf19ad818347db24addfa201729cf2a9b6fdfd9eb0ab870fcacc606c0c"
 dependencies = [
  "indexmap 2.13.0",
  "serde_core",
@@ -3088,9 +3088,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.14.4"
+version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f32a6f80051a4111560201420c7885d0082ba9efe2ab61875c587bb6b18b9a0"
+checksum = "fec7c61a0695dc1887c1b53952990f3ad2e3a31453e1f49f10e75424943a93ec"
 dependencies = [
  "async-trait",
  "axum 0.8.8",
@@ -3125,7 +3125,7 @@ checksum = "9f86539c0089bfd09b1f8c0ab0239d80392af74c21bc9e0f15e1b4aca4c1647f"
 dependencies = [
  "bytes",
  "prost 0.14.3",
- "tonic 0.14.4",
+ "tonic 0.14.5",
 ]
 
 [[package]]
@@ -3143,15 +3143,15 @@ dependencies = [
 
 [[package]]
 name = "tonic-reflection"
-version = "0.14.4"
+version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91e5f75c058c397bf4ecada0fe0a2299c49c252fcf484f4a2f47279b6fa7026b"
+checksum = "aaf0685a51e6d02b502ba0764002e766b7f3042aed13d9234925b6ffbfa3fca7"
 dependencies = [
  "prost 0.14.3",
  "prost-types 0.14.3",
  "tokio",
  "tokio-stream",
- "tonic 0.14.4",
+ "tonic 0.14.5",
  "tonic-prost",
 ]
 
@@ -3927,7 +3927,7 @@ dependencies = [
  "serde",
  "shellexpand",
  "thiserror 2.0.18",
- "toml 1.0.2+spec-1.1.0",
+ "toml 1.0.3+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wireman-theme 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -3961,8 +3961,8 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tokio-stream",
- "tonic 0.14.4",
- "tonic-reflection 0.14.4",
+ "tonic 0.14.5",
+ "tonic-reflection 0.14.5",
 ]
 
 [[package]]
@@ -4034,7 +4034,7 @@ dependencies = [
  "ratatui",
  "serde",
  "shellexpand",
- "toml 1.0.2+spec-1.1.0",
+ "toml 1.0.3+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -4049,7 +4049,7 @@ dependencies = [
  "ratatui",
  "serde",
  "shellexpand",
- "toml 1.0.2+spec-1.1.0",
+ "toml 1.0.3+spec-1.1.0",
  "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
