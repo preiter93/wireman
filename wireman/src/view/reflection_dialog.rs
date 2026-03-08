@@ -11,7 +11,7 @@ use ratatui::{
     layout::{Direction, Rect},
     widgets::{Block, Borders, Widget},
 };
-use theme::Theme;
+use wireman_theme::Theme;
 
 pub struct ReflectionDialog {
     pub model: ReflectionModel,

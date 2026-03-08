@@ -2,9 +2,9 @@ pub(crate) mod configuration;
 pub(crate) mod headers;
 pub(crate) mod messages;
 pub(crate) mod selection;
-use core::ProtoDescriptor;
 use std::fmt::Display;
 use std::pin::Pin;
+use wireman_core::ProtoDescriptor;
 
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
@@ -12,15 +12,15 @@ use crate::model::messages::{server_streaming, unary, RequestResult};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
-use event_handler::EventHandler;
 use futures::{Stream, StreamExt};
-use logger::Logger;
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 use selection::reflection::ReflectionDialogEventHandler;
 pub(crate) use selection::services::ServicesSelectionEventsHandler;
 pub(crate) use selection::services_search::ServicesSearchEventsHandler;
 use tokio::sync::mpsc::{self, Receiver, Sender};
+use wireman_event_handler::EventHandler;
+use wireman_logger::Logger;
 
 use self::headers::HeadersEventHandler;
 use self::messages::request::RequestEventHandler;

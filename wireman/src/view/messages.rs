@@ -37,7 +37,7 @@ impl MessagesPage<'_> {
 impl Widget for MessagesPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min, Percentage};
-        let theme = theme::Theme::global();
+        let theme = wireman_theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
         let request_window_size = self.model.request.window_size;
         let [main, status] = Layout::vertical([Min(0), Length(sl)]).areas(area);

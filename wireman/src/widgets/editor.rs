@@ -7,13 +7,13 @@ use edtui::{
     clipboard::ClipboardTrait,
     EditorMode, EditorState, EditorTheme, EditorView, Index2, Lines, RowIndex,
 };
-use logger::Logger;
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders},
 };
 use std::sync::{Mutex, OnceLock};
-use theme::Theme;
+use wireman_logger::Logger;
+use wireman_theme::Theme;
 
 /// Basic editor. Supports different modes, json formatting
 /// and specifies commonly used key bindings.
@@ -261,8 +261,8 @@ impl From<serde_json::Error> for ErrorKind {
     }
 }
 
-impl From<core::error::Error> for ErrorKind {
-    fn from(err: core::error::Error) -> Self {
+impl From<wireman_core::error::Error> for ErrorKind {
+    fn from(err: wireman_core::error::Error) -> Self {
         Self::default_error(err.to_string())
     }
 }
@@ -279,9 +279,9 @@ pub fn pretty_format_json(input: &str) -> Result<String, ErrorKind> {
 pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
     let line_numbers = match theme.editor.line_numbers {
-        theme::LineNumbers::None => edtui::LineNumbers::None,
-        theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
-        theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
+        wireman_theme::LineNumbers::None => edtui::LineNumbers::None,
+        wireman_theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
+        wireman_theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
     };
     EditorView::new(state)
         .theme(
@@ -308,9 +308,9 @@ pub fn view_selected<S: Into<String>>(state: &mut EditorState, title: S) -> Edit
 pub fn view_unselected<S: Into<String>>(state: &mut EditorState, title: S) -> EditorView<'_, '_> {
     let theme = Theme::global();
     let line_numbers = match theme.editor.line_numbers {
-        theme::LineNumbers::None => edtui::LineNumbers::None,
-        theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
-        theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
+        wireman_theme::LineNumbers::None => edtui::LineNumbers::None,
+        wireman_theme::LineNumbers::Absolute => edtui::LineNumbers::Absolute,
+        wireman_theme::LineNumbers::Relative => edtui::LineNumbers::Relative,
     };
     EditorView::new(state)
         .theme(

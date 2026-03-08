@@ -1,8 +1,9 @@
 use super::root::layout;
 use crate::{model::history::HistoryModel, widgets::tabs::ActivatableTabs};
 
-use core::MethodDescriptor;
 use ratatui::prelude::*;
+use wireman_core::MethodDescriptor;
+use wireman_theme::Theme;
 
 pub struct HistoryTabs<'a> {
     pub model: HistoryModel,
@@ -33,7 +34,7 @@ impl<'a> HistoryTabs<'a> {
 
 impl Widget for HistoryTabs<'_> {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
-        let theme = theme::Theme::global();
+        let theme = Theme::global();
         if !self.model.enabled {
             let [_, right] = layout(area, Direction::Horizontal, &[0, 25]);
 

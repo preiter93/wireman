@@ -1,9 +1,9 @@
 use crate::{context::AppContext, events::InternalStream, term::Term, view::root::Root};
-use config::Config;
 use crossterm::event::{Event, EventStream};
 use futures::StreamExt;
 use std::error::Error;
 use tokio::select;
+use wireman_config::Config;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 

@@ -16,8 +16,8 @@ use ratatui::{
     text::Line,
     widgets::{Block, Borders, Clear, Padding, Widget},
 };
-use theme::Theme;
 use tui_widget_list::{ListBuilder, ListView};
+use wireman_theme::Theme;
 
 pub(crate) struct SelectionPage<'a> {
     pub model: &'a mut SelectionModel,

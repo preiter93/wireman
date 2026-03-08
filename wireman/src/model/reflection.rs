@@ -3,11 +3,11 @@ use super::core_client::CoreClient;
 use super::headers::HeadersModel;
 use super::SelectionModel;
 use crate::events::InternalStreamData;
-use core::descriptor::ReflectionRequest;
-use core::ProtoDescriptor;
 use std::cell::RefCell;
 use std::rc::Rc;
 use tokio::sync::mpsc::Sender;
+use wireman_core::descriptor::ReflectionRequest;
+use wireman_core::ProtoDescriptor;
 
 #[derive(Clone)]
 pub struct ReflectionModel {

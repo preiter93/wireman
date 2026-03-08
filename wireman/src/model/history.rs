@@ -1,8 +1,5 @@
 use super::{headers::MetaHeaders, MessagesModel};
 use crate::term::Term;
-use config::Config;
-use core::MethodDescriptor;
-use logger::Logger;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -10,6 +7,9 @@ use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
+use wireman_config::Config;
+use wireman_core::MethodDescriptor;
+use wireman_logger::Logger;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 

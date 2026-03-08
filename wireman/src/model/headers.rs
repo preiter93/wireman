@@ -2,11 +2,11 @@ pub mod auth;
 pub use auth::{AuthHeader, AuthSelection};
 pub mod meta;
 use crate::{model::history::HistoryModel, widgets::editor::TextEditor};
-use core::MethodDescriptor;
 use edtui::EditorMode;
 pub use meta::MetaHeaders;
 use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
+use wireman_core::MethodDescriptor;
 
 /// The data model for the `gRPC` headers. Contains authorization
 /// headers and metadata key value headers.

@@ -31,7 +31,7 @@ impl Widget for ConfigurationDialog<'_> {
         Self: Sized,
     {
         use ratatui::layout::Constraint::{Length, Min};
-        let theme = theme::Theme::global();
+        let theme = wireman_theme::Theme::global();
 
         let [area, footer] = Layout::vertical([Min(0), Length(1)]).areas(area);
 

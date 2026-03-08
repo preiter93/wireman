@@ -1,15 +1,15 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
-use core::{
-    client::tls::TlsConfig,
-    descriptor::{response::StreamingResponse, DynamicMessage, RequestMessage, ResponseMessage},
-    MethodDescriptor,
-};
 use futures::{self, stream::once, Stream, StreamExt};
 use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
 use tokio::task::JoinHandle;
+use wireman_core::{
+    client::tls::TlsConfig,
+    descriptor::{response::StreamingResponse, DynamicMessage, RequestMessage, ResponseMessage},
+    MethodDescriptor,
+};
 
 /// Map from Method to request/response message
 type MessagesCache = HashMap<String, (String, String)>;

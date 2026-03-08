@@ -1,9 +1,9 @@
 use crate::context::AppContext;
 use crossterm::event::MouseEvent;
-use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use std::fmt;
+use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 pub enum ConfigurationEvents {
     SaveFile,

@@ -11,7 +11,7 @@ use ratatui::{
     widgets::{Block, Clear, Paragraph, Tabs, Widget},
 };
 use std::rc::Rc;
-use theme::{self, Theme};
+use wireman_theme::Theme;
 
 pub struct Root<'a> {
     ctx: &'a mut AppContext,

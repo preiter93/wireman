@@ -32,7 +32,7 @@ pub fn centered_rect_length(percent_x: u16, height: u16, r: Rect) -> Rect {
 }
 
 pub fn spans_from_keys(keys: &[(&'static str, &'static str)]) -> Vec<Span<'static>> {
-    let theme = theme::Theme::global();
+    let theme = wireman_theme::Theme::global();
     keys.iter()
         .flat_map(|(key, desc)| {
             let key = Span::styled(format!("{key}: "), theme.title.unfocused);

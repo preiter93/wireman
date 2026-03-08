@@ -1,16 +1,16 @@
 use crate::widgets::editor::ErrorKind;
-use config::Config;
-use core::{
+use http::Uri;
+use std::{collections::HashMap, error::Error};
+use wireman_config::Config;
+use wireman_core::{
     client::tls::TlsConfig,
     descriptor::{response::StreamingResponse, RequestMessage, ResponseMessage},
     features::grpcurl,
     MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
-use http::Uri;
-use std::{collections::HashMap, error::Error};
 
 /// The [`CoreClient`] calls the proto descriptor and grpc client of the
-/// core package.  
+/// core package.
 #[derive(Debug, Clone)]
 pub struct CoreClient {
     /// The proto descriptor
@@ -125,14 +125,14 @@ impl CoreClient {
         req: &RequestMessage,
         tls: Option<TlsConfig>,
     ) -> Result<ResponseMessage, ErrorKind> {
-        Ok(core::client::call_unary_async(req, tls).await?)
+        Ok(wireman_core::client::call_unary_async(req, tls).await?)
     }
 
     pub async fn call_server_streaming(
         req: &RequestMessage,
         tls: Option<TlsConfig>,
     ) -> Result<StreamingResponse, ErrorKind> {
-        Ok(core::client::call_server_streaming(req, tls).await?)
+        Ok(wireman_core::client::call_server_streaming(req, tls).await?)
     }
 
     /// Return a grpcurl request

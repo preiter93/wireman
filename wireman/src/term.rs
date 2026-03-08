@@ -4,10 +4,10 @@ use crossterm::event::{
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
-use logger::Logger;
 use std::error::Error;
 use std::io::{stderr, stdout, Stderr};
 use std::ops::{Deref, DerefMut};
+use wireman_logger::Logger;
 
 use ratatui::prelude::*;
 

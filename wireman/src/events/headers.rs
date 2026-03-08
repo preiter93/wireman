@@ -1,10 +1,10 @@
 use crate::{context::AppContext, model::headers::HeadersTab, widgets::editor::TextEditor};
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use edtui::EditorMode;
-use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use std::fmt;
+use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeadersEvents {

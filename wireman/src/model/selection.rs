@@ -1,8 +1,8 @@
 #![allow(clippy::module_name_repetitions)]
-use core::{MethodDescriptor, ProtoDescriptor, ServiceDescriptor};
 use std::cell::RefCell;
 use std::rc::Rc;
 use tui_widget_list::ListState;
+use wireman_core::{MethodDescriptor, ProtoDescriptor, ServiceDescriptor};
 
 use super::core_client::CoreClient;
 

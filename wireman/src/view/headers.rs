@@ -10,8 +10,8 @@ use ratatui::{
     prelude::*,
     widgets::{Block, StatefulWidget, Tabs, Widget},
 };
-use theme::Theme;
 use tui_widget_list::{ListBuilder, ListState, ListView};
+use wireman_theme::Theme;
 
 pub struct HeadersPage<'a> {
     model: Rc<std::cell::RefCell<HeadersModel>>,
@@ -47,7 +47,7 @@ impl<'a> HeadersPage<'a> {
 impl Widget for HeadersPage<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer) {
         use ratatui::layout::Constraint::{Length, Min};
-        let theme = theme::Theme::global();
+        let theme = wireman_theme::Theme::global();
         let sl = u16::from(!theme.hide_status);
         let [addr_title, addr_content, _, auth_title, auth_content, _, meta_title, meta_content, status] =
             layout(area, Direction::Vertical, &[1, 3, 1, 1, 4, 1, 1, 0, sl]);

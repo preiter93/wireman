@@ -4,10 +4,10 @@ use crate::{
     widgets::editor::yank_to_clipboard,
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
-use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::layout::Direction;
 use std::fmt;
 use tui_widget_list::hit_test::Hit;
+use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServicesSelectionEvents {

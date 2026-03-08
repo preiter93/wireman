@@ -1,10 +1,10 @@
 use crate::context::{AppContext, MessagesTab};
 use crossterm::event::MouseEvent;
-use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
 use ratatui::layout::Direction;
 use ratatui::Terminal;
 use std::fmt;
+use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RequestEvents {

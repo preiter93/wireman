@@ -2,9 +2,9 @@ use crate::{
     events::ServicesSelectionEventsHandler,
     model::{headers::HeadersTab, selection::SelectionMode},
 };
-use event_handler::{EventHandler, KeyCode, KeyEvent};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
+use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
 
 use crate::{
     context::AppContext,

@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use config::Config;
-use logger::Logger;
+use wireman_config::Config;
+use wireman_logger::Logger;
 
 use crate::widgets::editor::TextEditor;
 

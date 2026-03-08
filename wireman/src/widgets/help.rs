@@ -4,7 +4,7 @@ use ratatui::{
     text::Line,
     widgets::{Block, Borders, Cell, Padding, Row, Table, Widget},
 };
-use theme::Theme;
+use wireman_theme::Theme;
 
 pub struct HelpDialog {
     key_map: Vec<(String, String)>,

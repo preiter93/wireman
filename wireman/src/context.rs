@@ -1,7 +1,7 @@
 use std::{cell::RefCell, error::Error, rc::Rc};
 
-use config::Config;
 use ratatui::{layout::Direction, prelude::Rect};
+use wireman_config::Config;
 
 use crate::model::{
     configuration::ConfigurationModel, headers::HeadersModel, history::HistoryModel,
@@ -108,7 +108,7 @@ impl AppContext {
 
         // The ui model
         let mut ui = UiState::default();
-        let theme = theme::Theme::global();
+        let theme = wireman_theme::Theme::global();
         ui.main_split = theme.layout.main_split;
 
         Ok(Self {
