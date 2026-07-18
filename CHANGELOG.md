@@ -1,3 +1,7 @@
+0.3.8 - 18 Jul 2026
+===================
+- feat: Update edtui: Supports find/till and paste before
+
 0.3.7 - 18 Jul 2026
 ===================
 - feat: Support client-side and bidirectional streaming (send messages with `Enter`, finish with `Ctrl+d`)
