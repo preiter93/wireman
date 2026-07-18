@@ -71,7 +71,7 @@ pub fn install() {
 
     // More info
     println!("\x1b[1;36mMore information:\x1b[0m");
-    println!("    \x1b[0;34mhttps://github.com/preiter93/wireman?tab=readme-ov-file#setupconfiguration\x1b[0m");
+    println!("    \x1b[0;34mhttps://github.com/preiter93/wireman\x1b[0m");
     println!();
     println!("\x1b[1;32mSetup complete! You're ready to use Wireman.\x1b[0m");
 }
