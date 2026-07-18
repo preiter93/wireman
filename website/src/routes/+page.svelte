@@ -89,6 +89,46 @@ files = [
         <CodeContainer command="wireman" />
     </ContentCard>
 
+    <h2>A Tour of Wireman</h2>
+
+    <Tour></Tour>
+
+    <h2>More Features</h2>
+
+    <MoreFeatures></MoreFeatures>
+
+    <h2>Use It Your Way</h2>
+
+    <ContentCard title="Operate with keys or mouse" initiallyExpanded={true}>
+        <p>WireMan works however you prefer:</p>
+        <ul>
+            <li><strong>Vim-style navigation</strong>: Navigate with vim-style keybindings. Hit <code>?</code> to see what's available.</li>
+            <li>
+                <strong>Mouse & system editor</strong>: Wireman can also be operated with the mouse. And you can pop open your system editor
+                with
+                <code>Ctrl+e</code>.
+            </li>
+        </ul>
+    </ContentCard>
+
+    <ContentCard title="Integrate with Neovim" initiallyExpanded={true}>
+        <p>
+            Use Wireman in nvim with a floating terminal with
+            <a href="https://github.com/preiter93/wireman.nvim" class="custom-link" target="_blank" rel="noopener noreferrer"
+                >wireman.nvim</a
+            >
+            <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
+                alt="Neovim logo"
+                width="14"
+                height="14"
+                style="vertical-align: middle;"
+            />.
+        </p></ContentCard
+    >
+
+    <h2>Advanced & Reference</h2>
+
     <ContentCard title="Advanced configuration">
         <p>
             Wireman is very customizable. You can change the default configuration directory by exporting the following environment
@@ -154,44 +194,6 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
             <li><code>-l, --local-protos</code> - Reads the proto's from the current directory. Ignores the config.</li>
         </ul>
     </ContentCard>
-
-    <h2>Use It Your Way</h2>
-
-    <ContentCard title="Operate with keys or mouse" initiallyExpanded={true}>
-        <p>WireMan works however you prefer:</p>
-        <ul>
-            <li><strong>Vim-style navigation</strong>: Navigate with vim-style keybindings. Hit <code>?</code> to see what's available.</li>
-            <li>
-                <strong>Mouse & system editor</strong>: Wireman can also be operated with the mouse. And you can pop open your system editor
-                with
-                <code>Ctrl+e</code>.
-            </li>
-        </ul>
-    </ContentCard>
-
-    <ContentCard title="Integrate with Neovim" initiallyExpanded={true}>
-        <p>
-            Use Wireman in nvim with a floating terminal with
-            <a href="https://github.com/preiter93/wireman.nvim" class="custom-link" target="_blank" rel="noopener noreferrer"
-                >wireman.nvim</a
-            >
-            <img
-                src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
-                alt="Neovim logo"
-                width="14"
-                height="14"
-                style="vertical-align: middle;"
-            />.
-        </p></ContentCard
-    >
-
-    <h2>A Tour of Wireman</h2>
-
-    <Tour></Tour>
-
-    <h2>More Features</h2>
-
-    <MoreFeatures></MoreFeatures>
 </div>
 
 <style>
