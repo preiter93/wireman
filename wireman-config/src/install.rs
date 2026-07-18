@@ -16,7 +16,7 @@ pub fn install() {
         "Do you want to install Wireman to \x1b[1;33m{config_dir}\x1b[0m? [y/N] "
     ));
     if input.trim().to_lowercase() != "y" {
-        let input = read_input("Install instead in: ");
+        let input = read_input("Install instead in");
         config_dir = input.trim().to_string();
     }
 
