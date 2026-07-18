@@ -12,12 +12,16 @@
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
 
-## Use It Your Way
+## Table of Contents
 
-WireMan works however you prefer:
-
-- **Vim-style navigation**: Navigate with vim-style keybindings. Hit `?` to see what's available.
-- **Mouse & system editor**: Wireman can also be operated with the mouse. And you can open your system editor with `Ctrl+e`.
+- [Demo](#demo)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Navigation & Controls](#navigation--controls)
+- [Advanced Features](#advanced-features)
+- [Neovim Integration](#neovim-integration)
+- [Troubleshooting](#troubleshooting)
+- [Features](#features)
 
 ## Demo
 
@@ -168,7 +172,12 @@ You can download the latest wireman binary from the [releases page](https://gith
   Specifies an optional path to a configuration file. If not provided, wireman uses the default configuration path.
 
 - **`-l, --local-protos`**  
-  Uses local protobuf files instead of the files and includes which specified in the configuration.
+  Uses local protobuf files instead of the files and includes from the configuration file.
+
+## Navigation & Controls
+
+- **Vim-style navigation**: Navigate with vim-style keybindings. Hit `?` to see what's available.
+- **Mouse & system editor**: Wireman can also be operated with the mouse. And you can open your system editor with `Ctrl+e`.
 
 ## Advanced Features
 
@@ -237,9 +246,6 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 ## Neovim Integration
 
 Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).
-
-![](https://raw.githubusercontent.com/preiter93/wireman.nvim/main/assets/demo.png?raw=true)
-(theme: [one-dark-pro](https://github.com/preiter93/wireman/blob/main/wireman-theme/assets/one-dark-pro.toml))
 
 ## Troubleshooting
 
