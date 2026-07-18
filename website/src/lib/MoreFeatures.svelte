@@ -54,7 +54,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
             img: ImgSplitLayout,
             body: `
 <p style="text-align: center; line-height:1.6em">
-Wireman lets you switch the main pane layout between horizontal and vertical splits. Press <code>Als-s</code> to change the orientation. The services/methods and request/response panes will rearrange.
+Wireman lets you switch the main pane layout between horizontal and vertical splits. Press <code>Alt-s</code> to change the orientation. The services/methods and request/response panes will rearrange.
 </p>
 `
         }
