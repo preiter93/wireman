@@ -1,6 +1,7 @@
-Unreleased
+0.3.7 - 18 Jul 2026
 ===================
 - feat: Support client-side and bidirectional streaming (send messages with `Enter`, finish with `Ctrl+d`)
+- feat: Update edtui: Supports dot-repeat and more vim-like keybindings
 
 0.3.5 - 14 Jan 2026
 ===================
