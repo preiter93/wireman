@@ -131,10 +131,20 @@
         font-family: var(--font-family);
         font-size: var(--font-size-h2);
         font-weight: var(--font-weight-h2);
-        text-align: left;
         color: var(--orange);
         text-align: center;
         margin: var(--text-margin) 0;
+    }
+
+    :global(h2)::after {
+        content: '';
+        display: block;
+        width: 44px;
+        height: 3px;
+        margin: 10px auto 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--orange), var(--orange-light));
+        opacity: 0.85;
     }
 
     :global(h3) {
@@ -170,6 +180,11 @@
         font-weight: var(--font-weight-body);
         text-decoration: underline;
         color: var(--gray-lightest);
+        transition: color 0.2s ease;
+    }
+
+    :global(a:hover) {
+        color: var(--orange);
     }
 
     :global(code) {
