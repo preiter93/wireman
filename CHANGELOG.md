@@ -1,3 +1,7 @@
+Unreleased
+===================
+- feat: Support client-side and bidirectional streaming (send messages with `Enter`, finish with `Ctrl+d`)
+
 0.3.5 - 14 Jan 2026
 ===================
 - feat: Add mouse scrolling support

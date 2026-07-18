@@ -135,6 +135,28 @@ impl CoreClient {
         Ok(wireman_core::client::call_server_streaming(req, tls).await?)
     }
 
+    pub async fn call_client_streaming<S>(
+        head: &RequestMessage,
+        messages: S,
+        tls: Option<TlsConfig>,
+    ) -> Result<ResponseMessage, ErrorKind>
+    where
+        S: futures::Stream<Item = RequestMessage> + Send + 'static,
+    {
+        Ok(wireman_core::client::call_client_streaming(head, messages, tls).await?)
+    }
+
+    pub async fn call_bidirectional_streaming<S>(
+        head: &RequestMessage,
+        messages: S,
+        tls: Option<TlsConfig>,
+    ) -> Result<StreamingResponse, ErrorKind>
+    where
+        S: futures::Stream<Item = RequestMessage> + Send + 'static,
+    {
+        Ok(wireman_core::client::call_bidirectional_streaming(head, messages, tls).await?)
+    }
+
     /// Return a grpcurl request
     pub fn get_grpcurl(
         &self,

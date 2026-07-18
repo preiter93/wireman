@@ -87,54 +87,54 @@ You can download the latest wireman binary from the [releases page](https://gith
 
 1. Set the `WIREMAN_CONFIG_DIR` environment variable to specify the directory where your configuration file will be located:
 
-    ```bash
-    export WIREMAN_CONFIG_DIR=~/.config/wireman
-    ```
+```bash
+export WIREMAN_CONFIG_DIR=~/.config/wireman
+```
     
 This step is **optional**. By default, wireman will be installed to `~/.config/wireman`.
 
 2. Follow the setup steps:
 
-    ```bash
-    wireman init
-    ```
+```bash
+wireman init
+```
 
 3. The previous step creates a `wireman.toml` file in your configuration directory. Here's an example configuration:
 
-    ```toml
-    includes = [
-        '$HOME/my-project/services',
-        '$HOME/my-project/protos'
-    ]
-    
-    files = [
-        'order/api.proto',
-        'price/api.proto'
-    ]
-    
-    [server]
-    default_address = "http://localhost:50051"
-    default_auth_header = "Bearer $(getToken.sh)"
-    
-    [history]
-    directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
-    autosave = true                            # Optional. Autosaves history on request. Defaults to true.
-    disabled = false                           # Optional. History is enabled by default.
-    
-    [logging]
-    directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
-    level = "Debug"                            # Optional. Defaults to Debug.
-    
-    # [ui]
-    # skin = "$WIREMAN_CONFIG_DIR/skins/dracula.toml"  # Optional. Set a UI theme.
-    ```
+```toml
+includes = [
+    '$HOME/my-project/services',
+    '$HOME/my-project/protos'
+]
 
-    Replace with the appropriate values for your project.
+files = [
+    'order/api.proto',
+    'price/api.proto'
+]
+
+[server]
+default_address = "http://localhost:50051"
+default_auth_header = "Bearer $(getToken.sh)"
+
+[history]
+directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
+autosave = true                            # Optional. Autosaves history on request. Defaults to true.
+disabled = false                           # Optional. History is enabled by default.
+
+[logging]
+directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
+level = "Debug"                            # Optional. Defaults to Debug.
+
+# [ui]
+# skin = "$WIREMAN_CONFIG_DIR/skins/dracula.toml"  # Optional. Set a UI theme.
+```
+
+ Replace with the appropriate values for your project.
     
 4. At last, you can now verify the setup configuration
-    ```bash
-    wireman check 
-    ```
+```bash
+wireman check 
+```
 
 ## Usage
 
@@ -197,15 +197,35 @@ Wireman also supports server reflection of gRPC servers. To activate reflection 
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif?raw=true)
 
-## Server Side Streaming
+## Streaming
 
-Wireman supports server-side streaming. For example, if you have an endpoint like this:
+Wireman supports all four gRPC method types and detects the type automatically from the `.proto` definition.
+
+### Server-side streaming
+
+For an endpoint like:
 ```proto
 rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
 ```
-Wireman automatically detects whether the endpoint is server-side streaming and handles it accordingly.
+Wireman detects that the endpoint is server-side streaming and renders each response message as it arrives.
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/streaming.gif?raw=true)
+
+### Client-side and bidirectional streaming
+
+For endpoints where the client sends a stream of messages:
+```proto
+rpc CollectFeatures (stream CollectFeaturesReq) returns (CollectFeaturesResp) {}
+rpc EchoFeatures (stream EchoFeaturesReq) returns (stream EchoFeaturesResp) {}
+```
+Wireman streams messages interactively, one at a time:
+
+- Edit the request message, then press `Enter` to send it and open the stream.
+- Edit again and press `Enter` to send the next message. Repeat as often as you like.
+- Press `Ctrl+d` to finish sending (half-close the stream). The server then sends its response(s).
+- Press `Esc` to cancel the call at any point.
+
+For bidirectional endpoints, response messages are rendered live as they arrive while you keep sending. For client-side endpoints, the single response appears once you finish with `Ctrl+d`.
 
 ## Edit Configuration in-app
 
@@ -240,6 +260,8 @@ Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.c
 - [x] Server reflection
 - [x] Edit config file in app
 - [x] Server side Streaming
+- [x] Client side Streaming
+- [x] Bidirectional Streaming
 - [x] Supports wayland
 - [x] Edit with system editor
 - [x] Mouse navigation

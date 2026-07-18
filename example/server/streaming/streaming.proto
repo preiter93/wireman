@@ -5,11 +5,35 @@ option go_package = "./proto";
 package proto;
 
 service StreamingService {
+  // Server-side streaming: one request, a stream of responses.
   rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
+
+  // Client-side streaming: a stream of requests, one response.
+  rpc CollectFeatures (stream CollectFeaturesReq) returns (CollectFeaturesResp) {}
+
+  // Bidirectional streaming: a stream of requests, a stream of responses.
+  rpc EchoFeatures (stream EchoFeaturesReq) returns (stream EchoFeaturesResp) {}
 }
-  
+
 message ListFeaturesReq {}
-  
+
 message ListFeaturesResp {
+  string name = 1;
+}
+
+message CollectFeaturesReq {
+  string name = 1;
+}
+
+message CollectFeaturesResp {
+  int32 count = 1;
+  string summary = 2;
+}
+
+message EchoFeaturesReq {
+  string name = 1;
+}
+
+message EchoFeaturesResp {
   string name = 1;
 }

@@ -12,3 +12,6 @@ members = [
 default-members = ["wireman"]
 
 resolver = "2"
+
+[patch.crates-io]
+wireman-core = { path = "wireman-core" }

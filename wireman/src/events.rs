@@ -8,11 +8,13 @@ use wireman_core::ProtoDescriptor;
 
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
-use crate::model::messages::{server_streaming, unary, RequestResult};
+use crate::model::messages::{
+    bidi_streaming, client_streaming, server_streaming, unary, RequestResult,
+};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
-use futures::{Stream, StreamExt};
+use futures::{stream::once, Stream, StreamExt};
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 use selection::reflection::ReflectionDialogEventHandler;
@@ -45,6 +47,17 @@ impl InternalStream {
 }
 
 const HELP_KEY: KeyCode = KeyCode::Char('?');
+
+/// Forwards every item of a stream to the internal channel, then signals completion.
+async fn drain_to(
+    mut stream: Pin<Box<dyn Stream<Item = RequestResult> + Send>>,
+    sx: &Sender<InternalStreamData>,
+) {
+    while let Some(resp) = stream.next().await {
+        let _ = sx.send(InternalStreamData::Request(resp)).await;
+    }
+    let _ = sx.send(InternalStreamData::Done).await;
+}
 
 impl App {
     #[allow(clippy::too_many_lines)]
@@ -179,23 +192,32 @@ impl App {
             let tls = messages_model.request.core_client.borrow().get_tls_config();
             messages_model.dispatch = false;
             match messages_model.get_request() {
-                Ok(req) => {
-                    let handler = tokio::spawn(async move {
-                        let is_server_streaming = req.method_descriptor().is_server_streaming();
-                        if is_server_streaming {
-                            let mut stream: Pin<Box<dyn Stream<Item = RequestResult> + Send>> =
-                                Box::pin(server_streaming(req, tls).await);
-                            while let Some(resp) = stream.next().await {
-                                let _ = sx1.send(InternalStreamData::Request(resp)).await;
-                            }
-                            let _ = sx1.send(InternalStreamData::Done).await;
-                        } else {
-                            let resp = unary(req, tls).await;
-                            let _ = sx1.send(InternalStreamData::Request(resp)).await;
-                            let _ = sx1.send(InternalStreamData::Done).await;
-                        }
-                    });
+                Ok(head) => {
+                    let method = head.method_descriptor();
+                    let is_client = method.is_client_streaming();
+                    let is_server = method.is_server_streaming();
 
+                    // Client- and bidi-streaming open an interactive session:
+                    // the head is the first message, the rest are fed via the
+                    // returned receiver as the user sends them.
+                    let rx = if is_client {
+                        let rx = messages_model.open_stream();
+                        messages_model.push_stream_message(head.clone());
+                        Some(rx)
+                    } else {
+                        None
+                    };
+
+                    let handler = tokio::spawn(async move {
+                        let stream: Pin<Box<dyn Stream<Item = RequestResult> + Send>> =
+                            match (rx, is_server) {
+                                (Some(rx), true) => bidi_streaming(head, rx, tls).await,
+                                (Some(rx), false) => once(client_streaming(head, rx, tls)).boxed(),
+                                (None, true) => server_streaming(head, tls).await,
+                                (None, false) => once(unary(head, tls)).boxed(),
+                            };
+                        drain_to(stream, &sx1).await;
+                    });
                     messages_model.handler = Some(handler);
                 }
                 Err(err) => {
@@ -348,7 +370,9 @@ impl App {
                 }
             },
             InternalStreamData::Done => {
-                self.ctx.messages.borrow_mut().handler = None;
+                let mut messages = self.ctx.messages.borrow_mut();
+                messages.handler = None;
+                messages.clear_stream_session();
             }
         }
     }

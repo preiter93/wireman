@@ -12,6 +12,7 @@ pub enum RequestEvents {
     PrevTab,
     MakeRequest,
     AbortRequest,
+    FinishStream,
     GoToResponse,
     CopyAsGrpCurl,
     CopyRequest,
@@ -35,6 +36,7 @@ impl fmt::Display for RequestEvents {
             RequestEvents::PrevTab => "Prev Page",
             RequestEvents::MakeRequest => "Make Request",
             RequestEvents::AbortRequest => "Abort Request",
+            RequestEvents::FinishStream => "Finish Stream",
             RequestEvents::GoToResponse => "Go to Response",
             RequestEvents::CopyRequest => "Copy Request",
             RequestEvents::CopyAsGrpCurl => "Copy as cURL",
@@ -86,6 +88,9 @@ impl EventHandler for RequestEventHandler {
             }
             RequestEvents::AbortRequest => {
                 ctx.messages.borrow_mut().abort_request();
+            }
+            RequestEvents::FinishStream => {
+                ctx.messages.borrow_mut().finish_stream();
             }
             RequestEvents::GoToResponse => {
                 ctx.messages_tab = MessagesTab::Response;
@@ -210,6 +215,14 @@ impl EventHandler for RequestEventHandler {
                     RequestEvents::ToggleMainSplit,
                 ),
             ]);
+
+            // Only client- and bidirectional-streaming methods can close an outbound stream.
+            if ctx.messages.borrow().is_client_streaming() {
+                map.push((
+                    KeyEvent::ctrl(KeyCode::Char('d')),
+                    RequestEvents::FinishStream,
+                ));
+            }
         }
         map
     }
