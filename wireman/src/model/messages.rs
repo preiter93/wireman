@@ -1,6 +1,7 @@
 #![allow(clippy::module_name_repetitions)]
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
+use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use futures::{self, stream::once, Stream, StreamExt};
 use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
@@ -42,6 +43,13 @@ pub struct MessagesModel {
     /// The task handler of the grpc request. Is None
     /// if no request is dispatched.
     pub handler: Option<JoinHandle<()>>,
+
+    /// Sender for the outbound message stream of an open client- or bidirectional-streaming call.
+    /// `None` when no stream session is active.
+    pub stream_tx: Option<UnboundedSender<RequestMessage>>,
+
+    /// Number of messages sent on the current client-side stream.
+    pub stream_count: usize,
 }
 
 impl Default for MessagesModel {
@@ -74,6 +82,8 @@ impl MessagesModel {
             history,
             dispatch: false,
             handler: None,
+            stream_tx: None,
+            stream_count: 0,
         }
     }
 
@@ -152,10 +162,13 @@ impl MessagesModel {
         }
     }
 
-    /// This method is called before `do_request` to give the ui an
-    /// indication that a request is in process. The actual grpc
-    /// request is done on the next frame.
+    /// Marks a request to be dispatched on the next frame, or sends the next
+    /// message when a client-side stream is already open.
     pub fn start_request(&mut self) {
+        if self.stream_tx.is_some() {
+            self.send_stream_message();
+            return;
+        }
         self.dispatch = true;
         self.response.editor.set_text_raw("Processing...");
         self.response.editor.set_error(None);
@@ -163,6 +176,7 @@ impl MessagesModel {
 
     /// This method should be called to abort a grpc request.
     pub fn abort_request(&mut self) {
+        self.clear_stream_session();
         if let Some(handler) = self.handler.take() {
             handler.abort();
             self.response.editor.set_text_raw("User cancelled");
@@ -170,7 +184,82 @@ impl MessagesModel {
         }
     }
 
-    // Collect the grpc request
+    /// Whether the selected method streams messages from the client.
+    pub fn is_client_streaming(&self) -> bool {
+        self.selected_method
+            .as_ref()
+            .is_some_and(MethodDescriptor::is_client_streaming)
+    }
+
+    /// Opens a client-side stream and returns the receiver feeding the
+    /// outbound messages.
+    pub fn open_stream(&mut self) -> UnboundedReceiver<RequestMessage> {
+        let (tx, rx) = mpsc::unbounded();
+        self.stream_tx = Some(tx);
+        self.stream_count = 0;
+        rx
+    }
+
+    /// Pushes a message onto the open stream and updates the status.
+    pub fn push_stream_message(&mut self, req: RequestMessage) {
+        let Some(tx) = &self.stream_tx else { return };
+        if tx.unbounded_send(req).is_err() {
+            self.stream_tx = None;
+            return;
+        }
+        self.stream_count += 1;
+        self.set_stream_status();
+    }
+
+    /// Finishes an open stream (half-close), prompting the server response.
+    pub fn finish_stream(&mut self) {
+        if self.stream_tx.take().is_some() && !self.is_bidi_streaming() {
+            self.response
+                .editor
+                .set_text_raw("Finished sending. Waiting for response...");
+            self.response.editor.set_error(None);
+        }
+    }
+
+    /// Clears client-side stream session state.
+    pub fn clear_stream_session(&mut self) {
+        self.stream_tx = None;
+        self.stream_count = 0;
+    }
+
+    /// Sends the current editor content as the next stream message.
+    fn send_stream_message(&mut self) {
+        match self.get_request() {
+            Ok(req) => self.push_stream_message(req),
+            Err(err) => {
+                self.response.editor.set_error(Some(err.clone()));
+                self.response.editor.set_text_raw(&err.string());
+            }
+        }
+    }
+
+    /// Shows the send count for client-streaming. Bidirectional streams render
+    /// live responses instead.
+    fn set_stream_status(&mut self) {
+        if self.is_bidi_streaming() {
+            return;
+        }
+        let text = format!(
+            "Streaming: {} message(s) sent\nEnter: send  Ctrl+d: finish  Esc: cancel",
+            self.stream_count
+        );
+        self.response.editor.set_error(None);
+        self.response.editor.set_text_raw(&text);
+    }
+
+    fn is_bidi_streaming(&self) -> bool {
+        self.selected_method
+            .as_ref()
+            .is_some_and(|m| m.is_client_streaming() && m.is_server_streaming())
+    }
+
+    // Builds the request message from the editor, including metadata and
+    // address. For streaming methods this is the first ("head") message.
     pub fn get_request(&mut self) -> Result<RequestMessage, ErrorKind> {
         let Some(method) = self.selected_method.clone() else {
             let err = ErrorKind::default_error("Select a method!");
@@ -180,7 +269,6 @@ impl MessagesModel {
         };
         let mut req = self.request.core_client.borrow().get_request(&method);
 
-        // Message
         if let Err(err) = req
             .message_mut()
             .from_json(&self.request.editor.get_text_raw())
@@ -188,7 +276,6 @@ impl MessagesModel {
             return Err(ErrorKind::default_error(err.to_string()));
         }
 
-        // Metadata
         let headers = self.headers.borrow();
         for (key, val) in headers.headers_expanded() {
             if !key.is_empty() {
@@ -196,7 +283,6 @@ impl MessagesModel {
             }
         }
 
-        // Address
         req.set_address(&headers.address());
         Ok(req)
     }
@@ -264,6 +350,45 @@ pub(crate) async fn server_streaming(
 ) -> Pin<Box<dyn Stream<Item = RequestResult> + Send>> {
     let resp: Result<StreamingResponse, ErrorKind> =
         CoreClient::call_server_streaming(&req, tls).await;
+
+    if let Err(err) = resp {
+        return once(async { RequestResult::error(err) }).boxed();
+    }
+
+    let resp = resp.unwrap();
+
+    let mapped_stream = resp.inner.map(|message| match message {
+        Ok(message) => unmarshal_message(&message.message),
+        Err(err) => {
+            let kind = ErrorKind::streaming_error(format!("{err}"));
+            RequestResult::error(kind)
+        }
+    });
+
+    Box::pin(mapped_stream)
+}
+
+pub(crate) async fn client_streaming(
+    head: RequestMessage,
+    messages: impl Stream<Item = RequestMessage> + Send + 'static,
+    tls: Option<TlsConfig>,
+) -> RequestResult {
+    let resp: Result<ResponseMessage, ErrorKind> =
+        CoreClient::call_client_streaming(&head, messages, tls).await;
+
+    match resp {
+        Ok(resp) => unmarshal_message(&resp.message),
+        Err(err) => RequestResult::error(err),
+    }
+}
+
+pub(crate) async fn bidi_streaming(
+    head: RequestMessage,
+    messages: impl Stream<Item = RequestMessage> + Send + 'static,
+    tls: Option<TlsConfig>,
+) -> Pin<Box<dyn Stream<Item = RequestResult> + Send>> {
+    let resp: Result<StreamingResponse, ErrorKind> =
+        CoreClient::call_bidirectional_streaming(&head, messages, tls).await;
 
     if let Err(err) = resp {
         return once(async { RequestResult::error(err) }).boxed();

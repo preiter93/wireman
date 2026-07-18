@@ -7,7 +7,7 @@
 
 </div>
 
-# What is WireMan?
+## What is WireMan?
 
 WireMan is a terminal-based gRPC client with a user-friendly interface. It reads `.proto` files from a config file and keeps a history of requests.
 WireMan is an ideal choice for developers testing gRPC endpoints directly from the terminal.
@@ -19,41 +19,45 @@ WireMan works however you prefer:
 - **Vim-style navigation**: Navigate with vim-style keybindings. Hit `?` to see what's available.
 - **Mouse & system editor**: Wireman can also be operated with the mouse. And you can open your system editor with `Ctrl+e`.
 
-# Quick Start
+## Demo
+
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/demo.gif?raw=true)
+
+## Quick Start
 
 If you prefer a quick overview, you can check out the official [website](https://preiter93.github.io/wireman).
 
 Or follow the guide below.
 
-## Prerequisites
+### Prerequisites
 
 - Rust: [Minimum required Rust version is 1.70] ([Installation Guide](https://www.rust-lang.org/tools/install))
 
-## Installation
+### Installation
 
-### Install with cargo
+#### Install with cargo
 
 ```
 cargo install wireman
 ```
 
-### Install with brew
+#### Install with brew
 
 ```
 brew install preiter93/wireman/wireman
 ```
 
-### Install with X-CMD
+#### Install with X-CMD
 
 ```
 x install wireman
 ```
 
-### Download Binary
+#### Download Binary
 
 You can download the latest wireman binary from the [releases page](https://github.com/preiter93/wireman/releases).
 
-### Install manually
+#### Install manually
 
 1. Clone the repository:
 
@@ -79,19 +83,16 @@ You can download the latest wireman binary from the [releases page](https://gith
     ```bash
     echo "alias wireman='CURRENT_DIRECTORY/target/release/wireman'" >> ~/.zshrc
     ```
-## Demo
 
-![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/demo.gif?raw=true)
-
-## Setup/Configuration
+### Setup & Configuration
 
 1. Set the `WIREMAN_CONFIG_DIR` environment variable to specify the directory where your configuration file will be located:
 
     ```bash
     export WIREMAN_CONFIG_DIR=~/.config/wireman
     ```
-    
-This step is **optional**. By default, wireman will be installed to `~/.config/wireman`.
+
+    This step is **optional**. By default, wireman will be installed to `~/.config/wireman`.
 
 2. Follow the setup steps:
 
@@ -106,32 +107,33 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
         '$HOME/my-project/services',
         '$HOME/my-project/protos'
     ]
-    
+
     files = [
         'order/api.proto',
         'price/api.proto'
     ]
-    
+
     [server]
     default_address = "http://localhost:50051"
     default_auth_header = "Bearer $(getToken.sh)"
-    
+
     [history]
     directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
     autosave = true                            # Optional. Autosaves history on request. Defaults to true.
     disabled = false                           # Optional. History is enabled by default.
-    
+
     [logging]
     directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
     level = "Debug"                            # Optional. Defaults to Debug.
-    
+
     # [ui]
     # skin = "$WIREMAN_CONFIG_DIR/skins/dracula.toml"  # Optional. Set a UI theme.
     ```
 
     Replace with the appropriate values for your project.
-    
-4. At last, you can now verify the setup configuration
+
+4. At last, you can now verify the setup configuration:
+
     ```bash
     wireman check 
     ```
@@ -152,35 +154,76 @@ This step is **optional**. By default, wireman will be installed to `~/.config/w
 
 7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard.
 
-## External System Editor
+### Command Line Flags
 
-Wireman allows you to open the current editor content in your system's default editor (e.g., `export EDITOR=nvim`). When you're in normal mode on any input field, press `Ctrl+e` to open the content in your external editor. After saving and closing the external editor, the content will be updated in Wireman.
-
-This feature was introduced in v0.2.13.
-
-## Command line flags
-
-### Commands
+#### Commands
 - **`check`**  
   Runs a health check and displays configuration details.
   
 - **`init`**  
   Sets up wireman by creating a default configuration file.
 
-### Options
+#### Options
 - **`-c, --config <CONFIG>`**  
   Specifies an optional path to a configuration file. If not provided, wireman uses the default configuration path.
 
 - **`-l, --local-protos`**  
   Uses local protobuf files instead of the files and includes which specified in the configuration.
 
-## Troubleshooting
+## Advanced Features
 
-Wireman logs important information and errors to assist in troubleshooting. By default, logs are stored in `$WIREMAN_CONFIG_DIR/wireman.log`.Make sure to check this log file if you encounter any unexpected behavior or errors while using the application.
+### Server Reflection
 
-If you are unable to resolve the issue on your own or need further assistance, please don't hesitate to [open an issue](https://github.com/preiter93/wireman/issues).
+Wireman also supports server reflection of gRPC servers. To activate reflection mode, press `Ctrl+r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. To switch back from reflection mode to file mode press `Ctrl+r` again.
 
-## Custom Skins
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif?raw=true)
+
+### Streaming
+
+Wireman supports all four gRPC method types and detects the type automatically from the `.proto` definition.
+
+#### Server-side streaming
+
+For an endpoint like:
+```proto
+rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
+```
+Wireman detects that the endpoint is server-side streaming and renders each response message as it arrives.
+
+![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/streaming.gif?raw=true)
+
+#### Client-side and bidirectional streaming
+
+For endpoints where the client sends a stream of messages:
+```proto
+rpc CollectFeatures (stream CollectFeaturesReq) returns (CollectFeaturesResp) {}
+rpc EchoFeatures (stream EchoFeaturesReq) returns (stream EchoFeaturesResp) {}
+```
+Wireman streams messages interactively, one at a time:
+
+- Edit the request message, then press `Enter` to send it and open the stream.
+- Edit again and press `Enter` to send the next message. Repeat as often as you like.
+- Press `Ctrl+d` to finish sending (half-close the stream). The server then sends its response(s).
+- Press `Esc` to cancel the call at any point.
+
+For bidirectional endpoints, response messages are rendered live as they arrive while you keep sending. For client-side endpoints, the single response appears once you finish with `Ctrl+d`.
+
+### External System Editor
+
+Wireman allows you to open the current editor content in your system's default editor (e.g., `export EDITOR=nvim`). When you're in normal mode on any input field, press `Ctrl+e` to open the content in your external editor. After saving and closing the external editor, the content will be updated in Wireman.
+
+This feature was introduced in v0.2.13.
+
+### Edit Configuration In-App
+
+You can manage your configuration directly within the app:
+
+- Navigate to the services page.
+- Press `Ctrl+e` to edit the configuration.
+- Save your changes with `Ctrl+s`.
+- Exit with `Esc`.
+
+### Custom Skins
 
 Wireman allows users to customize the appearance of the UI by adding custom skins. To do this, simply specify the desired skin file in the `wireman.toml` file config:
 
@@ -191,37 +234,18 @@ skin = "path_to_file/custom_skin.toml"
     
 For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/assets).
 
-## Server Reflection
-
-Wireman also supports server reflection of gRPC servers. To activate reflection mode, press `Ctrl + r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. To switch back from reflection mode to file mode press `Ctrl + r` again.
-
-![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif?raw=true)
-
-## Server Side Streaming
-
-Wireman supports server-side streaming. For example, if you have an endpoint like this:
-```proto
-rpc ListFeatures (ListFeaturesReq) returns (stream ListFeaturesResp) {}
-```
-Wireman automatically detects whether the endpoint is server-side streaming and handles it accordingly.
-
-![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/streaming.gif?raw=true)
-
-## Edit Configuration in-app
-
-You can manage your configuration directly within the app:
-
-- Navigate to the services page.
-- Type `Ctrl-e` to edit the configuration.
-- Save your changes with `Ctrl-s`.
-- Exit with `Esc`.
-
 ## Neovim Integration
 
 Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).
 
 ![](https://raw.githubusercontent.com/preiter93/wireman.nvim/main/assets/demo.png?raw=true)
 (theme: [one-dark-pro](https://github.com/preiter93/wireman/blob/main/wireman-theme/assets/one-dark-pro.toml))
+
+## Troubleshooting
+
+Wireman logs important information and errors to assist in troubleshooting. By default, logs are stored in `$WIREMAN_CONFIG_DIR/wireman.log`.Make sure to check this log file if you encounter any unexpected behavior or errors while using the application.
+
+If you are unable to resolve the issue on your own or need further assistance, please don't hesitate to [open an issue](https://github.com/preiter93/wireman/issues).
 
 ## Features
 
@@ -240,6 +264,8 @@ Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.c
 - [x] Server reflection
 - [x] Edit config file in app
 - [x] Server side Streaming
+- [x] Client side Streaming
+- [x] Bidirectional Streaming
 - [x] Supports wayland
 - [x] Edit with system editor
 - [x] Mouse navigation

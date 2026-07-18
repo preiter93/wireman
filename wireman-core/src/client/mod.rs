@@ -56,7 +56,7 @@ impl GrpcClient {
         Ok(response.into_inner())
     }
 
-    /// Make a streaming `gRPC` call.
+    /// Make a server-streaming `gRPC` call.
     ///
     /// # Errors
     /// - `gRPC` client is not ready
@@ -75,6 +75,68 @@ impl GrpcClient {
 
         Ok(StreamingResponse::new(response.into_inner()))
     }
+
+    /// Make a client-streaming `gRPC` call.
+    ///
+    /// # Errors
+    /// - `gRPC` client is not ready
+    /// - Server call failed
+    pub async fn client_streaming<S>(
+        &mut self,
+        head: &RequestMessage,
+        messages: S,
+    ) -> Result<ResponseMessage>
+    where
+        S: tokio_stream::Stream<Item = RequestMessage> + Send + 'static,
+    {
+        self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
+
+        let path = head.path();
+        let codec = head.codec();
+
+        let request = into_streaming_request(head, messages);
+        let response = self.grpc.client_streaming(request, path, codec).await?;
+
+        Ok(response.into_inner())
+    }
+
+    /// Make a bidirectional-streaming `gRPC` call.
+    ///
+    /// # Errors
+    /// - `gRPC` client is not ready
+    /// - Server call failed
+    pub async fn bidirectional_streaming<S>(
+        &mut self,
+        head: &RequestMessage,
+        messages: S,
+    ) -> Result<StreamingResponse>
+    where
+        S: tokio_stream::Stream<Item = RequestMessage> + Send + 'static,
+    {
+        self.grpc.ready().await.map_err(Error::GrpcNotReady)?;
+
+        let path = head.path();
+        let codec = head.codec();
+
+        let request = into_streaming_request(head, messages);
+        let response = self.grpc.streaming(request, path, codec).await?;
+
+        Ok(StreamingResponse::new(response.into_inner()))
+    }
+}
+
+/// Builds a streaming `tonic` request from a message stream, applying the
+/// metadata of the `head` message to the outgoing request.
+fn into_streaming_request<S>(head: &RequestMessage, messages: S) -> tonic::Request<S>
+where
+    S: tokio_stream::Stream<Item = RequestMessage>,
+{
+    let metadata = head.metadata().clone();
+    let mut req = tonic::Request::new(messages);
+    if let Some(metadata) = metadata {
+        *req.metadata_mut() = metadata.inner;
+    }
+    req
 }
 
 /// Creates a new `gRPC` client and sends a message to a `gRPC` server.
@@ -107,4 +169,44 @@ pub async fn call_server_streaming(
     let mut client = GrpcClient::new(uri, tls)?;
 
     client.server_streaming(req).await
+}
+
+/// Creates a new `gRPC` client and streams messages to a `gRPC` server,
+/// returning a single response (client-streaming RPC).
+///
+/// # Errors
+/// - Internal error calling the `gRPC` server
+pub async fn call_client_streaming<S>(
+    head: &RequestMessage,
+    messages: S,
+    tls: Option<TlsConfig>,
+) -> Result<ResponseMessage>
+where
+    S: tokio_stream::Stream<Item = RequestMessage> + Send + 'static,
+{
+    let uri = head.uri()?;
+
+    let mut client = GrpcClient::new(uri, tls)?;
+
+    client.client_streaming(head, messages).await
+}
+
+/// Creates a new `gRPC` client and streams messages to a `gRPC` server,
+/// returning a stream of responses (bidirectional-streaming RPC).
+///
+/// # Errors
+/// - Internal error calling the `gRPC` server
+pub async fn call_bidirectional_streaming<S>(
+    head: &RequestMessage,
+    messages: S,
+    tls: Option<TlsConfig>,
+) -> Result<StreamingResponse>
+where
+    S: tokio_stream::Stream<Item = RequestMessage> + Send + 'static,
+{
+    let uri = head.uri()?;
+
+    let mut client = GrpcClient::new(uri, tls)?;
+
+    client.bidirectional_streaming(head, messages).await
 }
