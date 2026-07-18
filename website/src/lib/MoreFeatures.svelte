@@ -199,6 +199,7 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
     .dot.active {
         background: var(--orange);
         transform: scale(1.3);
+        box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
     }
 
     .content-wrapper {

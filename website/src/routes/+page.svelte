@@ -195,51 +195,34 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 </div>
 
 <style>
-    .subtitle {
-        margin: 0;
-        font-style: italic;
-    }
-
-    p {
-        margin-bottom: 1rem;
-    }
-
-    .content {
-        width: var(--max-width);
-        padding-bottom: 12px;
-    }
-
-    pre {
-        font-family: var(--font-family-mono);
-        font-size: var(--font-size-code);
-        font-weight: var(--font-weight-code);
-        color: var(--gray-lightest);
-        text-align: left;
-        background-color: var(--gray-darkest);
-        border: 1px solid var(--gray-light);
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin: 16px 0;
-        overflow-x: auto;
-        line-height: 1.5;
-    }
-    h3,
-    ul {
-        text-align: left;
-        color: var(--gray-lightest);
-        font-size: var(--font-size-code);
-    }
-
-    li {
-        margin: 10px 0;
-    }
-
     .header {
         display: flex;
         justify-content: center;
         align-items: center;
         width: var(--max-width);
         position: relative;
+    }
+
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 340px;
+        height: 160px;
+        background: radial-gradient(ellipse at center, rgba(255, 165, 0, 0.12), transparent 70%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .header h1 {
+        background: linear-gradient(135deg, var(--gray-lightest) 0%, var(--orange-light) 70%, var(--orange) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        letter-spacing: -0.5px;
     }
 
     .github {
@@ -257,12 +240,16 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     }
 
     .subtitle {
-        margin: 0;
+        margin: 6px 0 0 0;
         font-style: italic;
+        color: var(--gray-light);
+        letter-spacing: 0.3px;
+        font-size: calc(var(--font-size-body) + 1px);
     }
 
     p {
         margin-bottom: 1rem;
+        align-self: flex-start;
     }
 
     .content {
@@ -279,7 +266,29 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         }
     }
 
-    p {
-        align-self: flex-start;
+    pre {
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-code);
+        font-weight: var(--font-weight-code);
+        color: var(--gray-lightest);
+        text-align: left;
+        background-color: var(--gray-darkest);
+        border: 1px solid var(--gray-light);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 16px 0;
+        overflow-x: auto;
+        line-height: 1.5;
+    }
+
+    h3,
+    ul {
+        text-align: left;
+        color: var(--gray-lightest);
+        font-size: var(--font-size-code);
+    }
+
+    li {
+        margin: 10px 0;
     }
 </style>

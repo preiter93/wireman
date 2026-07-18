@@ -19,10 +19,14 @@
         height: var(--icon-size-large);
         width: var(--icon-size-large);
         fill: var(--gray-lightest);
+        transition:
+            transform 0.2s ease,
+            fill 0.2s ease;
     }
 
     .icon-container:hover svg {
         cursor: pointer;
-        transform: scale(0.85);
+        transform: scale(1.1);
+        fill: var(--orange);
     }
 </style>
