@@ -9,7 +9,7 @@ keywords = ["wireman", "theme"]
 license = "MIT"
 
 [dependencies]
-cssparser = "0.37.0"
+cssparser = "0.38.0"
 logger = { package = "wireman-logger", version = "0.1" }
 once_cell = "1.21"
 ratatui = "0.30.0"
