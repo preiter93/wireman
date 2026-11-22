@@ -8,13 +8,11 @@ use wireman_core::ProtoDescriptor;
 
 use crate::app::App;
 use crate::context::{AppContext, HelpContext, MessagesTab, SelectionTab, Tab};
-use crate::model::messages::{
-    bidi_streaming, client_streaming, server_streaming, unary, RequestResult,
-};
+use crate::model::messages::{call, RequestResult};
 use crate::model::selection::SelectionMode;
 use configuration::ConfigurationEventHandler;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
-use futures::{stream::once, Stream, StreamExt};
+use futures::{Stream, StreamExt};
 pub(crate) use selection::methods::MethodsSelectionEventsHandler;
 pub(crate) use selection::methods_search::MethodsSearchEventsHandler;
 use selection::reflection::ReflectionDialogEventHandler;
@@ -193,14 +191,10 @@ impl App {
             messages_model.dispatch = false;
             match (messages_model.get_request(), tls) {
                 (Ok(head), Ok(tls)) => {
-                    let method = head.method_descriptor();
-                    let is_client = method.is_client_streaming();
-                    let is_server = method.is_server_streaming();
-
                     // Client- and bidi-streaming open an interactive session:
                     // the head is the first message, the rest are fed via the
                     // returned receiver as the user sends them.
-                    let rx = if is_client {
+                    let rx = if head.method_descriptor().is_client_streaming() {
                         let rx = messages_model.open_stream();
                         messages_model.push_stream_message(head.clone());
                         Some(rx)
@@ -209,13 +203,7 @@ impl App {
                     };
 
                     let handler = tokio::spawn(async move {
-                        let stream: Pin<Box<dyn Stream<Item = RequestResult> + Send>> =
-                            match (rx, is_server) {
-                                (Some(rx), true) => bidi_streaming(head, rx, tls).await,
-                                (Some(rx), false) => once(client_streaming(head, rx, tls)).boxed(),
-                                (None, true) => server_streaming(head, tls).await,
-                                (None, false) => once(unary(head, tls)).boxed(),
-                            };
+                        let stream = call(head, rx, tls).await;
                         drain_to(stream, &sx1).await;
                     });
                     messages_model.handler = Some(handler);

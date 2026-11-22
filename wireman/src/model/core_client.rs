@@ -3,10 +3,8 @@ use http::Uri;
 use std::{collections::HashMap, error::Error};
 use wireman_config::Config;
 use wireman_core::{
-    client::tls::TlsConfig,
-    descriptor::{response::StreamingResponse, RequestMessage, ResponseMessage},
-    features::grpcurl,
-    MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
+    client::tls::TlsConfig, descriptor::RequestMessage, features::grpcurl, MethodDescriptor,
+    ProtoDescriptor, ServiceDescriptor,
 };
 
 /// The [`CoreClient`] calls the proto descriptor and grpc client of the
@@ -122,42 +120,6 @@ impl CoreClient {
             tls_config.use_native,
             tls_config.custom_cert,
         )?)
-    }
-
-    pub async fn call_unary_async(
-        req: &RequestMessage,
-        tls: Option<TlsConfig>,
-    ) -> Result<ResponseMessage, ErrorKind> {
-        Ok(wireman_core::client::call_unary_async(req, tls).await?)
-    }
-
-    pub async fn call_server_streaming(
-        req: &RequestMessage,
-        tls: Option<TlsConfig>,
-    ) -> Result<StreamingResponse, ErrorKind> {
-        Ok(wireman_core::client::call_server_streaming(req, tls).await?)
-    }
-
-    pub async fn call_client_streaming<S>(
-        head: &RequestMessage,
-        messages: S,
-        tls: Option<TlsConfig>,
-    ) -> Result<ResponseMessage, ErrorKind>
-    where
-        S: futures::Stream<Item = RequestMessage> + Send + 'static,
-    {
-        Ok(wireman_core::client::call_client_streaming(head, messages, tls).await?)
-    }
-
-    pub async fn call_bidirectional_streaming<S>(
-        head: &RequestMessage,
-        messages: S,
-        tls: Option<TlsConfig>,
-    ) -> Result<StreamingResponse, ErrorKind>
-    where
-        S: futures::Stream<Item = RequestMessage> + Send + 'static,
-    {
-        Ok(wireman_core::client::call_bidirectional_streaming(head, messages, tls).await?)
     }
 
     /// Return a grpcurl request
