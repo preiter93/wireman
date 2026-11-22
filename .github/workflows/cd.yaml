@@ -29,10 +29,10 @@ jobs:
             os: windows-2022
             target: x86_64-pc-windows-msvc	
           - build: macos
-            os: macos-14
+            os: macos-15
             target: x86_64-apple-darwin
           - build: macos
-            os: macos-14
+            os: macos-15
             target: aarch64-apple-darwin
     steps:
       - name: Checkout the repository
