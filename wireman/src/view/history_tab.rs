@@ -35,7 +35,7 @@ impl<'a> HistoryTabs<'a> {
 impl Widget for HistoryTabs<'_> {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         let theme = Theme::global();
-        if !self.model.enabled {
+        if !self.model.disabled {
             let [_, right] = layout(area, Direction::Horizontal, &[0, 25]);
 
             let titles = vec![" 1 ", " 2 ", " 3 ", " 4 ", " 5 "];
