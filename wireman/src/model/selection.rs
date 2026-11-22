@@ -2,14 +2,15 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use tui_widget_list::ListState;
+use wireman_config::Config;
 use wireman_core::{MethodDescriptor, ProtoDescriptor, ServiceDescriptor};
-
-use super::core_client::CoreClient;
 
 #[derive(Clone)]
 pub struct SelectionModel {
-    /// Core client retrieves proto descriptors
-    core_client: Rc<RefCell<CoreClient>>,
+    /// The proto descriptor, shared with the messages model
+    descriptor: Rc<RefCell<ProtoDescriptor>>,
+    /// The config to reload the proto descriptor from files
+    config: Config,
     /// a list of services.
     services: Vec<String>,
     /// A list of methods.
@@ -43,11 +44,12 @@ pub struct ServiceWithMethods {
 }
 
 impl SelectionModel {
-    /// Instantiates a [`SelectionModel`]. Requires the core client to
+    /// Instantiates a [`SelectionModel`]. Requires the proto descriptor to
     /// retrieve the proto services and methods.
-    pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
+    pub fn new(descriptor: Rc<RefCell<ProtoDescriptor>>, config: &Config) -> Self {
         let mut model = Self {
-            core_client,
+            descriptor,
+            config: config.clone(),
             services: Vec::new(),
             methods: Vec::new(),
             services_state: ListState::default(),
@@ -61,9 +63,9 @@ impl SelectionModel {
         model
     }
 
-    /// Loads the services and methods from the core client
+    /// Loads the services and methods from the proto descriptor
     pub fn load_core_services_and_methods_from_files(&mut self) {
-        self.services = list_services(&self.core_client.borrow());
+        self.services = list_services(&self.descriptor.borrow());
         self.services_state.select(None);
 
         self.methods = Vec::new();
@@ -71,7 +73,7 @@ impl SelectionModel {
 
         if !self.services.is_empty() {
             self.services_state.select(Some(0));
-            self.methods = list_methods(&self.core_client.borrow(), &self.services[0]);
+            self.methods = list_methods(&self.descriptor.borrow(), &self.services[0]);
         }
     }
 
@@ -81,7 +83,11 @@ impl SelectionModel {
             SelectionMode::File => self.selection_mode = SelectionMode::ReflectionDialog,
             SelectionMode::ReflectionDialog => self.selection_mode = SelectionMode::File,
             SelectionMode::Reflection => {
-                let _ = self.core_client.borrow_mut().reset();
+                if let Ok(descriptor) =
+                    ProtoDescriptor::new(self.config.includes(), self.config.files())
+                {
+                    *self.descriptor.borrow_mut() = descriptor;
+                }
                 self.load_core_services_and_methods_from_files();
                 self.selection_mode = SelectionMode::File;
             }
@@ -91,7 +97,7 @@ impl SelectionModel {
 
     /// Update the proto descriptor.
     pub fn update_descriptor(&mut self, desc: ProtoDescriptor) {
-        self.core_client.borrow_mut().update_proto_descriptor(desc);
+        *self.descriptor.borrow_mut() = desc;
         self.load_core_services_and_methods_from_files();
     }
 
@@ -202,7 +208,7 @@ impl SelectionModel {
     pub fn load_methods(&mut self) {
         if let Some(service_index) = self.services_state.selected {
             let service_name = &self.services()[service_index];
-            self.methods = list_methods(&self.core_client.borrow(), service_name);
+            self.methods = list_methods(&self.descriptor.borrow(), service_name);
         }
     }
 
@@ -282,7 +288,7 @@ impl SelectionModel {
     pub fn selected_service(&self) -> Option<ServiceDescriptor> {
         if let Some(index) = self.services_state.selected {
             let name = &self.services[index];
-            return self.core_client.borrow().get_service_by_name(name);
+            return self.descriptor.borrow().get_service_by_name(name);
         }
         None
     }
@@ -295,7 +301,7 @@ impl SelectionModel {
             let service_name = &self.services()[service_index];
             let method_name = &self.methods()[method_index];
             return self
-                .core_client
+                .descriptor
                 .borrow()
                 .get_method_by_name(service_name, method_name);
         }
@@ -396,17 +402,17 @@ impl SelectionModel {
     }
 }
 
-fn list_services(core_client: &CoreClient) -> Vec<String> {
-    core_client
+fn list_services(descriptor: &ProtoDescriptor) -> Vec<String> {
+    descriptor
         .get_services()
         .iter()
         .map(|service| service.full_name().to_string())
         .collect()
 }
 
-fn list_methods(core_client: &CoreClient, service_name: &str) -> Vec<String> {
-    if let Some(service) = core_client.get_service_by_name(service_name) {
-        return core_client
+fn list_methods(descriptor: &ProtoDescriptor, service_name: &str) -> Vec<String> {
+    if let Some(service) = descriptor.get_service_by_name(service_name) {
+        return descriptor
             .get_methods(&service)
             .iter()
             .map(|method| method.name().to_string())

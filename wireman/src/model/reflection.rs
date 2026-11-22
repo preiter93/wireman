@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions)]
-use super::core_client::CoreClient;
 use super::headers::HeadersModel;
 use super::SelectionModel;
 use crate::events::InternalStreamData;
@@ -11,8 +10,6 @@ use wireman_core::ProtoDescriptor;
 
 #[derive(Clone)]
 pub struct ReflectionModel {
-    /// Core client retrieves proto descriptors
-    core_client: Rc<RefCell<CoreClient>>,
     /// A reference to the headers model
     pub headers: Rc<RefCell<HeadersModel>>,
     /// A reference to the selection model
@@ -24,15 +21,9 @@ pub struct ReflectionModel {
 }
 
 impl ReflectionModel {
-    /// Instantiates a [`ReflectionModel`]. Requires the core client to
-    /// retrieve the proto services and methods.
-    pub fn new(
-        core_client: Rc<RefCell<CoreClient>>,
-        headers: Rc<RefCell<HeadersModel>>,
-        selection: Rc<RefCell<SelectionModel>>,
-    ) -> Self {
+    /// Instantiates a [`ReflectionModel`].
+    pub fn new(headers: Rc<RefCell<HeadersModel>>, selection: Rc<RefCell<SelectionModel>>) -> Self {
         Self {
-            core_client,
             headers,
             selection,
             dispatch_reflection: false,
