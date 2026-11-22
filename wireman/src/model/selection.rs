@@ -63,6 +63,12 @@ impl SelectionModel {
         model
     }
 
+    /// Replaces the shared proto descriptor and resets the selection.
+    pub fn reload(&mut self, descriptor: ProtoDescriptor, config: &Config) {
+        *self.descriptor.borrow_mut() = descriptor;
+        *self = Self::new(Rc::clone(&self.descriptor), config);
+    }
+
     /// Loads the services and methods from the proto descriptor
     pub fn load_core_services_and_methods_from_files(&mut self) {
         self.services = list_services(&self.descriptor.borrow());

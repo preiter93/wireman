@@ -38,7 +38,7 @@ pub struct MessagesModel {
     pub headers: Rc<RefCell<HeadersModel>>,
 
     /// The config for the TLS settings and the grpcurl includes
-    config: Config,
+    pub(crate) config: Config,
 
     /// The model for the request history.
     pub history: Rc<RefCell<HistoryModel>>,
