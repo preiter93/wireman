@@ -71,7 +71,7 @@ impl HistoryModel {
 
         let address = messages.headers.borrow().address();
         let auth_str = messages.headers.borrow().auth.value();
-        let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
+        let auth = (!auth_str.is_empty()).then_some(auth_str);
         let metadata = messages.headers.borrow().meta.as_btree();
         let request = HistoryData {
             message,
