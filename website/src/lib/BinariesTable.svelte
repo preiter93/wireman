@@ -1,7 +1,7 @@
 <script>
-    import LinuxIcon from '$lib/icons/LinuxIcon.svelte';
-    import MacOSIcon from '$lib/icons/MacOSIcon.svelte';
-    import WindowsIcon from '$lib/icons/WindowsIcon.svelte';
+    import LinuxIcon from '#lib/icons/LinuxIcon.svelte';
+    import MacOSIcon from '#lib/icons/MacOSIcon.svelte';
+    import WindowsIcon from '#lib/icons/WindowsIcon.svelte';
 </script>
 
 {#snippet linux()}
@@ -67,37 +67,67 @@
 </table>
 
 <style>
+    table {
+        width: 100%;
+        margin-top: 4px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid hsla(215, 18%, 65%, 0.18);
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: hsla(215, 21%, 5%, 0.8);
+    }
+
     th,
     td {
-        padding: 12px;
-        border: 1px solid #ddd;
+        padding: 10px 12px;
         color: var(--gray-lightest);
         font-size: var(--font-size-code);
+        text-align: left;
+        border-bottom: 1px solid hsla(215, 18%, 65%, 0.1);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    th {
+        color: var(--gray-medium);
+        font-weight: 500;
+        text-transform: lowercase;
+        border-bottom-color: hsla(215, 18%, 65%, 0.2);
+    }
+
+    tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    tbody tr:hover {
+        background: hsla(36, 100%, 50%, 0.05);
     }
 
     a {
         font-size: var(--font-size-code);
-        color: var(--gray-lightest);
+        color: var(--gray-light);
+        text-decoration: none;
+        word-break: break-all;
+    }
+
+    a:hover {
+        color: var(--orange);
+        text-decoration: underline;
     }
 
     .os {
-        width: 10%;
+        width: 15%;
     }
     .arch {
-        width: 25%;
-    }
-
-    td:last-child {
-        width: 25%;
+        width: 22%;
     }
 
     .os-container {
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 6px;
-    }
-    table {
-        width: 100%;
+        gap: 8px;
     }
 </style>

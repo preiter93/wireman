@@ -1,65 +1,58 @@
 <script>
-    import BinariesTable from '$lib/BinariesTable.svelte';
-    import CodeContainer from '$lib/CodeContainer.svelte';
-    import ContentCard from '$lib/ContentCard.svelte';
-    import GithubButton from '$lib/GithubButton.svelte';
-    import Tour from '$lib/Tour.svelte';
-    import MoreFeatures from '$lib/MoreFeatures.svelte';
+    import CodeContainer from '#lib/CodeContainer.svelte';
+    import ContentCard from '#lib/ContentCard.svelte';
+    import GithubButton from '#lib/GithubButton.svelte';
+    import InstallTabs from '#lib/InstallTabs.svelte';
+    import Tour from '#lib/Tour.svelte';
+    import MoreFeatures from '#lib/MoreFeatures.svelte';
+    import ImgHero from '#lib/assets/website_326.png';
 </script>
 
-<div class="header">
-    <h1>Wireman</h1>
-    <div class="github">
-        <GithubButton />
+<nav class="topbar">
+    <a class="brand" href="#top"><span class="prompt">❯</span> wireman</a>
+    <div class="nav-links">
+        <a href="#install">install</a>
+        <a href="#getting-started">start</a>
+        <a href="#tour">tour</a>
+        <a href="#features">features</a>
+        <a href="#reference">reference</a>
     </div>
-</div>
-<div>
+    <GithubButton />
+</nav>
+
+<header class="hero" id="top">
+    <h1>
+        <span class="prompt" aria-hidden="true">❯</span><span class="name">wireman</span><span class="cursor" aria-hidden="true"></span>
+    </h1>
     <p class="subtitle">A grpc client for the terminal</p>
-</div>
+    <div class="hero-install">
+        <CodeContainer command="cargo install wireman" />
+    </div>
+    <div class="window">
+        <div class="window-bar">wireman — OrderService &gt; GetOrder</div>
+        <img src={ImgHero} alt="Wireman showing a gRPC response" width="830" height="570" />
+    </div>
+</header>
 
 <div class="content">
-    <h2>Installation</h2>
-    <ContentCard title="Cargo" initiallyExpanded={true}>
-        <p>
-            If you have Rust installed you can install wireman from
-            <a href="https://crates.io/crates/wireman" class="custom-link" target="_blank" rel="noopener noreferrer">crates.io </a>
-            with cargo:
-        </p>
-        <CodeContainer command="cargo install wireman" />
-    </ContentCard>
+    <h2 id="install">Installation</h2>
+    <InstallTabs />
 
-    <ContentCard title="Brew">
-        <p>On linux and macOS you can install wireman with brew:</p>
-        <CodeContainer command="brew install preiter93/wireman/wireman" />
-    </ContentCard>
+    <h2 id="getting-started">Getting Started</h2>
 
-    <ContentCard title="Binary Releases">
-        <p>
-            Alternatively you can download a pre-compiled binary from the
-            <a href="https://github.com/preiter93/wireman/releases" class="custom-link" target="_blank" rel="noopener noreferrer"
-                >releases page
-            </a>
-            . Here are the binaries from the latest release:
-        </p>
-        <BinariesTable />
-    </ContentCard>
-
-    <h2>Getting Started</h2>
-
-    <ContentCard title="Initialization" initiallyExpanded={true}>
-        <p>
-            After installing wireman, execute the following command, which prompts you to specify an installation directory (the
-            configuration path) in which a default configuration is created:
-        </p>
-        <CodeContainer command="wireman init" />
-    </ContentCard>
-
-    <ContentCard title="Configuration" initiallyExpanded={true}>
-        <p>
-            After initializing wireman, the most important step is to specify proto includes and files. Say you have a project with the
-            following structure:
-        </p>
-        <pre>
+    <ol class="steps">
+        <li class="step">
+            <div class="step-body">
+                <h3><span class="step-number">1.</span> Initialize</h3>
+                <p>Run the following command. It asks for a configuration directory and creates a default configuration in it:</p>
+                <CodeContainer command="wireman init" />
+            </div>
+        </li>
+        <li class="step">
+            <div class="step-body">
+                <h3><span class="step-number">2.</span> Configure</h3>
+                <p>Tell wireman where your protos are. Say you have a project with the following structure:</p>
+                <pre>
 $HOME/my-project/
 ├── services/
 │   ├── order/
@@ -68,9 +61,9 @@ $HOME/my-project/
 │       └── api.proto
 └── protos/common.proto
 </pre>
-        <p>Then modify <code>~/.config/wireman/wireman.toml</code>:</p>
-        <CodeContainer
-            command="includes = [
+                <p>Then modify <code>~/.config/wireman/wireman.toml</code>:</p>
+                <CodeContainer
+                    command="includes = [
     '$HOME/my-project/services',
     '$HOME/my-project/protos'
 ]
@@ -79,55 +72,52 @@ files = [
     'order/api.proto',
     'price/api.proto'
 ]"
-        />
-    </ContentCard>
+                />
+            </div>
+        </li>
+        <li class="step">
+            <div class="step-body">
+                <h3><span class="step-number">3.</span> Run</h3>
+                <p>Start wireman from the terminal:</p>
+                <CodeContainer command="wireman" />
+            </div>
+        </li>
+    </ol>
 
-    <ContentCard title="Start wireman" initiallyExpanded={true}>
-        <p style="padding-bottom:0">
-            You can now start <code>wireman</code> from the terminal:
-        </p>
-        <CodeContainer command="wireman" />
-    </ContentCard>
-
-    <h2>A Tour of Wireman</h2>
+    <h2 id="tour">A Tour of Wireman</h2>
 
     <Tour></Tour>
 
-    <h2>More Features</h2>
+    <h2 id="features">More Features</h2>
 
     <MoreFeatures></MoreFeatures>
 
-    <h2>Use It Your Way</h2>
+    <h2>Fits Your Workflow</h2>
 
-    <ContentCard title="Operate with keys or mouse" initiallyExpanded={true}>
-        <p>WireMan works however you prefer:</p>
-        <ul>
-            <li><strong>Vim-style navigation</strong>: Navigate with vim-style keybindings. Hit <code>?</code> to see what's available.</li>
-            <li>
-                <strong>Mouse & system editor</strong>: Wireman can also be operated with the mouse. And you can pop open your system editor
-                with
-                <code>Ctrl+e</code>.
-            </li>
-        </ul>
-    </ContentCard>
+    <div class="grid">
+        <ContentCard title="Keyboard or mouse" initiallyExpanded={true} hideToggle={true}>
+            <p>
+                Navigate with vim-style keybindings and hit <code>?</code> to see what's available. Prefer the mouse? That works too, and
+                <code>Ctrl+e</code> opens any field in your system editor.
+            </p>
+        </ContentCard>
 
-    <ContentCard title="Integrate with Neovim" initiallyExpanded={true}>
-        <p>
-            Use Wireman in nvim with a floating terminal with
-            <a href="https://github.com/preiter93/wireman.nvim" class="custom-link" target="_blank" rel="noopener noreferrer"
-                >wireman.nvim</a
-            >
-            <img
-                src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
-                alt="Neovim logo"
-                width="14"
-                height="14"
-                style="vertical-align: middle;"
-            />.
-        </p></ContentCard
-    >
+        <ContentCard title="Neovim" initiallyExpanded={true} hideToggle={true}>
+            <p>
+                Run wireman in a floating terminal inside nvim with
+                <a href="https://github.com/preiter93/wireman.nvim" target="_blank" rel="noopener noreferrer">wireman.nvim</a>
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
+                    alt="Neovim logo"
+                    width="14"
+                    height="14"
+                    style="vertical-align: middle;"
+                />.
+            </p>
+        </ContentCard>
+    </div>
 
-    <h2>Advanced & Reference</h2>
+    <h2 id="reference">Advanced & Reference</h2>
 
     <ContentCard title="Advanced configuration">
         <p>
@@ -196,57 +186,139 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     </ContentCard>
 </div>
 
+<footer class="footer">
+    <span>wireman v0.3.8</span>
+    <span class="footer-links">
+        <a href="https://github.com/preiter93/wireman" target="_blank" rel="noopener noreferrer">github</a>
+        <a href="https://crates.io/crates/wireman" target="_blank" rel="noopener noreferrer">crates.io</a>
+        <a href="https://github.com/preiter93/wireman.nvim" target="_blank" rel="noopener noreferrer">wireman.nvim</a>
+    </span>
+</footer>
+
 <style>
-    .header {
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        width: 100%;
         display: flex;
-        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        padding: 10px max(16px, calc((100% - var(--max-width)) / 2));
+        background: hsla(215, 21%, 7%, 0.92);
+        border-bottom: 1px solid hsla(215, 18%, 65%, 0.12);
+        --icon-size-large: 20px;
+    }
+
+    .topbar a {
+        font-size: var(--font-size-code);
+        text-decoration: none;
+        color: var(--gray-light);
+    }
+
+    .topbar a:hover {
+        color: var(--orange);
+    }
+
+    .topbar .brand {
+        font-weight: 700;
+        color: var(--gray-lightest);
+    }
+
+    .nav-links {
+        flex: 1;
+        display: flex;
+        gap: 18px;
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
         align-items: center;
         width: var(--max-width);
-        position: relative;
+        padding: 48px 10px 0 10px;
+        scroll-margin-top: 60px;
     }
 
-    .header::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 340px;
-        height: 160px;
-        background: radial-gradient(ellipse at center, rgba(255, 165, 0, 0.12), transparent 70%);
-        pointer-events: none;
-        z-index: -1;
+    .hero h1 {
+        display: flex;
+        align-items: center;
+        gap: 0.35em;
+        margin: 0;
+        letter-spacing: -1px;
     }
 
-    .header h1 {
-        background: linear-gradient(135deg, var(--gray-lightest) 0%, var(--orange-light) 70%, var(--orange) 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        letter-spacing: -0.5px;
+    .prompt {
+        color: var(--orange);
+        font-weight: 500;
     }
 
-    .github {
-        position: absolute;
-        right: 0;
-        margin-right: 20px;
-        padding-top: 20px;
+    .name {
+        color: var(--gray-lightest);
     }
 
-    @media (max-width: 600px) {
-        .github {
-            margin-right: 16px;
-            padding-top: 16px;
+    .cursor {
+        display: inline-block;
+        width: 0.5em;
+        height: 0.9em;
+        margin-left: -0.25em;
+        background: var(--orange);
+        animation: blink 1.1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cursor {
+            animation: none;
         }
     }
 
     .subtitle {
-        margin: 6px 0 0 0;
-        font-style: italic;
+        align-self: center;
+        text-align: center;
+        margin: 8px 0 0 0;
         color: var(--gray-light);
-        letter-spacing: 0.3px;
         font-size: calc(var(--font-size-body) + 1px);
+    }
+
+    .subtitle::before {
+        content: '// ';
+        color: var(--gray-medium);
+    }
+
+    .hero-install {
+        width: 100%;
+        max-width: 380px;
+        margin: 28px 0 40px 0;
+    }
+
+    .window {
+        width: 100%;
+        max-width: 600px;
+        border: 1px solid hsla(215, 18%, 65%, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--gray-dark);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .window-bar {
+        padding: 8px 14px;
+        font-size: 11px;
+        color: var(--gray-medium);
+        text-align: center;
+        border-bottom: 1px solid hsla(215, 18%, 65%, 0.14);
+    }
+
+    .window img {
+        display: block;
+        width: 100%;
+        height: auto;
     }
 
     p {
@@ -259,12 +331,124 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         padding-bottom: 12px;
     }
 
-    @media (max-width: 800px) {
-        .content {
+    .content h2 {
+        scroll-margin-top: 60px;
+    }
+
+    .steps {
+        list-style: none;
+        margin: 12px 10px 0 10px;
+        padding: 0;
+    }
+
+    .step {
+        margin: 0;
+        padding-bottom: 28px;
+    }
+
+    .step-number {
+        color: var(--gray-medium);
+        font-weight: 400;
+    }
+
+    .step-body h3 {
+        margin: 0 0 10px 0;
+        font-size: var(--font-size-h3);
+    }
+
+    .step-body p {
+        margin-bottom: 12px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .grid :global(.content-card) {
+        height: calc(100% - 12px);
+    }
+
+    .footer {
+        width: var(--max-width);
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 64px;
+        padding: 20px 10px 32px 10px;
+        border-top: 1px solid hsla(215, 18%, 65%, 0.12);
+        font-size: var(--font-size-code);
+        color: var(--gray-medium);
+    }
+
+    .footer-links {
+        display: flex;
+        gap: 18px;
+    }
+
+    .footer a {
+        font-size: var(--font-size-code);
+        color: var(--gray-light);
+        text-decoration: none;
+    }
+
+    .footer a:hover {
+        color: var(--orange);
+    }
+
+    @media (max-width: 960px) {
+        .content,
+        .hero,
+        .footer {
             width: 100%;
         }
-        .header {
-            width: 100%;
+    }
+
+    @media (max-width: 600px) {
+        .topbar {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            row-gap: 6px;
+        }
+
+        .nav-links {
+            order: 3;
+            flex-basis: 100%;
+            gap: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-links a {
+            flex-shrink: 0;
+            padding: 4px 0;
+        }
+
+        .hero,
+        .content h2 {
+            scroll-margin-top: 88px;
+        }
+
+        .hero {
+            padding: 28px 16px 0 16px;
+        }
+
+        .steps {
+            margin: 12px 6px 0 6px;
+        }
+
+        .grid {
+            grid-template-columns: 1fr;
+        }
+
+        .footer {
+            padding: 20px 16px 32px 16px;
         }
     }
 
@@ -272,13 +456,13 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         font-family: var(--font-family-mono);
         font-size: var(--font-size-code);
         font-weight: var(--font-weight-code);
-        color: var(--gray-lightest);
+        color: var(--gray-light);
         text-align: left;
-        background-color: var(--gray-darkest);
-        border: 1px solid var(--gray-light);
+        background-color: hsla(215, 21%, 5%, 0.8);
+        border: 1px solid hsla(215, 18%, 65%, 0.18);
         border-radius: 8px;
         padding: 12px 16px;
-        margin: 16px 0;
+        margin: 0 0 12px 0;
         overflow-x: auto;
         line-height: 1.5;
     }

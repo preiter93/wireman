@@ -2,9 +2,10 @@
     let { command }: { command: string } = $props();
 
     let copied = $state(false);
+    let isShellCommand = $derived(!command.includes('\n'));
 
-    function copyCommand() {
-        navigator.clipboard.writeText(command);
+    async function copyCommand() {
+        await navigator.clipboard.writeText(command);
         copied = true;
         setTimeout(() => {
             copied = false;
@@ -13,93 +14,117 @@
 </script>
 
 <div class="container">
-    <pre>{command}</pre>
-    <button class="copy-button" onclick={copyCommand} aria-label="Copy code">
+    <pre>{#if isShellCommand}<span class="prompt" aria-hidden="true">$ </span>{/if}{command}</pre>
+    <button class="copy-button {copied ? 'copied' : ''}" onclick={copyCommand} aria-label="Copy code">
         {#if copied}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" class="check-icon">
-                <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" class="check-icon">
+                <path d="M5 12.5l4.5 4.5L19 7.5" />
             </svg>
+            <span>copied</span>
         {:else}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" class="copy-icon">
-                <path
-                    d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"
-                />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2" />
+                <path d="M5 15V6a2 2 0 0 1 2-2h9" />
             </svg>
+            <span>copy</span>
         {/if}
     </button>
 </div>
 
 <style>
     .container {
-        font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+        font-family: var(--font-family-mono);
         font-size: var(--font-size-code);
         font-weight: var(--font-weight-code);
         color: var(--gray-lightest);
         text-align: left;
-        background-color: var(--gray-darkest);
-        border: 1px solid var(--gray-light);
+        background-color: hsla(215, 21%, 5%, 0.8);
+        border: 1px solid hsla(215, 18%, 65%, 0.18);
         border-radius: 8px;
         padding: 12px 16px;
+        margin-top: 4px;
         position: relative;
         display: flex;
         align-items: flex-start;
         min-height: 44px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 1px 0 hsla(215, 28%, 92%, 0.03);
         overflow: hidden;
         transition: border-color 0.2s ease;
     }
 
     .container:hover {
-        border-color: rgba(124, 139, 154, 0.6);
+        border-color: hsla(36, 100%, 50%, 0.3);
+    }
+
+    .prompt {
+        color: var(--orange);
+        user-select: none;
     }
 
     .copy-button {
         all: unset;
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 5px;
         position: absolute;
         top: 8px;
         right: 8px;
-        background: var(--gray-dark);
-        border: 1px solid var(--gray-medium);
+        padding: 3px 8px;
+        font-family: var(--font-family-mono);
+        font-size: 11px;
+        color: var(--gray-light);
+        background: hsla(215, 19%, 13%, 0.9);
+        border: 1px solid hsla(215, 18%, 65%, 0.2);
         border-radius: 6px;
-        padding: 6px;
         cursor: pointer;
-        transition: all 0.2s ease;
-        width: 14px;
-        height: 14px;
-        z-index: 1;
+        opacity: 0.55;
+        transition:
+            opacity 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease,
+            background-color 0.2s ease;
+    }
+
+    .container:hover .copy-button,
+    .copy-button:focus-visible,
+    .copy-button.copied {
+        opacity: 1;
     }
 
     .copy-button:hover {
-        background: var(--gray-medium);
-        border-color: var(--gray-light);
+        color: var(--orange);
+        border-color: hsla(36, 100%, 50%, 0.5);
+        background: hsla(36, 100%, 50%, 0.08);
     }
 
     .copy-button:active {
-        transform: scale(0.95);
+        transform: scale(0.96);
+    }
+
+    .copy-button.copied {
+        color: var(--green-light);
+        border-color: hsla(150, 100%, 40%, 0.45);
+        background: hsla(150, 100%, 40%, 0.08);
     }
 
     svg {
-        width: 16px;
-        height: 16px;
-        transition: all 0.2s ease;
-    }
-
-    .copy-icon {
-        fill: var(--gray-lightest);
+        width: 13px;
+        height: 13px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .check-icon {
-        fill: var(--green);
-        animation: checkmark 0.3s ease-out;
+        animation: pop 0.25s ease-out;
     }
 
-    @keyframes checkmark {
+    @keyframes pop {
         0% {
             opacity: 0;
-            transform: scale(0.8);
+            transform: scale(0.6);
         }
         100% {
             opacity: 1;
@@ -111,9 +136,9 @@
         margin: 0;
         white-space: pre-wrap;
         word-break: break-all;
-        line-height: 1.5;
+        line-height: 1.6;
         color: var(--gray-lightest);
-        padding-right: 40px;
+        padding-right: 80px;
         flex: 1;
         overflow-x: auto;
     }
@@ -127,18 +152,19 @@
         }
 
         .copy-button {
-            width: 16px;
-            height: 16px;
-            padding: 2px;
-        }
-
-        svg {
-            width: 14px;
-            height: 14px;
+            opacity: 1;
         }
 
         pre {
             font-size: calc(var(--font-size-code) - 1px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .copy-button,
+        .check-icon {
+            transition: none;
+            animation: none;
         }
     }
 </style>
