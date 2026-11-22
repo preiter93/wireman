@@ -18,7 +18,8 @@ pub mod error;
 mod install;
 mod setup;
 pub use config::Config;
-pub use setup::init_from_env;
+pub use install::install;
+pub use setup::{check, init_from_env};
 
 /// This env is used to read the path for the `WireMan` config.
 /// If it is not set, the config is expected in the current

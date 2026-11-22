@@ -9,7 +9,6 @@ use crate::cli::Args;
 use crate::config::{HistoryConfig, LoggingConfig};
 use crate::install::{expand_file, expand_path, make_absolute_path};
 use crate::{Config, CONFIG_FNAME, DEFAULT_CONFIG_DIR, ENV_CONFIG_DIR};
-use theme::Theme;
 
 use crate::error::{Error, Result};
 use std::result::Result as StdResult;
@@ -20,6 +19,11 @@ use std::result::Result as StdResult;
 /// See [`setup`].
 pub fn init_from_env(args: &Args) -> Result<(Config, Option<String>)> {
     setup(false, args)
+}
+
+/// Checks the setup without creating any files and prints the config details.
+pub fn check(args: &Args) {
+    let _ = setup(true, args);
 }
 
 /// Runs the setup, allowing for a dry-run mode where no files are created.
@@ -64,10 +68,6 @@ pub fn setup(dry_run: bool, args: &Args) -> Result<(Config, Option<String>)> {
     init_history(&mut config, config_dir, dry_run)?;
 
     init_logger(&mut config, config_dir, dry_run)?;
-
-    if !dry_run {
-        Theme::init(&config.ui);
-    }
 
     Ok((config, Some(config_file)))
 }
