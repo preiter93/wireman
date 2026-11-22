@@ -3563,7 +3563,6 @@ dependencies = [
  "futures",
  "http",
  "ratatui",
- "serde",
  "serde_json",
  "tokio",
  "tui-widget-list",

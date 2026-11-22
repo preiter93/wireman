@@ -51,6 +51,10 @@ pub enum Error {
     /// Failed to parse to ascii
     #[error("error parsing to ascii")]
     ParseToAsciiError,
+
+    /// Failed to read or write the history
+    #[error("history: {0}")]
+    HistoryError(String),
 }
 
 impl From<tonic::Status> for Error {
