@@ -4,6 +4,7 @@ pub mod metadata;
 pub mod reflection_request;
 pub mod request;
 pub mod response;
+pub mod schema;
 
 pub use message::DynamicMessage;
 pub use reflection_request::ReflectionRequest;
