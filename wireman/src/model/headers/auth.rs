@@ -1,6 +1,6 @@
-use super::try_expand;
 use crate::widgets::editor::TextEditor;
 use edtui::EditorMode;
+use wireman_core::features::expand_header;
 
 pub struct AuthHeader {
     pub(crate) bearer: TextEditor,
@@ -62,7 +62,7 @@ impl AuthHeader {
             AuthSelection::Bearer => {
                 let mut value = self.bearer.get_text_raw();
                 if expanded {
-                    value = try_expand(&value);
+                    value = expand_header(&value);
                 };
                 if value.is_empty() {
                     String::new()
@@ -73,7 +73,7 @@ impl AuthHeader {
             AuthSelection::Basic => {
                 let mut value = self.basic.get_text_raw();
                 if expanded {
-                    value = try_expand(&value);
+                    value = expand_header(&value);
                 };
                 if value.is_empty() {
                     String::new()
