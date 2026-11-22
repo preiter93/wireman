@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package schema;
+
+import "google/protobuf/timestamp.proto";
+
+message Scalars {
+  string name = 1;
+  int64 count = 2;
+  double ratio = 3;
+  bool active = 4;
+  bytes data = 5;
+}
+
+message Lists {
+  repeated string tags = 1;
+  repeated Item items = 2;
+}
+
+message Item {
+  int32 number = 1;
+}
+
+message Colored {
+  Color color = 1;
+}
+
+enum Color {
+  COLOR_UNSPECIFIED = 0;
+  COLOR_RED = 1;
+}
+
+message Labels {
+  map<string, int32> counts = 1;
+}
+
+message Tree {
+  repeated Tree children = 1;
+}
+
+message Choice {
+  oneof target {
+    string id = 1;
+    string name = 2;
+  }
+  google.protobuf.Timestamp created_at = 3;
+}
+
+// A user of the system.
+message User {
+  // The display name.
+  string display_name = 1;
+}
