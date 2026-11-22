@@ -2,10 +2,11 @@ use std::{cell::RefCell, error::Error, rc::Rc};
 
 use ratatui::{layout::Direction, prelude::Rect};
 use wireman_config::Config;
+use wireman_core::ProtoDescriptor;
 
 use crate::model::{
     configuration::ConfigurationModel, headers::HeadersModel, history::HistoryModel,
-    reflection::ReflectionModel, CoreClient, MessagesModel, SelectionModel,
+    reflection::ReflectionModel, MessagesModel, SelectionModel,
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -69,39 +70,43 @@ impl HelpContext {
 
 impl AppContext {
     pub fn new(env: &Config, config_file: Option<String>) -> Result<Self> {
-        // The core client
-        let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
+        // The proto descriptor
+        let descriptor = Rc::new(RefCell::new(ProtoDescriptor::new(
+            env.includes(),
+            env.files(),
+        )?));
 
         // The history model
         let history = Rc::new(RefCell::new(HistoryModel::new(env)));
 
         // The metadata model
-        let server_address = &core_client_rc.borrow().get_default_address();
-        let server_auth_header = &core_client_rc.borrow().get_default_auth_header();
+        let server_address = env.server.default_address.clone().unwrap_or_default();
+        let server_auth_header = env.server.default_auth_header.clone().unwrap_or_default();
         let headers = Rc::new(RefCell::new(HeadersModel::new(
-            server_address,
-            server_auth_header,
+            &server_address,
+            &server_auth_header,
             Rc::clone(&history),
         )));
 
         // The selection model
-        let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
-            &core_client_rc,
-        ))));
+        let selection = Rc::new(RefCell::new(SelectionModel::new(
+            Rc::clone(&descriptor),
+            env,
+        )));
 
         // The configuration model.
         let configuration = Rc::new(RefCell::new(ConfigurationModel::new(config_file)));
 
         // The reflection model
         let reflection = Rc::new(RefCell::new(ReflectionModel::new(
-            Rc::clone(&core_client_rc),
             Rc::clone(&headers),
             Rc::clone(&selection),
         )));
 
         // The messages model
         let messages = Rc::new(RefCell::new(MessagesModel::new(
-            core_client_rc,
+            descriptor,
+            env,
             Rc::clone(&headers),
             Rc::clone(&history),
         )));
@@ -128,14 +133,14 @@ impl AppContext {
     }
 
     pub fn reload(&mut self, env: &Config) {
-        let Ok(core_client) = CoreClient::new(env) else {
+        let Ok(descriptor) = ProtoDescriptor::new(env.includes(), env.files()) else {
             return;
         };
-        let core_client_rc = Rc::new(RefCell::new(core_client));
 
-        let selection = Rc::new(RefCell::new(SelectionModel::new(Rc::clone(
-            &core_client_rc,
-        ))));
+        let selection = Rc::new(RefCell::new(SelectionModel::new(
+            Rc::new(RefCell::new(descriptor)),
+            env,
+        )));
 
         self.selection = selection;
     }

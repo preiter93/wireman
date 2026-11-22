@@ -187,7 +187,7 @@ impl App {
         // Dispatch a grpc request event in a separate thread.
         if self.ctx.messages.borrow().dispatch {
             let mut messages_model = self.ctx.messages.borrow_mut();
-            let tls = messages_model.request.core_client.borrow().get_tls_config();
+            let tls = messages_model.tls_config();
             messages_model.dispatch = false;
             match (messages_model.get_request(), tls) {
                 (Ok(head), Ok(tls)) => {

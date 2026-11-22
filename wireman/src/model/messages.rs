@@ -1,15 +1,18 @@
 #![allow(clippy::module_name_repetitions)]
-use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
+use super::{headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use futures::{self, Stream, StreamExt};
+use http::Uri;
 use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
 use tokio::task::JoinHandle;
+use wireman_config::Config;
 use wireman_core::{
     client::tls::TlsConfig,
     descriptor::{DynamicMessage, RequestMessage},
-    MethodDescriptor,
+    features::grpcurl,
+    MethodDescriptor, ProtoDescriptor,
 };
 
 /// Map from Method to request/response message
@@ -34,6 +37,9 @@ pub struct MessagesModel {
     /// A reference to the headers model
     pub headers: Rc<RefCell<HeadersModel>>,
 
+    /// The config for the TLS settings and the grpcurl includes
+    config: Config,
+
     /// The model for the request history.
     pub history: Rc<RefCell<HistoryModel>>,
 
@@ -55,7 +61,8 @@ pub struct MessagesModel {
 impl Default for MessagesModel {
     fn default() -> Self {
         Self::new(
-            Rc::new(RefCell::new(CoreClient::default())),
+            Rc::new(RefCell::new(ProtoDescriptor::default())),
+            &Config::default(),
             Rc::new(RefCell::new(HeadersModel::default())),
             Rc::new(RefCell::new(HistoryModel::default())),
         )
@@ -66,11 +73,12 @@ impl MessagesModel {
     /// Instantiates a request and response model and returns
     /// the common messages model.
     pub fn new(
-        core_client: Rc<RefCell<CoreClient>>,
+        descriptor: Rc<RefCell<ProtoDescriptor>>,
+        config: &Config,
         headers: Rc<RefCell<HeadersModel>>,
         history: Rc<RefCell<HistoryModel>>,
     ) -> Self {
-        let request = RequestModel::new(core_client);
+        let request = RequestModel::new(descriptor);
         let response = ResponseModel::new();
         Self {
             request,
@@ -79,6 +87,7 @@ impl MessagesModel {
             loaded_cache_id: String::new(),
             selected_method: None,
             headers,
+            config: config.clone(),
             history,
             dispatch: false,
             handler: None,
@@ -152,7 +161,7 @@ impl MessagesModel {
             let json = self.request.editor.get_text_raw();
             match self
                 .request
-                .core_client
+                .descriptor
                 .borrow()
                 .request_from_json(method, &json)
             {
@@ -272,7 +281,7 @@ impl MessagesModel {
         let json = self.request.editor.get_text_raw();
         let mut req = self
             .request
-            .core_client
+            .descriptor
             .borrow()
             .request_from_json(&method, &json)?;
 
@@ -316,15 +325,20 @@ impl MessagesModel {
             let message = self.request.editor.get_text_raw();
             let header = self.headers.borrow().headers();
 
-            if let Ok(text) = self
-                .request
-                .core_client
-                .borrow()
-                .get_grpcurl(&message, method, &header, &address)
-            {
+            if let Ok(uri) = Uri::try_from(address) {
+                let text = grpcurl(&self.config.includes, uri, &message, method, &header);
                 yank_to_clipboard(&text);
             }
         }
+    }
+
+    /// Returns the TLS config for the grpc request.
+    pub fn tls_config(&self) -> Result<Option<TlsConfig>, ErrorKind> {
+        let tls = &self.config.tls;
+        Ok(TlsConfig::from_settings(
+            tls.use_native,
+            tls.custom_cert.clone(),
+        )?)
     }
 
     pub fn handle_history_reload(&mut self, index: usize) {
@@ -387,8 +401,8 @@ impl RequestResult {
 
 #[derive(Clone)]
 pub struct RequestModel {
-    /// The core client retrieves default proto message and making grpc calls.
-    pub core_client: Rc<RefCell<CoreClient>>,
+    /// The proto descriptor, shared with the selection model
+    pub descriptor: Rc<RefCell<ProtoDescriptor>>,
 
     /// The currently active editor
     pub editor: TextEditor,
@@ -404,11 +418,11 @@ pub struct RequestModel {
 }
 
 impl RequestModel {
-    /// Returns a request model. Requires the core client which retrieves the
-    /// proto message and calls the grpc client.
-    pub fn new(core_client: Rc<RefCell<CoreClient>>) -> Self {
+    /// Returns a request model. Requires the proto descriptor to load the
+    /// request templates.
+    pub fn new(descriptor: Rc<RefCell<ProtoDescriptor>>) -> Self {
         Self {
-            core_client,
+            descriptor,
             editor: TextEditor::new(),
             metadata: String::new(),
             window_size: 50,
@@ -418,14 +432,13 @@ impl RequestModel {
 
     /// Loads a new request message template into the editor.
     pub fn load_template(&mut self, method: &MethodDescriptor) {
-        let req = self
-            .core_client
-            .borrow_mut()
-            .get_request(method)
+        let mut request = self.descriptor.borrow().get_request(method);
+        request.message_mut().apply_template();
+        let json = request
             .message()
             .to_json()
-            .map_or("{}".to_string(), |r| try_pretty_format_json(&r));
-        self.editor.set_text_raw(&req);
+            .map_or("{}".to_string(), |json| try_pretty_format_json(&json));
+        self.editor.set_text_raw(&json);
     }
 
     pub fn set_text(&mut self, text: &str) {
