@@ -15,3 +15,7 @@ resolver = "2"
 
 [patch.crates-io]
 wireman-core = { path = "wireman-core" }
+wireman-config = { path = "wireman-config" }
+wireman-logger = { path = "wireman-logger" }
+wireman-theme = { path = "wireman-theme" }
+wireman-event-handler = { path = "wireman-event-handler" }
