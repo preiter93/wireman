@@ -137,12 +137,8 @@ impl AppContext {
             return;
         };
 
-        let selection = Rc::new(RefCell::new(SelectionModel::new(
-            Rc::new(RefCell::new(descriptor)),
-            env,
-        )));
-
-        self.selection = selection;
+        self.selection.borrow_mut().reload(descriptor, env);
+        self.messages.borrow_mut().config = env.clone();
     }
 }
 
