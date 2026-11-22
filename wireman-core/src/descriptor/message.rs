@@ -112,45 +112,48 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_template_nested() {
-        // given
-        let mut given_message = load_test_message("Nested");
-        let expected_json = "{\"items\":[{\"number\":0,\"text\":\"\"}]}";
+    fn test_apply_template() {
+        struct TestCase {
+            name: &'static str,
+            given_method: &'static str,
+            expected_json: &'static str,
+        }
 
-        // when
-        given_message.apply_template();
-        let json = given_message.to_json().unwrap();
+        let test_cases = vec![
+            TestCase {
+                name: "success: nested message",
+                given_method: "Nested",
+                expected_json: "{\"items\":[{\"number\":0,\"text\":\"\"}]}",
+            },
+            TestCase {
+                name: "success: repeated field",
+                given_method: "Repeated",
+                expected_json: "{\"number\":[0]}",
+            },
+            TestCase {
+                name: "success: enum field",
+                given_method: "Enum",
+                expected_json: "{\"color\":\"NONE\"}",
+            },
+            TestCase {
+                name: "success: map field",
+                given_method: "Map",
+                expected_json: "{\"numbers\":{\"\":0}}",
+            },
+        ];
 
-        // then
-        assert_eq!(json, expected_json);
-    }
+        for test_case in test_cases {
+            let mut message = load_test_message(test_case.given_method);
 
-    #[test]
-    fn test_template_repeated() {
-        // given
-        let mut given_message = load_test_message("Repeated");
-        let expected_json = "{\"number\":[0]}";
+            message.apply_template();
 
-        // when
-        given_message.apply_template();
-        let json = given_message.to_json().unwrap();
-
-        // then
-        assert_eq!(json, expected_json);
-    }
-
-    #[test]
-    fn test_template_enum() {
-        // given
-        let mut given_message = load_test_message("Enum");
-        let expected_json = "{\"color\":\"NONE\"}";
-
-        // when
-        given_message.apply_template();
-        let json = given_message.to_json().unwrap();
-
-        // then
-        assert_eq!(json, expected_json);
+            assert_eq!(
+                message.to_json().unwrap(),
+                test_case.expected_json,
+                "{}",
+                test_case.name
+            );
+        }
     }
 
     fn load_test_message(method: &str) -> DynamicMessage {
