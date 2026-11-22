@@ -12,6 +12,18 @@ pub fn expand_header(raw: &str) -> String {
     raw.to_string()
 }
 
+/// Runs the `$(command)` part of a `Bearer` or `Basic` authentication header
+/// and returns the header with its output.
+#[must_use]
+pub fn expand_auth_header(raw: &str) -> String {
+    for prefix in ["Bearer ", "Basic "] {
+        if let Some(value) = raw.strip_prefix(prefix) {
+            return format!("{prefix}{}", expand_header(value));
+        }
+    }
+    expand_header(raw)
+}
+
 fn execute_command(command: &str) -> Option<String> {
     let mut parts = command.split_whitespace();
     let program = parts.next()?;
@@ -62,6 +74,34 @@ mod tests {
 
         for test_case in test_cases {
             let value = expand_header(test_case.given_value);
+
+            assert_eq!(value, test_case.expected_value, "{}", test_case.name);
+        }
+    }
+
+    #[test]
+    fn test_expand_auth_header() {
+        struct TestCase {
+            name: &'static str,
+            given_value: &'static str,
+            expected_value: &'static str,
+        }
+
+        let test_cases = vec![
+            TestCase {
+                name: "success: expand bearer command",
+                given_value: "Bearer $(echo token)",
+                expected_value: "Bearer token",
+            },
+            TestCase {
+                name: "success: basic without command",
+                given_value: "Basic dXNlcjpwYXNz",
+                expected_value: "Basic dXNlcjpwYXNz",
+            },
+        ];
+
+        for test_case in test_cases {
+            let value = expand_auth_header(test_case.given_value);
 
             assert_eq!(value, test_case.expected_value, "{}", test_case.name);
         }

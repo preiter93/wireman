@@ -1,6 +1,7 @@
 #![allow(clippy::cast_possible_truncation, clippy::module_name_repetitions)]
 #![allow(dead_code)]
 mod app;
+mod call;
 mod context;
 mod events;
 mod model;
@@ -24,6 +25,17 @@ async fn main() -> Result<()> {
         match command {
             Command::Check => check(&args),
             Command::Init => install(),
+            Command::Call {
+                method,
+                data,
+                header,
+                address,
+            } => {
+                if let Err(err) = call::run(&args, method, data, header, address.as_deref()).await {
+                    call::print_error(err.as_ref());
+                    std::process::exit(1);
+                }
+            }
         }
         return Ok(());
     }
