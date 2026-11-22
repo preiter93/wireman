@@ -5,8 +5,8 @@ use crate::{model::history::HistoryModel, widgets::editor::TextEditor};
 use edtui::EditorMode;
 pub use meta::MetaHeaders;
 use ratatui::prelude::Rect;
-use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
-use wireman_core::MethodDescriptor;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use wireman_core::{features::expand_header, MethodDescriptor};
 
 /// The data model for the `gRPC` headers. Contains authorization
 /// headers and metadata key value headers.
@@ -164,8 +164,8 @@ impl HeadersModel {
         // Metadata
         for (key, val) in &self.meta.headers {
             if !key.is_empty() {
-                let key = try_expand(&key.get_text_raw());
-                let val = try_expand(&val.get_text_raw());
+                let key = expand_header(&key.get_text_raw());
+                let val = expand_header(&val.get_text_raw());
                 let _ = map.insert(key, val);
             }
         }
@@ -261,32 +261,4 @@ pub enum HeadersTab {
     Addr,
     Auth,
     Meta,
-}
-
-fn try_expand(raw: &str) -> String {
-    if raw.starts_with("$(") && raw.ends_with(')') {
-        let command = &raw[2..raw.len() - 1];
-        if let Some(command) = execute_command(command) {
-            return command;
-        };
-    }
-    raw.to_string()
-}
-
-fn execute_command(command: &str) -> Option<String> {
-    let mut parts = command.split_whitespace();
-    let program = parts.next()?;
-    let args: Vec<&str> = parts.collect();
-    let output = Command::new(program).args(args).output();
-
-    match output {
-        Ok(output) if output.status.success() => {
-            if let Ok(mut stdout) = String::from_utf8(output.stdout) {
-                stdout.pop(); // Remove the newline character at the end
-                return Some(stdout);
-            }
-        }
-        _ => {}
-    };
-    None
 }
