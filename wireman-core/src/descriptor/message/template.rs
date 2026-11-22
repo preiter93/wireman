@@ -1,4 +1,5 @@
-use prost_reflect::{DynamicMessage, Kind, MessageDescriptor, ReflectMessage, Value};
+use prost_reflect::{DynamicMessage, Kind, MapKey, MessageDescriptor, ReflectMessage, Value};
+use std::collections::HashMap;
 
 /// The default length of vectors used for message templates.
 const TEMPLATE_VEC_LENGTH: usize = 1;
@@ -23,9 +24,7 @@ pub(super) fn apply_template_for_message(msg: &mut DynamicMessage, recursion_dep
             Value::Message(msg) => {
                 *value = default_value_message(&msg.descriptor(), recursion_depth);
             }
-            Value::Map(_) => {
-                // println!("TODO: IMPLEMENT MAP!!");
-            }
+            Value::Map(_) => *value = default_value_map(&kind, recursion_depth),
             _ => *value = default_value(&kind, recursion_depth),
         }
     }
@@ -44,6 +43,16 @@ fn default_value(kind: &Kind, recursion_depth: usize) -> Value {
 fn default_value_list(kind: &Kind, recursion_depth: usize) -> Value {
     let default = default_value(kind, recursion_depth);
     Value::List(vec![default; TEMPLATE_VEC_LENGTH])
+}
+
+/// Get the default value for a map with one entry of a specific data type (Kind).
+fn default_value_map(kind: &Kind, recursion_depth: usize) -> Value {
+    let Some(entry) = kind.as_message() else {
+        return Value::Map(HashMap::new());
+    };
+    let key = MapKey::default_value(&entry.map_entry_key_field().kind());
+    let value = default_value(&entry.map_entry_value_field().kind(), recursion_depth);
+    Value::Map(HashMap::from([(key, value)]))
 }
 
 /// Get the default value for a message.

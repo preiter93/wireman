@@ -12,6 +12,7 @@ service TestService {
   rpc Repeated (RepeatedReq) returns (EmptyResp) {}
   rpc Nested (NestedReq) returns (EmptyResp) {}
   rpc Enum (EnumReq) returns (EmptyResp) {}
+  rpc Map (MapReq) returns (EmptyResp) {}
 }
 
 message SimpleReq {
@@ -44,6 +45,10 @@ message EnumReq {
      BLUE = 2;
   }
   COLOR color = 1;
+}
+
+message MapReq {
+  map<string, int32> numbers = 1;
 }
 
 message EmptyResp {}
