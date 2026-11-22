@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 use std::path::Path;
 use std::str::FromStr;
-use theme::Config as ThemeConfig;
 
 /// The top level config.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -28,7 +27,7 @@ pub struct Config {
     pub logging: LoggingConfig,
     /// The ui config
     #[serde(default)]
-    pub ui: ThemeConfig,
+    pub ui: UiConfig,
     /// Optional TLS settings
     #[serde(default)]
     pub tls: TlsConfig,
@@ -234,6 +233,20 @@ impl LoggingConfig {
     }
 }
 
+/// The ui config for wireman
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
+pub struct UiConfig {
+    /// The file path to the skin toml file.
+    pub skin: Option<String>,
+}
+
+impl UiConfig {
+    #[must_use]
+    pub fn new(skin: Option<String>) -> Self {
+        Self { skin }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd)]
 pub struct TlsConfig {
     pub use_native: Option<bool>,
@@ -293,7 +306,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051", ""),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: theme::Config::new(Some(String::from("skin.toml"))),
+            ui: UiConfig::new(Some(String::from("skin.toml"))),
         };
         assert_eq!(cfg, expected);
     }
@@ -307,7 +320,7 @@ mod test {
             server: ServerConfig::new("http://localhost:50051", ""),
             logging: LoggingConfig::new(LogLevel::Debug, "/Users"),
             history: HistoryConfig::new("/Users/test", false, false),
-            ui: theme::Config::new(Some(String::from("skin.toml"))),
+            ui: UiConfig::new(Some(String::from("skin.toml"))),
         };
         let expected = r#"includes = ["/Users/myworkspace"]
 files = ["api.proto", "internal.proto"]
@@ -341,7 +354,7 @@ skin = "skin.toml"
             server: ServerConfig::default(),
             logging: LoggingConfig::default(),
             history: HistoryConfig::default(),
-            ui: ThemeConfig::default(),
+            ui: UiConfig::default(),
         };
         let got = cfg.includes();
         let home = std::env::var("HOME").unwrap();

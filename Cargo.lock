@@ -3591,7 +3591,6 @@ dependencies = [
  "thiserror 2.0.21",
  "toml",
  "wireman-logger",
- "wireman-theme",
 ]
 
 [[package]]
