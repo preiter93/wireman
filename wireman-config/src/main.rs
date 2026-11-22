@@ -8,6 +8,6 @@ fn main() {
     match args.command {
         Some(Command::Check) => check(&args),
         Some(Command::Init) => install(),
-        None => {}
+        Some(Command::Call { .. }) | None => {}
     }
 }

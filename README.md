@@ -167,6 +167,15 @@ You can download the latest wireman binary from the [releases page](https://gith
 - **`init`**  
   Sets up wireman by creating a default configuration file.
 
+- **`call <METHOD>`**  
+  Sends one request without opening the TUI and prints the response as JSON. It uses the protos, default address, authentication header and TLS settings from the configuration.
+  ```
+  wireman call proto.Greeter.SayHello -d '{"name": "wireman"}'
+  ```
+  - `-d, --data <JSON>`: the request message, defaults to `{}`
+  - `-H, --header <"key: value">`: an additional header, can be repeated. Values like `$(getToken.sh)` are run as commands, like in the TUI.
+  - `-a, --address <ADDRESS>`: the server address, defaults to the address in the configuration
+
 #### Options
 - **`-c, --config <CONFIG>`**  
   Specifies an optional path to a configuration file. If not provided, wireman uses the default configuration path.

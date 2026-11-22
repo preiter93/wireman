@@ -23,6 +23,20 @@ pub enum Command {
     /// Setup wireman and create a default configuration file.
     #[command(aliases = ["setup", "install"])]
     Init,
+    /// Sends one request to a gRPC method and prints the response as JSON.
+    Call {
+        /// The full method name, for example proto.Greeter.SayHello
+        method: String,
+        /// The request message as JSON
+        #[arg(short, long, default_value = "{}")]
+        data: String,
+        /// An additional header as "key: value", can be repeated
+        #[arg(short = 'H', long)]
+        header: Vec<String>,
+        /// The server address, defaults to the address in the config
+        #[arg(short, long)]
+        address: Option<String>,
+    },
 }
 
 #[must_use]
