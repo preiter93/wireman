@@ -1,9 +1,9 @@
 <script lang="ts">
-    import ImgOpenEditor from '$lib/assets/website_249.png';
-    import ImgResponse from '$lib/assets/website_277.png';
-    import ImgConfig from '$lib/assets/website_460.png';
-    import ImgReflection from '$lib/assets/website_526.png';
-    import ImgSplitLayout from '$lib/assets/website_601.png';
+    import ImgOpenEditor from '#lib/assets/website_249.png';
+    import ImgResponse from '#lib/assets/website_277.png';
+    import ImgConfig from '#lib/assets/website_460.png';
+    import ImgReflection from '#lib/assets/website_526.png';
+    import ImgSplitLayout from '#lib/assets/website_601.png';
 
     type ShowElement = {
         title: string;
@@ -17,7 +17,7 @@
             title: 'Open in system editor',
             img: ImgOpenEditor,
             body: `
-          <p style="text-align: center; line-height:1.6em">
+          <p>
               Press <code>&ltC-e&gt</code> in any input field in normal mode to open the content in your system editor.
           </p>
 `
@@ -26,7 +26,7 @@
             title: 'Save history',
             img: ImgResponse,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
 Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</code>. You can switch between the save buffers by entering the numbers <code>1-5</code>.
             </p>
 `
@@ -35,7 +35,7 @@ Sent requests are automatically saved. To save manually, type <code>&ltC-s&gt</c
             title: 'Edit Configuration',
             img: ImgConfig,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
 The configuration <code>wireman.toml</code> can be added in-app. On the services page, type <code>&ltC-e&gt</code>. Save the config with <code>&ltC-s&gt</code>. Exit with <code>&ltC-e&gt</code>.
             </p>
 `
@@ -44,7 +44,7 @@ The configuration <code>wireman.toml</code> can be added in-app. On the services
             title: 'Server Reflection',
             img: ImgReflection,
             body: `
-<p style="text-align: center; line-height:1.6em">
+<p>
 Wireman supports server reflection. Enter <code>c-r</code>. Specify the server address and optional headers. Press <code>Enter</code> to send a reflection request. Exit reflection mode with <code>c-r</code>.
 </p>
 `
@@ -53,7 +53,7 @@ Wireman supports server reflection. Enter <code>c-r</code>. Specify the server a
             title: 'Toggle Main Split Layout',
             img: ImgSplitLayout,
             body: `
-<p style="text-align: center; line-height:1.6em">
+<p>
 Wireman lets you switch the main pane layout between horizontal and vertical splits. Press <code>Alt-s</code> to change the orientation. The services/methods and request/response panes will rearrange.
 </p>
 `
@@ -115,7 +115,7 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
         tabindex={hide ? -1 : 0}
     >
         <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="transform: rotate({rotate});">
-            <path d="M12 15L6 9H18L12 15Z" />
+            <path d="M9 6l6 6-6 6" />
         </svg>
     </button>
 {/snippet}
@@ -133,9 +133,9 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
 
     <div class="content-wrapper">
         <div class="title-section">
-            {@render chevron('90deg', previous, selected_index == 0, 'previous')}
+            {@render chevron('180deg', previous, selected_index == 0, 'previous')}
             <h3 class="feature-title">{elements[selected_index].title}</h3>
-            {@render chevron('270deg', next, selected_index == num_elements - 1, 'next')}
+            {@render chevron('0deg', next, selected_index == num_elements - 1, 'next')}
         </div>
 
         <div class="body-section">
@@ -154,22 +154,18 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
 
 <style>
     .container {
-        background-color: var(--gray-dark);
-        border: 1px solid rgba(255, 165, 0, 0.2);
-        border-radius: 12px;
+        background: var(--gray-dark);
+        border: 1px solid hsla(215, 18%, 65%, 0.16);
+        border-radius: 6px;
         margin: 14px 10px 0 10px;
         padding: var(--card-padding);
         position: relative;
         overflow: hidden;
-        transition:
-            border-color 0.3s ease,
-            box-shadow 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: border-color 0.2s ease;
     }
 
     .container:hover {
-        border-color: rgba(255, 165, 0, 0.3);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        border-color: hsla(215, 18%, 65%, 0.3);
     }
 
     .navigation-dots {
@@ -199,7 +195,6 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
     .dot.active {
         background: var(--orange);
         transform: scale(1.3);
-        box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
     }
 
     .content-wrapper {
@@ -238,6 +233,9 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
 
     .description {
         max-width: 600px;
+    }
+
+    .description :global(p) {
         text-align: center;
     }
 
@@ -250,36 +248,41 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
 
     .description :global(code) {
         font-family: var(--font-family-mono);
-        background-color: var(--gray-darkest);
-        color: var(--gray-lightest);
-        border: 1px solid rgba(124, 139, 154, 0.3);
+        background-color: hsla(36, 100%, 50%, 0.08);
+        color: var(--orange-light);
+        border: 1px solid hsla(36, 100%, 50%, 0.18);
         border-radius: 4px;
-        padding: 2px 6px;
+        padding: 1px 6px;
         font-size: var(--font-size-code);
         font-weight: var(--font-weight-code);
     }
 
     .chevron-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        all: unset;
         display: flex;
         justify-content: center;
         align-items: center;
-        border-radius: 50%;
+        flex-shrink: 0;
         width: var(--chevron-btn-size);
         height: var(--chevron-btn-size);
+        color: var(--gray-light);
+        border: 1px solid hsla(215, 18%, 65%, 0.2);
+        border-radius: 6px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease,
+            background-color 0.2s ease;
     }
 
     .chevron-btn:hover {
-        background: rgba(255, 165, 0, 0.2);
-        border-color: var(--orange);
-        transform: scale(1.05);
+        color: var(--orange);
+        border-color: hsla(36, 100%, 50%, 0.5);
+        background: hsla(36, 100%, 50%, 0.08);
     }
 
     .chevron-btn:active {
-        transform: scale(0.95);
+        transform: scale(0.94);
     }
 
     .chevron-btn:focus-visible {
@@ -290,12 +293,11 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
     .chevron {
         width: var(--chevron-size);
         height: var(--chevron-size);
-        fill: var(--gray-lightest);
-        transition: fill 0.2s ease;
-    }
-
-    .chevron-btn:hover .chevron {
-        fill: var(--orange);
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .img-container {
@@ -311,6 +313,7 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
         width: 100%;
         border-radius: var(--border-radius);
         overflow: hidden;
+        border: 1px solid hsla(215, 18%, 65%, 0.14);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         transition: box-shadow 0.3s ease;
     }
@@ -323,6 +326,27 @@ Wireman lets you switch the main pane layout between horizontal and vertical spl
         width: 100%;
         height: auto;
         display: block;
+    }
+
+    @media (min-width: 900px) {
+        .body-section {
+            flex-direction: row;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .description {
+            flex: 0 0 32%;
+        }
+
+        .description :global(p) {
+            text-align: left;
+        }
+
+        .img-container {
+            flex: 1;
+            max-width: none;
+        }
     }
 
     /* Mobile optimizations */

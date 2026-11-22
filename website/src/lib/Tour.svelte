@@ -1,10 +1,10 @@
 <script lang="ts">
-    import ImgHelp from '$lib/assets/website_001.png';
-    import ImgServices from '$lib/assets/website_026.png';
-    import ImgMethod from '$lib/assets/website_080.png';
-    import ImgAuth from '$lib/assets/website_170.png';
-    import ImgRequest from '$lib/assets/website_225.png';
-    import ImgCopy from '$lib/assets/website_326.png';
+    import ImgHelp from '#lib/assets/website_001.png';
+    import ImgServices from '#lib/assets/website_026.png';
+    import ImgMethod from '#lib/assets/website_080.png';
+    import ImgAuth from '#lib/assets/website_170.png';
+    import ImgRequest from '#lib/assets/website_225.png';
+    import ImgCopy from '#lib/assets/website_326.png';
 
     type ShowElement = {
         title: string;
@@ -18,7 +18,7 @@
             title: 'Open help',
             img: ImgHelp,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Open the help dialog by pressing <code>?</code>. It provides key mappings for each page to help you navigate.
             </p>
 `
@@ -27,7 +27,7 @@
             title: 'Select service',
             img: ImgServices,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Get started by selecting a proto service. Use <code>j/k</code> to scroll and
                 <code>Enter</code> to select a service.
             </p>
@@ -37,7 +37,7 @@
             title: 'Select method',
             img: ImgMethod,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Use <code>j/k</code> to scroll through the methods and
                 click <code>Enter</code> to select a method and progress.
             </p>
@@ -47,7 +47,7 @@
             title: 'Set address and headers',
             img: ImgAuth,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Edit the server address and headers. Insert with <code>i</code> and go to normal mode with <code>Esc</code>.
                 Add headers with <code>&ltC-a&gt</code>.
                 Use scripts for auth headers by enclosing them in <code>$()</code>. Omit the "Bearer" or "Basic" prefixes in the auth headers.
@@ -59,7 +59,7 @@
             title: 'Send request',
             img: ImgRequest,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Edit the request. Navigate with <code>h/j/k/l</code>, insert with <code>i</code> and go to normal mode with <code>Esc</code>. For more mappings visit <a href="https://github.com/preiter93/edtui" class="custom-link" target="_blank" rel="noopener noreferrer">edtui</a>. Press <code>Enter</code> to send the request.
             </p>
 `
@@ -68,7 +68,7 @@
             title: 'Copy Response',
             img: ImgCopy,
             body: `
-            <p style="text-align: center; line-height:1.6em">
+            <p>
                 Switch between the request and response editors using <code>J/K</code>. Copy the response with <code>Y</code> to your clipboard.
             </p>
 `
@@ -130,7 +130,7 @@
         tabindex={hide ? -1 : 0}
     >
         <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="transform: rotate({rotate});">
-            <path d="M12 15L6 9H18L12 15Z" />
+            <path d="M9 6l6 6-6 6" />
         </svg>
     </button>
 {/snippet}
@@ -148,9 +148,9 @@
 
     <div class="content-wrapper">
         <div class="title-section">
-            {@render chevron('90deg', previous, selected_index == 0, 'previous')}
+            {@render chevron('180deg', previous, selected_index == 0, 'previous')}
             <h3 class="step-title">{elements[selected_index].title}</h3>
-            {@render chevron('270deg', next, selected_index == num_elements - 1, 'next')}
+            {@render chevron('0deg', next, selected_index == num_elements - 1, 'next')}
         </div>
 
         <div class="body-section">
@@ -169,22 +169,18 @@
 
 <style>
     .container {
-        background-color: var(--gray-dark);
-        border: 1px solid rgba(255, 165, 0, 0.2);
-        border-radius: 12px;
+        background: var(--gray-dark);
+        border: 1px solid hsla(215, 18%, 65%, 0.16);
+        border-radius: 6px;
         margin: 14px 10px 0 10px;
         padding: var(--card-padding);
         position: relative;
         overflow: hidden;
-        transition:
-            border-color 0.3s ease,
-            box-shadow 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: border-color 0.2s ease;
     }
 
     .container:hover {
-        border-color: rgba(255, 165, 0, 0.3);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        border-color: hsla(215, 18%, 65%, 0.3);
     }
 
     .navigation-dots {
@@ -252,6 +248,9 @@
 
     .description {
         max-width: 600px;
+    }
+
+    .description :global(p) {
         text-align: center;
     }
 
@@ -264,36 +263,41 @@
 
     .description :global(code) {
         font-family: var(--font-family-mono);
-        background-color: var(--gray-darkest);
-        color: var(--gray-lightest);
-        border: 1px solid rgba(124, 139, 154, 0.3);
+        background-color: hsla(36, 100%, 50%, 0.08);
+        color: var(--orange-light);
+        border: 1px solid hsla(36, 100%, 50%, 0.18);
         border-radius: 4px;
-        padding: 2px 6px;
+        padding: 1px 6px;
         font-size: var(--font-size-code);
         font-weight: var(--font-weight-code);
     }
 
     .chevron-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        all: unset;
         display: flex;
         justify-content: center;
         align-items: center;
-        border-radius: 50%;
+        flex-shrink: 0;
         width: var(--chevron-btn-size);
         height: var(--chevron-btn-size);
+        color: var(--gray-light);
+        border: 1px solid hsla(215, 18%, 65%, 0.2);
+        border-radius: 6px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease,
+            background-color 0.2s ease;
     }
 
     .chevron-btn:hover {
-        background: rgba(255, 165, 0, 0.2);
-        border-color: var(--orange);
-        transform: scale(1.05);
+        color: var(--orange);
+        border-color: hsla(36, 100%, 50%, 0.5);
+        background: hsla(36, 100%, 50%, 0.08);
     }
 
     .chevron-btn:active {
-        transform: scale(0.95);
+        transform: scale(0.94);
     }
 
     .chevron-btn:focus-visible {
@@ -304,12 +308,11 @@
     .chevron {
         width: var(--chevron-size);
         height: var(--chevron-size);
-        fill: var(--gray-lightest);
-        transition: fill 0.2s ease;
-    }
-
-    .chevron-btn:hover .chevron {
-        fill: var(--orange);
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .img-container {
@@ -325,6 +328,7 @@
         width: 100%;
         border-radius: var(--border-radius);
         overflow: hidden;
+        border: 1px solid hsla(215, 18%, 65%, 0.14);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         transition: box-shadow 0.3s ease;
     }
@@ -337,6 +341,27 @@
         width: 100%;
         height: auto;
         display: block;
+    }
+
+    @media (min-width: 900px) {
+        .body-section {
+            flex-direction: row;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .description {
+            flex: 0 0 32%;
+        }
+
+        .description :global(p) {
+            text-align: left;
+        }
+
+        .img-container {
+            flex: 1;
+            max-width: none;
+        }
     }
 
     /* Mobile optimizations */

@@ -9,7 +9,9 @@ mod view;
 mod widgets;
 use app::App;
 use std::error::Error;
-use wireman_config::{cli, init_from_env};
+use wireman_config::cli::{self, Command};
+use wireman_config::{check, init_from_env, install};
+use wireman_theme::Theme;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -17,12 +19,24 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 async fn main() -> Result<()> {
     let version = env!("CARGO_PKG_VERSION");
     let args = cli::parse(version);
-    if args.command.is_some() {
-        return Ok(());
+
+    match args.command {
+        Some(Command::Check) => {
+            check(&args);
+            return Ok(());
+        }
+        Some(Command::Init) => {
+            install();
+            return Ok(());
+        }
+        None => {}
     }
 
     match init_from_env(&args) {
-        Ok((cfg, file)) => App::run(cfg, file).await?,
+        Ok((cfg, file)) => {
+            Theme::init(&wireman_theme::Config::new(cfg.ui.skin.clone()));
+            App::run(cfg, file).await?;
+        }
         Err(err) => {
             if let wireman_config::error::Error::SetupError(err) = err {
                 println!("Setup error: {err}");

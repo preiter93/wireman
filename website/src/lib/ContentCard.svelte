@@ -45,18 +45,14 @@
         aria-label={hideToggle ? title : `${isExpanded ? 'Collapse' : 'Expand'} ${title}`}
         disabled={hideToggle}
     >
+        {#if !hideToggle}
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+            </svg>
+        {/if}
         <h3 class="title" id="card-title-{title.replace(/\s+/g, '-').toLowerCase()}">{title}</h3>
         {#if !hideToggle}
-            <div class="chevron-container">
-                <svg
-                    class="chevron {isExpanded ? 'expanded' : 'collapsed'}"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path d="M12 15L6 9H18L12 15Z" />
-                </svg>
-            </div>
+            <span class="hint" aria-hidden="true">{isExpanded ? '[-]' : '[+]'}</span>
         {/if}
     </button>
 
@@ -75,45 +71,33 @@
 
 <style>
     .content-card {
-        background-color: var(--gray-dark);
-        border: 1px solid rgba(124, 139, 154, 0.2);
-        border-radius: 12px;
-        padding: 0;
-        margin: 14px 10px 0 10px;
+        background: var(--gray-dark);
+        border: 1px solid hsla(215, 18%, 65%, 0.16);
+        border-radius: 6px;
+        margin: 12px 10px 0 10px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
         position: relative;
         overflow: hidden;
-        transition:
-            border-color 0.3s ease,
-            box-shadow 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: border-color 0.2s ease;
     }
 
     .content-card:hover {
-        border-color: rgba(124, 139, 154, 0.4);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .content-card.expanded {
-        border-color: rgba(255, 165, 0, 0.2);
+        border-color: hsla(215, 18%, 65%, 0.3);
     }
 
     .header {
         all: unset;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 10px 14px;
+        gap: 10px;
+        padding: 12px 16px;
         cursor: pointer;
         transition: background-color 0.2s ease;
-        border-radius: 12px;
-        position: relative;
     }
 
     .header:not([disabled]):hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: hsla(215, 28%, 92%, 0.03);
     }
 
     .header:focus-visible {
@@ -125,60 +109,61 @@
         cursor: default;
     }
 
+    .chevron {
+        flex-shrink: 0;
+        width: var(--icon-size);
+        height: var(--icon-size);
+        fill: none;
+        stroke: var(--gray-medium);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition:
+            transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+            stroke 0.2s ease;
+    }
+
+    .expanded .chevron {
+        transform: rotate(90deg);
+        stroke: var(--orange);
+    }
+
+    .header:hover .chevron {
+        stroke: var(--orange);
+    }
+
     .title {
+        flex: 1;
         margin: 0;
         color: var(--gray-lightest);
         font-weight: var(--font-weight-h3);
         font-size: var(--font-size-h3);
-        transition: color 0.3s ease;
+        transition: color 0.2s ease;
     }
 
-    .content-card.collapsed:hover .title {
+    .header:hover .title {
+        color: var(--orange-light);
+    }
+
+    .hint {
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-code);
+        color: var(--gray-medium);
+        transition: color 0.2s ease;
+    }
+
+    .header:hover .hint {
         color: var(--orange);
     }
 
-    .chevron-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .header:hover .chevron-container {
-        background: rgba(255, 165, 0, 0.2);
-        transform: scale(1.05);
-    }
-
-    .chevron {
-        height: var(--icon-size);
-        width: var(--icon-size);
-        fill: var(--gray-lightest);
-        transition: all 0.4s ease;
-        transform-origin: center;
-    }
-
-    .chevron.collapsed {
-        transform: rotate(180deg);
-    }
-
-    .chevron.expanded {
-        transform: rotate(0deg);
-        fill: var(--orange);
-    }
-
     .content {
-        padding: 0 14px 14px 14px;
+        padding: 0 16px 16px 16px;
         overflow: hidden;
-        background: rgba(255, 255, 255, 0.02);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px dashed hsla(215, 18%, 65%, 0.16);
     }
 
     .content :global(p:first-child) {
-        margin-top: 10px;
+        margin-top: 14px;
     }
 
     .content :global(p:last-child) {
@@ -202,13 +187,17 @@
         line-height: 1.6;
     }
 
+    .content :global(li::marker) {
+        color: var(--orange);
+    }
+
     .content :global(code) {
         font-family: var(--font-family-mono);
-        background-color: var(--gray-darkest);
-        color: var(--gray-lightest);
-        border: 1px solid rgba(124, 139, 154, 0.3);
+        background-color: hsla(36, 100%, 50%, 0.08);
+        color: var(--orange-light);
+        border: 1px solid hsla(36, 100%, 50%, 0.18);
         border-radius: 4px;
-        padding: 2px 6px;
+        padding: 1px 6px;
         font-size: var(--font-size-code);
         font-weight: var(--font-weight-code);
     }
@@ -217,24 +206,15 @@
     @media (max-width: 600px) {
         .content-card {
             margin: 10px 6px 0 6px;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         .header {
-            padding: 8px 12px;
+            padding: 10px 12px;
         }
 
         .content {
             padding: 0 12px 12px 12px;
-        }
-
-        .title {
-            font-size: calc(var(--font-size-h3) - 1px);
-        }
-
-        .chevron-container {
-            width: 28px;
-            height: 28px;
         }
     }
 
@@ -243,7 +223,6 @@
         .content-card,
         .header,
         .chevron,
-        .chevron-container,
         .title {
             transition: none;
         }
@@ -254,10 +233,6 @@
         .content-card {
             border-width: 2px;
             border-color: var(--gray-light);
-        }
-
-        .title {
-            color: var(--gray-lightest);
         }
     }
 </style>
