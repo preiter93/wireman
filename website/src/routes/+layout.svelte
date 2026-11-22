@@ -7,25 +7,24 @@
 {@render children()}
 <svelte:head>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap');
     </style>
 </svelte:head>
 
 <style>
     :root {
-        --font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        --font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
         --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
 
-        --font-size-h1: 40px;
-        --font-size-h2: 28px;
+        --font-size-h1: 44px;
+        --font-size-h2: 22px;
         --font-size-h3: 18px;
         --font-size-h4: 18px;
         --font-size-h5: 22px;
         --font-size-body: 14px;
         --font-size-code: 12px;
 
-        --font-weight-h1: 900;
+        --font-weight-h1: 800;
         --font-weight-h2: 500;
         --font-weight-h3: 600;
         --font-weight-h4: 400;
@@ -53,7 +52,7 @@
         --border-radius: 10px;
         --border-radius-small: 6px;
 
-        --max-width: 720px;
+        --max-width: 880px;
         --img-max-width: 540px;
 
         --card-padding: 24px 20px;
@@ -74,12 +73,12 @@
 
     @media (max-width: 600px) {
         :root {
-            --font-size-h1: 22px;
-            --font-size-h2: 18px;
+            --font-size-h1: 26px;
+            --font-size-h2: 15px;
             --font-size-h3: 13px;
             --font-size-h4: 13px;
-            --font-size-h5: 14px;
-            --font-size-body: 13px;
+            --font-size-h5: 13px;
+            --font-size-body: 12px;
             --font-size-code: 11px;
 
             --icon-size: 14px;
@@ -107,6 +106,9 @@
         padding: 0;
         font-family: var(--font-family);
         background-color: var(--gray-darkest);
+        background-image: radial-gradient(circle at 1px 1px, hsla(215, 28%, 92%, 0.07) 1px, transparent 0);
+        background-size: 22px 22px;
+        background-attachment: fixed;
         display: flex;
         justify-content: start;
         align-items: center;
@@ -136,15 +138,15 @@
         margin: var(--text-margin) 0;
     }
 
-    :global(h2)::after {
-        content: '';
-        display: block;
-        width: 44px;
-        height: 3px;
-        margin: 10px auto 0;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--orange), var(--orange-light));
-        opacity: 0.85;
+    :global(h2) {
+        margin-top: 48px;
+        letter-spacing: -0.3px;
+    }
+
+    :global(h2)::before {
+        content: '## ';
+        color: var(--gray-medium);
+        font-weight: 400;
     }
 
     :global(h3) {
