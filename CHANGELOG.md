@@ -1,3 +1,12 @@
+0.3.9 - 22 Nov 2026
+===================
+- fix: A missing custom TLS certificate no longer crashes wireman, the error is shown in the response
+- fix: Saving the config in the app applies the new TLS settings, and the reflection dialog can be closed again afterwards
+- fix: History no longer saves an empty authentication as `""`
+- fix: Errors in the middle of a stream are shown like all other call errors
+- feat: Update edtui: Supports Ctrl-h to delete the previous character in insert mode
+- chore: Update dependencies
+
 0.3.8 - 18 Jul 2026
 ===================
 - feat: Update edtui: Supports find/till and paste before
