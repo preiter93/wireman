@@ -2,13 +2,13 @@
 use super::{core_client::CoreClient, headers::HeadersModel, history::HistoryModel};
 use crate::widgets::editor::{pretty_format_json, yank_to_clipboard, ErrorKind, TextEditor};
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
-use futures::{self, stream::once, Stream, StreamExt};
+use futures::{self, Stream, StreamExt};
 use ratatui::prelude::Rect;
 use std::{cell::RefCell, collections::HashMap, pin::Pin, rc::Rc};
 use tokio::task::JoinHandle;
 use wireman_core::{
     client::tls::TlsConfig,
-    descriptor::{response::StreamingResponse, DynamicMessage, RequestMessage, ResponseMessage},
+    descriptor::{DynamicMessage, RequestMessage},
     MethodDescriptor,
 };
 
@@ -335,76 +335,22 @@ impl MessagesModel {
     }
 }
 
-pub(crate) async fn unary(req: RequestMessage, tls: Option<TlsConfig>) -> RequestResult {
-    let resp: Result<ResponseMessage, ErrorKind> = CoreClient::call_unary_async(&req, tls).await;
-
-    match resp {
-        Ok(resp) => unmarshal_message(&resp.message),
-        Err(err) => RequestResult::error(err),
-    }
-}
-
-pub(crate) async fn server_streaming(
-    req: RequestMessage,
+/// Calls the `gRPC` method of the request and maps its responses to request results.
+pub(crate) async fn call(
+    head: RequestMessage,
+    messages: Option<UnboundedReceiver<RequestMessage>>,
     tls: Option<TlsConfig>,
 ) -> Pin<Box<dyn Stream<Item = RequestResult> + Send>> {
-    let resp: Result<StreamingResponse, ErrorKind> =
-        CoreClient::call_server_streaming(&req, tls).await;
+    // Without an open stream session there are no further messages to send.
+    let messages = futures::stream::iter(messages).flatten();
+    let responses = wireman_core::client::call(&head, messages, tls).await;
 
-    if let Err(err) = resp {
-        return once(async { RequestResult::error(err) }).boxed();
-    }
-
-    let resp = resp.unwrap();
-
-    let mapped_stream = resp.inner.map(|message| match message {
-        Ok(message) => unmarshal_message(&message.message),
-        Err(err) => {
-            let kind = ErrorKind::streaming_error(format!("{err}"));
-            RequestResult::error(kind)
-        }
-    });
-
-    Box::pin(mapped_stream)
-}
-
-pub(crate) async fn client_streaming(
-    head: RequestMessage,
-    messages: impl Stream<Item = RequestMessage> + Send + 'static,
-    tls: Option<TlsConfig>,
-) -> RequestResult {
-    let resp: Result<ResponseMessage, ErrorKind> =
-        CoreClient::call_client_streaming(&head, messages, tls).await;
-
-    match resp {
-        Ok(resp) => unmarshal_message(&resp.message),
-        Err(err) => RequestResult::error(err),
-    }
-}
-
-pub(crate) async fn bidi_streaming(
-    head: RequestMessage,
-    messages: impl Stream<Item = RequestMessage> + Send + 'static,
-    tls: Option<TlsConfig>,
-) -> Pin<Box<dyn Stream<Item = RequestResult> + Send>> {
-    let resp: Result<StreamingResponse, ErrorKind> =
-        CoreClient::call_bidirectional_streaming(&head, messages, tls).await;
-
-    if let Err(err) = resp {
-        return once(async { RequestResult::error(err) }).boxed();
-    }
-
-    let resp = resp.unwrap();
-
-    let mapped_stream = resp.inner.map(|message| match message {
-        Ok(message) => unmarshal_message(&message.message),
-        Err(err) => {
-            let kind = ErrorKind::streaming_error(format!("{err}"));
-            RequestResult::error(kind)
-        }
-    });
-
-    Box::pin(mapped_stream)
+    responses
+        .map(|response| match response {
+            Ok(response) => unmarshal_message(&response.message),
+            Err(err) => RequestResult::error(err.into()),
+        })
+        .boxed()
 }
 
 #[derive(Default, Clone)]

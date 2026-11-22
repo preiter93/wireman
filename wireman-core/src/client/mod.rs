@@ -8,7 +8,9 @@ use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
 use crate::Result;
+use std::pin::Pin;
 use tls::TlsConfig;
+use tokio_stream::{Stream, StreamExt};
 use tonic::transport::Uri;
 use tonic::{client::Grpc, transport::Channel};
 
@@ -137,6 +139,37 @@ where
         *req.metadata_mut() = metadata.inner;
     }
     req
+}
+
+/// A stream of `gRPC` responses.
+pub type ResponseStream = Pin<Box<dyn Stream<Item = Result<ResponseMessage>> + Send>>;
+
+/// Calls a `gRPC` method of any kind and returns its responses as a stream.
+/// Client- and bidirectional-streaming methods send the given `messages`.
+pub async fn call<S>(head: &RequestMessage, messages: S, tls: Option<TlsConfig>) -> ResponseStream
+where
+    S: Stream<Item = RequestMessage> + Send + 'static,
+{
+    let method = head.method_descriptor();
+
+    match (method.is_client_streaming(), method.is_server_streaming()) {
+        (true, true) => {
+            into_response_stream(call_bidirectional_streaming(head, messages, tls).await)
+        }
+        (true, false) => Box::pin(tokio_stream::once(
+            call_client_streaming(head, messages, tls).await,
+        )),
+        (false, true) => into_response_stream(call_server_streaming(head, tls).await),
+        (false, false) => Box::pin(tokio_stream::once(call_unary_async(head, tls).await)),
+    }
+}
+
+/// Turns a streaming call into a stream of responses.
+fn into_response_stream(response: Result<StreamingResponse>) -> ResponseStream {
+    match response {
+        Ok(response) => Box::pin(response.inner.map(|message| message.map_err(Error::from))),
+        Err(err) => Box::pin(tokio_stream::once(Err(err))),
+    }
 }
 
 /// Creates a new `gRPC` client and sends a message to a `gRPC` server.

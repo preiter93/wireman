@@ -243,13 +243,6 @@ impl ErrorKind {
         }
     }
 
-    pub fn streaming_error(msg: String) -> Self {
-        Self {
-            kind: "Streaming Error".to_owned(),
-            msg,
-        }
-    }
-
     pub fn string(&self) -> String {
         format!("{}: {}", self.kind, self.msg)
     }
