@@ -1,22 +1,16 @@
 use super::{headers::MetaHeaders, MessagesModel};
-use crate::term::Term;
-use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeMap,
-    error::Error,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::path::PathBuf;
 use wireman_config::Config;
-use wireman_core::MethodDescriptor;
+use wireman_core::{
+    features::{History, HistoryData},
+    MethodDescriptor,
+};
 use wireman_logger::Logger;
-
-type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[derive(Clone)]
 pub struct HistoryModel {
-    /// The filepath where the files are stored
-    base_path: PathBuf,
+    /// The stored requests
+    history: History,
 
     /// The selected save spot (1-5)
     save_spot: usize,
@@ -31,7 +25,7 @@ pub struct HistoryModel {
 impl Default for HistoryModel {
     fn default() -> Self {
         Self {
-            base_path: PathBuf::default(),
+            history: History::default(),
             save_spot: 1,
             enabled: true,
             autosave: false,
@@ -40,17 +34,13 @@ impl Default for HistoryModel {
 }
 
 impl HistoryModel {
-    pub fn new(env: &Config) -> Result<Self> {
-        let path = PathBuf::from_str(&env.history.directory_expanded()).map_err(|err| {
-            Term::stop().unwrap();
-            err
-        })?;
-        Ok(Self {
-            base_path: path,
+    pub fn new(env: &Config) -> Self {
+        Self {
+            history: History::new(PathBuf::from(env.history.directory_expanded())),
             save_spot: 1,
             enabled: env.history.disabled,
             autosave: env.history.autosave,
-        })
+        }
     }
 
     /// Get the currently selected save spot.
@@ -60,14 +50,7 @@ impl HistoryModel {
 
     /// Returns which of the 5 save spots are enabled
     pub fn save_spots_enabled(&self, method: &MethodDescriptor) -> Vec<bool> {
-        (1..=5)
-            .map(|i| {
-                let Some(path) = self.path(i, method).clone() else {
-                    return false;
-                };
-                path.exists()
-            })
-            .collect()
+        (1..=5).map(|i| self.history.exists(method, i)).collect()
     }
 
     /// Saves a request message to history.
@@ -86,20 +69,6 @@ impl HistoryModel {
             return;
         };
 
-        let Some(path) = self.path(self.save_spot, method).clone() else {
-            return;
-        };
-
-        if let Some(dir) = path.parent() {
-            if std::fs::create_dir_all(dir).is_err() {
-                Logger::debug(format!("history: cannot create dir: {dir:?}"));
-                return;
-            }
-        } else {
-            Logger::debug(format!("history: no parent dir found: {path:?}",));
-            return;
-        }
-
         let address = messages.headers.borrow().address();
         let auth_str = messages.headers.borrow().auth.value();
         let auth = Option::from(!auth_str.is_empty()).map(|_| auth_str);
@@ -111,15 +80,8 @@ impl HistoryModel {
             metadata,
         };
 
-        match serde_json::to_string_pretty(&request) {
-            Ok(data) => {
-                std::fs::write(path, data).unwrap_or_else(|_| {
-                    Logger::debug("history: unable to write file");
-                });
-            }
-            Err(_) => {
-                Logger::debug("history: unable to convert to json");
-            }
+        if let Err(err) = self.history.save(method, self.save_spot, &request) {
+            Logger::debug(err.to_string());
         }
     }
 
@@ -133,134 +95,53 @@ impl HistoryModel {
             Logger::debug("history: no method selected");
             return None;
         };
-        let path = self.path(self.save_spot(), method).clone()?;
-        if !path.exists() {
-            return None;
-        }
-        let Ok(content) = std::fs::read_to_string(path.clone()) else {
-            Logger::debug(format!("history: failed to read file {path:?}"));
-            return None;
+
+        let request = match self.history.load(method, self.save_spot) {
+            Ok(request) => request?,
+            Err(err) => {
+                Logger::debug(err.to_string());
+                return None;
+            }
         };
-        let history: HistoryData = if let Ok(history) = serde_json::from_str(&content) {
-            history
-        } else {
-            Logger::debug("history: failed to parse from str");
-            return None;
-        };
-        history.apply(messages);
+        apply_history(&request, messages);
         Some(())
     }
 
     /// Deletes a save spot
     pub fn delete(&self, method: &MethodDescriptor) {
-        let Some(path) = self.path(self.save_spot, method).clone() else {
-            return;
-        };
-        let _ = std::fs::remove_file(path);
+        if let Err(err) = self.history.delete(method, self.save_spot) {
+            Logger::debug(err.to_string());
+        }
     }
 
     /// Select a history save spot.
     pub fn select(&mut self, index: usize) {
         self.save_spot = index;
     }
-
-    /// Convenience method to construct a path from a method
-    /// Fails if the history base folder does not exist.
-    /// If the method sub-folder does not exist, it is created.
-    fn path(&self, save_spot: usize, method: &MethodDescriptor) -> Option<PathBuf> {
-        if !Path::new(&self.base_path).exists() {
-            let p = self.base_path.to_str().unwrap_or("");
-            Logger::debug(format!("failed to save history: path {p} does not exist"));
-            return None;
-        }
-        let path = self.base_path.join(method.full_name());
-        let fname = format!("{save_spot}.json");
-        Some(path.join(PathBuf::from(fname)))
-    }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct HistoryData {
-    pub message: String,
-    pub address: String,
-    pub authentication: Option<String>,
-    pub metadata: BTreeMap<String, String>,
-}
-
-impl HistoryData {
-    pub fn new(
-        message: String,
-        address: String,
-        authentication: Option<String>,
-        metadata: BTreeMap<String, String>,
-    ) -> Self {
-        Self {
-            message,
-            address,
-            authentication,
-            metadata,
-        }
+/// Applies a history to the messages and headers.
+fn apply_history(history: &HistoryData, messages: &mut MessagesModel) {
+    let mut headers = messages.headers.borrow_mut();
+    headers.clear();
+    headers.addr.set_text_raw(&history.address);
+    if let Some(auth) = &history.authentication {
+        headers.auth.set_text(auth);
+    } else {
+        headers.auth.set_text("");
     }
-
-    pub fn to_json(&self) -> String {
-        serde_json::to_string_pretty(self).unwrap_or_else(|_| {
-            Logger::debug("history: failed to parse to json");
-            String::new()
-        })
+    headers.meta.set_btree(&history.metadata);
+    if headers.meta.headers.is_empty() {
+        headers.meta = MetaHeaders::default();
     }
-
-    /// Applies a history.
-    fn apply(&self, messages: &mut MessagesModel) {
-        let mut headers = messages.headers.borrow_mut();
-        headers.clear();
-        headers.addr.set_text_raw(&self.address);
-        if let Some(auth) = &self.authentication {
-            headers.auth.set_text(auth);
-        } else {
-            headers.auth.set_text("");
-        }
-        headers.meta.set_btree(&self.metadata);
-        if headers.meta.headers.is_empty() {
-            headers.meta = MetaHeaders::default();
-        }
-        messages.request.editor.set_text_raw(&self.message);
-    }
+    messages.request.editor.set_text_raw(&history.message);
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
-
-    #[test]
-    fn test_history_data_to_json() {
-        // given
-        let mut metadata = BTreeMap::new();
-        metadata.insert("key1".to_string(), "value1".to_string());
-        metadata.insert("key2".to_string(), "value2".to_string());
-
-        let history_data = HistoryData {
-            message: "Test message".to_string(),
-            address: "Test address".to_string(),
-            authentication: Some("Bearer Test".to_string()),
-            metadata,
-        };
-
-        // when
-        let pretty_json = history_data.to_json();
-
-        //  then
-        let expected_pretty_json = r#"{
-  "message": "Test message",
-  "address": "Test address",
-  "authentication": "Bearer Test",
-  "metadata": {
-    "key1": "value1",
-    "key2": "value2"
-  }
-}"#;
-        assert_eq!(pretty_json, expected_pretty_json);
-    }
+    use std::collections::BTreeMap;
 
     #[test]
     fn test_history_apply() {
@@ -278,7 +159,7 @@ mod tests {
 
         // when
         let mut messages = MessagesModel::default();
-        history_data.apply(&mut messages);
+        apply_history(&history_data, &mut messages);
 
         //  then
         let expected_message = r#"Test message"#;

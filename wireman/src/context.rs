@@ -73,7 +73,7 @@ impl AppContext {
         let core_client_rc = Rc::new(RefCell::new(CoreClient::new(env)?));
 
         // The history model
-        let history = Rc::new(RefCell::new(HistoryModel::new(env)?));
+        let history = Rc::new(RefCell::new(HistoryModel::new(env)));
 
         // The metadata model
         let server_address = &core_client_rc.borrow().get_default_address();
