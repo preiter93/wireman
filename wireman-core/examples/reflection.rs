@@ -17,10 +17,10 @@ async fn main() -> Result<()> {
     println!("Service: {:}", service.full_name());
     println!("Method:  {:}", method.full_name());
     //
-    let mut req = desc.get_request(&method);
+    let mut req = desc.get_request(method);
     req.set_address("http://localhost:50051");
 
-    let mut req = desc.get_request(&method);
+    let mut req = desc.get_request(method);
     req.set_address("http://localhost:50051");
 
     Ok(())

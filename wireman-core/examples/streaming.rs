@@ -19,7 +19,7 @@ async fn main() -> Result<()> {
         println!("Method must be server streaming");
     }
 
-    let mut request = desc.get_request(&method);
+    let mut request = desc.get_request(method);
     request.set_address("http://localhost:50051");
 
     let response = call_server_streaming(&request, None).await?;

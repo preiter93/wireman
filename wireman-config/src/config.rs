@@ -298,7 +298,7 @@ mod test {
         [ui]
         skin = "skin.toml"
         "#;
-        let cfg = Config::deserialize_toml(&data).unwrap();
+        let cfg = Config::deserialize_toml(data).unwrap();
         let expected = Config {
             includes: vec!["/Users/myworkspace".to_string()],
             files: vec!["api.proto".to_string(), "internal.proto".to_string()],
