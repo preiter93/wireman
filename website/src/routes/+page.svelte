@@ -407,12 +407,32 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
     }
 
     @media (max-width: 600px) {
+        .topbar {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            row-gap: 6px;
+        }
+
         .nav-links {
+            order: 3;
+            flex-basis: 100%;
+            gap: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-links::-webkit-scrollbar {
             display: none;
         }
 
-        .topbar {
-            justify-content: space-between;
+        .nav-links a {
+            flex-shrink: 0;
+            padding: 4px 0;
+        }
+
+        .hero,
+        .content h2 {
+            scroll-margin-top: 88px;
         }
 
         .hero {
