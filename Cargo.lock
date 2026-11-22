@@ -3494,7 +3494,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-config"
-version = "0.5.3"
+version = "0.6.0"
 dependencies = [
  "clap",
  "serde",
@@ -3506,7 +3506,7 @@ dependencies = [
 
 [[package]]
 name = "wireman-core"
-version = "0.1.8"
+version = "0.2.0"
 dependencies = [
  "http",
  "prost",

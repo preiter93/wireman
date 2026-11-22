@@ -12,8 +12,8 @@ rust-version = "1.70.0"
 
 [dependencies]
 
-wireman_core = { package = "wireman-core", version = "^0.1.8" }
-wireman_config = { package = "wireman-config", version = "^0.5.2" }
+wireman_core = { package = "wireman-core", version = "^0.2.0" }
+wireman_config = { package = "wireman-config", version = "^0.6.0" }
 wireman_logger = { package = "wireman-logger", version = "0.1" }
 wireman_theme = { package = "wireman-theme", version = "^0.3.4" }
 wireman_event_handler = { package = "wireman-event-handler", version = "^0.3.1" }
