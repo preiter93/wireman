@@ -11,11 +11,6 @@ license = "MIT"
 rust-version = "1.70.0"
 
 [dependencies]
-# core = { package = "wireman-core", path = "../wireman-core", version = "0.1" }
-# config = { package = "wireman-config", path = "../wireman-config", version = "0.5" }
-# logger = { package = "wireman-logger", path = "../wireman-logger", version = "0.1.0" }
-# theme = { package = "wireman-theme", path = "../wireman-theme", version = "^0.3.2" }
-# event-handler = { package = "wireman-event-handler", path = "../wireman-event-handler", version = "0.3" }
 
 wireman_core = { package = "wireman-core", version = "^0.1.8" }
 wireman_config = { package = "wireman-config", version = "^0.5.2" }
