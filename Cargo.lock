@@ -473,38 +473,15 @@ dependencies = [
 
 [[package]]
 name = "cssparser"
-version = "0.36.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2"
-dependencies = [
- "cssparser-macros 0.6.1",
- "dtoa-short",
- "itoa",
- "phf 0.13.1",
- "smallvec",
-]
-
-[[package]]
-name = "cssparser"
 version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "11119743ad110e8c1bdccd930d7f5c30c99e5fc76a7b63ec9807e84eef0c5f59"
 dependencies = [
- "cssparser-macros 0.7.1",
+ "cssparser-macros",
  "dtoa-short",
  "itoa",
  "phf 0.14.0",
  "smallvec",
-]
-
-[[package]]
-name = "cssparser-macros"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
-dependencies = [
- "quote",
- "syn 2.0.119",
 ]
 
 [[package]]
@@ -1853,17 +1830,6 @@ dependencies = [
 
 [[package]]
 name = "phf"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1562dc717473dbaa4c1f85a36410e03c047b2e7df7f45ee938fbef64ae7fadf"
-dependencies = [
- "phf_macros 0.13.1",
- "phf_shared 0.13.1",
- "serde",
-]
-
-[[package]]
-name = "phf"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "010378780309880b08997fae13be7834dba947d36393bd372f2b1556deb2a2f6"
@@ -1895,16 +1861,6 @@ dependencies = [
 
 [[package]]
 name = "phf_generator"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135ace3a761e564ec88c03a77317a7c6b80bb7f7135ef2544dbe054243b89737"
-dependencies = [
- "fastrand",
- "phf_shared 0.13.1",
-]
-
-[[package]]
-name = "phf_generator"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aeb62e0959d5a1bebc965f4d15d9e2b7cea002b6b0f5ba8cde6cc26738467100"
@@ -1928,19 +1884,6 @@ dependencies = [
 
 [[package]]
 name = "phf_macros"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "812f032b54b1e759ccd5f8b6677695d5268c588701effba24601f6932f8269ef"
-dependencies = [
- "phf_generator 0.13.1",
- "phf_shared 0.13.1",
- "proc-macro2",
- "quote",
- "syn 2.0.119",
-]
-
-[[package]]
-name = "phf_macros"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fa8d0ca26d424d27630da600c6624696e7dec8bf7b3b492b383c5dc49e5e085"
@@ -1957,15 +1900,6 @@ name = "phf_shared"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67eabc2ef2a60eb7faa00097bd1ffdb5bd28e62bf39990626a582201b7a754e5"
-dependencies = [
- "siphasher",
-]
-
-[[package]]
-name = "phf_shared"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e57fef6bc5981e38c2ce2d63bfa546861309f875b8a75f092d1d54ae2d64f266"
 dependencies = [
  "siphasher",
 ]
@@ -3633,11 +3567,11 @@ dependencies = [
  "serde_json",
  "tokio",
  "tui-widget-list",
- "wireman-config 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-config",
  "wireman-core",
- "wireman-event-handler 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-event-handler",
+ "wireman-logger",
+ "wireman-theme",
 ]
 
 [[package]]
@@ -3649,23 +3583,7 @@ dependencies = [
  "shellexpand",
  "thiserror 2.0.21",
  "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "wireman-config"
-version = "0.5.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2b101b0c7afa08f6ebec92f300dd5e509385987d58aab1c259efb49f15d9895"
-dependencies = [
- "clap",
- "serde",
- "shellexpand",
- "thiserror 2.0.21",
- "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wireman-theme 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-logger",
 ]
 
 [[package]]
@@ -3696,30 +3614,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "wireman-event-handler"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cc832bc4e135e11f75b6502e31650d8ecd1a147e0d0b8c8308d37f4b0e6ee53"
-dependencies = [
- "crossterm",
- "ratatui",
- "serde",
-]
-
-[[package]]
 name = "wireman-logger"
 version = "0.1.0"
-dependencies = [
- "chrono",
- "once_cell",
- "serde",
-]
-
-[[package]]
-name = "wireman-logger"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b6026faf8a1e47190fd1a746f37d9ca38159a99e0b9528a08779670732aabd3"
 dependencies = [
  "chrono",
  "once_cell",
@@ -3730,28 +3626,13 @@ dependencies = [
 name = "wireman-theme"
 version = "0.3.5"
 dependencies = [
- "cssparser 0.38.0",
+ "cssparser",
  "once_cell",
  "ratatui",
  "serde",
  "shellexpand",
  "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "wireman-theme"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e63842b6fd81bef80fd8b6f7d56c12765fb39652a1f880595c4a10d3b56abd17"
-dependencies = [
- "cssparser 0.36.0",
- "once_cell",
- "ratatui",
- "serde",
- "shellexpand",
- "toml",
- "wireman-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wireman-logger",
 ]
 
 [[package]]
