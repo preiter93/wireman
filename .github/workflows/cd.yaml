@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build again, e.g. v0.3.9"
+        required: true
 
 permissions:
   contents: write
@@ -12,6 +17,8 @@ jobs:
   publish-github:
     name: Publish for ${{ matrix.os }} (${{ matrix.target }})
     runs-on: ${{ matrix.os }}
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
     strategy:
       fail-fast: false
       matrix:
@@ -37,10 +44,12 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
 
       - name: Set the release version
         shell: bash
-        run: echo "VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+        run: echo "VERSION=${TAG#v}" >> $GITHUB_ENV
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -87,6 +96,6 @@ jobs:
           file: wireman-${{ env.VERSION }}-${{ matrix.target }}*
           file_glob: true
           overwrite: true
-          tag: ${{ github.ref }}
+          tag: ${{ env.TAG }}
           release_name: "Release v${{ env.VERSION }}"
           repo_token: ${{ secrets.GITHUB_TOKEN }}
