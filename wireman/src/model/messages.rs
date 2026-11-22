@@ -149,12 +149,14 @@ impl MessagesModel {
     /// Returns the request as json string
     pub fn to_json(&self) -> String {
         if let Some(method) = &self.selected_method {
-            let mut req = self.request.core_client.borrow().get_request(method);
-            match req
-                .message_mut()
-                .from_json(&self.request.editor.get_text_raw())
+            let json = self.request.editor.get_text_raw();
+            match self
+                .request
+                .core_client
+                .borrow()
+                .request_from_json(method, &json)
             {
-                Ok(()) => try_pretty_format_json(&req.to_json().unwrap()),
+                Ok(req) => try_pretty_format_json(&req.to_json().unwrap()),
                 Err(_) => String::new(),
             }
         } else {
@@ -267,14 +269,12 @@ impl MessagesModel {
             self.response.editor.set_text_raw(&err.string());
             return Err(ErrorKind::default_error("No method selected"));
         };
-        let mut req = self.request.core_client.borrow().get_request(&method);
-
-        if let Err(err) = req
-            .message_mut()
-            .from_json(&self.request.editor.get_text_raw())
-        {
-            return Err(ErrorKind::default_error(err.to_string()));
-        }
+        let json = self.request.editor.get_text_raw();
+        let mut req = self
+            .request
+            .core_client
+            .borrow()
+            .request_from_json(&method, &json)?;
 
         let headers = self.headers.borrow();
         for (key, val) in headers.headers_expanded() {

@@ -191,8 +191,8 @@ impl App {
             let mut messages_model = self.ctx.messages.borrow_mut();
             let tls = messages_model.request.core_client.borrow().get_tls_config();
             messages_model.dispatch = false;
-            match messages_model.get_request() {
-                Ok(head) => {
+            match (messages_model.get_request(), tls) {
+                (Ok(head), Ok(tls)) => {
                     let method = head.method_descriptor();
                     let is_client = method.is_client_streaming();
                     let is_server = method.is_server_streaming();
@@ -220,7 +220,7 @@ impl App {
                     });
                     messages_model.handler = Some(handler);
                 }
-                Err(err) => {
+                (Err(err), _) | (_, Err(err)) => {
                     messages_model.response.set_text(&err.string());
                     messages_model.response.set_error(err);
                 }

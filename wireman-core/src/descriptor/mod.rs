@@ -108,9 +108,74 @@ impl ProtoDescriptor {
         RequestMessage::new(self.get_request_descriptor(method), method.clone())
     }
 
+    /// Returns the request Message of a given Method, filled from a JSON string.
+    ///
+    /// # Errors
+    ///
+    /// Errors if the JSON does not match the request message.
+    pub fn request_from_json(
+        &self,
+        method: &MethodDescriptor,
+        json: &str,
+    ) -> Result<RequestMessage> {
+        let mut request = self.get_request(method);
+        request.message_mut().from_json(json)?;
+        Ok(request)
+    }
+
     // Returns the response Message of a given Method
     #[must_use]
     pub fn get_response(&self, method: &MethodDescriptor) -> ResponseMessage {
         ResponseMessage::new(self.get_response_descriptor(method), method.clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_request_from_json() {
+        struct TestCase {
+            name: &'static str,
+            given_json: &'static str,
+            expected_error: bool,
+            expected_json: &'static str,
+        }
+
+        let test_cases = vec![
+            TestCase {
+                name: "success: valid json",
+                given_json: "{\"number\":5}",
+                expected_error: false,
+                expected_json: "{\"number\":5}",
+            },
+            TestCase {
+                name: "failure: unknown field",
+                given_json: "{\"unknown\":5}",
+                expected_error: true,
+                expected_json: "",
+            },
+        ];
+
+        let descriptor = ProtoDescriptor::new(vec!["."], vec!["test_files/test.proto"]).unwrap();
+        let method = descriptor
+            .get_method_by_name("proto.TestService", "Simple")
+            .unwrap();
+
+        for test_case in test_cases {
+            let request = descriptor.request_from_json(&method, test_case.given_json);
+
+            assert_eq!(
+                request.is_err(),
+                test_case.expected_error,
+                "{}",
+                test_case.name
+            );
+            let json = request
+                .map(|request| request.message().to_json().unwrap())
+                .unwrap_or_default();
+            assert_eq!(json, test_case.expected_json, "{}", test_case.name);
+        }
     }
 }

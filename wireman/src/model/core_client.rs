@@ -86,6 +86,15 @@ impl CoreClient {
         req
     }
 
+    /// Returns the proto request of a given method, filled from a JSON string
+    pub fn request_from_json(
+        &self,
+        method: &MethodDescriptor,
+        json: &str,
+    ) -> Result<RequestMessage, ErrorKind> {
+        Ok(self.desc.request_from_json(method, json)?)
+    }
+
     /// Returns the default address as defined in the wireman.toml
     pub fn get_default_address(&self) -> String {
         self.grpc
@@ -107,18 +116,12 @@ impl CoreClient {
     }
 
     /// Returns the tls config.
-    pub fn get_tls_config(&self) -> Option<TlsConfig> {
+    pub fn get_tls_config(&self) -> Result<Option<TlsConfig>, ErrorKind> {
         let tls_config = self.grpc.0.tls.clone();
-        match (tls_config.use_native, tls_config.custom_cert) {
-            (Some(use_native), _) => {
-                if use_native {
-                    return Some(TlsConfig::native());
-                }
-                None
-            }
-            (None, Some(custom)) => Some(TlsConfig::custom(custom).unwrap()),
-            _ => Some(TlsConfig::native()),
-        }
+        Ok(TlsConfig::from_settings(
+            tls_config.use_native,
+            tls_config.custom_cert,
+        )?)
     }
 
     pub async fn call_unary_async(
