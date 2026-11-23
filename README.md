@@ -20,6 +20,7 @@ WireMan is an ideal choice for developers testing gRPC endpoints directly from t
 - [Navigation & Controls](#navigation--controls)
 - [Advanced Features](#advanced-features)
 - [Neovim Integration](#neovim-integration)
+- [AI Integration (MCP)](#ai-integration-mcp)
 - [Troubleshooting](#troubleshooting)
 - [Features](#features)
 
@@ -176,6 +177,9 @@ You can download the latest wireman binary from the [releases page](https://gith
   - `-H, --header <"key: value">`: an additional header, can be repeated. Values like `$(getToken.sh)` are run as commands, like in the TUI.
   - `-a, --address <ADDRESS>`: the server address, defaults to the address in the configuration
 
+- **`mcp`**  
+  Runs an MCP server on stdin and stdout, so AI agents can list, describe and call your gRPC methods. See [AI Integration (MCP)](#ai-integration-mcp).
+
 #### Options
 - **`-c, --config <CONFIG>`**  
   Specifies an optional path to a configuration file. If not provided, wireman uses the default configuration path.
@@ -255,6 +259,23 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 ## Neovim Integration
 
 Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).
+
+## AI Integration (MCP)
+
+`wireman mcp` lets AI agents like Claude Code use your gRPC services through the [Model Context Protocol](https://modelcontextprotocol.io). The agent starts wireman itself, so there is no server to run. For Claude Code:
+```
+claude mcp add wireman -- wireman mcp
+```
+Add `--config <path>` after `mcp` to use a different configuration. Other agents take the same command (`wireman`) and arguments (`["mcp"]`) in their MCP settings.
+
+The agent gets three tools:
+- `list_services`: the services and methods from your configuration
+- `describe_method`: the JSON Schema of a method's request and an example request
+- `call_method`: sends a request and returns the responses. It uses the address, authentication header and TLS settings from your configuration; the agent can pass another address.
+
+`call_method` sends real requests to your servers, so keep your agent's approval of tool calls turned on. Headers the agent passes are sent as given; only the authentication header from your configuration runs `$(…)` commands.
+
+The MCP server is part of the default build. To install wireman without it, use `cargo install wireman --no-default-features`.
 
 ## Troubleshooting
 
