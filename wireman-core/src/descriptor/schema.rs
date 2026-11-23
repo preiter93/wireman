@@ -128,8 +128,9 @@ fn reference(message: &MessageDescriptor) -> Value {
     json!({ "$ref": format!("#/$defs/{}", message.full_name()) })
 }
 
-/// Returns the comment written above a message or field in the proto file.
-fn comment(file: &FileDescriptor, path: &[i32]) -> Option<String> {
+/// Returns the comment written above a service, method, message or field in
+/// the proto file.
+pub fn comment(file: &FileDescriptor, path: &[i32]) -> Option<String> {
     let source_code_info = file.file_descriptor_proto().source_code_info.as_ref()?;
     let location = source_code_info
         .location

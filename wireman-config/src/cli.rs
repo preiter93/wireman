@@ -8,7 +8,7 @@ pub struct Args {
     pub command: Option<Command>,
 
     /// Optional path to the configuration file
-    #[arg(short, long)]
+    #[arg(short, long, global = true)]
     pub config: Option<String>,
 
     /// Use local protobuf files
@@ -37,6 +37,8 @@ pub enum Command {
         #[arg(short, long)]
         address: Option<String>,
     },
+    /// Runs an MCP server on stdin and stdout, so AI agents can list and call gRPC methods.
+    Mcp,
 }
 
 #[must_use]

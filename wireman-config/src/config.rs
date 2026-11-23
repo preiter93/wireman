@@ -93,6 +93,18 @@ impl Config {
     pub fn files(&self) -> Vec<String> {
         self.files.iter().map(|e| expand_file(e)).collect()
     }
+
+    /// Returns the headers every request should send, which is the default
+    /// authentication header if one is set.
+    #[must_use]
+    pub fn default_headers(&self) -> Vec<(String, String)> {
+        match self.server.default_auth_header.as_deref() {
+            Some(auth) if !auth.is_empty() => {
+                vec![("authorization".to_string(), auth.to_string())]
+            }
+            _ => Vec::new(),
+        }
+    }
 }
 
 impl FromStr for Config {
