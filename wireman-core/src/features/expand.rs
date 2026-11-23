@@ -1,9 +1,12 @@
 use std::process::Command;
 
+/// The prefixes of an authentication header in front of its value.
+const AUTH_PREFIXES: [&str; 2] = ["Bearer ", "Basic "];
+
 /// Runs a `$(command)` header and returns its output, or the header unchanged.
 #[must_use]
 pub fn expand_header(raw: &str) -> String {
-    if raw.starts_with("$(") && raw.ends_with(')') {
+    if is_command(raw) {
         let command = &raw[2..raw.len() - 1];
         if let Some(output) = execute_command(command) {
             return output;
@@ -16,12 +19,27 @@ pub fn expand_header(raw: &str) -> String {
 /// and returns the header with its output.
 #[must_use]
 pub fn expand_auth_header(raw: &str) -> String {
-    for prefix in ["Bearer ", "Basic "] {
+    for prefix in AUTH_PREFIXES {
         if let Some(value) = raw.strip_prefix(prefix) {
             return format!("{prefix}{}", expand_header(value));
         }
     }
     expand_header(raw)
+}
+
+/// Returns whether a header, optionally with a `Bearer` or `Basic` prefix,
+/// is a `$(command)` that runs when the request is sent.
+#[must_use]
+pub fn is_auth_command(raw: &str) -> bool {
+    let value = AUTH_PREFIXES
+        .iter()
+        .find_map(|prefix| raw.strip_prefix(prefix))
+        .unwrap_or(raw);
+    is_command(value)
+}
+
+fn is_command(raw: &str) -> bool {
+    raw.starts_with("$(") && raw.ends_with(')')
 }
 
 fn execute_command(command: &str) -> Option<String> {

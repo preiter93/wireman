@@ -2,7 +2,7 @@ use super::{headers::MetaHeaders, MessagesModel};
 use std::path::PathBuf;
 use wireman_config::Config;
 use wireman_core::{
-    features::{History, HistoryData},
+    features::{is_auth_command, History, HistoryData},
     MethodDescriptor,
 };
 use wireman_logger::Logger;
@@ -20,6 +20,9 @@ pub struct HistoryModel {
 
     /// Whether autosave is enabled
     pub(crate) autosave: bool,
+
+    /// Whether a literal authentication header is saved
+    unsafe_save_auth_header: bool,
 }
 
 impl Default for HistoryModel {
@@ -29,6 +32,7 @@ impl Default for HistoryModel {
             save_spot: 1,
             disabled: true,
             autosave: false,
+            unsafe_save_auth_header: false,
         }
     }
 }
@@ -40,6 +44,7 @@ impl HistoryModel {
             save_spot: 1,
             disabled: env.history.disabled,
             autosave: env.history.autosave,
+            unsafe_save_auth_header: env.history.unsafe_save_auth_header,
         }
     }
 
@@ -71,7 +76,7 @@ impl HistoryModel {
 
         let address = messages.headers.borrow().address();
         let auth_str = messages.headers.borrow().auth.value();
-        let auth = (!auth_str.is_empty()).then_some(auth_str);
+        let auth = saved_authentication(&auth_str, self.unsafe_save_auth_header);
         let metadata = messages.headers.borrow().meta.as_btree();
         let request = HistoryData {
             message,
@@ -120,16 +125,28 @@ impl HistoryModel {
     }
 }
 
+/// Returns the authentication header to save. A literal token is only saved
+fn saved_authentication(auth: &str, unsafe_save_auth_header: bool) -> Option<String> {
+    if auth.is_empty() {
+        return None;
+    }
+
+    (is_auth_command(auth) || unsafe_save_auth_header).then(|| auth.to_string())
+}
+
 /// Applies a history to the messages and headers.
 fn apply_history(history: &HistoryData, messages: &mut MessagesModel) {
     let mut headers = messages.headers.borrow_mut();
+
+    // Literal tokens are not saved, so a history without one keeps the current one.
+    let authentication = history
+        .authentication
+        .clone()
+        .unwrap_or_else(|| headers.auth.value());
+
     headers.clear();
     headers.addr.set_text_raw(&history.address);
-    if let Some(auth) = &history.authentication {
-        headers.auth.set_text(auth);
-    } else {
-        headers.auth.set_text("");
-    }
+    headers.auth.set_text(&authentication);
     headers.meta.set_btree(&history.metadata);
     if headers.meta.headers.is_empty() {
         headers.meta = MetaHeaders::default();
@@ -145,30 +162,113 @@ mod tests {
 
     #[test]
     fn test_history_apply() {
-        // given
-        let mut metadata = BTreeMap::new();
-        metadata.insert("key1".to_string(), "value1".to_string());
-        metadata.insert("key2".to_string(), "value2".to_string());
+        struct TestCase {
+            name: &'static str,
+            given_current_auth: &'static str,
+            given_saved_auth: Option<&'static str>,
+            expected_auth: &'static str,
+        }
 
-        let history_data = HistoryData {
-            message: "Test message".to_string(),
-            address: "Test address".to_string(),
-            authentication: Some("Bearer test".to_string()),
-            metadata,
-        };
+        let test_cases = vec![
+            TestCase {
+                name: "success: saved auth is loaded",
+                given_current_auth: "Bearer current",
+                given_saved_auth: Some("Bearer saved"),
+                expected_auth: "Bearer saved",
+            },
+            TestCase {
+                name: "success: missing auth keeps the current one",
+                given_current_auth: "Bearer current",
+                given_saved_auth: None,
+                expected_auth: "Bearer current",
+            },
+        ];
 
-        // when
-        let mut messages = MessagesModel::default();
-        apply_history(&history_data, &mut messages);
+        for test_case in test_cases {
+            let history_data = HistoryData {
+                message: "Test message".to_string(),
+                address: "Test address".to_string(),
+                authentication: test_case.given_saved_auth.map(str::to_string),
+                metadata: BTreeMap::from([("key".to_string(), "value".to_string())]),
+            };
+            let mut messages = MessagesModel::default();
+            messages
+                .headers
+                .borrow_mut()
+                .auth
+                .set_text(test_case.given_current_auth);
 
-        //  then
-        let expected_message = r#"Test message"#;
-        assert_eq!(messages.request.editor.get_text_raw(), expected_message);
+            apply_history(&history_data, &mut messages);
 
-        let expected_address = "Test address";
-        assert_eq!(messages.headers.borrow().address(), expected_address);
+            assert_eq!(
+                messages.request.editor.get_text_raw(),
+                "Test message",
+                "{}",
+                test_case.name
+            );
+            assert_eq!(
+                messages.headers.borrow().address(),
+                "Test address",
+                "{}",
+                test_case.name
+            );
+            assert_eq!(
+                messages.headers.borrow().auth.value(),
+                test_case.expected_auth,
+                "{}",
+                test_case.name
+            );
+        }
+    }
 
-        let expected_auth = "Bearer test";
-        assert_eq!(messages.headers.borrow().auth.value(), expected_auth);
+    #[test]
+    fn test_saved_authentication() {
+        struct TestCase {
+            name: &'static str,
+            given_auth: &'static str,
+            given_unsafe_save_auth_header: bool,
+            expected_auth: Option<&'static str>,
+        }
+
+        let test_cases = vec![
+            TestCase {
+                name: "success: literal token is not saved",
+                given_auth: "Bearer eyJhbGciOi",
+                given_unsafe_save_auth_header: false,
+                expected_auth: None,
+            },
+            TestCase {
+                name: "success: command is saved",
+                given_auth: "Bearer $(getToken.sh)",
+                given_unsafe_save_auth_header: false,
+                expected_auth: Some("Bearer $(getToken.sh)"),
+            },
+            TestCase {
+                name: "success: literal token is saved when allowed",
+                given_auth: "Basic dXNlcjpwYXNz",
+                given_unsafe_save_auth_header: true,
+                expected_auth: Some("Basic dXNlcjpwYXNz"),
+            },
+            TestCase {
+                name: "success: empty auth is not saved",
+                given_auth: "",
+                given_unsafe_save_auth_header: true,
+                expected_auth: None,
+            },
+        ];
+
+        for test_case in test_cases {
+            let auth = saved_authentication(
+                test_case.given_auth,
+                test_case.given_unsafe_save_auth_header,
+            );
+
+            assert_eq!(
+                auth.as_deref(),
+                test_case.expected_auth,
+                "{}",
+                test_case.name
+            );
+        }
     }
 }

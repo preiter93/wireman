@@ -162,6 +162,10 @@ pub struct HistoryConfig {
     /// Whether the history is disabled
     #[serde(default)]
     pub disabled: bool,
+    /// Whether a literal authentication header, like a pasted token, is saved.
+    /// Commands like `Bearer $(getToken.sh)` are always saved.
+    #[serde(default)]
+    pub unsafe_save_auth_header: bool,
 }
 
 impl Default for HistoryConfig {
@@ -170,6 +174,7 @@ impl Default for HistoryConfig {
             directory: String::default(),
             autosave: true,
             disabled: false,
+            unsafe_save_auth_header: false,
         }
     }
 }
@@ -186,6 +191,7 @@ impl HistoryConfig {
             directory: directory.to_string(),
             autosave,
             disabled,
+            unsafe_save_auth_header: false,
         }
     }
 
@@ -341,6 +347,7 @@ files = ["api.proto", "internal.proto"]
 directory = "/Users/test"
 autosave = false
 disabled = false
+unsafe_save_auth_header = false
 
 [server]
 default_address = "http://localhost:50051"
