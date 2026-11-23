@@ -4,6 +4,7 @@ mod app;
 mod call;
 mod context;
 mod events;
+mod mcp;
 mod model;
 mod term;
 mod view;
@@ -32,7 +33,13 @@ async fn main() -> Result<()> {
                 address,
             } => {
                 if let Err(err) = call::run(&args, method, data, header, address.as_deref()).await {
-                    call::print_error(err.as_ref());
+                    eprintln!("Error: {}", call::error_message(err.as_ref()));
+                    std::process::exit(1);
+                }
+            }
+            Command::Mcp => {
+                if let Err(err) = mcp::run(&args).await {
+                    eprintln!("Error: {}", call::error_message(err.as_ref()));
                     std::process::exit(1);
                 }
             }

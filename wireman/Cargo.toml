@@ -8,7 +8,7 @@ repository = "https://github.com/preiter93/wireman"
 keywords = ["wireman", "ratatui", "grpc", "client", "app"]
 readme = "../README.md"
 license = "MIT"
-rust-version = "1.70.0"
+rust-version = "1.89"
 
 [dependencies]
 
@@ -25,8 +25,11 @@ edtui = { version = "0.11", default-features = false, features = ["mouse-support
 # edtui = { version = "0.11", git = "https://github.com/preiter93/edtui", branch = "tabs" }
 crossterm = { version = "0.29", features = ["events", "event-stream"] }
 ratatui = { package = "ratatui", version = "0.30", features = ["unstable"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+schemars = "1"
 http = "1"
 arboard = { version = "3.4.1", features = ["wayland-data-control"] }
-tokio = { version = ">=1.48", features = ["rt", "macros"] }
+tokio = { version = ">=1.48", features = ["rt", "macros", "time"] }
 futures = "0.3"
+rmcp = { version = "3.11", features = ["server", "transport-io", "macros"] }

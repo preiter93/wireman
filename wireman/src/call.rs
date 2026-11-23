@@ -1,14 +1,14 @@
 use crate::widgets::editor::pretty_format_json;
 use futures::StreamExt;
 use std::error::Error;
-use wireman_config::{cli::Args, init_from_env};
+use wireman_config::{cli::Args, init_from_env, Config};
 use wireman_core::{
-    client::{call, tls::TlsConfig},
+    client::{call, tls::TlsConfig, ResponseStream},
     features::{expand_auth_header, expand_header},
-    ProtoDescriptor,
+    MethodDescriptor, ProtoDescriptor,
 };
 
-type Result<T> = std::result::Result<T, Box<dyn Error>>;
+pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// Sends one request to a gRPC method and prints all responses as JSON.
 pub async fn run(
@@ -20,12 +20,30 @@ pub async fn run(
 ) -> Result<()> {
     let (config, _) = init_from_env(args)?;
     let descriptor = ProtoDescriptor::new(config.includes(), config.files())?;
+    let headers = headers
+        .iter()
+        .map(|header| parse_header(header))
+        .collect::<Result<Vec<_>>>()?;
 
-    let (service_name, method_name) =
-        split_method_name(method_name).ok_or(format!("{method_name} is not a full method name"))?;
-    let method = descriptor
-        .get_method_by_name(service_name, method_name)
-        .ok_or(format!("method {service_name}.{method_name} not found"))?;
+    let mut responses = send(&config, &descriptor, method_name, data, &headers, address).await?;
+    while let Some(response) = responses.next().await {
+        let json = response?.message.to_json()?;
+        println!("{}", pretty_format_json(&json).unwrap_or(json));
+    }
+
+    Ok(())
+}
+
+/// Sends one request to a gRPC method and returns its responses.
+pub async fn send(
+    config: &Config,
+    descriptor: &ProtoDescriptor,
+    method_name: &str,
+    data: &str,
+    headers: &[(String, String)],
+    address: Option<&str>,
+) -> Result<ResponseStream> {
+    let method = find_method(descriptor, method_name)?;
     let mut request = descriptor.request_from_json(&method, data)?;
 
     let address = address
@@ -39,39 +57,46 @@ pub async fn run(
             request.insert_metadata("authorization", &expand_auth_header(auth))?;
         }
     }
-    for header in headers {
-        let (key, value) = header
-            .split_once(':')
-            .ok_or(format!("header {header} is not in the form \"key: value\""))?;
-        request.insert_metadata(&expand_header(key.trim()), &expand_header(value.trim()))?;
+    for (key, value) in headers {
+        request.insert_metadata(&expand_header(key), &expand_header(value))?;
     }
 
     let tls = TlsConfig::from_settings(config.tls.use_native, config.tls.custom_cert.clone())?;
 
     // Client- and bidirectional-streaming methods send the request as their only message.
     let messages = futures::stream::iter(vec![request.clone()]);
-    let mut responses = call(&request, messages, tls).await;
-    while let Some(response) = responses.next().await {
-        let json = response?.message.to_json()?;
-        println!("{}", pretty_format_json(&json).unwrap_or(json));
-    }
-
-    Ok(())
+    Ok(call(&request, messages, tls).await)
 }
 
-/// Prints an error and its causes to stderr.
-pub fn print_error(err: &dyn Error) {
-    eprintln!("Error: {err}");
+/// Finds a method by its full name like `proto.Greeter.SayHello` or
+/// `proto.Greeter/SayHello`.
+pub fn find_method(descriptor: &ProtoDescriptor, name: &str) -> Result<MethodDescriptor> {
+    let (service_name, method_name) = name
+        .rsplit_once(['/', '.'])
+        .ok_or(format!("{name} is not a full method name"))?;
+
+    let method = descriptor
+        .get_method_by_name(service_name, method_name)
+        .ok_or(format!("method {service_name}.{method_name} not found"))?;
+    Ok(method)
+}
+
+/// Returns an error and its causes, one per line.
+pub fn error_message(err: &dyn Error) -> String {
+    let mut message = err.to_string();
 
     let mut source = err.source();
     while let Some(cause) = source {
-        eprintln!("  caused by: {cause}");
+        message.push_str(&format!("\n  caused by: {cause}"));
         source = cause.source();
     }
+    message
 }
 
-/// Splits a full method name like `proto.Greeter.SayHello` or
-/// `proto.Greeter/SayHello` into its service and method name.
-fn split_method_name(name: &str) -> Option<(&str, &str)> {
-    name.rsplit_once(['/', '.'])
+/// Parses a header in the form `key: value`.
+fn parse_header(header: &str) -> Result<(String, String)> {
+    let (key, value) = header
+        .split_once(':')
+        .ok_or(format!("header {header} is not in the form \"key: value\""))?;
+    Ok((key.trim().to_string(), value.trim().to_string()))
 }
