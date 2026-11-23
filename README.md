@@ -282,7 +282,7 @@ The agent gets four tools:
 - `list_services`: the services and methods from your configuration
 - `describe_method`: the JSON Schema of a method's request and an example request
 - `call_method`: sends a request and returns the responses. It uses the address (or `http://localhost:50051`), authentication header and TLS settings from your configuration; the agent can pass another address.
-- `call_command`: returns the `wireman call` command for a request, with the same address, without sending it, so you can run it yourself
+- `call_command`: returns the `wireman call` command for a request, with the same address and headers, without sending it, so you can run it yourself
 
 `call_method` sends real requests to your servers, so keep your agent's approval of tool calls turned on. Headers the agent passes are sent as given; only the authentication header from your configuration runs `$(…)` commands.
 
