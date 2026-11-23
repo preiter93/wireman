@@ -117,6 +117,19 @@ files = [
         </ContentCard>
     </div>
 
+    <ContentCard title="Command line" initiallyExpanded={true} hideToggle={true}>
+        <p>
+            Send one request without opening the TUI. It uses the protos, default address, auth header and TLS settings from your
+            configuration and prints the response as JSON:
+        </p>
+        <CodeContainer command={`wireman call proto.Greeter.SayHello -d '{"name": "wireman"}'`} />
+        <p style="padding-top:18px">
+            Add headers with <code>-H "key: value"</code> and another server with <code>-a &lt;address&gt;</code>. In the request tab,
+            <code>Alt+y</code> copies the current request as such a command to share. Commands like <code>$(getToken.sh)</code> stay as they
+            are, so whoever runs it uses their own token.
+        </p>
+    </ContentCard>
+
     <h2 id="reference">Advanced & Reference</h2>
 
     <ContentCard title="Advanced configuration">
@@ -174,6 +187,11 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         <ul>
             <li><code>check</code> - Runs a health check and displays configuration details to ensure proper setup.</li>
             <li><code>init</code> - Sets up Wireman by creating a default configuration file.</li>
+            <li>
+                <code>call &lt;METHOD&gt;</code> - Sends one request without the TUI and prints the response as JSON. Flags:
+                <code>-d, --data &lt;JSON&gt;</code> (defaults to <code>{'{}'}</code>), <code>-H, --header &lt;"key: value"&gt;</code>
+                (can be repeated), <code>-a, --address &lt;ADDRESS&gt;</code>.
+            </li>
         </ul>
         <h3>Options</h3>
         <ul>
