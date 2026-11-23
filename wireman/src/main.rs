@@ -36,6 +36,12 @@ async fn main() -> Result<()> {
                     std::process::exit(1);
                 }
             }
+            Command::Mcp => {
+                if let Err(err) = run_mcp(&args).await {
+                    call::print_error(err.as_ref());
+                    std::process::exit(1);
+                }
+            }
         }
         return Ok(());
     }
@@ -63,4 +69,15 @@ async fn main() -> Result<()> {
     // App::run(cfg).await?;
 
     Ok(())
+}
+
+#[cfg(feature = "mcp")]
+async fn run_mcp(args: &cli::Args) -> Result<()> {
+    let (config, _) = init_from_env(args)?;
+    wireman_mcp::run(config).await
+}
+
+#[cfg(not(feature = "mcp"))]
+async fn run_mcp(_: &cli::Args) -> Result<()> {
+    Err("wireman was built without the mcp feature".into())
 }

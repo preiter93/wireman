@@ -1,0 +1,21 @@
+[package]
+name = "wireman-mcp"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+authors = ["preiter <phil.reiter93@gmail.com>"]
+description = "MCP server for wireman"
+repository = "https://github.com/preiter93/wireman"
+keywords = ["wireman", "mcp", "grpc"]
+license = "MIT"
+
+[dependencies]
+wireman-core = { version = "^0.2.0" }
+wireman-config = { version = "^0.6.0" }
+
+rmcp = { version = "3.11", features = ["server", "transport-io", "macros"] }
+schemars = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+futures = "0.3"
+tokio = { version = ">=1.48", features = ["time"] }

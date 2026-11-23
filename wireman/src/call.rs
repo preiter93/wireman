@@ -26,12 +26,7 @@ pub async fn run(
         .or(config.server.default_address.clone())
         .ok_or("no address given and no default address in the config")?;
 
-    let mut all_headers = Vec::new();
-    if let Some(auth) = config.server.default_auth_header.as_deref() {
-        if !auth.is_empty() {
-            all_headers.push(("authorization".to_string(), auth.to_string()));
-        }
-    }
+    let mut all_headers = config.default_headers();
     for header in headers {
         let (key, value) = header
             .split_once(':')

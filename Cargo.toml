@@ -7,6 +7,7 @@ members = [
     "wireman-theme",
     "wireman",
     "wireman-event-handler",
+    "wireman-mcp",
 ]
 
 default-members = ["wireman"]
@@ -19,3 +20,4 @@ wireman-config = { path = "wireman-config" }
 wireman-logger = { path = "wireman-logger" }
 wireman-theme = { path = "wireman-theme" }
 wireman-event-handler = { path = "wireman-event-handler" }
+wireman-mcp = { path = "wireman-mcp" }
