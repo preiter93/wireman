@@ -76,6 +76,14 @@ impl ProtoDescriptor {
             .find(|m| m.name() == method_name)
     }
 
+    /// Returns a Method by its full name like `proto.Greeter.SayHello` or
+    /// `proto.Greeter/SayHello`.
+    #[must_use]
+    pub fn get_method_by_full_name(&self, full_name: &str) -> Option<MethodDescriptor> {
+        let (service_name, method_name) = full_name.rsplit_once(['/', '.'])?;
+        self.get_method_by_name(service_name, method_name)
+    }
+
     /// Returns all Services from the descriptor pool
     #[must_use]
     pub fn get_services(&self) -> Vec<ServiceDescriptor> {
@@ -177,6 +185,47 @@ mod tests {
                 .map(|request| request.message().to_json().unwrap())
                 .unwrap_or_default();
             assert_eq!(json, test_case.expected_json, "{}", test_case.name);
+        }
+    }
+
+    #[test]
+    fn test_get_method_by_full_name() {
+        struct TestCase {
+            name: &'static str,
+            given_full_name: &'static str,
+            expected_method: Option<&'static str>,
+        }
+
+        let test_cases = vec![
+            TestCase {
+                name: "success: dot form",
+                given_full_name: "proto.TestService.Simple",
+                expected_method: Some("proto.TestService.Simple"),
+            },
+            TestCase {
+                name: "success: slash form",
+                given_full_name: "proto.TestService/Simple",
+                expected_method: Some("proto.TestService.Simple"),
+            },
+            TestCase {
+                name: "failure: no service part",
+                given_full_name: "Simple",
+                expected_method: None,
+            },
+            TestCase {
+                name: "failure: unknown method",
+                given_full_name: "proto.TestService.Unknown",
+                expected_method: None,
+            },
+        ];
+
+        let descriptor = ProtoDescriptor::new(vec!["."], vec!["test_files/test.proto"]).unwrap();
+
+        for test_case in test_cases {
+            let method = descriptor.get_method_by_full_name(test_case.given_full_name);
+
+            let full_name = method.as_ref().map(MethodDescriptor::full_name);
+            assert_eq!(full_name, test_case.expected_method, "{}", test_case.name);
         }
     }
 }
