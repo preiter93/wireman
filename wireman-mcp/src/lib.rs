@@ -21,6 +21,9 @@ use wireman_core::{
     MethodDescriptor, ProtoDescriptor,
 };
 
+/// The address used when neither the agent nor the wireman config gives one.
+const DEFAULT_ADDRESS: &str = "http://localhost:50051";
+
 /// The most responses `call_method` returns.
 const MAX_RESPONSES: usize = 100;
 
@@ -62,7 +65,7 @@ struct CallMethodRequest {
     /// Additional headers, for example {"x-trace-id": "abc"}. They are sent as given.
     #[serde(default)]
     headers: BTreeMap<String, String>,
-    /// The server address, for example http://localhost:50051. Defaults to the address in the wireman config.
+    /// The server address, for example http://localhost:50051. Defaults to the address in the wireman config, or http://localhost:50051.
     address: Option<String>,
 }
 
@@ -138,10 +141,7 @@ impl WiremanServer {
         &self,
         Parameters(request): Parameters<CallMethodRequest>,
     ) -> Result<String, String> {
-        let address = request
-            .address
-            .or(self.config.server.default_address.clone())
-            .ok_or("no address given and no default address in the wireman config")?;
+        let address = self.address(request.address);
 
         // Only the headers from the config may run commands like `$(getToken.sh)`.
         let mut headers: Vec<(String, String)> = self
@@ -205,7 +205,7 @@ impl WiremanServer {
             .ok_or(format!("method {} not found", request.method))?;
 
         let headers: HashMap<String, String> = request.headers.into_iter().collect();
-        let address = request.address.unwrap_or_default();
+        let address = self.address(request.address);
 
         Ok(wireman_call(
             &method,
@@ -213,6 +213,15 @@ impl WiremanServer {
             &headers,
             &address,
         ))
+    }
+}
+
+impl WiremanServer {
+    /// Returns the given address, or else the one from the config, or else [`DEFAULT_ADDRESS`].
+    fn address(&self, address: Option<String>) -> String {
+        address
+            .or(self.config.server.default_address.clone())
+            .unwrap_or(DEFAULT_ADDRESS.to_string())
     }
 }
 

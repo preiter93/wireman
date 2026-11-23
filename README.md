@@ -181,7 +181,7 @@ You can download the latest wireman binary from the [releases page](https://gith
 - **`call <METHOD>`**  
   Sends one request without opening the TUI and prints the response as JSON. It uses the protos, default address, authentication header and TLS settings from the configuration.
   ```
-  wireman call proto.Greeter.SayHello -d '{"name": "wireman"}'
+  wireman call proto.Greeter.SayHello -a 'http://localhost:50051' -d '{"name": "wireman"}'
   ```
   - `-d, --data <JSON>`: the request message, defaults to `{}`
   - `-H, --header <"key: value">`: an additional header, can be repeated. Values like `$(getToken.sh)` are run as commands, like in the TUI.
@@ -281,8 +281,8 @@ Add `--config <path>` after `mcp` to use a different configuration. Other agents
 The agent gets four tools:
 - `list_services`: the services and methods from your configuration
 - `describe_method`: the JSON Schema of a method's request and an example request
-- `call_method`: sends a request and returns the responses. It uses the address, authentication header and TLS settings from your configuration; the agent can pass another address.
-- `call_command`: returns the `wireman call` command for a request without sending it, so you can run it yourself
+- `call_method`: sends a request and returns the responses. It uses the address (or `http://localhost:50051`), authentication header and TLS settings from your configuration; the agent can pass another address.
+- `call_command`: returns the `wireman call` command for a request, with the same address, without sending it, so you can run it yourself
 
 `call_method` sends real requests to your servers, so keep your agent's approval of tool calls turned on. Headers the agent passes are sent as given; only the authentication header from your configuration runs `$(…)` commands.
 
