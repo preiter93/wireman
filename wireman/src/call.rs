@@ -4,6 +4,7 @@ use std::error::Error;
 use wireman_config::{cli::Args, init_from_env};
 use wireman_core::{
     client::{send, tls::TlsConfig},
+    features::{expand_auth_header, expand_header},
     ProtoDescriptor,
 };
 
@@ -37,6 +38,12 @@ pub async fn run(
             .ok_or(format!("header {header} is not in the form \"key: value\""))?;
         all_headers.push((key.trim().to_string(), value.trim().to_string()));
     }
+
+    // Header commands like `$(getToken.sh)` come from the user, so they are run here.
+    let all_headers: Vec<_> = all_headers
+        .iter()
+        .map(|(key, value)| (expand_header(key), expand_auth_header(value)))
+        .collect();
 
     let tls = TlsConfig::from_settings(config.tls.use_native, config.tls.custom_cert.clone())?;
 

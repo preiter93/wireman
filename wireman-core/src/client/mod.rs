@@ -7,7 +7,6 @@ use crate::descriptor::response::StreamingResponse;
 use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
-use crate::features::{expand_auth_header, expand_header};
 use crate::ProtoDescriptor;
 use crate::Result;
 use std::pin::Pin;
@@ -147,7 +146,7 @@ where
 pub type ResponseStream = Pin<Box<dyn Stream<Item = Result<ResponseMessage>> + Send>>;
 
 /// Sends a request given as JSON to a method, found by its full name, and
-/// returns its responses. Header commands like `$(getToken.sh)` are run first.
+/// returns its responses. Headers are sent as given.
 ///
 /// # Errors
 ///
@@ -167,7 +166,7 @@ pub async fn send(
     let mut request = descriptor.request_from_json(&method, json)?;
     request.set_address(address);
     for (key, value) in headers {
-        request.insert_metadata(&expand_header(key), &expand_auth_header(value))?;
+        request.insert_metadata(key, value)?;
     }
 
     // Client- and bidirectional-streaming methods send the request as their only message.
