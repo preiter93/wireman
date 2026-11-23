@@ -13,10 +13,10 @@
     <div class="nav-links">
         <a href="#install">install</a>
         <a href="#getting-started">start</a>
-        <a href="#tour">tour</a>
-        <a href="#features">features</a>
         <a href="#cli">cli</a>
         <a href="#mcp">mcp</a>
+        <a href="#tour">tour</a>
+        <a href="#features">features</a>
         <a href="#reference">reference</a>
     </div>
     <GithubButton />
@@ -86,14 +86,6 @@ files = [
         </li>
     </ol>
 
-    <h2 id="tour">A Tour of Wireman</h2>
-
-    <Tour></Tour>
-
-    <h2 id="features">More Features</h2>
-
-    <MoreFeatures></MoreFeatures>
-
     <h2 id="keyboard-or-mouse">Keyboard or Mouse</h2>
     <div class="section">
         <p>
@@ -146,6 +138,14 @@ files = [
             so keep your agent's approval of tool calls turned on.
         </p>
     </div>
+
+    <h2 id="tour">A Tour of Wireman</h2>
+
+    <Tour></Tour>
+
+    <h2 id="features">More Features</h2>
+
+    <MoreFeatures></MoreFeatures>
 
     <h2 id="reference">Advanced & Reference</h2>
 
