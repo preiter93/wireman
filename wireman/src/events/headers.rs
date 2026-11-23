@@ -144,7 +144,7 @@ impl EventHandler for HeadersEventHandler {
             None => (true, true),
         };
         let enable_switch_auth_tab = ctx.headers.borrow().tab == HeadersTab::Auth
-            && selected_editor.map_or(true, TextEditor::is_empty);
+            && selected_editor.is_none_or(TextEditor::is_empty);
         let enable_switch_col_force = ctx.headers.borrow().tab == HeadersTab::Meta
             || ctx.headers.borrow().tab == HeadersTab::Auth;
         let enable_next_col = enable_switch_col_force
