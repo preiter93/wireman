@@ -7,6 +7,7 @@ use crate::descriptor::response::StreamingResponse;
 use crate::descriptor::RequestMessage;
 use crate::descriptor::ResponseMessage;
 use crate::error::Error;
+use crate::ProtoDescriptor;
 use crate::Result;
 use std::pin::Pin;
 use tls::TlsConfig;
@@ -143,6 +144,35 @@ where
 
 /// A stream of `gRPC` responses.
 pub type ResponseStream = Pin<Box<dyn Stream<Item = Result<ResponseMessage>> + Send>>;
+
+/// Sends a request given as JSON to a method, found by its full name, and
+/// returns its responses. Headers are sent as given.
+///
+/// # Errors
+///
+/// Errors if the method is not found or the request or a header is invalid.
+pub async fn send(
+    descriptor: &ProtoDescriptor,
+    method_name: &str,
+    json: &str,
+    address: &str,
+    headers: &[(String, String)],
+    tls: Option<TlsConfig>,
+) -> Result<ResponseStream> {
+    let method = descriptor
+        .get_method_by_full_name(method_name)
+        .ok_or_else(|| Error::MethodNotFound(method_name.to_string()))?;
+
+    let mut request = descriptor.request_from_json(&method, json)?;
+    request.set_address(address);
+    for (key, value) in headers {
+        request.insert_metadata(key, value)?;
+    }
+
+    // Client- and bidirectional-streaming methods send the request as their only message.
+    let messages = tokio_stream::iter(vec![request.clone()]);
+    Ok(call(&request, messages, tls).await)
+}
 
 /// Calls a `gRPC` method of any kind and returns its responses as a stream.
 /// Client- and bidirectional-streaming methods send the given `messages`.

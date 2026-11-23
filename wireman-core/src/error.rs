@@ -12,6 +12,10 @@ pub enum Error {
     #[error("internal error {0}")]
     Internal(String),
 
+    /// The method was not found in the proto descriptor
+    #[error("method {0} not found")]
+    MethodNotFound(String),
+
     /// Failed to deserialize `DynamicMessage` from json
     #[error("error deserializing message from json")]
     DeserializeMessage(#[source] serde_json::Error),
