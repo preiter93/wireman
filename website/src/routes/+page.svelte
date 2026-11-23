@@ -122,11 +122,27 @@ files = [
             Send one request without opening the TUI. It uses the protos, default address, auth header and TLS settings from your
             configuration and prints the response as JSON:
         </p>
-        <CodeContainer command={`wireman call proto.Greeter.SayHello -d '{"name": "wireman"}'`} />
+        <CodeContainer command={`wireman call proto.Greeter.SayHello -a 'http://localhost:50051' -d '{"name": "wireman"}'`} />
         <p style="padding-top:18px">
-            Add headers with <code>-H "key: value"</code> and another server with <code>-a &lt;address&gt;</code>. In the request tab,
+            Add headers with <code>-H "key: value"</code>. Without <code>-a &lt;address&gt;</code>, the default address from your
+            configuration is used. In the request tab,
             <code>Alt+y</code> copies the current request as such a command to share. Commands like <code>$(getToken.sh)</code> stay as they
             are, so whoever runs it uses their own token.
+        </p>
+    </ContentCard>
+
+    <ContentCard title="AI agents (MCP)" initiallyExpanded={true} hideToggle={true}>
+        <p>
+            <code>wireman mcp</code> lets AI agents like Claude Code use your gRPC services through the
+            <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol</a>. The agent starts
+            wireman itself, so there is no server to run. For Claude Code:
+        </p>
+        <CodeContainer command="claude mcp add wireman -- wireman mcp" />
+        <p style="padding-top:18px">
+            The agent can list your services, describe a method's request as JSON Schema, send a request, or return it as a
+            <code>wireman call</code> command for you to run. It uses the protos, default address, auth header and TLS settings from your
+            configuration; add <code>--config &lt;path&gt;</code> after <code>mcp</code> to use another one. Requests go to your real servers,
+            so keep your agent's approval of tool calls turned on.
         </p>
     </ContentCard>
 
@@ -192,6 +208,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
                 <code>-d, --data &lt;JSON&gt;</code> (defaults to <code>{'{}'}</code>), <code>-H, --header &lt;"key: value"&gt;</code>
                 (can be repeated), <code>-a, --address &lt;ADDRESS&gt;</code>.
             </li>
+            <li><code>mcp</code> - Runs an MCP server on stdin and stdout, so AI agents can list, describe and call your gRPC methods.</li>
         </ul>
         <h3>Options</h3>
         <ul>
