@@ -11,7 +11,7 @@ use wireman_config::Config;
 use wireman_core::{
     client::tls::TlsConfig,
     descriptor::{DynamicMessage, RequestMessage},
-    features::grpcurl,
+    features::{grpcurl, wireman_call},
     MethodDescriptor, ProtoDescriptor,
 };
 
@@ -329,6 +329,17 @@ impl MessagesModel {
                 let text = grpcurl(&self.config.includes, uri, &message, method, &header);
                 yank_to_clipboard(&text);
             }
+        }
+    }
+
+    /// Yanks the request message as a `wireman call` command.
+    pub fn yank_wireman_call(&mut self) {
+        if let Some(method) = &self.selected_method {
+            let address = self.headers.borrow().address();
+            let message = self.request.editor.get_text_raw();
+            let headers = self.headers.borrow().headers();
+
+            yank_to_clipboard(&wireman_call(method, &message, &headers, &address));
         }
     }
 
