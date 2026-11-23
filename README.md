@@ -156,7 +156,7 @@ You can download the latest wireman binary from the [releases page](https://gith
 
 6. Now you can make the request by clicking Enter. You can save it with `Ctrl+s`. Saved requests are stored in spots 1 to 5. Switch to a spot by clicking the respective number. You can restore the default request with `Ctrl+d`, which deletes the history. You can also cancel a request with Esc. Switch between request and response with `J/K`.To copy the request or response click `Y`. Or follow step 6.
 
-7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard.
+7. If you want to get the current request as a gRPCurl command, click `Ctrl+y` on the request tab, and it's copied to your clipboard. `Alt+y` copies it as a `wireman call` command instead, which you can share: commands like `$(getToken.sh)` stay unexpanded, and whoever runs it needs the protos in their own configuration.
 
 ### Command Line Flags
 
