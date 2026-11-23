@@ -15,6 +15,7 @@ pub enum RequestEvents {
     FinishStream,
     GoToResponse,
     CopyAsGrpCurl,
+    CopyAsWiremanCall,
     CopyRequest,
     FormatMessage,
     ResetHistory,
@@ -40,6 +41,7 @@ impl fmt::Display for RequestEvents {
             RequestEvents::GoToResponse => "Go to Response",
             RequestEvents::CopyRequest => "Copy Request",
             RequestEvents::CopyAsGrpCurl => "Copy as cURL",
+            RequestEvents::CopyAsWiremanCall => "Copy as wireman call",
             RequestEvents::FormatMessage => "Format Message",
             RequestEvents::ResetHistory => "Reset Request",
             RequestEvents::SaveHistory => "Save Request",
@@ -97,6 +99,9 @@ impl EventHandler for RequestEventHandler {
             }
             RequestEvents::CopyAsGrpCurl => {
                 ctx.messages.borrow_mut().yank_grpcurl();
+            }
+            RequestEvents::CopyAsWiremanCall => {
+                ctx.messages.borrow_mut().yank_wireman_call();
             }
             RequestEvents::CopyRequest => {
                 ctx.messages.borrow_mut().yank_request();
@@ -169,6 +174,10 @@ impl EventHandler for RequestEventHandler {
                 (
                     KeyEvent::ctrl(KeyCode::Char('y')),
                     RequestEvents::CopyAsGrpCurl,
+                ),
+                (
+                    KeyEvent::alt(KeyCode::Char('y')),
+                    RequestEvents::CopyAsWiremanCall,
                 ),
                 (
                     KeyEvent::ctrl(KeyCode::Char('f')),
