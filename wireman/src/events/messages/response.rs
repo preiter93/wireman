@@ -12,6 +12,7 @@ pub enum ResponseEvents {
     PrevTab,
     GoToRequest,
     CopyAsGrpCurl,
+    CopyAsWiremanCall,
     CopyResponse,
     IncreaseSize,
     DecreaseSize,
@@ -26,6 +27,7 @@ impl fmt::Display for ResponseEvents {
             ResponseEvents::GoToRequest => "Go to Request",
             ResponseEvents::CopyResponse => "Copy Response",
             ResponseEvents::CopyAsGrpCurl => "Copy as cURL",
+            ResponseEvents::CopyAsWiremanCall => "Copy as wireman call",
             ResponseEvents::IncreaseSize => "Increase Size",
             ResponseEvents::DecreaseSize => "Decrease Size",
             ResponseEvents::ToggleMainSplit => "Toggle main split",
@@ -60,6 +62,9 @@ impl EventHandler for ResponseEventHandler {
             }
             ResponseEvents::CopyAsGrpCurl => {
                 ctx.messages.borrow_mut().yank_grpcurl();
+            }
+            ResponseEvents::CopyAsWiremanCall => {
+                ctx.messages.borrow_mut().yank_wireman_call();
             }
             ResponseEvents::CopyResponse => {
                 ctx.messages.borrow_mut().yank_response();
@@ -104,6 +109,10 @@ impl EventHandler for ResponseEventHandler {
                 (
                     KeyEvent::ctrl(KeyCode::Char('y')),
                     ResponseEvents::CopyAsGrpCurl,
+                ),
+                (
+                    KeyEvent::alt(KeyCode::Char('y')),
+                    ResponseEvents::CopyAsWiremanCall,
                 ),
                 (
                     KeyEvent::new(KeyCode::Char('+')),
