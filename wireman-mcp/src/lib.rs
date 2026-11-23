@@ -8,12 +8,16 @@ use rmcp::{
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{json, Value};
-use std::{collections::BTreeMap, error::Error, time::Duration};
+use std::{
+    collections::{BTreeMap, HashMap},
+    error::Error,
+    time::Duration,
+};
 use wireman_config::Config;
 use wireman_core::{
     client::{send, tls::TlsConfig},
     descriptor::schema::{comment, json_schema},
-    features::expand_auth_header,
+    features::{expand_auth_header, wireman_call},
     MethodDescriptor, ProtoDescriptor,
 };
 
@@ -64,7 +68,7 @@ struct CallMethodRequest {
 
 #[tool_handler(
     name = "wireman-mcp",
-    instructions = "Use list_services to find a gRPC method, describe_method to get the JSON Schema and an example of its request, and call_method to send it."
+    instructions = "Use list_services to find a gRPC method, describe_method to get the JSON Schema and an example of its request, and call_method to send it, or call_command to get a wireman call command the user can run themselves."
 )]
 impl ServerHandler for WiremanServer {}
 
@@ -186,6 +190,29 @@ impl WiremanServer {
         }
 
         Ok(Value::Array(messages).to_string())
+    }
+
+    #[tool(
+        description = "Returns a wireman call shell command that sends the request, without sending it, so the user can run it themselves"
+    )]
+    async fn call_command(
+        &self,
+        Parameters(request): Parameters<CallMethodRequest>,
+    ) -> Result<String, String> {
+        let method = self
+            .descriptor
+            .get_method_by_full_name(&request.method)
+            .ok_or(format!("method {} not found", request.method))?;
+
+        let headers: HashMap<String, String> = request.headers.into_iter().collect();
+        let address = request.address.unwrap_or_default();
+
+        Ok(wireman_call(
+            &method,
+            &request.request.to_string(),
+            &headers,
+            &address,
+        ))
     }
 }
 
