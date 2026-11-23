@@ -60,6 +60,8 @@ nix profile install github:preiter93/wireman
 
 Or try it without installing: `nix run github:preiter93/wireman`. In a NixOS or home-manager configuration, add `github:preiter93/wireman` as a flake input and use its `packages.${system}.default`.
 
+The flake supports Linux and Apple Silicon Macs; nixpkgs no longer supports Intel Macs, so use cargo or brew there.
+
 #### Install with X-CMD
 
 ```
