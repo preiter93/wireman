@@ -43,7 +43,10 @@ pub async fn run(
         let (key, value) = header
             .split_once(':')
             .ok_or(format!("header {header} is not in the form \"key: value\""))?;
-        request.insert_metadata(&expand_header(key.trim()), &expand_header(value.trim()))?;
+        request.insert_metadata(
+            &expand_header(key.trim()),
+            &expand_auth_header(value.trim()),
+        )?;
     }
 
     let tls = TlsConfig::from_settings(config.tls.use_native, config.tls.custom_cert.clone())?;
