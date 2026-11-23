@@ -204,7 +204,9 @@ impl WiremanServer {
             .get_method_by_full_name(&request.method)
             .ok_or(format!("method {} not found", request.method))?;
 
-        let headers: HashMap<String, String> = request.headers.into_iter().collect();
+        let mut headers: HashMap<String, String> =
+            self.config.default_headers().into_iter().collect();
+        headers.extend(request.headers);
         let address = self.address(request.address);
 
         Ok(wireman_call(
