@@ -266,6 +266,12 @@ skin = "path_to_file/custom_skin.toml"
     
 For a collection of pre-made themes, check out the [Wireman themes repository](https://github.com/preiter93/wireman/tree/main/wireman-theme/assets).
 
+### Request History
+
+Requests are saved as JSON files in the history directory. One file per method and save spot is saved. With `autosave` on (default), every send request is saved automatically.
+
+The files are saved with `0600` permissions on Linux/MacOS so that only the user can read them.
+
 ## Neovim Integration
 
 Use Wireman in nvim with a floating terminal via [wireman.nvim](https://github.com/preiter93/wireman.nvim).

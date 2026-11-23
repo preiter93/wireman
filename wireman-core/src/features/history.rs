@@ -1,7 +1,12 @@
 use crate::{error::Error, Result};
 use prost_reflect::MethodDescriptor;
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{
+    collections::BTreeMap,
+    fs::OpenOptions,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 /// A request saved in the history.
 #[derive(Serialize, Deserialize, Eq, PartialEq, Debug)]
@@ -35,7 +40,8 @@ impl History {
     ///
     /// # Errors
     ///
-    /// Errors if the history directory does not exist or the file cannot be written.
+    /// Errors if the history directory does not exist, the file cannot be
+    /// written, or its permissions cannot be restricted.
     pub fn save(
         &self,
         method: &MethodDescriptor,
@@ -44,15 +50,29 @@ impl History {
     ) -> Result<()> {
         let path = self.path(method, save_spot)?;
 
+        // The history can contain tokens, so only the user may read it.
         if let Some(directory) = path.parent() {
             std::fs::create_dir_all(directory).map_err(|err| {
                 Error::HistoryError(format!("cannot create {directory:?}: {err}"))
             })?;
+            make_private(directory, 0o700)?;
         }
 
         let json = serde_json::to_string_pretty(data)
             .map_err(|err| Error::HistoryError(format!("cannot serialize {path:?}: {err}")))?;
-        std::fs::write(&path, json)
+
+        let mut options = OpenOptions::new();
+        options.write(true).create(true).truncate(true);
+        #[cfg(unix)]
+        std::os::unix::fs::OpenOptionsExt::mode(&mut options, 0o600);
+
+        let mut file = options
+            .open(&path)
+            .map_err(|err| Error::HistoryError(format!("cannot write {path:?}: {err}")))?;
+
+        make_private(&path, 0o600)?;
+
+        file.write_all(json.as_bytes())
             .map_err(|err| Error::HistoryError(format!("cannot write {path:?}: {err}")))
     }
 
@@ -98,6 +118,21 @@ impl History {
         let file_name = format!("{save_spot}.json");
         Ok(self.base_path.join(method.full_name()).join(file_name))
     }
+}
+
+/// Lets only the owner read and write a file or directory.
+#[cfg(unix)]
+fn make_private(path: &Path, mode: u32) -> Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode))
+        .map_err(|err| Error::HistoryError(format!("cannot restrict {path:?}: {err}")))
+}
+
+/// Other systems have no Unix permissions to restrict.
+#[cfg(not(unix))]
+fn make_private(_: &Path, _: u32) -> Result<()> {
+    Ok(())
 }
 
 #[cfg(test)]
