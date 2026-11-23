@@ -15,6 +15,8 @@
         <a href="#getting-started">start</a>
         <a href="#tour">tour</a>
         <a href="#features">features</a>
+        <a href="#cli">cli</a>
+        <a href="#mcp">mcp</a>
         <a href="#reference">reference</a>
     </div>
     <GithubButton />
@@ -92,32 +94,31 @@ files = [
 
     <MoreFeatures></MoreFeatures>
 
-    <h2>Fits Your Workflow</h2>
-
-    <div class="grid">
-        <ContentCard title="Keyboard or mouse" initiallyExpanded={true} hideToggle={true}>
-            <p>
-                Navigate with vim-style keybindings and hit <code>?</code> to see what's available. Prefer the mouse? That works too, and
-                <code>Ctrl+e</code> opens any field in your system editor.
-            </p>
-        </ContentCard>
-
-        <ContentCard title="Neovim" initiallyExpanded={true} hideToggle={true}>
-            <p>
-                Run wireman in a floating terminal inside nvim with
-                <a href="https://github.com/preiter93/wireman.nvim" target="_blank" rel="noopener noreferrer">wireman.nvim</a>
-                <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
-                    alt="Neovim logo"
-                    width="14"
-                    height="14"
-                    style="vertical-align: middle;"
-                />.
-            </p>
-        </ContentCard>
+    <h2 id="keyboard-or-mouse">Keyboard or Mouse</h2>
+    <div class="section">
+        <p>
+            Navigate with vim-style keybindings and hit <code>?</code> to see what's available. Prefer the mouse? That works too, and
+            <code>Ctrl+e</code> opens any field in your system editor.
+        </p>
     </div>
 
-    <ContentCard title="Command line" initiallyExpanded={true} hideToggle={true}>
+    <h2 id="neovim">Neovim</h2>
+    <div class="section">
+        <p>
+            Run wireman in a floating terminal inside nvim with
+            <a href="https://github.com/preiter93/wireman.nvim" target="_blank" rel="noopener noreferrer">wireman.nvim</a>
+            <img
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg"
+                alt="Neovim logo"
+                width="14"
+                height="14"
+                style="vertical-align: middle;"
+            />.
+        </p>
+    </div>
+
+    <h2 id="cli">Command Line</h2>
+    <div class="section">
         <p>
             Send one request without opening the TUI. It uses the protos, default address, auth header and TLS settings from your
             configuration and prints the response as JSON:
@@ -125,13 +126,13 @@ files = [
         <CodeContainer command={`wireman call proto.Greeter.SayHello -a 'http://localhost:50051' -d '{"name": "wireman"}'`} />
         <p style="padding-top:18px">
             Add headers with <code>-H "key: value"</code>. Without <code>-a &lt;address&gt;</code>, the default address from your
-            configuration is used. In the request tab,
-            <code>Alt+y</code> copies the current request as such a command to share. Commands like <code>$(getToken.sh)</code> stay as they
-            are, so whoever runs it uses their own token.
+            configuration is used. In the request tab, <code>Alt+y</code> copies the current request as such a command to share. Commands
+            like <code>$(getToken.sh)</code> stay as they are, so whoever runs it uses their own token.
         </p>
-    </ContentCard>
+    </div>
 
-    <ContentCard title="AI agents (MCP)" initiallyExpanded={true} hideToggle={true}>
+    <h2 id="mcp">AI Agents (MCP)</h2>
+    <div class="section">
         <p>
             <code>wireman mcp</code> lets AI agents like Claude Code use your gRPC services through the
             <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol</a>. The agent starts
@@ -144,7 +145,7 @@ files = [
             configuration; add <code>--config &lt;path&gt;</code> after <code>mcp</code> to use another one. Requests go to your real servers,
             so keep your agent's approval of tool calls turned on.
         </p>
-    </ContentCard>
+    </div>
 
     <h2 id="reference">Advanced & Reference</h2>
 
@@ -395,14 +396,8 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
         margin-bottom: 12px;
     }
 
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        align-items: stretch;
-    }
-
-    .grid :global(.content-card) {
-        height: calc(100% - 12px);
+    .section {
+        margin: 12px 10px 0 10px;
     }
 
     .footer {
@@ -474,12 +469,9 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
             padding: 28px 16px 0 16px;
         }
 
-        .steps {
+        .steps,
+        .section {
             margin: 12px 6px 0 6px;
-        }
-
-        .grid {
-            grid-template-columns: 1fr;
         }
 
         .footer {
