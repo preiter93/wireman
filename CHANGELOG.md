@@ -1,3 +1,14 @@
+0.4.0 - 28 Nov 2026
+===================
+- feat: `wireman call` sends one request without the TUI and prints the response as JSON
+- feat: `wireman mcp` lets AI agents like Claude Code list, describe and call your gRPC methods, also via server reflection
+- feat: `Alt+y` copies the current request as a shareable `wireman call` command
+- feat: Install with Nix: `nix profile install github:preiter93/wireman`
+- feat: Custom proto options like `google.api.http` are kept, also over server reflection
+- fix: Request templates fill map fields
+- fix: The request history is only readable by the user and doesn't save the authentication header unless `unsafe_save_auth_header` is set
+- chore: Update dependencies
+
 0.3.9 - 22 Nov 2026
 ===================
 - fix: A missing custom TLS certificate no longer crashes wireman, the error is shown in the response

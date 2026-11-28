@@ -10,8 +10,8 @@ keywords = ["wireman", "mcp", "grpc"]
 license = "MIT"
 
 [dependencies]
-wireman-core = { version = "^0.2.0" }
-wireman-config = { version = "^0.6.0" }
+wireman-core = { version = "^0.3.0" }
+wireman-config = { version = "^0.7.0" }
 
 rmcp = { version = "3.11", features = ["server", "transport-io", "macros"] }
 schemars = "1"

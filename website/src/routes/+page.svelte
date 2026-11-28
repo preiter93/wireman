@@ -227,7 +227,7 @@ skin = '$WIREMAN_CONFIG_DIR/skins/dracula.toml'"
 </div>
 
 <footer class="footer">
-    <span>wireman v0.3.9</span>
+    <span>wireman v0.4.0</span>
     <span class="footer-links">
         <a href="https://github.com/preiter93/wireman" target="_blank" rel="noopener noreferrer">github</a>
         <a href="https://crates.io/crates/wireman" target="_blank" rel="noopener noreferrer">crates.io</a>
