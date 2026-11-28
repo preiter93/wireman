@@ -22,7 +22,7 @@ use wireman_core::{
         ReflectionRequest,
     },
     features::{expand_auth_header, wireman_call},
-    MethodDescriptor, ProtoDescriptor,
+    MethodDescriptor, ProtoDescriptor, ServiceDescriptor,
 };
 
 /// The address used when neither the agent nor the wireman config gives one.
@@ -67,6 +67,12 @@ struct Session {
 }
 
 #[derive(Deserialize, JsonSchema)]
+struct ListServicesRequest {
+    /// The full service name, for example proto.Greeter, to list its methods in detail
+    service: Option<String>,
+}
+
+#[derive(Deserialize, JsonSchema)]
 struct DescribeMethodRequest {
     /// The full method name, for example proto.Greeter.SayHello
     method: String,
@@ -96,17 +102,28 @@ struct ReflectRequest {
 
 #[tool_handler(
     name = "wireman-mcp",
-    instructions = "Use list_services to find a gRPC method, describe_method to get the JSON Schema and an example of its request, and call_method to send it, or call_command to get a wireman call command the user can run themselves. Use reflect to load the services of a server with server reflection instead of the wireman config."
+    instructions = "Use list_services to find a gRPC service, list_services with that service to find a method, describe_method to get the JSON Schema and an example of its request, and call_method to send it, or call_command to get a wireman call command the user can run themselves. Use reflect to load the services of a server with server reflection instead of the wireman config."
 )]
 impl ServerHandler for WiremanServer {}
 
 #[tool_router]
 impl WiremanServer {
     #[tool(
-        description = "Lists the gRPC services and methods that are loaded, from the wireman config or from the server reflected with reflect, with their comments and options like google.api.http"
+        description = "Lists the loaded gRPC services, from the wireman config or from the server reflected with reflect. Without a service, returns each service with the first line of its comment and its method names. With a service, returns its methods with their kind, comments and options like google.api.http."
     )]
-    async fn list_services(&self) -> String {
-        services_json(&self.session().descriptor).to_string()
+    async fn list_services(
+        &self,
+        Parameters(request): Parameters<ListServicesRequest>,
+    ) -> Result<String, String> {
+        let descriptor = self.session().descriptor;
+        let Some(name) = request.service else {
+            return Ok(services_json(&descriptor).to_string());
+        };
+
+        let service = descriptor
+            .get_service_by_name(&name)
+            .ok_or(format!("service {name} not found"))?;
+        Ok(service_json(&descriptor, &service).to_string())
     }
 
     #[tool(
@@ -279,35 +296,52 @@ impl WiremanServer {
     }
 }
 
-/// Returns the services and methods of the protos as JSON.
+/// Returns each service with the first line of its comment and its method
+/// names, short enough for large configs.
 fn services_json(descriptor: &ProtoDescriptor) -> Value {
     let services: Vec<Value> = descriptor
         .get_services()
         .iter()
         .map(|service| {
-            let methods: Vec<Value> = descriptor
+            let methods: Vec<String> = descriptor
                 .get_methods(service)
                 .iter()
-                .map(|method| {
-                    json!({
-                        "method": method.full_name(),
-                        "kind": method_kind(method),
-                        "description": comment(&method.parent_file(), method.path()),
-                        "options": options_json(&method.options()),
-                    })
-                })
+                .map(|method| method.name().to_string())
                 .collect();
 
             json!({
                 "service": service.full_name(),
-                "description": comment(&service.parent_file(), service.path()),
-                "options": options_json(&service.options()),
+                "description": comment(&service.parent_file(), service.path())
+                    .and_then(|comment| comment.lines().next().map(str::to_string)),
                 "methods": methods,
             })
         })
         .collect();
 
     Value::Array(services)
+}
+
+/// Returns a service with its methods' kind, full comments and options.
+fn service_json(descriptor: &ProtoDescriptor, service: &ServiceDescriptor) -> Value {
+    let methods: Vec<Value> = descriptor
+        .get_methods(service)
+        .iter()
+        .map(|method| {
+            json!({
+                "method": method.full_name(),
+                "kind": method_kind(method),
+                "description": comment(&method.parent_file(), method.path()),
+                "options": options_json(&method.options()),
+            })
+        })
+        .collect();
+
+    json!({
+        "service": service.full_name(),
+        "description": comment(&service.parent_file(), service.path()),
+        "options": options_json(&service.options()),
+        "methods": methods,
+    })
 }
 
 fn method_kind(method: &MethodDescriptor) -> &'static str {
