@@ -1,5 +1,4 @@
 #![allow(clippy::module_name_repetitions, clippy::enum_variant_names)]
-use prost_reflect::DescriptorError;
 use thiserror::Error as ThisError;
 
 /// The result type for this library
@@ -23,10 +22,6 @@ pub enum Error {
     /// Protox failed to compile the proto files
     #[error("error compiling proto files")]
     ProtoxCompileError(#[source] protox::Error),
-
-    /// Protox failed to compile the proto files
-    #[error("error generating the descriptor pool")]
-    DescriptorError(#[source] DescriptorError),
 
     /// Failed to create a grpc channel
     #[error("error creating grpc channel")]

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package options;
+
+import "google/protobuf/descriptor.proto";
+
+message HttpRule {
+  string get = 1;
+}
+
+extend google.protobuf.MethodOptions {
+  HttpRule http = 50001;
+}
+
+service OrderService {
+  rpc GetOrder (GetOrderRequest) returns (GetOrderRequest) {
+    option (http) = { get: "/v1/orders/{id}" };
+  }
+}
+
+message GetOrderRequest {
+  string id = 1;
+}

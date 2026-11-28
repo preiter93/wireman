@@ -25,16 +25,16 @@ impl ProtoDescriptor {
     ///
     /// # Errors
     /// - Failed to compile proto `ProtoxCompileError`
-    /// - Failed to generate descriptor `DescriptorError`
     pub fn new(
         includes: impl IntoIterator<Item = impl AsRef<Path>>,
         files: impl IntoIterator<Item = impl AsRef<Path>>,
     ) -> Result<Self> {
-        // Compile proto files to file descriptors
-        let file_desc_set = protox::compile(files, includes).map_err(Error::ProtoxCompileError)?;
-        // Generate descriptor pool from file descriptor
-        let pool = DescriptorPool::from_file_descriptor_set(file_desc_set)
-            .map_err(Error::DescriptorError)?;
+        // protox::compile drops custom options like google.api.http.
+        let pool = protox::Compiler::new(includes)
+            .map_err(Error::ProtoxCompileError)?
+            .open_files(files)
+            .map_err(Error::ProtoxCompileError)?
+            .descriptor_pool();
         Ok(Self { pool })
     }
 
@@ -226,6 +226,34 @@ mod tests {
 
             let full_name = method.as_ref().map(MethodDescriptor::full_name);
             assert_eq!(full_name, test_case.expected_method, "{}", test_case.name);
+        }
+    }
+
+    #[test]
+    fn test_custom_options_are_kept() {
+        struct TestCase {
+            name: &'static str,
+            given_service: &'static str,
+            given_method: &'static str,
+            expected_json: &'static str,
+        }
+
+        let test_cases = vec![TestCase {
+            name: "success: method option is kept",
+            given_service: "options.OrderService",
+            given_method: "GetOrder",
+            expected_json: r#"{"[options.http]":{"get":"/v1/orders/{id}"}}"#,
+        }];
+
+        let descriptor = ProtoDescriptor::new(vec!["."], vec!["test_files/options.proto"]).unwrap();
+
+        for test_case in test_cases {
+            let method = descriptor
+                .get_method_by_name(test_case.given_service, test_case.given_method)
+                .unwrap();
+
+            let json = serde_json::to_string(&method.options()).unwrap();
+            assert_eq!(json, test_case.expected_json, "{}", test_case.name);
         }
     }
 }
