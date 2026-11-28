@@ -6,7 +6,7 @@ use rmcp::{
     ServerHandler, ServiceExt,
 };
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, HashMap},
@@ -16,7 +16,7 @@ use std::{
 use wireman_config::Config;
 use wireman_core::{
     client::{send, tls::TlsConfig},
-    descriptor::schema::{comment, json_schema},
+    descriptor::schema::{comment, json_schema, options_json},
     features::{expand_auth_header, wireman_call},
     MethodDescriptor, ProtoDescriptor,
 };
@@ -95,7 +95,7 @@ impl WiremanServer {
                             "method": method.full_name(),
                             "kind": method_kind(method),
                             "description": comment(&method.parent_file(), method.path()),
-                            "options": options_json(method.options()),
+                            "options": options_json(&method.options()),
                         })
                     })
                     .collect();
@@ -103,7 +103,7 @@ impl WiremanServer {
                 json!({
                     "service": service.full_name(),
                     "description": comment(&service.parent_file(), service.path()),
-                    "options": options_json(service.options()),
+                    "options": options_json(&service.options()),
                     "methods": methods,
                 })
             })
@@ -132,7 +132,7 @@ impl WiremanServer {
             "method": method.full_name(),
             "kind": method_kind(&method),
             "description": comment(&method.parent_file(), method.path()),
-            "options": options_json(method.options()),
+            "options": options_json(&method.options()),
             "request_schema": json_schema(&method.input()),
             "response_schema": json_schema(&method.output()),
             "example_request": example,
@@ -231,13 +231,6 @@ impl WiremanServer {
             .or(self.config.server.default_address.clone())
             .unwrap_or(DEFAULT_ADDRESS.to_string())
     }
-}
-
-fn options_json(options: impl Serialize) -> Option<Value> {
-    let json = serde_json::to_value(options).ok()?;
-    json.as_object()
-        .is_some_and(|options| !options.is_empty())
-        .then_some(json)
 }
 
 fn method_kind(method: &MethodDescriptor) -> &'static str {

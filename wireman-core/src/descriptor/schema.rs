@@ -1,4 +1,4 @@
-use prost_reflect::{FieldDescriptor, FileDescriptor, Kind, MessageDescriptor};
+use prost_reflect::{DynamicMessage, FieldDescriptor, FileDescriptor, Kind, MessageDescriptor};
 use serde_json::{json, Map, Value};
 
 /// Returns the JSON Schema of a message in the JSON format that requests are written in.
@@ -61,6 +61,9 @@ fn field_schema(field: &FieldDescriptor, definitions: &mut Map<String, Value>) -
             &mut schema,
             Some(format!("Only one field of `{}` may be set.", oneof.name())),
         );
+    }
+    if let Some(options) = options_json(&field.options()) {
+        schema["x-options"] = options;
     }
 
     schema
@@ -139,6 +142,16 @@ pub fn comment(file: &FileDescriptor, path: &[i32]) -> Option<String> {
     let comment = location.leading_comments.as_deref()?.trim();
 
     (!comment.is_empty()).then(|| comment.to_string())
+}
+
+/// Returns the options of a service, method or field, like `google.api.http`,
+/// as JSON, or `None` when none are set.
+#[must_use]
+pub fn options_json(options: &DynamicMessage) -> Option<Value> {
+    let json = serde_json::to_value(options).ok()?;
+    json.as_object()
+        .is_some_and(|options| !options.is_empty())
+        .then_some(json)
 }
 
 fn add_description(schema: &mut Value, description: Option<String>) {
@@ -308,6 +321,34 @@ mod tests {
                                     "description": "The display name.",
                                 },
                             },
+                            "additionalProperties": false,
+                        },
+                    },
+                }),
+            },
+            TestCase {
+                name: "success: field options",
+                given_message: "schema.Annotated",
+                expected_schema: json!({
+                    "$ref": "#/$defs/schema.Annotated",
+                    "$defs": {
+                        "schema.Annotated": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "x-options": { "deprecated": true, "[schema.example]": "order-1" },
+                                },
+                                "item": {
+                                    "$ref": "#/$defs/schema.Item",
+                                    "x-options": { "[schema.example]": "nested" },
+                                },
+                            },
+                            "additionalProperties": false,
+                        },
+                        "schema.Item": {
+                            "type": "object",
+                            "properties": { "number": { "type": "integer" } },
                             "additionalProperties": false,
                         },
                     },

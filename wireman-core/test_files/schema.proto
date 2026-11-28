@@ -2,7 +2,12 @@ syntax = "proto3";
 
 package schema;
 
+import "google/protobuf/descriptor.proto";
 import "google/protobuf/timestamp.proto";
+
+extend google.protobuf.FieldOptions {
+  string example = 50001;
+}
 
 message Scalars {
   string name = 1;
@@ -50,4 +55,9 @@ message Choice {
 message User {
   // The display name.
   string display_name = 1;
+}
+
+message Annotated {
+  string id = 1 [(example) = "order-1", deprecated = true];
+  Item item = 2 [(example) = "nested"];
 }
