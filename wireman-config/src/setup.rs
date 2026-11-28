@@ -163,7 +163,13 @@ fn init_history(config: &mut Config, config_dir: &Path, dry_run: bool) -> Result
     }
 
     if !Path::new(&history_dir).exists() {
-        if let Err(err) = std::fs::create_dir(&history_dir) {
+        // The history can contain tokens, so only the user may read it.
+        #[cfg_attr(not(unix), allow(unused_mut))]
+        let mut builder = std::fs::DirBuilder::new();
+        #[cfg(unix)]
+        std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
+
+        if let Err(err) = builder.create(&history_dir) {
             return Err(Error::SetupError(SetupError::CreateDirectory(Box::new(
                 err,
             ))));
