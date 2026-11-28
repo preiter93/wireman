@@ -11,12 +11,16 @@ use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, HashMap},
     error::Error,
+    sync::{Arc, RwLock},
     time::Duration,
 };
 use wireman_config::Config;
 use wireman_core::{
     client::{send, tls::TlsConfig},
-    descriptor::schema::{comment, json_schema, options_json},
+    descriptor::{
+        schema::{comment, json_schema, options_json},
+        ReflectionRequest,
+    },
     features::{expand_auth_header, wireman_call},
     MethodDescriptor, ProtoDescriptor,
 };
@@ -27,7 +31,7 @@ const DEFAULT_ADDRESS: &str = "http://localhost:50051";
 /// The most responses `call_method` returns.
 const MAX_RESPONSES: usize = 100;
 
-/// How long `call_method` waits for responses, since some streams never end.
+/// How long `call_method` and `reflect` wait for the server, since some streams never end.
 const MAX_WAIT: Duration = Duration::from_secs(30);
 
 /// Runs the MCP server on stdin and stdout until the client disconnects.
@@ -38,7 +42,11 @@ const MAX_WAIT: Duration = Duration::from_secs(30);
 pub async fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let descriptor = ProtoDescriptor::new(config.includes(), config.files())?;
 
-    let server = WiremanServer { config, descriptor }.serve(stdio()).await?;
+    let session = Arc::new(RwLock::new(Session {
+        descriptor,
+        address: None,
+    }));
+    let server = WiremanServer { config, session }.serve(stdio()).await?;
     server.waiting().await?;
 
     Ok(())
@@ -47,7 +55,15 @@ pub async fn run(config: Config) -> Result<(), Box<dyn Error>> {
 #[derive(Clone)]
 struct WiremanServer {
     config: Config,
+    /// The protos and default address, replaced by `reflect`.
+    session: Arc<RwLock<Session>>,
+}
+
+#[derive(Clone)]
+struct Session {
     descriptor: ProtoDescriptor,
+    /// The server the protos were reflected from, used as the default address.
+    address: Option<String>,
 }
 
 #[derive(Deserialize, JsonSchema)]
@@ -65,51 +81,67 @@ struct CallMethodRequest {
     /// Additional headers, for example {"x-trace-id": "abc"}. They are sent as given.
     #[serde(default)]
     headers: BTreeMap<String, String>,
+    /// The server address, for example http://localhost:50051. Defaults to the reflected server, the address in the wireman config, or http://localhost:50051.
+    address: Option<String>,
+}
+
+#[derive(Deserialize, JsonSchema)]
+struct ReflectRequest {
     /// The server address, for example http://localhost:50051. Defaults to the address in the wireman config, or http://localhost:50051.
     address: Option<String>,
+    /// Additional headers, for example {"x-trace-id": "abc"}. They are sent as given.
+    #[serde(default)]
+    headers: BTreeMap<String, String>,
 }
 
 #[tool_handler(
     name = "wireman-mcp",
-    instructions = "Use list_services to find a gRPC method, describe_method to get the JSON Schema and an example of its request, and call_method to send it, or call_command to get a wireman call command the user can run themselves."
+    instructions = "Use list_services to find a gRPC method, describe_method to get the JSON Schema and an example of its request, and call_method to send it, or call_command to get a wireman call command the user can run themselves. Use reflect to load the services of a server with server reflection instead of the wireman config."
 )]
 impl ServerHandler for WiremanServer {}
 
 #[tool_router]
 impl WiremanServer {
     #[tool(
-        description = "Lists the gRPC services and methods from the wireman config, with their comments and options like google.api.http"
+        description = "Lists the gRPC services and methods that are loaded, from the wireman config or from the server reflected with reflect, with their comments and options like google.api.http"
     )]
     async fn list_services(&self) -> String {
-        let services: Vec<Value> = self
-            .descriptor
-            .get_services()
-            .iter()
-            .map(|service| {
-                let methods: Vec<Value> = self
-                    .descriptor
-                    .get_methods(service)
-                    .iter()
-                    .map(|method| {
-                        json!({
-                            "method": method.full_name(),
-                            "kind": method_kind(method),
-                            "description": comment(&method.parent_file(), method.path()),
-                            "options": options_json(&method.options()),
-                        })
-                    })
-                    .collect();
+        services_json(&self.session().descriptor).to_string()
+    }
 
-                json!({
-                    "service": service.full_name(),
-                    "description": comment(&service.parent_file(), service.path()),
-                    "options": options_json(&service.options()),
-                    "methods": methods,
-                })
-            })
-            .collect();
+    #[tool(
+        description = "Loads the gRPC services of a server with server reflection. The other tools then use these services instead of the wireman config, and the server as their default address, until the session ends. Returns the services like list_services."
+    )]
+    async fn reflect(
+        &self,
+        Parameters(request): Parameters<ReflectRequest>,
+    ) -> Result<String, String> {
+        let address = request
+            .address
+            .or(self.config.server.default_address.clone())
+            .unwrap_or(DEFAULT_ADDRESS.to_string());
 
-        Value::Array(services).to_string()
+        let mut reflection_request = ReflectionRequest::new(&address);
+        for (key, value) in self.headers(request.headers) {
+            reflection_request
+                .insert_metadata(&key, &value)
+                .map_err(|err| error_message(&err))?;
+        }
+
+        let descriptor = tokio::time::timeout(
+            MAX_WAIT,
+            ProtoDescriptor::from_reflection(reflection_request),
+        )
+        .await
+        .map_err(|_| format!("no response within {} seconds", MAX_WAIT.as_secs()))?
+        .map_err(|err| error_message(&err))?;
+        let services = services_json(&descriptor);
+
+        *self.session.write().unwrap() = Session {
+            descriptor,
+            address: Some(address),
+        };
+        Ok(services.to_string())
     }
 
     #[tool(
@@ -119,12 +151,12 @@ impl WiremanServer {
         &self,
         Parameters(request): Parameters<DescribeMethodRequest>,
     ) -> Result<String, String> {
-        let method = self
-            .descriptor
+        let descriptor = self.session().descriptor;
+        let method = descriptor
             .get_method_by_full_name(&request.method)
             .ok_or(format!("method {} not found", request.method))?;
 
-        let mut example = self.descriptor.get_request(&method);
+        let mut example = descriptor.get_request(&method);
         example.message_mut().apply_template();
         let example = serde_json::to_value(example.message()).map_err(|err| error_message(&err))?;
 
@@ -147,16 +179,9 @@ impl WiremanServer {
         &self,
         Parameters(request): Parameters<CallMethodRequest>,
     ) -> Result<String, String> {
-        let address = self.address(request.address);
-
-        // Only the headers from the config may run commands like `$(getToken.sh)`.
-        let mut headers: Vec<(String, String)> = self
-            .config
-            .default_headers()
-            .into_iter()
-            .map(|(key, value)| (key, expand_auth_header(&value)))
-            .collect();
-        headers.extend(request.headers);
+        let session = self.session();
+        let address = self.address(&session, request.address);
+        let headers = self.headers(request.headers);
 
         let tls = &self.config.tls;
         let tls = TlsConfig::from_settings(tls.use_native, tls.custom_cert.clone())
@@ -165,7 +190,7 @@ impl WiremanServer {
         let mut messages = Vec::new();
         let collect = async {
             let mut responses = send(
-                &self.descriptor,
+                &session.descriptor,
                 &request.method,
                 &request.request.to_string(),
                 &address,
@@ -205,7 +230,8 @@ impl WiremanServer {
         &self,
         Parameters(request): Parameters<CallMethodRequest>,
     ) -> Result<String, String> {
-        let method = self
+        let session = self.session();
+        let method = session
             .descriptor
             .get_method_by_full_name(&request.method)
             .ok_or(format!("method {} not found", request.method))?;
@@ -213,7 +239,7 @@ impl WiremanServer {
         let mut headers: HashMap<String, String> =
             self.config.default_headers().into_iter().collect();
         headers.extend(request.headers);
-        let address = self.address(request.address);
+        let address = self.address(&session, request.address);
 
         Ok(wireman_call(
             &method,
@@ -225,12 +251,63 @@ impl WiremanServer {
 }
 
 impl WiremanServer {
-    /// Returns the given address, or else the one from the config, or else [`DEFAULT_ADDRESS`].
-    fn address(&self, address: Option<String>) -> String {
+    /// Returns the current protos and default address.
+    fn session(&self) -> Session {
+        self.session.read().unwrap().clone()
+    }
+
+    /// Returns the given address, or else the reflected server, the one from
+    /// the config, or [`DEFAULT_ADDRESS`].
+    fn address(&self, session: &Session, address: Option<String>) -> String {
         address
+            .or(session.address.clone())
             .or(self.config.server.default_address.clone())
             .unwrap_or(DEFAULT_ADDRESS.to_string())
     }
+
+    /// Returns the headers from the config followed by the given ones. Only the
+    /// headers from the config may run commands like `$(getToken.sh)`.
+    fn headers(&self, headers: BTreeMap<String, String>) -> Vec<(String, String)> {
+        let mut all_headers: Vec<(String, String)> = self
+            .config
+            .default_headers()
+            .into_iter()
+            .map(|(key, value)| (key, expand_auth_header(&value)))
+            .collect();
+        all_headers.extend(headers);
+        all_headers
+    }
+}
+
+/// Returns the services and methods of the protos as JSON.
+fn services_json(descriptor: &ProtoDescriptor) -> Value {
+    let services: Vec<Value> = descriptor
+        .get_services()
+        .iter()
+        .map(|service| {
+            let methods: Vec<Value> = descriptor
+                .get_methods(service)
+                .iter()
+                .map(|method| {
+                    json!({
+                        "method": method.full_name(),
+                        "kind": method_kind(method),
+                        "description": comment(&method.parent_file(), method.path()),
+                        "options": options_json(&method.options()),
+                    })
+                })
+                .collect();
+
+            json!({
+                "service": service.full_name(),
+                "description": comment(&service.parent_file(), service.path()),
+                "options": options_json(&service.options()),
+                "methods": methods,
+            })
+        })
+        .collect();
+
+    Value::Array(services)
 }
 
 fn method_kind(method: &MethodDescriptor) -> &'static str {
