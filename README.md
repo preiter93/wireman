@@ -288,8 +288,8 @@ claude mcp add wireman -- wireman mcp
 Add `--config <path>` after `mcp` to use a different configuration. Other agents take the same command (`wireman`) and arguments (`["mcp"]`) in their MCP settings.
 
 The agent gets four tools:
-- `list_services`: the services and methods from your configuration
-- `describe_method`: the JSON Schema of a method's request and an example request
+- `list_services`: the services and methods from your configuration, with their comments and options
+- `describe_method`: a method's comment and options (like `google.api.http` or OpenAPI annotations), the JSON Schema of its request and response, and an example request
 - `call_method`: sends a request and returns the responses. It uses the address (or `http://localhost:50051`), authentication header and TLS settings from your configuration; the agent can pass another address.
 - `call_command`: returns the `wireman call` command for a request, with the same address and headers, without sending it, so you can run it yourself
 
