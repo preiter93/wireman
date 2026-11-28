@@ -11,7 +11,12 @@ pub use reflection_request::ReflectionRequest;
 pub use request::RequestMessage;
 pub use response::ResponseMessage;
 
-use crate::{client::reflection::build_file_descriptor_set, error::Error, Result};
+use crate::{
+    client::reflection::{build_file_descriptor_set, RawFileDescriptorSet},
+    error::Error,
+    Result,
+};
+use prost::Message;
 use prost_reflect::{DescriptorPool, MessageDescriptor, MethodDescriptor, ServiceDescriptor};
 use std::path::Path;
 
@@ -44,10 +49,8 @@ impl ProtoDescriptor {
     /// # Errors
     /// Errors if server reflection or dependency resolving fails.
     pub async fn from_reflection(request: ReflectionRequest) -> Result<Self> {
-        let file_descriptor_set = build_file_descriptor_set(request).await?;
-
-        let pool = DescriptorPool::from_file_descriptor_set(file_descriptor_set)
-            .map_err(|e| Error::Internal(format!("err {e}")))?;
+        let files = build_file_descriptor_set(request).await?;
+        let pool = pool_from_raw_files(&files)?;
 
         Ok(Self { pool })
     }
@@ -137,6 +140,11 @@ impl ProtoDescriptor {
     pub fn get_response(&self, method: &MethodDescriptor) -> ResponseMessage {
         ResponseMessage::new(self.get_response_descriptor(method), method.clone())
     }
+}
+
+fn pool_from_raw_files(files: &RawFileDescriptorSet) -> Result<DescriptorPool> {
+    DescriptorPool::decode(files.encode_to_vec().as_slice())
+        .map_err(|err| Error::Internal(format!("err {err}")))
 }
 
 #[cfg(test)]
@@ -252,6 +260,42 @@ mod tests {
                 .get_method_by_name(test_case.given_service, test_case.given_method)
                 .unwrap();
 
+            let json = serde_json::to_string(&method.options()).unwrap();
+            assert_eq!(json, test_case.expected_json, "{}", test_case.name);
+        }
+    }
+
+    #[test]
+    fn test_pool_from_raw_files() {
+        struct TestCase {
+            name: &'static str,
+            given_file: &'static str,
+            expected_json: &'static str,
+        }
+
+        let test_cases = vec![TestCase {
+            name: "success: custom option is kept",
+            given_file: "test_files/options.proto",
+            expected_json: r#"{"[options.http]":{"get":"/v1/orders/{id}"}}"#,
+        }];
+
+        for test_case in test_cases {
+            let encoded = protox::Compiler::new(["."])
+                .unwrap()
+                .include_imports(true)
+                .open_file(test_case.given_file)
+                .unwrap()
+                .encode_file_descriptor_set();
+            let files = RawFileDescriptorSet::decode(encoded.as_slice()).unwrap();
+
+            let pool = pool_from_raw_files(&files).unwrap();
+
+            let method = pool
+                .get_service_by_name("options.OrderService")
+                .unwrap()
+                .methods()
+                .next()
+                .unwrap();
             let json = serde_json::to_string(&method.options()).unwrap();
             assert_eq!(json, test_case.expected_json, "{}", test_case.name);
         }

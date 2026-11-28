@@ -2,7 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 
 use http::Uri;
 use prost::Message;
-use prost_types::{FileDescriptorProto, FileDescriptorSet};
+use prost_types::FileDescriptorProto;
 use tokio_stream::{once, StreamExt};
 use tonic::{transport::Channel, Request};
 use tonic_reflection::pb::v1::{
@@ -10,6 +10,7 @@ use tonic_reflection::pb::v1::{
     server_reflection_response::MessageResponse, ServerReflectionRequest,
 };
 
+use super::RawFileDescriptorSet;
 use crate::{descriptor::ReflectionRequest, error::Error};
 
 /// # Errors
@@ -17,24 +18,24 @@ use crate::{descriptor::ReflectionRequest, error::Error};
 /// Fails if server reflection fails.
 pub(crate) async fn build_file_descriptor_set(
     request: ReflectionRequest,
-) -> Result<FileDescriptorSet, Error> {
+) -> Result<RawFileDescriptorSet, Error> {
     let services = make_list_service_reflection_request(&request).await?;
 
-    let mut file_descriptors: HashMap<String, FileDescriptorProto> = HashMap::new();
+    let mut files: HashMap<String, Vec<u8>> = HashMap::new();
     for service in &services {
         if service.contains("ServerReflection") {
             continue;
         }
 
-        let file_descriptor = make_file_by_symbol_reflection_request(&request, service).await?;
-        handle_reflection_dependencies(&request, &file_descriptor, &mut file_descriptors).await?;
-        file_descriptors.insert(file_descriptor.name().to_string(), file_descriptor);
+        let (file_descriptor, raw_file) =
+            make_file_by_symbol_reflection_request(&request, service).await?;
+        handle_reflection_dependencies(&request, &file_descriptor, &mut files).await?;
+        files.insert(file_descriptor.name().to_string(), raw_file);
     }
-    let file_descriptor_set = FileDescriptorSet {
-        file: file_descriptors.into_values().collect(),
-    };
 
-    Ok(file_descriptor_set)
+    Ok(RawFileDescriptorSet {
+        file: files.into_values().collect(),
+    })
 }
 
 /// # Errors
@@ -43,7 +44,7 @@ pub(crate) async fn build_file_descriptor_set(
 async fn make_file_by_symbol_reflection_request(
     request: &ReflectionRequest,
     containing_symbol: &str,
-) -> Result<FileDescriptorProto, Error> {
+) -> Result<(FileDescriptorProto, Vec<u8>), Error> {
     let message = MessageRequest::FileContainingSymbol(String::from(containing_symbol));
     make_file_reflection_request(request, message).await
 }
@@ -54,7 +55,7 @@ async fn make_file_by_symbol_reflection_request(
 async fn make_file_by_filename_reflection_request(
     request: &ReflectionRequest,
     filename: &str,
-) -> Result<FileDescriptorProto, Error> {
+) -> Result<(FileDescriptorProto, Vec<u8>), Error> {
     let message = MessageRequest::FileByFilename(String::from(filename));
     make_file_reflection_request(request, message).await
 }
@@ -65,7 +66,7 @@ async fn make_file_by_filename_reflection_request(
 async fn make_file_reflection_request(
     request: &ReflectionRequest,
     message: MessageRequest,
-) -> Result<FileDescriptorProto, Error> {
+) -> Result<(FileDescriptorProto, Vec<u8>), Error> {
     let reflection_request = ServerReflectionRequest {
         host: request.host.clone(),
         message_request: Some(message),
@@ -119,7 +120,7 @@ async fn make_file_reflection_request(
     let file_descriptor = FileDescriptorProto::decode(buf)
         .map_err(|_| Error::Internal("Failed to decode".to_string()))?;
 
-    Ok(file_descriptor)
+    Ok((file_descriptor, buf.to_vec()))
 }
 
 /// # Errors
@@ -183,22 +184,23 @@ async fn make_list_service_reflection_request(
 async fn handle_reflection_dependencies(
     request: &ReflectionRequest,
     file_descriptor: &FileDescriptorProto,
-    file_descriptors: &mut HashMap<String, FileDescriptorProto>,
+    files: &mut HashMap<String, Vec<u8>>,
 ) -> Result<(), Error> {
     for dependency in file_descriptor.dependency.clone() {
-        if file_descriptors.contains_key(&dependency) {
+        if files.contains_key(&dependency) {
             continue;
         }
 
-        let dep_descriptor = make_file_by_filename_reflection_request(request, &dependency).await?;
+        let (dep_descriptor, raw_file) =
+            make_file_by_filename_reflection_request(request, &dependency).await?;
 
-        file_descriptors.insert(dep_descriptor.name().to_string(), dep_descriptor.clone());
+        files.insert(dep_descriptor.name().to_string(), raw_file);
 
         // Recursively handle the dependencies
         Box::pin(handle_reflection_dependencies(
             request,
             &dep_descriptor,
-            file_descriptors,
+            files,
         ))
         .await?;
     }
