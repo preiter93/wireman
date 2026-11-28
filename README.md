@@ -207,7 +207,7 @@ You can download the latest wireman binary from the [releases page](https://gith
 
 ### Server Reflection
 
-Wireman also supports server reflection of gRPC servers. To activate reflection mode, press `Ctrl+r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. To switch back from reflection mode to file mode press `Ctrl+r` again.
+Wireman also supports server reflection of gRPC servers. To activate reflection mode, press `Ctrl+r` on the selection tab, enter the host along with optional authentication headers, and then press `Enter`. `Ctrl+r` also closes the dialog, and switches back from reflection mode to file mode.
 
 ![](https://raw.githubusercontent.com/preiter93/wireman/main/example/tape/reflection.gif?raw=true)
 

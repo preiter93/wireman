@@ -1,7 +1,4 @@
-use crate::{
-    events::ServicesSelectionEventsHandler,
-    model::{headers::HeadersTab, selection::SelectionMode},
-};
+use crate::{events::ServicesSelectionEventsHandler, model::headers::HeadersTab};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use wireman_event_handler::{EventHandler, KeyCode, KeyEvent};
@@ -30,7 +27,6 @@ impl std::fmt::Display for ReflectionDialogEvents {
 }
 
 pub enum ReflectionEvents {
-    CloseDialog,
     ReflectServer,
 }
 
@@ -38,7 +34,6 @@ impl std::fmt::Display for ReflectionEvents {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display_str = match self {
             ReflectionEvents::ReflectServer => "Reflect server",
-            ReflectionEvents::CloseDialog => "Close dialog",
         };
         write!(f, "{display_str}")
     }
@@ -61,13 +56,6 @@ impl EventHandler for ReflectionDialogEventHandler {
                 ReflectionEvents::ReflectServer => {
                     ctx.reflection.borrow_mut().dispatch_reflection();
                 }
-                ReflectionEvents::CloseDialog => {
-                    ctx.reflection
-                        .borrow()
-                        .selection
-                        .borrow_mut()
-                        .selection_mode = SelectionMode::File;
-                }
             },
         }
     }
@@ -79,10 +67,6 @@ impl EventHandler for ReflectionDialogEventHandler {
         let mut map = Vec::new();
         if !disabled_root_events {
             map.extend([
-                (
-                    KeyEvent::new(KeyCode::Esc),
-                    ReflectionDialogEvents::Reflection(ReflectionEvents::CloseDialog),
-                ),
                 (
                     KeyEvent::new(KeyCode::Enter),
                     ReflectionDialogEvents::Reflection(ReflectionEvents::ReflectServer),
