@@ -136,6 +136,7 @@ You can download the latest wireman binary from the [releases page](https://gith
     directory = "$WIREMAN_CONFIG_DIR/history"  # Optional. Defaults to $WIREMAN_CONFIG_DIR/history.
     autosave = true                            # Optional. Autosaves history on request. Defaults to true.
     disabled = false                           # Optional. History is enabled by default.
+    unsafe_save_auth_header = false            # Optional. Saves pasted tokens to the history. Defaults to false.
 
     [logging]
     directory = "$WIREMAN_CONFIG_DIR"          # Optional. Defaults to $WIREMAN_CONFIG_DIR.
@@ -271,6 +272,8 @@ For a collection of pre-made themes, check out the [Wireman themes repository](h
 Requests are saved as JSON files in the history directory. One file per method and save spot is saved. With `autosave` on (default), every send request is saved automatically.
 
 The files are saved with `0600` permissions on Linux/MacOS so that only the user can read them.
+
+The authentication header is only saved when it is a command like `Bearer $(getToken.sh)`. It is not saved automatically otherwise to not by accident store secrets. To save everything anyway, set `unsafe_save_auth_header = true` in the `[history]` section.
 
 ## Neovim Integration
 

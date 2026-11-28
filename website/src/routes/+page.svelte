@@ -176,6 +176,10 @@ autosave = true
 # Optional. History is enabled by default.
 disabled = false
 
+# Optional. Saves pasted tokens to the history. Commands like
+# 'Bearer $(getToken.sh)' are always saved. Defaults to false.
+unsafe_save_auth_header = false
+
 [logging]
 # Optional. Defaults to $WIREMAN_CONFIG_DIR.
 directory = '$WIREMAN_CONFIG_DIR'
